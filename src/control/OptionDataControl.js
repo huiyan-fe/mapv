@@ -10,7 +10,7 @@ function OptionalData(superObj) {
     this.drawType = options.drawType;
     this.super = superObj;
     // init options
-    this.options = options.drawOptions;
+    this.options = options.drawOptions || {};
 
     // init css
     this.initCSS();
@@ -58,12 +58,14 @@ OptionalData.prototype.initDom = function () {
 /**
  * init the controller to box
  */
-OptionalData.prototype.initController = function (drawType) {
+OptionalData.prototype.initController = function (layer, drawType) {
+    this._layer = layer;
+
     var self = this;
     var options;
 
     if (drawType) {
-        var drawer = self.super._getDrawer(drawType);
+        var drawer = layer._getDrawer(drawType);
         options = self.options = drawer.getDrawOptions();
         self.drawType = drawType;
     } else {
@@ -188,9 +190,9 @@ OptionalData.prototype.bindEvent = function () {
             }
         }
 
-        var drawer = self.super._getDrawer(self.drawType);
+        var drawer = self._layer._getDrawer(self.drawType);
         drawer.setDrawOptions(self.options);
-        self.super.layer.draw();
+        self._layer.draw();
     };
 
     this.resetBtn.onclick = function () {
@@ -199,10 +201,11 @@ OptionalData.prototype.bindEvent = function () {
             var oldVal = self.options.editable[i]._oldVal;
             self.options[name] = oldVal;
         }
-        var drawer = self.super._getDrawer(self.drawType);
+        var drawer = this._layer._getDrawer(self.drawType);
         drawer.setDrawOptions(self.options);
-        self.super.layer.draw();
+        this._layer.draw();
         self.initController();
         // console.log('reset', self.options);
     };
 };
+

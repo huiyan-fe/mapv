@@ -10,13 +10,17 @@
  * @param {Object}
  */
 function Mapv(options) {
+
+    Class.call(this);
+
+    this._layers = [];
+
     this._initOptions(options);
     this._initDrawScale();
     this._initDataRange();
     this._initGeodata();
 
     // this._initDrawer();
-    this._initLayer();
     this._initDrawTypeControl();
     this._initOptionDataControl();
     this.setOptions(options);
@@ -25,6 +29,8 @@ function Mapv(options) {
     // console.log('???', this.geoData);
     new DataControl(this);
 }
+
+util.inherits(Mapv, Class);
 
 Mapv.prototype._initDrawScale = function () {
     this.Scale = new DrawScale();
@@ -44,21 +50,12 @@ Mapv.prototype._initOptionDataControl = function () {
  */
 Mapv.prototype.setOptions = function (options, wipe) {
     util.extend(this.options, options);
-
-    var drawer = this._getDrawer(this.options.drawType);
-    drawer.setDrawOptions(this.options.drawOptions[this.options.drawType]);
+    return;
 
     if (options.data !== undefined) {
         this.geoData.setData(options.data);
     }
     this.layer.draw();
-
-    if (drawer.drawDataRange) {
-        this.options.map.addControl(this._dataRangeCtrol);
-        drawer.drawDataRange(this._dataRangeCtrol.getContainer());
-    } else {
-        this.options.map.removeControl(this._dataRangeCtrol);
-    }
 
     if (drawer.scale) {
         drawer.scale(this.Scale);
@@ -67,7 +64,6 @@ Mapv.prototype.setOptions = function (options, wipe) {
         this.Scale.hide();
     }
 
-    this.OptionalData && this.OptionalData.initController(this.options.drawType);
     // drawer.drawMap(this, this.ctx, this.options.data);
 };
 
@@ -85,20 +81,6 @@ Mapv.prototype._initOptions = function (options) {
     options = options || {};
 
     this.options = util.extend(defaultOptions, options);
-};
-
-/**
- * 初始化图层
- */
-Mapv.prototype._initLayer = function () {
-    var that = this;
-
-    this.layer = new Layer(this.options.map, this, function (ctx) {
-        // console.log('_initLayer')
-        var drawType = that.options.drawType || 'simple';
-        that.ctx = ctx;
-        that._getDrawer(drawType).drawMap(that, ctx, that.options.data);
-    });
 };
 
 Mapv.prototype._initGeodata = function () {
@@ -119,28 +101,6 @@ Mapv.prototype._initDrawTypeControl = function () {
         mapv: this
     });
     this.options.map.addControl(this._drawTypeControl);
-};
-
-Mapv.prototype._getDrawer = function (drawType) {
-
-    if (!this._drawer) {
-        this._initDrawer();
-    }
-
-    if (!this._drawer[drawType]) {
-        var funcName = drawType.replace(/(\w)/, function (v) {
-            return v.toUpperCase();
-        });
-        funcName += 'Drawer';
-        var drawer = this._drawer[drawType] = eval('(new ' + funcName + '(this))');
-        if (drawer.scale) {
-            drawer.scale(this.Scale);
-            this.Scale.show();
-        } else {
-            this.Scale.hide();
-        }
-    }
-    return this._drawer[drawType];
 };
 
 Mapv.prototype.getMap = function () {

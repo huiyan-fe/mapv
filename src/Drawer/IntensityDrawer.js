@@ -31,7 +31,7 @@ IntensityDrawer.prototype.drawMap = function (mapv, ctx) {
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    var data = mapv.geoData.getData();
+    var data = this._layer.getData();
     var drawOptions = this.drawOptions;
     ctx.strokeStyle = drawOptions.strokeStyle;
 

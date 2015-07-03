@@ -4,10 +4,15 @@
 
 /* globals util */
 
-function Drawer(mapv) {
-    this.mapv = mapv;
+function Drawer(layer) {
+    Class.call(this);
+
+    this._layer = layer;
+    this.mapv = layer._mapv;
     this.drawOptions = {};
 }
+
+util.inherits(Drawer, Class);
 
 Drawer.prototype.defaultDrawOptions = {
     radius: 2
@@ -54,7 +59,7 @@ Drawer.prototype.colors = [
 ];
 
 Drawer.prototype.generalSplitList = function () {
-    var dataRange = this.mapv.geoData.getDataRange();
+    var dataRange = this._layer.getDataRange();
     var splitNum = Math.ceil((dataRange.max - dataRange.min) / 7);
     var index = dataRange.min;
     this.splitList = [];

@@ -12,7 +12,7 @@ util.inherits(ChoroplethDrawer, Drawer);
 
 ChoroplethDrawer.prototype.drawMap = function (mapv, ctx) {
 
-    var data = mapv.geoData.getData();
+    var data = this._layer.getData();
 
     var drawOptions = this.drawOptions;
 

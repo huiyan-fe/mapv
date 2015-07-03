@@ -6,7 +6,7 @@
 
 // 创建Map实例
 var map = new BMap.Map('map', {
-    vectorMapLevel: 3
+    //vectorMapLevel: 3
 });
 
 var mercatorProjection = map.getMapType().getProjection();
@@ -306,12 +306,17 @@ $.ajax({
                 count: tmp[2]
             });
         }
+
         var options = {
-            map: map,
-            data: data,
-            drawType: 'heatmap',
-            drawOptions: drawOptions
+            map: map
         };
         mapv = new Mapv(options);
+        
+        var layer = new Mapv.Layer({
+            data: data,
+            drawType: 'simple',
+            drawOptions: drawOptions
+        });
+        mapv.addLayer(layer);
     }
 });

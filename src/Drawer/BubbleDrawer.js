@@ -12,7 +12,7 @@ util.inherits(BubbleDrawer, Drawer);
 
 BubbleDrawer.prototype.drawMap = function (mapv, ctx) {
 
-    var data = mapv.geoData.getData();
+    var data = this._layer.getData();
 
     ctx.save();
 

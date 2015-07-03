@@ -19,7 +19,7 @@ ClusterDrawer.prototype.drawMap = function (mapv, ctx) {
     window.console.time('computerMapData');
     // TODO: ser workder
     max = min = undefined;
-    var data = mapv.geoData.getData();
+    var data = this._layer.getData();
 
     var map = mapv.getMap();
     var zoom = map.getZoom();
@@ -34,6 +34,7 @@ ClusterDrawer.prototype.drawMap = function (mapv, ctx) {
     var gridWidth = param.gridWidth;
     var fillColors = param.colors;
 
+    var mercatorProjection = map.getMapType().getProjection();
     var mcCenter = mercatorProjection.lngLatToPoint(map.getCenter());
     var nwMcX = mcCenter.x - (map.getSize().width / 2) * zoomUnit;
     var nwMc = new BMap.Pixel(nwMcX, mcCenter.y + (map.getSize().height / 2) * zoomUnit);

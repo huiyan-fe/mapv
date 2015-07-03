@@ -23,7 +23,7 @@ HeatmapDrawer.prototype.drawMap = function (mapv, ctx) {
     this._map = map;
     this._width = ctx.canvas.width;
     this._height = ctx.canvas.height;
-    var data = mapv.geoData.getData();
+    var data = this._layer.getData();
     // var drawOptions = this.drawOptions;
     this._data = data;
     this.drawHeatmap();

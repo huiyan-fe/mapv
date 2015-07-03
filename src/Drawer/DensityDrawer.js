@@ -40,7 +40,7 @@ DensityDrawer.prototype.drawMap = function (mapv, ctx) {
 
     // TODO: ser workder
     max = min = undefined;
-    var data = mapv.geoData.getData();
+    var data = this._layer.getData();
 
     var map = mapv.getMap();
     var zoom = map.getZoom();

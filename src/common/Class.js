@@ -67,3 +67,7 @@ Class.prototype.dispatchEvent = function (type, options) {
     return this;
     
 }
+
+Class.prototype.dispose = function () {
+}
+
