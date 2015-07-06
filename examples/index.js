@@ -6,11 +6,7 @@
 
 // 创建Map实例
 var map = new BMap.Map('map', {
-<<<<<<< HEAD
-    vectorMapLevel: 3
-=======
     //vectorMapLevel: 3
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
 });
 
 var mercatorProjection = map.getMapType().getProjection();
@@ -235,11 +231,16 @@ var drawOptions = {
     density: {
         gridWidth: '30',
         gridUnit: 'px',
+        gridType: 'honeycomb',
         showNum: true,
         editable: ['gridWidth', {
             name: 'gridUnit',
             type: 'option',
             value: ['px', 'm']
+        }, {
+            name: 'gridType',
+            type: 'option',
+            value: ['honeycomb', 'brick']
         }, {
             name: 'showNum',
             type: 'check'
@@ -298,7 +299,7 @@ var drawOptions = {
 };
 
 $.ajax({
-    url: 'data/beijing',
+    url: 'data/beijing.json',
     dataType: 'JSON',
     success: function (rs) {
         var data = [];
@@ -310,27 +311,19 @@ $.ajax({
                 count: tmp[2]
             });
         }
-<<<<<<< HEAD
-        var options = {
-            map: map,
-            data: data,
-            drawType: 'heatmap',
-            drawOptions: drawOptions
-        };
-        mapv = new Mapv(options);
-=======
+
 
         var options = {
             map: map
         };
         mapv = new Mapv(options);
-        
+
         var layer = new Mapv.Layer({
             data: data,
             drawType: 'simple',
             drawOptions: drawOptions
         });
         mapv.addLayer(layer);
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
+
     }
 });

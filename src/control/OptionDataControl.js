@@ -10,11 +10,9 @@ function OptionalData(superObj) {
     this.drawType = options.drawType;
     this.super = superObj;
     // init options
-<<<<<<< HEAD
-    this.options = options.drawOptions;
-=======
+
     this.options = options.drawOptions || {};
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
+
 
     // init css
     this.initCSS();
@@ -62,22 +60,14 @@ OptionalData.prototype.initDom = function () {
 /**
  * init the controller to box
  */
-<<<<<<< HEAD
-OptionalData.prototype.initController = function (drawType) {
-=======
+
 OptionalData.prototype.initController = function (layer, drawType) {
     this._layer = layer;
-
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
     var self = this;
     var options;
 
     if (drawType) {
-<<<<<<< HEAD
-        var drawer = self.super._getDrawer(drawType);
-=======
         var drawer = layer._getDrawer(drawType);
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
         options = self.options = drawer.getDrawOptions();
         self.drawType = drawType;
     } else {
@@ -101,11 +91,7 @@ OptionalData.prototype.initController = function (layer, drawType) {
         if (typeof (tag) === 'string') {
             tag = {
                 name: tag,
-<<<<<<< HEAD
                 type: 'text'
-=======
-                type: 'value'
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
             };
             editTag[i] = tag;
         }
@@ -129,19 +115,12 @@ OptionalData.prototype.initController = function (layer, drawType) {
         // if type equal value , show normal inoput
         // if type equal option , show checkboxk
         var optionBox;
-<<<<<<< HEAD
         if (tag.type === 'text' || tag.type === 'color') {
-=======
-        if (tag.type === 'value') {
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
             optionBox = document.createElement('label');
             var input = document.createElement('input');
             input.name = tag.name;
             input.value = options[tag.name];
-<<<<<<< HEAD
             input.type = tag.type;
-=======
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
             optionBox.appendChild(input);
         } else if (tag.type === 'option') {
             optionBox = document.createElement('span');
@@ -214,15 +193,9 @@ OptionalData.prototype.bindEvent = function () {
             }
         }
 
-<<<<<<< HEAD
-        var drawer = self.super._getDrawer(self.drawType);
-        drawer.setDrawOptions(self.options);
-        self.super.layer.draw();
-=======
         var drawer = self._layer._getDrawer(self.drawType);
         drawer.setDrawOptions(self.options);
         self._layer.draw();
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
     };
 
     this.resetBtn.onclick = function () {
@@ -231,20 +204,10 @@ OptionalData.prototype.bindEvent = function () {
             var oldVal = self.options.editable[i]._oldVal;
             self.options[name] = oldVal;
         }
-<<<<<<< HEAD
-        var drawer = self.super._getDrawer(self.drawType);
-        drawer.setDrawOptions(self.options);
-        self.super.layer.draw();
-=======
         var drawer = this._layer._getDrawer(self.drawType);
         drawer.setDrawOptions(self.options);
         this._layer.draw();
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
         self.initController();
         // console.log('reset', self.options);
     };
 };
-<<<<<<< HEAD
-=======
-
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3

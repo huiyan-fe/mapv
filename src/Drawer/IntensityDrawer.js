@@ -31,11 +31,8 @@ IntensityDrawer.prototype.drawMap = function (mapv, ctx) {
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-<<<<<<< HEAD
-    var data = mapv.geoData.getData();
-=======
+
     var data = this._layer.getData();
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
     var drawOptions = this.drawOptions;
     ctx.strokeStyle = drawOptions.strokeStyle;
 
@@ -70,12 +67,8 @@ IntensityDrawer.prototype.drawMap = function (mapv, ctx) {
 
     this.Scale.set({
         min: 0,
-<<<<<<< HEAD
         max: self.getMax(),
         colors: 'default'
-=======
-        max: self.getMax()
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
     });
 };
 

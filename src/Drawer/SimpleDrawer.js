@@ -11,12 +11,7 @@ function SimpleDrawer() {
 util.inherits(SimpleDrawer, Drawer);
 
 SimpleDrawer.prototype.drawMap = function (mapv, ctx) {
-<<<<<<< HEAD
-    var data = mapv.geoData.getData();
-=======
-
     var data = this._layer.getData();
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
 
     var drawOptions = this.drawOptions;
 

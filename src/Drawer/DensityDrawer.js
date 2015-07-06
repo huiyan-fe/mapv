@@ -8,10 +8,6 @@
 var min;
 var max;
 
-<<<<<<< HEAD
-=======
-
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
 function DensityDrawer() {
     this.Scale;
     this.masker = {};
@@ -32,52 +28,33 @@ DensityDrawer.prototype.scale = function (scale) {
 
         self.ctx.clearRect(0, 0, self.ctx.canvas.width, self.ctx.canvas.height);
         self.drawMap();
-<<<<<<< HEAD
-=======
-        // window.console.log(min, max);
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
     });
     this.Scale = scale;
 };
 
 DensityDrawer.prototype.drawMap = function (mapv, ctx) {
-<<<<<<< HEAD
+
     var self = this;
     mapv = this.mapv = this.mapv || mapv;
     ctx = this.ctx = this.ctx || ctx;
 
     // TODO: use workder
-    var data = mapv.geoData.getData();
-=======
-    mapv = this.mapv = this.mapv || mapv;
-    ctx = this.ctx = this.ctx || ctx;
-
-    // TODO: ser workder
-    max = min = undefined;
+    // var data = mapv.geoData.getData();
     var data = this._layer.getData();
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
 
     var map = mapv.getMap();
     var zoom = map.getZoom();
     var zoomUnit = this.zoomUnit = Math.pow(2, 18 - zoom);
 
-<<<<<<< HEAD
     var param = formatParam.call(this);
     var gridWidth = param.gridWidth;
-=======
-    // setMapStyle(map);
 
-    var param = formatParam.call(this);
-    var gridWidth = param.gridWidth;
-    var fillColors = param.colors;
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
 
     var mcCenter = mercatorProjection.lngLatToPoint(map.getCenter());
     var nwMcX = mcCenter.x - (map.getSize().width / 2) * zoomUnit;
     var nwMc = new BMap.Pixel(nwMcX, mcCenter.y + (map.getSize().height / 2) * zoomUnit);
     // 左上角墨卡托坐标
 
-<<<<<<< HEAD
     window.console.time('computerMapData');
     var obj = {
         data: data,
@@ -141,11 +118,6 @@ function recGrids(obj) {
 
     var startXMc = parseInt(nwMc.x / gridWidth, 10) * gridWidth;
 
-=======
-    var gridStep = gridWidth / zoomUnit;
-
-    var startXMc = parseInt(nwMc.x / gridWidth, 10) * gridWidth;
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
     var startX = (startXMc - nwMc.x) / zoomUnit;
 
     var stockXA = [];
@@ -166,10 +138,6 @@ function recGrids(obj) {
         stickYAIndex++;
     }
 
-<<<<<<< HEAD
-=======
-    var grids = {};
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
     for (var i = 0; i < stockXA.length; i++) {
         for (var j = 0; j < stockYA.length; j++) {
             var name = stockXA[i] + '_' + stockYA[j];
@@ -194,10 +162,6 @@ function recGrids(obj) {
                 for (var k = 0; k < stockYA.length; k++) {
                     var dataY = Number(stockYA[k]);
                     if ((y >= dataY) && (y < dataY + gridStep)) {
-<<<<<<< HEAD
-=======
-                        // grids[stockXA[j] + '_' + stockYA[k]] += 1;
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
                         grids[stockXA[j] + '_' + stockYA[k]] += val;
                         val = grids[stockXA[j] + '_' + stockYA[k]];
                     }
@@ -210,7 +174,7 @@ function recGrids(obj) {
         max = max < val ? val : max;
     }
 
-<<<<<<< HEAD
+
     return {
         grids: grids,
         max: max,
@@ -240,21 +204,6 @@ function drawRec(obj) {
 
         var isTooSmall = self.masker.min && (grids[i] < self.masker.min);
         var isTooBig = self.masker.max && (grids[i] > self.masker.max);
-=======
-    var step = (max - min + 1) / 10;
-    window.console.timeEnd('computerMapData');
-
-    window.console.time('drawMap');
-    for (var i in grids) {
-        var sp = i.split('_');
-        x = sp[0];
-        y = sp[1];
-        var v = (grids[i] - min) / step;
-        var color = fillColors[v | 0];
-
-        var isTooSmall = this.masker.min && (grids[i] < this.masker.min);
-        var isTooBig = this.masker.max && (grids[i] > this.masker.max);
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
         if (grids[i] === 0 || isTooSmall || isTooBig) {
             ctx.fillStyle = 'rgba(255,255,255,0.1)';
         } else {
@@ -262,26 +211,19 @@ function drawRec(obj) {
         }
         ctx.fillRect(x, y, gridStep - 1, gridStep - 1);
 
-<<<<<<< HEAD
+
         if (self.drawOptions.showNum) {
-=======
-        if (this.drawOptions.showNum) {
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
+
             ctx.save();
             // ctx.fillStyle = 'black';
             ctx.textBaseline = 'top';
             if (grids[i] !== 0 && !isTooSmall && !isTooBig) {
                 ctx.fillStyle = 'rgba(0,0,0,0.8)';
                 ctx.fillText(grids[i], x, y);
-<<<<<<< HEAD
-=======
-
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
             }
             ctx.restore();
         }
     }
-<<<<<<< HEAD
 }
 
 function honeycombGrid(obj) {
@@ -422,61 +364,7 @@ function draw(x, y, gridStep, color, ctx) {
     ctx.fill();
     ctx.closePath();
 }
-=======
-    // this.drawDataRange(mapv._dataRangeCtrol.getContainer());
-    window.console.timeEnd('drawMap');
-    // console.timeEnd('drawMap')
 
-    // console.log()
-    this.Scale && this.Scale.set({
-        max: max,
-        min: min,
-        colors: 'default'
-    });
-};
-
-// DensityDrawer.prototype.drawDataRange = function (canvas, data, drawOptions) {
-//     canvas.width = 30;
-//     canvas.height = 256;
-//     canvas.style.width = '30px';
-//     canvas.style.height = '256px';
-
-//     var ctx = canvas.getContext('2d');
-
-//     var gradient = ctx.createLinearGradient(0, 0, 0, 256);
-
-//     // canvas.width = 1;
-//     // canvas.height = 256;
-
-//     var grad = this.colorBar;
-
-//     for (var i in grad) {
-//         gradient.addColorStop(i, grad[i]);
-//     }
-
-//     ctx.fillStyle = gradient;
-//     ctx.fillRect(2, 10, 7, 236);
-
-//     // draw max and min
-//     ctx.beginPath();
-//     ctx.moveTo(10, 10);
-//     ctx.lineTo(13, 10);
-//     ctx.stroke();
-//     ctx.font = '10px sans-serif';
-//     ctx.textBaseline = 'middle';
-//     ctx.fillText(min || 0, 15, 10);
-
-//     ctx.beginPath();
-//     ctx.moveTo(10, 246);
-//     ctx.lineTo(13, 246);
-//     ctx.stroke();
-//     ctx.font = '10px sans-serif';
-//     ctx.textBaseline = 'middle';
-//     ctx.fillText(max || 0, 15, 246);
-
-//     // console.log(max, min)
-// };
->>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
 
 /**
  * format param
