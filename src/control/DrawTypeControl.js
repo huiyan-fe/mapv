@@ -38,6 +38,7 @@ DrawTypeControl.prototype.initialize = function (map) {
     //     intensity: '普通打点'
     // };
 
+<<<<<<< HEAD
     // get the drawTypes from options by Mofei
     var drawTypes = this.mapv.options.drawOptions;
 
@@ -53,6 +54,11 @@ DrawTypeControl.prototype.initialize = function (map) {
         ul.appendChild(li);
     }
 
+=======
+
+    ul.setAttribute('id', 'MapvDrawTypeControl');
+
+>>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
     var me = this;
 
     ul.addEventListener('click', function (e) {
@@ -65,9 +71,13 @@ DrawTypeControl.prototype.initialize = function (map) {
             }
             var drawType = target.getAttribute('drawType');
             target.className = 'current';
+<<<<<<< HEAD
             me.mapv.setOptions({
                 drawType: drawType
             });
+=======
+            me._layer.setDrawType(drawType);
+>>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
         }
     });
 
@@ -81,3 +91,24 @@ DrawTypeControl.prototype.initialize = function (map) {
 DrawTypeControl.prototype.getContainer = function () {
     return this.ul;
 };
+<<<<<<< HEAD
+=======
+
+DrawTypeControl.prototype.showLayer = function (layer) {
+    this._layer = layer;
+    // get the drawTypes from options by Mofei
+    var ul = this.ul;
+    ul.innerHTML = "";
+    var drawTypes = layer.options.drawOptions;
+    for (var key in drawTypes) {
+        var li = document.createElement('li');
+        if (layer.options.drawType === key) {
+            li.className = 'current';
+        }
+        li.setAttribute('drawType', key);
+        li.innerHTML = key;
+        ul.appendChild(li);
+    }
+
+}
+>>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3

@@ -4,11 +4,24 @@
 
 /* globals util */
 
+<<<<<<< HEAD
 function Drawer(mapv) {
     this.mapv = mapv;
     this.drawOptions = {};
 }
 
+=======
+function Drawer(layer) {
+    Class.call(this);
+
+    this._layer = layer;
+    this.mapv = layer._mapv;
+    this.drawOptions = {};
+}
+
+util.inherits(Drawer, Class);
+
+>>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
 Drawer.prototype.defaultDrawOptions = {
     radius: 2
 };
@@ -54,7 +67,11 @@ Drawer.prototype.colors = [
 ];
 
 Drawer.prototype.generalSplitList = function () {
+<<<<<<< HEAD
     var dataRange = this.mapv.geoData.getDataRange();
+=======
+    var dataRange = this._layer.getDataRange();
+>>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
     var splitNum = Math.ceil((dataRange.max - dataRange.min) / 7);
     var index = dataRange.min;
     this.splitList = [];

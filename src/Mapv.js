@@ -10,13 +10,24 @@
  * @param {Object}
  */
 function Mapv(options) {
+<<<<<<< HEAD
+=======
+
+    Class.call(this);
+
+    this._layers = [];
+
+>>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
     this._initOptions(options);
     this._initDrawScale();
     this._initDataRange();
     this._initGeodata();
 
     // this._initDrawer();
+<<<<<<< HEAD
     this._initLayer();
+=======
+>>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
     this._initDrawTypeControl();
     this._initOptionDataControl();
     this.setOptions(options);
@@ -26,6 +37,11 @@ function Mapv(options) {
     new DataControl(this);
 }
 
+<<<<<<< HEAD
+=======
+util.inherits(Mapv, Class);
+
+>>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
 Mapv.prototype._initDrawScale = function () {
     this.Scale = new DrawScale();
 };
@@ -44,15 +60,20 @@ Mapv.prototype._initOptionDataControl = function () {
  */
 Mapv.prototype.setOptions = function (options, wipe) {
     util.extend(this.options, options);
+<<<<<<< HEAD
 
     var drawer = this._getDrawer(this.options.drawType);
     drawer.setDrawOptions(this.options.drawOptions[this.options.drawType]);
+=======
+    return;
+>>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
 
     if (options.data !== undefined) {
         this.geoData.setData(options.data);
     }
     this.layer.draw();
 
+<<<<<<< HEAD
     if (drawer.drawDataRange) {
         this.options.map.addControl(this._dataRangeCtrol);
         drawer.drawDataRange(this._dataRangeCtrol.getContainer());
@@ -60,6 +81,8 @@ Mapv.prototype.setOptions = function (options, wipe) {
         this.options.map.removeControl(this._dataRangeCtrol);
     }
 
+=======
+>>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
     if (drawer.scale) {
         drawer.scale(this.Scale);
         this.Scale.show();
@@ -67,7 +90,10 @@ Mapv.prototype.setOptions = function (options, wipe) {
         this.Scale.hide();
     }
 
+<<<<<<< HEAD
     this.OptionalData && this.OptionalData.initController(this.options.drawType);
+=======
+>>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
     // drawer.drawMap(this, this.ctx, this.options.data);
 };
 
@@ -87,6 +113,7 @@ Mapv.prototype._initOptions = function (options) {
     this.options = util.extend(defaultOptions, options);
 };
 
+<<<<<<< HEAD
 /**
  * 初始化图层
  */
@@ -101,6 +128,8 @@ Mapv.prototype._initLayer = function () {
     });
 };
 
+=======
+>>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
 Mapv.prototype._initGeodata = function () {
     this.geoData = new GeoData(this);
 };
@@ -121,6 +150,7 @@ Mapv.prototype._initDrawTypeControl = function () {
     this.options.map.addControl(this._drawTypeControl);
 };
 
+<<<<<<< HEAD
 Mapv.prototype._getDrawer = function (drawType) {
 
     if (!this._drawer) {
@@ -143,6 +173,8 @@ Mapv.prototype._getDrawer = function (drawType) {
     return this._drawer[drawType];
 };
 
+=======
+>>>>>>> bc51f417d86bd5e698effebedbdf4cfcfb5cadf3
 Mapv.prototype.getMap = function () {
     return this.options.map;
 };
