@@ -78,6 +78,15 @@ util.extend(Layer.prototype, {
         } else {
             map.removeControl(mapv._dataRangeCtrol);
         }
+
+        // for drawer scale
+        if(drawer.scale) {
+            drawer.scale(mapv.Scale);
+            mapv.Scale.show();
+        } else {
+            mapv.Scale.hide();
+        }
+
         mapv._drawTypeControl.showLayer(this);
         this._mapv.OptionalData && this._mapv.OptionalData.initController(this, this.options.drawType);
     },
@@ -170,4 +179,3 @@ util.extend(Mapv.prototype, {
         }
     }
 });
-

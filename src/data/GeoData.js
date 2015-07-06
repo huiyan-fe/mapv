@@ -16,7 +16,6 @@ function GeoData(superObj) {
  * 重新计算相对于当前屏幕左上角的像素坐标
  */
 GeoData.prototype.calculatePixel = function () {
-
     // 墨卡托坐标计算方法
     var zoom = map.getZoom();
     var zoomUnit = Math.pow(2, 18 - zoom);

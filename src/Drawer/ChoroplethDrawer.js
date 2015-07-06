@@ -14,6 +14,7 @@ ChoroplethDrawer.prototype.drawMap = function (mapv, ctx) {
 
     var data = this._layer.getData();
 
+
     var drawOptions = this.drawOptions;
 
     ctx.strokeStyle = drawOptions.strokeStyle;
@@ -68,6 +69,6 @@ ChoroplethDrawer.prototype.getColor = function (val) {
             break;
         }
     }
-    
+
     return color;
 };

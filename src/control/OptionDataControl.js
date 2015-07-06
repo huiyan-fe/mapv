@@ -10,7 +10,9 @@ function OptionalData(superObj) {
     this.drawType = options.drawType;
     this.super = superObj;
     // init options
+
     this.options = options.drawOptions || {};
+
 
     // init css
     this.initCSS();
@@ -58,9 +60,9 @@ OptionalData.prototype.initDom = function () {
 /**
  * init the controller to box
  */
+
 OptionalData.prototype.initController = function (layer, drawType) {
     this._layer = layer;
-
     var self = this;
     var options;
 
@@ -89,7 +91,7 @@ OptionalData.prototype.initController = function (layer, drawType) {
         if (typeof (tag) === 'string') {
             tag = {
                 name: tag,
-                type: 'value'
+                type: 'text'
             };
             editTag[i] = tag;
         }
@@ -113,11 +115,12 @@ OptionalData.prototype.initController = function (layer, drawType) {
         // if type equal value , show normal inoput
         // if type equal option , show checkboxk
         var optionBox;
-        if (tag.type === 'value') {
+        if (tag.type === 'text' || tag.type === 'color') {
             optionBox = document.createElement('label');
             var input = document.createElement('input');
             input.name = tag.name;
             input.value = options[tag.name];
+            input.type = tag.type;
             optionBox.appendChild(input);
         } else if (tag.type === 'option') {
             optionBox = document.createElement('span');
@@ -208,4 +211,3 @@ OptionalData.prototype.bindEvent = function () {
         // console.log('reset', self.options);
     };
 };
-

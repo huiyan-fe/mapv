@@ -53,7 +53,9 @@ DrawTypeControl.prototype.initialize = function (map) {
             }
             var drawType = target.getAttribute('drawType');
             target.className = 'current';
+
             me._layer.setDrawType(drawType);
+
         }
     });
 

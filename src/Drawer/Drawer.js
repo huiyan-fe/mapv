@@ -14,6 +14,7 @@ function Drawer(layer) {
 
 util.inherits(Drawer, Class);
 
+
 Drawer.prototype.defaultDrawOptions = {
     radius: 2
 };

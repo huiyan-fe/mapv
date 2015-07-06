@@ -31,6 +31,7 @@ IntensityDrawer.prototype.drawMap = function (mapv, ctx) {
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
+
     var data = this._layer.getData();
     var drawOptions = this.drawOptions;
     ctx.strokeStyle = drawOptions.strokeStyle;
@@ -66,7 +67,8 @@ IntensityDrawer.prototype.drawMap = function (mapv, ctx) {
 
     this.Scale.set({
         min: 0,
-        max: self.getMax()
+        max: self.getMax(),
+        colors: 'default'
     });
 };
 
