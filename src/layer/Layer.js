@@ -8,6 +8,12 @@ function Layer (options) {
 
     this.ctx = null;
     this._drawer = {};
+
+    this.options = {
+        drawType: 'simple',
+        data: []
+    };
+
     util.extend(this.options, options);
     this.setData(this.options.data);
 }
@@ -15,11 +21,6 @@ function Layer (options) {
 util.inherits(Layer, Class);
 
 util.extend(Layer.prototype, {
-    options: {
-        drawType: 'simple',
-        data: []
-    },
-
     initialize: function () {
         if (this.mapMask) {
             return;
@@ -27,6 +28,7 @@ util.extend(Layer.prototype, {
 
         this.mapMask = new MapMask({
             map: this._mapv.getMap(),
+            zIndex: this.options.zIndex,
             elementTag: "canvas"
         });
 

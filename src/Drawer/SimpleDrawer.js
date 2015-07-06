@@ -18,6 +18,7 @@ SimpleDrawer.prototype.drawMap = function (mapv, ctx) {
 
     ctx.fillStyle = drawOptions.fillStyle || "rgba(50, 50, 200, 0.8)";
     ctx.strokeStyle = drawOptions.strokeStyle;
+    ctx.lineWidth = drawOptions.lineWidth || 1;
 
     ctx.beginPath();
 
@@ -33,7 +34,7 @@ SimpleDrawer.prototype.drawMap = function (mapv, ctx) {
             continue;
         }
         ctx.moveTo(item.px, item.py);
-        ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI);
+        ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
     }
 
     if (drawOptions.strokeStyle) {

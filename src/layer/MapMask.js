@@ -30,6 +30,11 @@ MapMask.prototype.initialize = function(map){
                             + "top:0;"
                             + "width:" + size.width + "px;"
                             + "height:" + size.height + "px";
+
+    if (this.options.zIndex !== undefined) {
+        element.style.zIndex = this.options.zIndex;
+    }
+
     map.getPanes().labelPane.appendChild(this.element);
     return this.element;
 }

@@ -7,6 +7,8 @@ function Class () {
     this.__listeners = {}; // 存储自定义事件对象
 }
 
+util.inherits(Class, MVCObject);
+
 /**
  * 注册对象的事件监听器
  * @grammar obj.addEventListener(type, handler[, key])

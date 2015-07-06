@@ -12,7 +12,9 @@ module.exports = function(grunt) {
             dist: {
                 src: [
                     "src/start.js",
-                    "src/common/*.js",
+                    "src/common/util.js",
+                    "src/common/MVCObject.js",
+                    "src/common/Class.js",
                     "src/Mapv.js",
                     "src/layer/*.js",
                     "src/data/*.js",

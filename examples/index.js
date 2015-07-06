@@ -6,6 +6,7 @@
 
 // 创建Map实例
 var map = new BMap.Map('map', {
+    enableMapClick: false
     //vectorMapLevel: 3
 });
 
@@ -311,12 +312,45 @@ $.ajax({
             map: map
         };
         mapv = new Mapv(options);
+
+        var layer = new Mapv.Layer({
+            zIndex: 2,
+            data: [{
+                lng: 116.39507,
+                lat: 39.929101
+            },
+            {
+                lng: 116.49507,
+                lat: 39.889101
+            },
+            {
+                lng: 116.46507,
+                lat: 39.929101
+            },
+            {
+                lng: 116.43507,
+                lat: 39.909101
+            }
+            ],
+            drawType: 'simple',
+            drawOptions: {
+                simple: {
+                    fillStyle: "rgba(255, 255, 0, 1)",
+                    strokeStyle: "rgba(255, 0, 0, 1)",
+                    lineWidth: 10,
+                    radius: 20
+                }
+            }
+        });
+        mapv.addLayer(layer);
         
         var layer = new Mapv.Layer({
+            zIndex: 1,
             data: data,
-            drawType: 'simple',
+            drawType: 'heatmap',
             drawOptions: drawOptions
         });
         mapv.addLayer(layer);
+
     }
 });
