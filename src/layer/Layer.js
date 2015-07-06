@@ -27,7 +27,7 @@ util.extend(Layer.prototype, {
         }
 
         this.mapMask = new MapMask({
-            map: this._mapv.getMap(),
+            map: this._mapv.get('map'),
             zIndex: this.options.zIndex,
             elementTag: "canvas"
         });
@@ -52,7 +52,7 @@ util.extend(Layer.prototype, {
 
     _layerAdd: function (mapv) {
         this._mapv = mapv;
-        var map = this._mapv.getMap();
+        var map = this._mapv.get('map');
         this.initialize();
         this.updateControl();
 
@@ -73,10 +73,10 @@ util.extend(Layer.prototype, {
         var mapv = this._mapv;
         var drawer = this._getDrawer();
         if (drawer.drawDataRange) {
-            map.addControl(mapv._dataRangeCtrol);
-            drawer.drawDataRange(mapv._dataRangeCtrol.getContainer());
+            map.addControl(mapv.get('dataRangeCtrol'));
+            drawer.drawDataRange(mapv.get('dataRangeCtrol').getContainer());
         } else {
-            map.removeControl(mapv._dataRangeCtrol);
+            map.removeControl(mapv.get('dataRangeCtrol'));
         }
 
         // for drawer scale
@@ -112,7 +112,7 @@ util.extend(Layer.prototype, {
     },
 
     _calculatePixel: function () {
-        var map = this._mapv.getMap();
+        var map = this._mapv.get('map');
         var mercatorProjection = map.getMapType().getProjection();
         // 墨卡托坐标计算方法
         var zoom = map.getZoom();
@@ -126,7 +126,7 @@ util.extend(Layer.prototype, {
         for (var j = 0; j < data.length; j++) {
 
             if (data[j].lng && data[j].lat) {
-                var pixel = this._mapv.getMap().pointToPixel(new BMap.Point(data[j].lng, data[j].lat));
+                var pixel = this._mapv.get('map').pointToPixel(new BMap.Point(data[j].lng, data[j].lat));
                 data[j].px = pixel.x;
                 data[j].py = pixel.y;
             }

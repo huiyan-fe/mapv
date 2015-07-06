@@ -71,7 +71,6 @@
     <strong>注意：如果要继承构造函数，需要在subClass里面call一下，具体见下面的demo例子</strong>
      * @shortcut inherits
      * @meta standard
-     * @see baidu.lang.Class
      */
     inherits: function (subClass, superClass) {
         var key;
@@ -294,6 +293,8 @@
             return self;
         };
 
+        proto.setOptions = proto.setValues;
+
         /**
          * @description 将当前对象的一个key与目标对象的targetKey建立监听和广播关系
          * @param key {String} 当前对象上的key
@@ -438,86 +439,36 @@ Class.prototype.dispose = function () {
  */
 function Mapv(options) {
     Class.call(this);
+    this.setOptions(options);
     this._layers = [];
-    this._initOptions(options);
     this._initDrawScale();
     this._initDataRange();
-    this._initGeodata();
-    // this._initDrawer();
-    // this._initLayer();
     this._initDrawTypeControl();
     this._initOptionDataControl();
-    this.setOptions(options);
 
     new DataControl(this);
 }
+
 util.inherits(Mapv, Class);
+
 Mapv.prototype._initDrawScale = function () {
     this.Scale = new DrawScale();
 };
+
 Mapv.prototype._initOptionDataControl = function () {
     this.OptionalData = new OptionalData(this);
 };
-/**
- * reset the options
- * @param {Object} options the option
- * @param {Object} wipe    if you want wipe some data user this
- *                         if the value is true , the data of the key will wiped
- *                         forexample {drawOptions:true,map:false}
- *                             will wipe the drawOtions,while the map is false , it'll keeped
- */
-Mapv.prototype.setOptions = function (options, wipe) {
-    util.extend(this.options, options);
-    // console.log('@@@@@@',this.drawer.scale)
-    return;
-    if(options.data !== undefined) {
-        this.geoData.setData(options.data);
-    }
-    this.layer.draw();
 
-    if(drawer.scale) {
-        drawer.scale(this.Scale);
-        this.Scale.show();
-    } else {
-        this.Scale.hide();
-    }
-    // drawer.drawMap(this, this.ctx, this.options.data);
-};
-/**
- * @param {}
- * 初始化参数
- */
-Mapv.prototype._initOptions = function (options) {
-    var defaultOptions = {
-        drawType: 'simple'
-    };
-    options = options || {};
-    this.options = util.extend(defaultOptions, options);
-};
-Mapv.prototype._initGeodata = function () {
-    this.geoData = new GeoData(this);
-};
 Mapv.prototype._initDataRange = function () {
-    this._dataRangeCtrol = new DataRangeControl();
-    this.options.map.addControl(this._dataRangeCtrol);
+    this.set('dataRangeCtrol', new DataRangeControl()); 
+    this.get('map').addControl(this.get('dataRangeCtrol'));
 }
-Mapv.prototype._initDrawer = function () {
-    this._drawer = {};
-}
+
 Mapv.prototype._initDrawTypeControl = function () {
     this._drawTypeControl = new DrawTypeControl({
         mapv: this
     });
-    this.options.map.addControl(this._drawTypeControl);
-};
-Mapv.prototype.getMap = function () {
-    return this.options.map;
-};
-Mapv.prototype.getDataRangeCtrol = function () {
-    return this._dataRangeCtrol;
-};
-Mapv.prototype.getOptions = function () {
-    return this.options;
+    this.get("map").addControl(this._drawTypeControl);
 };
 ;function Layer (options) {
 
@@ -544,7 +495,7 @@ util.extend(Layer.prototype, {
         }
 
         this.mapMask = new MapMask({
-            map: this._mapv.getMap(),
+            map: this._mapv.get('map'),
             zIndex: this.options.zIndex,
             elementTag: "canvas"
         });
@@ -569,7 +520,7 @@ util.extend(Layer.prototype, {
 
     _layerAdd: function (mapv) {
         this._mapv = mapv;
-        var map = this._mapv.getMap();
+        var map = this._mapv.get('map');
         this.initialize();
         this.updateControl();
 
@@ -590,10 +541,10 @@ util.extend(Layer.prototype, {
         var mapv = this._mapv;
         var drawer = this._getDrawer();
         if (drawer.drawDataRange) {
-            map.addControl(mapv._dataRangeCtrol);
-            drawer.drawDataRange(mapv._dataRangeCtrol.getContainer());
+            map.addControl(mapv.get('dataRangeCtrol'));
+            drawer.drawDataRange(mapv.get('dataRangeCtrol').getContainer());
         } else {
-            map.removeControl(mapv._dataRangeCtrol);
+            map.removeControl(mapv.get('dataRangeCtrol'));
         }
 
         // for drawer scale
@@ -629,7 +580,7 @@ util.extend(Layer.prototype, {
     },
 
     _calculatePixel: function () {
-        var map = this._mapv.getMap();
+        var map = this._mapv.get('map');
         var mercatorProjection = map.getMapType().getProjection();
         // 墨卡托坐标计算方法
         var zoom = map.getZoom();
@@ -643,7 +594,7 @@ util.extend(Layer.prototype, {
         for (var j = 0; j < data.length; j++) {
 
             if (data[j].lng && data[j].lat) {
-                var pixel = this._mapv.getMap().pointToPixel(new BMap.Point(data[j].lng, data[j].lat));
+                var pixel = this._mapv.get('map').pointToPixel(new BMap.Point(data[j].lng, data[j].lat));
                 data[j].px = pixel.x;
                 data[j].py = pixel.y;
             }
@@ -751,85 +702,6 @@ MapMask.prototype.hide = function(){
     this._map.removeOverlay(this);
 }
 
-;/* globals BMap map mercatorProjection*/
-
-function GeoData(superObj) {
-    var map = superObj.options.map;
-    var data = superObj.options.data;
-    this.super = superObj;
-    this.setData(data);
-    this.map = map;
-}
-
-/**
- * 重新计算相对于当前屏幕左上角的像素坐标
- */
-GeoData.prototype.calculatePixel = function () {
-    // 墨卡托坐标计算方法
-    var zoom = map.getZoom();
-    var zoomUnit = Math.pow(2, 18 - zoom);
-    var mcCenter = mercatorProjection.lngLatToPoint(map.getCenter());
-    var nwMc = new BMap.Pixel(mcCenter.x - (map.getSize().width / 2) * zoomUnit,
-        mcCenter.y + (map.getSize().height / 2) * zoomUnit); //左上角墨卡托坐标
-
-    var data = this.data;
-
-    // data = [{
-    //     count: 100,
-    //     x: 12958157.19,
-    //     y: 4825935.04
-    // }]
-
-    for (var j = 0; j < data.length; j++) {
-
-        if (data[j].lng && data[j].lat) {
-            var pixel = this.map.pointToPixel(new BMap.Point(data[j].lng, data[j].lat));
-            data[j].px = pixel.x;
-            data[j].py = pixel.y;
-        }
-
-        if (data[j].x && data[j].y) {
-
-            data[j].px = (data[j].x - nwMc.x) / zoomUnit;
-            data[j].py = (nwMc.y - data[j].y) / zoomUnit;
-
-        }
-
-        // console.log(data[j])
-
-        // if (j >= 5) {
-        // break;
-        // }
-    }
-};
-
-
-GeoData.prototype.getData = function () {
-    return this.data;
-};
-
-GeoData.prototype.setData = function (data) {
-    // console.log('GGGG',data)
-    if (!data) {
-        this.data = [];
-        return;
-    }
-
-    this._min = data[0].count;
-    this._max = data[0].count;
-    for (var i = 0; i < data.length; i++) {
-        this._max = Math.max(this._max, data[i].count);
-        this._min = Math.min(this._min, data[i].count);
-    }
-    this.data = data;
-};
-
-GeoData.prototype.getDataRange = function () {
-    return {
-        min: this._min,
-        max: this._max
-    };
-};
 ;function DataControl(superObj) {
     this.initDom();
     this.initEvent();
@@ -1440,7 +1312,7 @@ DrawTypeControl.prototype.showLayer = function (layer) {
 
 function OptionalData(superObj) {
     // set params
-    var options = superObj.options;
+    var options = superObj.options || {};
     this.drawType = options.drawType;
     this.super = superObj;
     // init options
@@ -1779,7 +1651,7 @@ BubbleDrawer.prototype.getRadius = function (val) {
 };
 
 BubbleDrawer.prototype.drawDataRange = function () {
-    var canvas = this.mapv.getDataRangeCtrol().getContainer();
+    var canvas = this.mapv.get("dataRangeCtrol").getContainer();
     canvas.width = 100;
     canvas.height = 190;
     canvas.style.width = '100px';
@@ -1846,7 +1718,7 @@ CategoryDrawer.prototype.generalSplitList = function () {
 };
 
 CategoryDrawer.prototype.drawDataRange = function () {
-    var canvas = this.mapv.getDataRangeCtrol().getContainer();
+    var canvas = this.mapv.get("dataRangeCtrol").getContainer();
     canvas.width = 80;
     canvas.height = 190;
     canvas.style.width = "80px";
@@ -1917,7 +1789,7 @@ ChoroplethDrawer.prototype.drawMap = function (mapv, ctx) {
 };
 
 ChoroplethDrawer.prototype.drawDataRange = function () {
-    var canvas = this.mapv.getDataRangeCtrol().getContainer();
+    var canvas = this.mapv.get("dataRangeCtrol").getContainer();
     var drawOptions = this.drawOptions;
     canvas.width = 100;
     canvas.height = 190;
@@ -1974,7 +1846,7 @@ ClusterDrawer.prototype.drawMap = function (mapv, ctx) {
     var data = this._layer.getData();
     console.log(data)
 
-    var map = mapv.getMap();
+    var map = mapv.get('map');
     var zoom = map.getZoom();
     var zoomUnit = this.zoomUnit = Math.pow(2, 18 - zoom);
 
@@ -2192,7 +2064,7 @@ DensityDrawer.prototype.drawMap = function (mapv, ctx) {
     // var data = mapv.geoData.getData();
     var data = this._layer.getData();
 
-    var map = mapv.getMap();
+    var map = mapv.get('map');
     var zoom = map.getZoom();
     var zoomUnit = this.zoomUnit = Math.pow(2, 18 - zoom);
 
@@ -2886,7 +2758,7 @@ IntensityDrawer.prototype.scale = function (scale) {
 };
 
 IntensityDrawer.prototype.getMax = function () {
-    var dataRange = this.mapv.geoData.getDataRange();
+    var dataRange = this._layer.getDataRange();
     var max = dataRange.max;
 
     if (this.drawOptions.max) {

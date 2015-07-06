@@ -42,7 +42,7 @@ DensityDrawer.prototype.drawMap = function (mapv, ctx) {
     // var data = mapv.geoData.getData();
     var data = this._layer.getData();
 
-    var map = mapv.getMap();
+    var map = mapv.get('map');
     var zoom = map.getZoom();
     var zoomUnit = this.zoomUnit = Math.pow(2, 18 - zoom);
 

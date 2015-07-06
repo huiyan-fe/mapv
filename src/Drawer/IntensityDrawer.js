@@ -87,7 +87,7 @@ IntensityDrawer.prototype.scale = function (scale) {
 };
 
 IntensityDrawer.prototype.getMax = function () {
-    var dataRange = this.mapv.geoData.getDataRange();
+    var dataRange = this._layer.getDataRange();
     var max = dataRange.max;
 
     if (this.drawOptions.max) {

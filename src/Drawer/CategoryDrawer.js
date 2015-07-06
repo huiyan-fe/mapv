@@ -50,7 +50,7 @@ CategoryDrawer.prototype.generalSplitList = function () {
 };
 
 CategoryDrawer.prototype.drawDataRange = function () {
-    var canvas = this.mapv.getDataRangeCtrol().getContainer();
+    var canvas = this.mapv.get("dataRangeCtrol").getContainer();
     canvas.width = 80;
     canvas.height = 190;
     canvas.style.width = "80px";

@@ -185,6 +185,8 @@ var MVCObject;
             return self;
         };
 
+        proto.setOptions = proto.setValues;
+
         /**
          * @description 将当前对象的一个key与目标对象的targetKey建立监听和广播关系
          * @param key {String} 当前对象上的key

@@ -24,7 +24,7 @@ ClusterDrawer.prototype.drawMap = function (mapv, ctx) {
     var data = this._layer.getData();
     console.log(data)
 
-    var map = mapv.getMap();
+    var map = mapv.get('map');
     var zoom = map.getZoom();
     var zoomUnit = this.zoomUnit = Math.pow(2, 18 - zoom);
 
