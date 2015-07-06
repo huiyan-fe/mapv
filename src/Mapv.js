@@ -19,8 +19,7 @@ function Mapv(options) {
     this._initDrawTypeControl();
     this._initOptionDataControl();
     this.setOptions(options);
-    // for data control
-    // console.log('???', this.geoData);
+
     new DataControl(this);
 }
 util.inherits(Mapv, Class);
@@ -40,11 +39,13 @@ Mapv.prototype._initOptionDataControl = function () {
  */
 Mapv.prototype.setOptions = function (options, wipe) {
     util.extend(this.options, options);
+    // console.log('@@@@@@',this.drawer.scale)
     return;
     if(options.data !== undefined) {
         this.geoData.setData(options.data);
     }
     this.layer.draw();
+
     if(drawer.scale) {
         drawer.scale(this.Scale);
         this.Scale.show();
