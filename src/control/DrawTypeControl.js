@@ -7,7 +7,7 @@
 
 util.addCssByStyle(
     [
-        '#MapvDrawTypeControl { list-style:none; position:absolute; left:10px; top:10px; padding:0; margin:0; }',
+        '#MapvDrawTypeControl { list-style:none; position:absolute; right:0px; top:0px; bottom:0px; padding:0; margin:0; }',
         '#MapvDrawTypeControl li{ padding:0; margin:0; cursor:pointer; margin:1px 0;',
         'color:#fff; padding:5px; background:rgba(0, 0, 0, 0.5); }',
         '#MapvDrawTypeControl li.current{ background:rgba(0, 0, 255, 0.5); }'
@@ -27,18 +27,6 @@ DrawTypeControl.prototype = new BMap.Control();
 
 DrawTypeControl.prototype.initialize = function (map) {
     var ul = this.ul = document.createElement('ul');
-    // console.log(this.mapv.options.drawOptions)
-    // var drawTypes = {
-    //     simple: '普通打点',
-    //     bubble: '普通打点',
-    //     choropleth: '普通打点',
-    //     density: '普通打点',
-    //     heatmap: '普通打点',
-    //     category: '普通打点',
-    //     intensity: '普通打点'
-    // };
-
-
     ul.setAttribute('id', 'MapvDrawTypeControl');
 
     var me = this;

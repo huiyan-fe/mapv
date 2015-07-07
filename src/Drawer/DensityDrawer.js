@@ -340,7 +340,7 @@ function drawHoneycomb(obj) {
             draw(x, y, gridsW - 1, 'rgba(0,0,0,0.2)', ctx);
         }
 
-        if (obj.sup.drawOptions.showNum) {
+        if (obj.sup.drawOptions.showNum && !isTooSmall && !isTooBig) {
             ctx.save();
             ctx.textBaseline = 'middle';
             ctx.textAlign = 'center';

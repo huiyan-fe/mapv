@@ -4,6 +4,7 @@
  */
 
 function DataControl(superObj) {
+    console.log('@@@@@',superObj)
     this.initDom();
     this.initEvent();
     this.initHistory();
@@ -198,7 +199,11 @@ DataControl.prototype.initEvent = function () {
         }
 
         self.geoData.setData(data);
-        self.super.layer.draw();
+
+        for(var i=0;i<self.super._layers.length;i++){
+                self.super._layers[i].draw();
+        }
+
 
         // var drawer = this.super._getDrawer(this.super.options.drawType);
         // drawer.drawDataRange(this.super._dataRangeCtrol.getContainer(), this.super.options.data);
