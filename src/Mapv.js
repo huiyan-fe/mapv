@@ -18,6 +18,7 @@ function Mapv(options) {
     this.setOptions(options);
 
     this._layers = [];
+
     this._initDrawScale();
     this._initDataRange();
     this._initDrawTypeControl();
@@ -37,7 +38,7 @@ Mapv.prototype._initOptionDataControl = function () {
 };
 
 Mapv.prototype._initDataRange = function () {
-    this.set('dataRangeCtrol', new DataRangeControl()); 
+    this.setDataRangeCtrol(new DataRangeControl()); 
     this.getMap().addControl(this.getDataRangeCtrol());
 }
 

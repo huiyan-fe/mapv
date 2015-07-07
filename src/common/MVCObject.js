@@ -253,6 +253,7 @@ var MVCObject;
 
         proto.initOptions = function(options) {
             for (var key in options) {
+                this.set(key, options[key]);
                 this[getGetterName(key)] = (function(key) {
                     return function () {
                         return this.get(key);

@@ -359,6 +359,22 @@
             return self;
         };
 
+        proto.initOptions = function(options) {
+            for (var key in options) {
+                this.set(key, options[key]);
+                this[getGetterName(key)] = (function(key) {
+                    return function () {
+                        return this.get(key);
+                    }
+                })(key);
+                this[getSetterName(key)] = (function(key) {
+                    return function (value) {
+                        this.set(key, value);
+                    }
+                })(key);
+            }
+        }
+
         return MVCObject;
 
     })();
@@ -439,8 +455,16 @@ Class.prototype.dispose = function () {
  */
 function Mapv(options) {
     Class.call(this);
+
+    this.initOptions({
+        map: null, //地图参数
+        dataRangeCtrol: null
+    });
+
     this.setOptions(options);
+
     this._layers = [];
+
     this._initDrawScale();
     this._initDataRange();
     this._initDrawTypeControl();
@@ -460,15 +484,15 @@ Mapv.prototype._initOptionDataControl = function () {
 };
 
 Mapv.prototype._initDataRange = function () {
-    this.set('dataRangeCtrol', new DataRangeControl()); 
-    this.get('map').addControl(this.get('dataRangeCtrol'));
+    this.setDataRangeCtrol(new DataRangeControl()); 
+    this.getMap().addControl(this.getDataRangeCtrol());
 }
 
 Mapv.prototype._initDrawTypeControl = function () {
     this._drawTypeControl = new DrawTypeControl({
         mapv: this
     });
-    this.get("map").addControl(this._drawTypeControl);
+    this.getMap().addControl(this._drawTypeControl);
 };
 ;function Layer (options) {
 
@@ -495,7 +519,7 @@ util.extend(Layer.prototype, {
         }
 
         this.mapMask = new MapMask({
-            map: this._mapv.get('map'),
+            map: this._mapv.getMap(),
             zIndex: this.options.zIndex,
             elementTag: "canvas"
         });
@@ -520,7 +544,6 @@ util.extend(Layer.prototype, {
 
     _layerAdd: function (mapv) {
         this._mapv = mapv;
-        var map = this._mapv.get('map');
         this.initialize();
         this.updateControl();
 
@@ -541,10 +564,10 @@ util.extend(Layer.prototype, {
         var mapv = this._mapv;
         var drawer = this._getDrawer();
         if (drawer.drawDataRange) {
-            map.addControl(mapv.get('dataRangeCtrol'));
-            drawer.drawDataRange(mapv.get('dataRangeCtrol').getContainer());
+            map.addControl(mapv.getDataRangeCtrol());
+            drawer.drawDataRange(mapv.getDataRangeCtrol().getContainer());
         } else {
-            map.removeControl(mapv.get('dataRangeCtrol'));
+            map.removeControl(mapv.getDataRangeCtrol());
         }
 
         // for drawer scale
@@ -580,7 +603,7 @@ util.extend(Layer.prototype, {
     },
 
     _calculatePixel: function () {
-        var map = this._mapv.get('map');
+        var map = this._mapv.getMap();
         var mercatorProjection = map.getMapType().getProjection();
         // 墨卡托坐标计算方法
         var zoom = map.getZoom();
@@ -594,7 +617,7 @@ util.extend(Layer.prototype, {
         for (var j = 0; j < data.length; j++) {
 
             if (data[j].lng && data[j].lat) {
-                var pixel = this._mapv.get('map').pointToPixel(new BMap.Point(data[j].lng, data[j].lat));
+                var pixel = this._mapv.getMap().pointToPixel(new BMap.Point(data[j].lng, data[j].lat));
                 data[j].px = pixel.x;
                 data[j].py = pixel.y;
             }
@@ -703,6 +726,7 @@ MapMask.prototype.hide = function(){
 }
 
 ;function DataControl(superObj) {
+    console.log('@@@@@',superObj)
     this.initDom();
     this.initEvent();
     this.initHistory();
@@ -897,7 +921,11 @@ DataControl.prototype.initEvent = function () {
         }
 
         self.geoData.setData(data);
-        self.super.layer.draw();
+
+        for(var i=0;i<self.super._layers.length;i++){
+                self.super._layers[i].draw();
+        }
+
 
         // var drawer = this.super._getDrawer(this.super.options.drawType);
         // drawer.drawDataRange(this.super._dataRangeCtrol.getContainer(), this.super.options.data);
@@ -1228,7 +1256,7 @@ function drawTips(obj) {
 
 util.addCssByStyle(
     [
-        '#MapvDrawTypeControl { list-style:none; position:absolute; left:10px; top:10px; padding:0; margin:0; }',
+        '#MapvDrawTypeControl { list-style:none; position:absolute; right:0px; top:0px; bottom:0px; padding:0; margin:0; }',
         '#MapvDrawTypeControl li{ padding:0; margin:0; cursor:pointer; margin:1px 0;',
         'color:#fff; padding:5px; background:rgba(0, 0, 0, 0.5); }',
         '#MapvDrawTypeControl li.current{ background:rgba(0, 0, 255, 0.5); }'
@@ -1248,18 +1276,6 @@ DrawTypeControl.prototype = new BMap.Control();
 
 DrawTypeControl.prototype.initialize = function (map) {
     var ul = this.ul = document.createElement('ul');
-    // console.log(this.mapv.options.drawOptions)
-    // var drawTypes = {
-    //     simple: '普通打点',
-    //     bubble: '普通打点',
-    //     choropleth: '普通打点',
-    //     density: '普通打点',
-    //     heatmap: '普通打点',
-    //     category: '普通打点',
-    //     intensity: '普通打点'
-    // };
-
-
     ul.setAttribute('id', 'MapvDrawTypeControl');
 
     var me = this;
@@ -1332,7 +1348,7 @@ function OptionalData(superObj) {
 
 OptionalData.prototype.initCSS = function () {
     util.addCssByStyle([
-        '.controlBox { position:absolute; left:10px; top:10px; background:rgba(0,0,0,0.5); padding:10px; }',
+        '.controlBox { position:absolute; left:0px; top:0px; background:rgba(0,0,0,0.5); padding:10px; }',
         '.controlBox input {border-radius:6px; border:none; padding:10px;}',
         '.controlBox button ',
         '{ padding:8px 10px; border:none; width:40%; margin-left: 10px; border-radius:6px; cursor:pointer; }',
@@ -1651,7 +1667,7 @@ BubbleDrawer.prototype.getRadius = function (val) {
 };
 
 BubbleDrawer.prototype.drawDataRange = function () {
-    var canvas = this.mapv.get("dataRangeCtrol").getContainer();
+    var canvas = this.mapv.getDataRangeCtrol().getContainer();
     canvas.width = 100;
     canvas.height = 190;
     canvas.style.width = '100px';
@@ -1718,7 +1734,7 @@ CategoryDrawer.prototype.generalSplitList = function () {
 };
 
 CategoryDrawer.prototype.drawDataRange = function () {
-    var canvas = this.mapv.get("dataRangeCtrol").getContainer();
+    var canvas = this.mapv.getDataRangeCtrol().getContainer();
     canvas.width = 80;
     canvas.height = 190;
     canvas.style.width = "80px";
@@ -1789,7 +1805,7 @@ ChoroplethDrawer.prototype.drawMap = function (mapv, ctx) {
 };
 
 ChoroplethDrawer.prototype.drawDataRange = function () {
-    var canvas = this.mapv.get("dataRangeCtrol").getContainer();
+    var canvas = this.mapv.getDataRangeCtrol().getContainer();
     var drawOptions = this.drawOptions;
     canvas.width = 100;
     canvas.height = 190;
@@ -1846,7 +1862,7 @@ ClusterDrawer.prototype.drawMap = function (mapv, ctx) {
     var data = this._layer.getData();
     console.log(data)
 
-    var map = mapv.get('map');
+    var map = mapv.getMap();
     var zoom = map.getZoom();
     var zoomUnit = this.zoomUnit = Math.pow(2, 18 - zoom);
 
@@ -2064,7 +2080,7 @@ DensityDrawer.prototype.drawMap = function (mapv, ctx) {
     // var data = mapv.geoData.getData();
     var data = this._layer.getData();
 
-    var map = mapv.get('map');
+    var map = mapv.getMap();
     var zoom = map.getZoom();
     var zoomUnit = this.zoomUnit = Math.pow(2, 18 - zoom);
 
@@ -2362,7 +2378,7 @@ function drawHoneycomb(obj) {
             draw(x, y, gridsW - 1, 'rgba(0,0,0,0.2)', ctx);
         }
 
-        if (obj.sup.drawOptions.showNum) {
+        if (obj.sup.drawOptions.showNum && !isTooSmall && !isTooBig) {
             ctx.save();
             ctx.textBaseline = 'middle';
             ctx.textAlign = 'center';
