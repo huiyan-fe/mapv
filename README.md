@@ -6,6 +6,8 @@ mapv 是一款基于百度地图的海量点打点工具，用户可以通过直
 
 ## 示例
 
+访问[示例地址](http://huiyan-fe.github.io/mapv/examples/)
+
 #### bubble类型
 ![bubble类型](/doc/asset/img/bubble.png)
 
