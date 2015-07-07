@@ -6,7 +6,7 @@
 
 function OptionalData(superObj) {
     // set params
-    var options = superObj.options;
+    var options = superObj.options || {};
     this.drawType = options.drawType;
     this.super = superObj;
     // init options

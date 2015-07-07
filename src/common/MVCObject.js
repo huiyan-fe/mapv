@@ -185,6 +185,8 @@ var MVCObject;
             return self;
         };
 
+        proto.setOptions = proto.setValues;
+
         /**
          * @description 将当前对象的一个key与目标对象的targetKey建立监听和广播关系
          * @param key {String} 当前对象上的key
@@ -248,6 +250,21 @@ var MVCObject;
             }
             return self;
         };
+
+        proto.initOptions = function(options) {
+            for (var key in options) {
+                this[getGetterName(key)] = (function(key) {
+                    return function () {
+                        return this.get(key);
+                    }
+                })(key);
+                this[getSetterName(key)] = (function(key) {
+                    return function (value) {
+                        this.set(key, value);
+                    }
+                })(key);
+            }
+        }
 
         return MVCObject;
 

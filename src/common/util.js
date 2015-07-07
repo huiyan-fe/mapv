@@ -73,7 +73,6 @@ var util = {
     <strong>注意：如果要继承构造函数，需要在subClass里面call一下，具体见下面的demo例子</strong>
      * @shortcut inherits
      * @meta standard
-     * @see baidu.lang.Class
      */
     inherits: function (subClass, superClass) {
         var key;

@@ -52,7 +52,6 @@ util.extend(Layer.prototype, {
 
     _layerAdd: function (mapv) {
         this._mapv = mapv;
-        var map = this._mapv.getMap();
         this.initialize();
         this.updateControl();
 
@@ -73,10 +72,10 @@ util.extend(Layer.prototype, {
         var mapv = this._mapv;
         var drawer = this._getDrawer();
         if (drawer.drawDataRange) {
-            map.addControl(mapv._dataRangeCtrol);
-            drawer.drawDataRange(mapv._dataRangeCtrol.getContainer());
+            map.addControl(mapv.getDataRangeCtrol());
+            drawer.drawDataRange(mapv.getDataRangeCtrol().getContainer());
         } else {
-            map.removeControl(mapv._dataRangeCtrol);
+            map.removeControl(mapv.getDataRangeCtrol());
         }
 
         // for drawer scale
