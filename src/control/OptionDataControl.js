@@ -26,7 +26,7 @@ function OptionalData(superObj) {
 
 OptionalData.prototype.initCSS = function () {
     util.addCssByStyle([
-        '.controlBox { position:absolute; left:10px; top:10px; background:rgba(0,0,0,0.5); padding:10px; }',
+        '.controlBox { position:absolute; left:0px; top:0px; background:rgba(0,0,0,0.5); padding:10px; }',
         '.controlBox input {border-radius:6px; border:none; padding:10px;}',
         '.controlBox button ',
         '{ padding:8px 10px; border:none; width:40%; margin-left: 10px; border-radius:6px; cursor:pointer; }',
