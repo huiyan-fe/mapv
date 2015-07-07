@@ -62,7 +62,7 @@ BubbleDrawer.prototype.getRadius = function (val) {
 };
 
 BubbleDrawer.prototype.drawDataRange = function () {
-    var canvas = this.mapv.get("dataRangeCtrol").getContainer();
+    var canvas = this.mapv.getDataRangeCtrol().getContainer();
     canvas.width = 100;
     canvas.height = 190;
     canvas.style.width = '100px';

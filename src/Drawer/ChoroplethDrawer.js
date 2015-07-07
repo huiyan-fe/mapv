@@ -36,7 +36,7 @@ ChoroplethDrawer.prototype.drawMap = function (mapv, ctx) {
 };
 
 ChoroplethDrawer.prototype.drawDataRange = function () {
-    var canvas = this.mapv.get("dataRangeCtrol").getContainer();
+    var canvas = this.mapv.getDataRangeCtrol().getContainer();
     var drawOptions = this.drawOptions;
     canvas.width = 100;
     canvas.height = 190;

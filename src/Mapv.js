@@ -9,7 +9,14 @@
  */
 function Mapv(options) {
     Class.call(this);
+
+    this.initOptions({
+        map: null, //地图参数
+        dataRangeCtrol: null
+    });
+
     this.setOptions(options);
+
     this._layers = [];
     this._initDrawScale();
     this._initDataRange();
@@ -31,12 +38,12 @@ Mapv.prototype._initOptionDataControl = function () {
 
 Mapv.prototype._initDataRange = function () {
     this.set('dataRangeCtrol', new DataRangeControl()); 
-    this.get('map').addControl(this.get('dataRangeCtrol'));
+    this.getMap().addControl(this.getDataRangeCtrol());
 }
 
 Mapv.prototype._initDrawTypeControl = function () {
     this._drawTypeControl = new DrawTypeControl({
         mapv: this
     });
-    this.get("map").addControl(this._drawTypeControl);
+    this.getMap().addControl(this._drawTypeControl);
 };
