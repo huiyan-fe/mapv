@@ -7,17 +7,21 @@
 function Drawer(layer) {
     Class.call(this);
 
-    this._layer = layer;
     this.mapv = layer._mapv;
-    this.drawOptions = {};
+    this.initOptions({
+        layer: layer,
+        ctx: null,
+        mapv: null,
+        drawOptions: {
+            radius: 2
+        }
+    });
+
+    this.bindTo('ctx', layer)
+    this.bindTo('mapv', layer)
 }
 
 util.inherits(Drawer, Class);
-
-
-Drawer.prototype.defaultDrawOptions = {
-    radius: 2
-};
 
 Drawer.prototype.drawMap = function () {};
 
@@ -25,27 +29,16 @@ Drawer.prototype.drawMap = function () {};
 //      we can shwo or remove range cans by drawer.drawDataRange
 // Drawer.prototype.drawDataRange = function () {};
 
-Drawer.prototype.setDrawOptions = function (drawOptions) {
-    var defaultObj = util.copy(this.defaultDrawOptions);
-    this.drawOptions = util.extend(defaultObj, drawOptions);
-    if (this.drawOptions.splitList) {
-        this.splitList = this.drawOptions.splitList;
+Drawer.prototype.drawOptions_changed = function () {
+    var drawOptions = this.getDrawOptions();
+    if (drawOptions.splitList) {
+        this.splitList = drawOptions.splitList;
     } else {
         this.generalSplitList();
     }
 
     this.drawDataRange && this.drawDataRange();
 
-    // console.log('set-----',this.drawOptions);
-};
-
-Drawer.prototype.getDrawOptions = function () {
-    // console.log('get-----',this.drawOptions);
-    return this.drawOptions;
-};
-
-Drawer.prototype.clearDrawOptions = function (drawOptions) {
-    this.drawOptions = {};
 };
 
 Drawer.prototype.colors = [
@@ -60,7 +53,7 @@ Drawer.prototype.colors = [
 ];
 
 Drawer.prototype.generalSplitList = function () {
-    var dataRange = this._layer.getDataRange();
+    var dataRange = this.getLayer().getDataRange();
     var splitNum = Math.ceil((dataRange.max - dataRange.min) / 7);
     var index = dataRange.min;
     this.splitList = [];

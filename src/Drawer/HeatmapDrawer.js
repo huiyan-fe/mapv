@@ -15,16 +15,13 @@ function HeatmapDrawer() {
 
 util.inherits(HeatmapDrawer, Drawer);
 
-HeatmapDrawer.prototype.drawMap = function (mapv, ctx) {
+HeatmapDrawer.prototype.drawMap = function () {
     var self = this;
-    mapv = self.mapv = self.mapv || mapv;
-    ctx = self.ctx = self.ctx || ctx;
-    this._ctx = ctx;
+    var ctx = this.getCtx();
     this._map = map;
     this._width = ctx.canvas.width;
     this._height = ctx.canvas.height;
-    var data = this._layer.getData();
-    // var drawOptions = this.drawOptions;
+    var data = this.getLayer().getData();
     this._data = data;
     this.drawHeatmap();
 
@@ -49,31 +46,6 @@ HeatmapDrawer.prototype.scale = function (scale) {
     self.Scale = scale;
 };
 
-// HeatmapDrawer.prototype.drawDataRange = function () {
-//     var canvas = this.mapv.getDataRangeCtrol().getContainer();
-//     canvas.width = 60;
-//     canvas.height = 160;
-//     canvas.style.width = '60px';
-//     canvas.style.height = '160px';
-
-//     var ctx = canvas.getContext('2d');
-
-//     var gradient = ctx.createLinearGradient(0, 0, 0, 160);
-
-//     var grad = this.getGradient();
-
-//     for (var i in grad) {
-//         gradient.addColorStop(i, grad[i]);
-//     }
-
-//     ctx.fillStyle = gradient;
-//     ctx.fillRect(5, 5, 30, 150);
-
-//     ctx.fillStyle = '#333';
-//     ctx.fillText(0, 37, 15);
-//     ctx.fillText(this.getMax(), 37, 153);
-// };
-
 util.extend(HeatmapDrawer.prototype, {
 
     defaultRadius: 10,
@@ -87,22 +59,22 @@ util.extend(HeatmapDrawer.prototype, {
     },
 
     getGradient: function () {
-        return this.drawOptions.gradient || this.defaultGradient;
+        return this.getDrawOptions().gradient || this.defaultGradient;
     },
 
     getRadius: function () {
         var zoom = this._map.getZoom();
         var zoomUnit = Math.pow(2, 18 - zoom);
-        var distance = this.drawOptions.radius || 200;
+        var distance = this.getDrawOptions().radius || 200;
         return distance / zoomUnit;
     },
 
     getMax: function () {
         var max = this._max;
-        if (this.drawOptions.max !== undefined) {
-            max = this.drawOptions.max;
+        if (this.getDrawOptions().max !== undefined) {
+            max = this.getDrawOptions().max;
         } else {
-            var dataRange = this.mapv.geoData.getDataRange();
+            var dataRange = this.getLayer().getDataRange();
             max = dataRange.min + (dataRange.max - dataRange.min) * 0.7;
         }
         return max;
@@ -136,20 +108,20 @@ util.extend(HeatmapDrawer.prototype, {
             ctx = circle.getContext('2d'),
             r2 = this._r = r + blur;
 
-        if (this.drawOptions.type === 'rect') {
+        if (this.getDrawOptions().type === 'rect') {
             circle.width = circle.height = r2;
         } else {
             circle.width = circle.height = r2 * 2;
         }
 
         ctx.shadowOffsetX = ctx.shadowOffsetY = 200;
-        if (this.drawOptions.blur) {
+        if (this.getDrawOptions().blur) {
             ctx.shadowBlur = blur;
         }
         ctx.shadowColor = 'black';
 
         ctx.beginPath();
-        if (this.drawOptions.type === 'rect') {
+        if (this.getDrawOptions().type === 'rect') {
             ctx.fillRect(-200, -200, circle.width, circle.height);
         } else {
             ctx.arc(r2 - 200, r2 - 200, r, 0, Math.PI * 2, true);
@@ -189,7 +161,7 @@ util.extend(HeatmapDrawer.prototype, {
         this.gradient(this.getGradient());
         // }
 
-        var ctx = this._ctx;
+        var ctx = this.getCtx();
 
         ctx.clearRect(0, 0, this._width, this._height);
 
@@ -231,7 +203,7 @@ util.extend(HeatmapDrawer.prototype, {
         for (var i = 3, len = pixels.length, j; i < len; i += 4) {
             j = pixels[i] * 4; // get gradient color from opacity value
 
-            var maxOpacity = this.drawOptions.maxOpacity || 0.8;
+            var maxOpacity = this.getDrawOptions().maxOpacity || 0.8;
             if (pixels[i] / 256 > maxOpacity) {
                 pixels[i] = 256 * maxOpacity;
             }

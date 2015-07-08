@@ -321,6 +321,7 @@ $.ajax({
 
         var layer = new Mapv.Layer({
             zIndex: 2,
+            mapv: mapv,
             data: [{
                 lng: 116.39507,
                 lat: 39.929101
@@ -348,15 +349,14 @@ $.ajax({
                 }
             }
         });
-        mapv.addLayer(layer);
-        
+
         var layer = new Mapv.Layer({
             zIndex: 1,
             data: data,
             drawType: 'heatmap',
             drawOptions: drawOptions
         });
-        mapv.addLayer(layer);
+        layer.setMapv(mapv);
 
     }
 });

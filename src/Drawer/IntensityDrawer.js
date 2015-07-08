@@ -24,16 +24,15 @@ IntensityDrawer.prototype.defaultGradient = {
     '1.0': 'red'
 };
 
-IntensityDrawer.prototype.drawMap = function (mapv, ctx) {
+IntensityDrawer.prototype.drawMap = function () {
     var self = this;
-    mapv = self.mapv = self.mapv || mapv;
-    ctx = self.ctx = self.ctx || ctx;
+    var ctx = this.getCtx();
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
 
-    var data = this._layer.getData();
-    var drawOptions = this.drawOptions;
+    var data = this.getLayer().getData();
+    var drawOptions = this.getDrawOptions();
     ctx.strokeStyle = drawOptions.strokeStyle;
 
     var ctxW = ctx.canvas.width;
@@ -87,11 +86,11 @@ IntensityDrawer.prototype.scale = function (scale) {
 };
 
 IntensityDrawer.prototype.getMax = function () {
-    var dataRange = this._layer.getDataRange();
+    var dataRange = this.getLayer().getDataRange();
     var max = dataRange.max;
 
-    if (this.drawOptions.max) {
-        max = this.drawOptions.max;
+    if (this.getDrawOptions().max) {
+        max = this.getDrawOptions().max;
     }
     return max;
 };

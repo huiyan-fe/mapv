@@ -11,12 +11,13 @@ function CategoryDrawer() {
 
 util.inherits(CategoryDrawer, Drawer);
 
-CategoryDrawer.prototype.drawMap = function (mapv, ctx) {
+CategoryDrawer.prototype.drawMap = function () {
 
-    var data = this._layer.getData();
+    var data = this.getLayer().getData();
+    var ctx = this.getCtx();
 
 
-    var drawOptions = this.drawOptions;
+    var drawOptions = this.getDrawOptions();
 
     ctx.strokeStyle = drawOptions.strokeStyle;
 
@@ -50,7 +51,7 @@ CategoryDrawer.prototype.generalSplitList = function () {
 };
 
 CategoryDrawer.prototype.drawDataRange = function () {
-    var canvas = this.mapv.getDataRangeCtrol().getContainer();
+    var canvas = this.getMapv().getDataRangeCtrol().getContainer();
     canvas.width = 80;
     canvas.height = 190;
     canvas.style.width = "80px";

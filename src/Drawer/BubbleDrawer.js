@@ -10,13 +10,15 @@ function BubbleDrawer() {
 
 util.inherits(BubbleDrawer, Drawer);
 
-BubbleDrawer.prototype.drawMap = function (mapv, ctx) {
+BubbleDrawer.prototype.drawMap = function () {
 
-    var data = this._layer.getData();
+    var data = this.getLayer().getData();
+
+    var ctx = this.getCtx();
 
     ctx.save();
 
-    var drawOptions = this.drawOptions;
+    var drawOptions = this.getDrawOptions();
 
     if (drawOptions.globalCompositeOperation) {
         ctx.globalCompositeOperation = drawOptions.globalCompositeOperation;
@@ -62,13 +64,13 @@ BubbleDrawer.prototype.getRadius = function (val) {
 };
 
 BubbleDrawer.prototype.drawDataRange = function () {
-    var canvas = this.mapv.getDataRangeCtrol().getContainer();
+    var canvas = this.getMapv().getDataRangeCtrol().getContainer();
     canvas.width = 100;
     canvas.height = 190;
     canvas.style.width = '100px';
     canvas.style.height = '190px';
     var ctx = canvas.getContext('2d');
-    ctx.fillStyle = this.drawOptions.fillStyle || 'rgba(50, 50, 200, 0.8)';
+    ctx.fillStyle = this.getDrawOptions().fillStyle || 'rgba(50, 50, 200, 0.8)';
     var splitList = this.splitList;
 
     for (var i = 0; i < splitList.length; i++) {

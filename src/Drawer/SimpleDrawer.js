@@ -10,10 +10,11 @@ function SimpleDrawer() {
 
 util.inherits(SimpleDrawer, Drawer);
 
-SimpleDrawer.prototype.drawMap = function (mapv, ctx) {
-    var data = this._layer.getData();
+SimpleDrawer.prototype.drawMap = function () {
+    var data = this.getLayer().getData();
+    var ctx = this.getCtx();
 
-    var drawOptions = this.drawOptions;
+    var drawOptions = this.getDrawOptions();
 
     ctx.fillStyle = drawOptions.fillStyle || "rgba(50, 50, 200, 0.8)";
     ctx.strokeStyle = drawOptions.strokeStyle;

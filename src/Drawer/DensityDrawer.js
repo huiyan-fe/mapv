@@ -11,8 +11,6 @@ var max;
 function DensityDrawer() {
     this.Scale;
     this.masker = {};
-    this.mapv = null;
-    this.ctx = null;
     Drawer.apply(this, arguments);
 }
 
@@ -32,17 +30,15 @@ DensityDrawer.prototype.scale = function (scale) {
     this.Scale = scale;
 };
 
-DensityDrawer.prototype.drawMap = function (mapv, ctx) {
+DensityDrawer.prototype.drawMap = function () {
 
     var self = this;
-    mapv = this.mapv = this.mapv || mapv;
-    ctx = this.ctx = this.ctx || ctx;
+    var ctx = this.getCtx();
 
     // TODO: use workder
-    // var data = mapv.geoData.getData();
-    var data = this._layer.getData();
+    var data = this.getLayer().getData();
 
-    var map = mapv.getMap();
+    var map = this.getMapv().getMap();
     var zoom = map.getZoom();
     var zoomUnit = this.zoomUnit = Math.pow(2, 18 - zoom);
 
@@ -65,7 +61,7 @@ DensityDrawer.prototype.drawMap = function (mapv, ctx) {
     };
 
     var gridsObj = {};
-    if (this.drawOptions.gridType === 'honeycomb') {
+    if (this.getDrawOptions().gridType === 'honeycomb') {
         gridsObj = honeycombGrid(obj);
     } else {
         gridsObj = recGrids(obj);
@@ -90,7 +86,7 @@ DensityDrawer.prototype.drawMap = function (mapv, ctx) {
     };
 
     var gridsObj = {};
-    if (this.drawOptions.gridType === 'honeycomb') {
+    if (this.getDrawOptions().gridType === 'honeycomb') {
         drawHoneycomb(obj);
     } else {
         drawRec(obj);
@@ -212,7 +208,7 @@ function drawRec(obj) {
         ctx.fillRect(x, y, gridStep - 1, gridStep - 1);
 
 
-        if (self.drawOptions.showNum) {
+        if (self.getDrawOptions().showNum) {
 
             ctx.save();
             // ctx.fillStyle = 'black';
@@ -340,7 +336,7 @@ function drawHoneycomb(obj) {
             draw(x, y, gridsW - 1, 'rgba(0,0,0,0.2)', ctx);
         }
 
-        if (obj.sup.drawOptions.showNum && !isTooSmall && !isTooBig) {
+        if (obj.sup.getDrawOptions().showNum && !isTooSmall && !isTooBig) {
             ctx.save();
             ctx.textBaseline = 'middle';
             ctx.textAlign = 'center';
@@ -372,7 +368,7 @@ function draw(x, y, gridStep, color, ctx) {
  */
 function formatParam() {
 
-    var options = this.drawOptions;
+    var options = this.getDrawOptions();
     // console.log(options)
     var fillColors = this.fillColors = [
         [73, 174, 34],

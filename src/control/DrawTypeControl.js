@@ -63,10 +63,10 @@ DrawTypeControl.prototype.showLayer = function (layer) {
     // get the drawTypes from options by Mofei
     var ul = this.ul;
     ul.innerHTML = "";
-    var drawTypes = layer.options.drawOptions;
+    var drawTypes = layer.getDrawOptions();
     for (var key in drawTypes) {
         var li = document.createElement('li');
-        if (layer.options.drawType === key) {
+        if (layer.getDrawType() === key) {
             li.className = 'current';
         }
         li.setAttribute('drawType', key);

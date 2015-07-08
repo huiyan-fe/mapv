@@ -252,19 +252,25 @@ var MVCObject;
         };
 
         proto.initOptions = function(options) {
+
             for (var key in options) {
-                this.set(key, options[key]);
+
                 this[getGetterName(key)] = (function(key) {
                     return function () {
                         return this.get(key);
                     }
                 })(key);
+
                 this[getSetterName(key)] = (function(key) {
                     return function (value) {
                         this.set(key, value);
                     }
                 })(key);
+
+                this[toKey(key)] = options[key];
+
             }
+
         }
 
         return MVCObject;

@@ -14,17 +14,16 @@ function ClusterDrawer() {
 
 util.inherits(ClusterDrawer, Drawer);
 
-ClusterDrawer.prototype.drawMap = function (mapv, ctx) {
+ClusterDrawer.prototype.drawMap = function () {
     // console.log('ClusterDrawer');
     window.console.time('computerMapData');
+    var ctx = this.getCtx();
     // TODO: ser workder
     max = min = undefined;
 
-    // var data = mapv.geoData.getData();
-    var data = this._layer.getData();
-    console.log(data)
+    var data = this.getLayer().getData();
 
-    var map = mapv.getMap();
+    var map = this.getMapv().getMap();
     var zoom = map.getZoom();
     var zoomUnit = this.zoomUnit = Math.pow(2, 18 - zoom);
 
@@ -150,9 +149,8 @@ ClusterDrawer.prototype.drawMap = function (mapv, ctx) {
         ctx.restore();
         // }
     }
-    // this.drawDataRange(mapv._dataRangeCtrol.getContainer());
+
     window.console.timeEnd('drawMap');
-    // console.timeEnd('drawMap')
 };
 
 // ClusterDrawer.prototype.drawDataRange = function (canvas, data, drawOptions) {
@@ -165,7 +163,7 @@ ClusterDrawer.prototype.drawMap = function (mapv, ctx) {
 ClusterDrawer.prototype.formatParam = function () {
 
     // console.log('AAA')
-    var options = this.drawOptions;
+    var options = this.getDrawOptions();
     // console.log(options)
     var fillColors = this.fillColors = [
         [73, 174, 34],

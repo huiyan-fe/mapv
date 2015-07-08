@@ -3,7 +3,9 @@
  * 地图可视化库，目前依赖与百度地图api，在百度地图api上展示点数据
  *
  */
+
 /* globals Layer GeoData DrawTypeControl OptionalData util DataControl DrawScale DataRangeControl*/
+
 /**
  * @param {Object}
  */

@@ -10,12 +10,12 @@ function ChoroplethDrawer() {
 
 util.inherits(ChoroplethDrawer, Drawer);
 
-ChoroplethDrawer.prototype.drawMap = function (mapv, ctx) {
+ChoroplethDrawer.prototype.drawMap = function () {
 
-    var data = this._layer.getData();
+    var data = this.getLayer().getData();
+    var ctx = this.getCtx();
 
-
-    var drawOptions = this.drawOptions;
+    var drawOptions = this.getDrawOptions();
 
     ctx.strokeStyle = drawOptions.strokeStyle;
 
@@ -36,8 +36,8 @@ ChoroplethDrawer.prototype.drawMap = function (mapv, ctx) {
 };
 
 ChoroplethDrawer.prototype.drawDataRange = function () {
-    var canvas = this.mapv.getDataRangeCtrol().getContainer();
-    var drawOptions = this.drawOptions;
+    var canvas = this.getMapv().getDataRangeCtrol().getContainer();
+    var drawOptions = this.getDrawOptions();
     canvas.width = 100;
     canvas.height = 190;
     canvas.style.width = '100px';
