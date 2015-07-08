@@ -1,5 +1,5 @@
 /**
- * @file ***
+ * @file 示例代码
  */
 
 /* globals Drawer mercatorProjection BMap util Mapv*/
@@ -12,15 +12,12 @@ var map = new BMap.Map('map', {
 
 var mercatorProjection = map.getMapType().getProjection();
 
-// var point = new BMap.Point();
-// this.options.map.centerAndZoom(point, 15);
 map.centerAndZoom(new BMap.Point(116.403119, 39.928658), 12); // 初始化地图,设置中心点坐标和地图级别
 map.enableScrollWheelZoom(); // 启用滚轮放大缩小
 
 var mapv;
 
 map.getContainer().style.background = '#081734';
-/*
 map.setMapStyle({
     styleJson: [{
         featureType: 'water',
@@ -147,24 +144,6 @@ map.setMapStyle({
         }
     }]
 });
-*/
-
-// map.setMapStyle({
-//     styleJson: [{
-//         featureType: 'all',
-//         elementType: 'geometry',
-//         stylers: {
-//             hue: '#007fff',
-//             saturation: 89
-//         }
-//     }, {
-//         featureType: 'water',
-//         elementType: 'all',
-//         stylers: {
-//             color: '#ffffff'
-//         }
-//     }]
-// });
 
 var data = null;
 var drawOptions = {
@@ -299,6 +278,12 @@ var drawOptions = {
     }
 };
 
+
+var options = {
+    map: map
+};
+mapv = new Mapv(options);
+
 $.ajax({
     url: 'data/beijing.json',
     dataType: 'JSON',
@@ -312,12 +297,6 @@ $.ajax({
                 count: tmp[2]
             });
         }
-
-
-        var options = {
-            map: map
-        };
-        mapv = new Mapv(options);
 
         var layer = new Mapv.Layer({
             zIndex: 2,
@@ -342,8 +321,8 @@ $.ajax({
             drawType: 'simple',
             drawOptions: {
                 simple: {
-                    fillStyle: "rgba(255, 255, 0, 1)",
-                    strokeStyle: "rgba(255, 0, 0, 1)",
+                    fillStyle: "rgba(255, 255, 50, 1)",
+                    strokeStyle: "rgba(255, 255, 255, 1)",
                     lineWidth: 10,
                     radius: 20
                 }
@@ -360,3 +339,4 @@ $.ajax({
 
     }
 });
+

@@ -510,6 +510,7 @@ Mapv.prototype._initDrawTypeControl = function () {
     this.initOptions($.extend({
         ctx: null,
         mapv: null,
+        map: null,
         drawType: 'simple',
         data: [],
         zIndex: 1
@@ -526,6 +527,9 @@ util.extend(Layer.prototype, {
         if (this.mapMask) {
             return;
         }
+
+        this.setMap(this.getMapv().getMap());
+        this.bindTo('map', this.getMapv());
 
         this.mapMask = new MapMask({
             map: this.getMapv().getMap(),
@@ -1561,6 +1565,7 @@ function Drawer(layer) {
     this.mapv = layer._mapv;
     this.initOptions({
         layer: layer,
+        map: layer.getMap(),
         ctx: null,
         mapv: null,
         drawOptions: {
@@ -1570,6 +1575,7 @@ function Drawer(layer) {
 
     this.bindTo('ctx', layer)
     this.bindTo('mapv', layer)
+    this.bindTo('map', layer)
 }
 
 util.inherits(Drawer, Class);
@@ -2822,6 +2828,8 @@ SimpleDrawer.prototype.drawMap = function () {
     if (drawOptions.globalCompositeOperation) {
         ctx.globalCompositeOperation = drawOptions.globalCompositeOperation;
     }
+
+    var zoomUnit = Math.pow(2, 18 - this.getMap().getZoom());
 
     var radius = drawOptions.radius || 3;
     // console.log(data);

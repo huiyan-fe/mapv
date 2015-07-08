@@ -26,6 +26,8 @@ SimpleDrawer.prototype.drawMap = function () {
         ctx.globalCompositeOperation = drawOptions.globalCompositeOperation;
     }
 
+    var zoomUnit = Math.pow(2, 18 - this.getMap().getZoom());
+
     var radius = drawOptions.radius || 3;
     // console.log(data);
     for (var i = 0, len = data.length; i < len; i++) {

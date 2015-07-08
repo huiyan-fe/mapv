@@ -11,6 +11,7 @@ function Layer (options) {
     this.initOptions($.extend({
         ctx: null,
         mapv: null,
+        map: null,
         drawType: 'simple',
         data: [],
         zIndex: 1
@@ -27,6 +28,9 @@ util.extend(Layer.prototype, {
         if (this.mapMask) {
             return;
         }
+
+        this.setMap(this.getMapv().getMap());
+        this.bindTo('map', this.getMapv());
 
         this.mapMask = new MapMask({
             map: this.getMapv().getMap(),

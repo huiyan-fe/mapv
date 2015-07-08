@@ -10,6 +10,7 @@ function Drawer(layer) {
     this.mapv = layer._mapv;
     this.initOptions({
         layer: layer,
+        map: layer.getMap(),
         ctx: null,
         mapv: null,
         drawOptions: {
@@ -19,6 +20,7 @@ function Drawer(layer) {
 
     this.bindTo('ctx', layer)
     this.bindTo('mapv', layer)
+    this.bindTo('map', layer)
 }
 
 util.inherits(Drawer, Class);
