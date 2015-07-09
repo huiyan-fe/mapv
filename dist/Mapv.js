@@ -114,6 +114,7 @@
         self.target = target;
         self.targetKey = targetKey;
     }
+
     Accessor.prototype.transform = function(from, to) {
         var self = this;
         self.from = from;
@@ -384,6 +385,7 @@
         return MVCObject;
 
     })();
+
 })();
 ;function Class () {
     this.__listeners = {}; // 存储自定义事件对象
@@ -513,6 +515,7 @@ Mapv.prototype._initDrawTypeControl = function () {
         map: null,
         data: [],
         dataType: 'point',
+        coordType: 'bd09ll',
         drawType: 'simple',
         geometry: null,
         zIndex: 1
@@ -657,9 +660,18 @@ util.extend(Layer.prototype, {
 
             if (data[j].geo) {
                 var tmp = [];
-                for (var i = 0; i < data[j].geo.length; i++) {
-                    tmp.push(map.pointToPixel(new BMap.Point(data[j].geo[i][0], data[j].geo[i][1])));
+
+                if (this.getCoordType() === 'bd09ll') {
+                    for (var i = 0; i < data[j].geo.length; i++) {
+                        var pixel = map.pointToPixel(new BMap.Point(data[j].geo[i][0], data[j].geo[i][1]));
+                        tmp.push([pixel.x, pixel.y]);
+                    }
+                } else if (this.getCoordType() === 'bd09mc') {
+                    for (var i = 0; i < data[j].geo.length; i++) {
+                        tmp.push([(data[j].geo[i][0] - nwMc.x) / zoomUnit, (nwMc.y - data[j].geo[i][1]) / zoomUnit]);
+                    }
                 }
+
                 data[j].pgeo = tmp; 
             }
         }
@@ -2848,14 +2860,14 @@ SimpleDrawer.prototype.drawMap = function () {
 
         for (var i = 0, len = data.length; i < len; i++) {
             var geo = data[i].pgeo;
-            ctx.moveTo(geo[0].x, geo[0].y);
+            ctx.moveTo(geo[0][0], geo[0][1]);
             for (var j = 1; j < geo.length; j++) {
-                ctx.lineTo(geo[j].x, geo[j].y);
+                ctx.lineTo(geo[j][0], geo[j][1]);
             }
         }
-        ctx.closePath();
 
         if (dataType === 'polygon') {
+            ctx.closePath();
             ctx.fill();
         }
 

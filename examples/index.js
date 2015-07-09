@@ -393,3 +393,34 @@ $.ajax({
     }
 });
 
+
+$.ajax({
+    url: 'data/drive.json',
+    dataType: 'JSON',
+    success: function (rs) {
+        var data = [];
+
+        for (var i = 0; i < rs.length; i++) {
+            data.push({
+                geo: rs[i][0],
+                count: rs[i][1]
+            });
+        }
+
+        var layer = new Mapv.Layer({
+            zIndex: 2,
+            mapv: mapv,
+            dataType: 'polyline',
+            data: data,
+            drawType: 'simple',
+            zIndex: 2,
+            coordType: 'bd09mc',
+            drawOptions: {
+                simple: {
+                    lineWidth: 0.1,
+                    strokeStyle: "rgba(255, 255, 0, 1)"
+                }
+            }
+        });
+    }
+});

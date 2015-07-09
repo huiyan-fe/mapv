@@ -14,6 +14,7 @@ function Layer (options) {
         map: null,
         data: [],
         dataType: 'point',
+        coordType: 'bd09ll',
         drawType: 'simple',
         geometry: null,
         zIndex: 1
@@ -158,9 +159,18 @@ util.extend(Layer.prototype, {
 
             if (data[j].geo) {
                 var tmp = [];
-                for (var i = 0; i < data[j].geo.length; i++) {
-                    tmp.push(map.pointToPixel(new BMap.Point(data[j].geo[i][0], data[j].geo[i][1])));
+
+                if (this.getCoordType() === 'bd09ll') {
+                    for (var i = 0; i < data[j].geo.length; i++) {
+                        var pixel = map.pointToPixel(new BMap.Point(data[j].geo[i][0], data[j].geo[i][1]));
+                        tmp.push([pixel.x, pixel.y]);
+                    }
+                } else if (this.getCoordType() === 'bd09mc') {
+                    for (var i = 0; i < data[j].geo.length; i++) {
+                        tmp.push([(data[j].geo[i][0] - nwMc.x) / zoomUnit, (nwMc.y - data[j].geo[i][1]) / zoomUnit]);
+                    }
                 }
+
                 data[j].pgeo = tmp; 
             }
         }

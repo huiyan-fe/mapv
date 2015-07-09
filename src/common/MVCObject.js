@@ -1,3 +1,7 @@
+/**
+ * @file MVC架构
+ *
+ */
 var MVCObject;
 (function() {
 
@@ -6,6 +10,7 @@ var MVCObject;
         self.target = target;
         self.targetKey = targetKey;
     }
+
     Accessor.prototype.transform = function(from, to) {
         var self = this;
         self.from = from;
@@ -276,4 +281,5 @@ var MVCObject;
         return MVCObject;
 
     })();
+
 })();

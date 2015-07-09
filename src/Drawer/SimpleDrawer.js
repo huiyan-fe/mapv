@@ -36,14 +36,14 @@ SimpleDrawer.prototype.drawMap = function () {
 
         for (var i = 0, len = data.length; i < len; i++) {
             var geo = data[i].pgeo;
-            ctx.moveTo(geo[0].x, geo[0].y);
+            ctx.moveTo(geo[0][0], geo[0][1]);
             for (var j = 1; j < geo.length; j++) {
-                ctx.lineTo(geo[j].x, geo[j].y);
+                ctx.lineTo(geo[j][0], geo[j][1]);
             }
         }
-        ctx.closePath();
 
         if (dataType === 'polygon') {
+            ctx.closePath();
             ctx.fill();
         }
 
