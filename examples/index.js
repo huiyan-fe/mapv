@@ -412,26 +412,6 @@ $.ajax({
         });
 
         var layer = new Mapv.Layer({
-            zIndex: 3,
-            mapv: mapv,
-            dataType: 'polyline',
-            data: data.slice(0, 10),
-            drawType: 'simple',
-            zIndex: 2,
-            animation: true,
-            coordType: 'bd09mc',
-            drawOptions: {
-                simple: {
-                    shadowBlur: 10,
-                    shadowColor: "yellow",
-                    globalCompositeOperation: 'lighter',
-                    lineWidth: 5,
-                    strokeStyle: "rgba(250, 0, 0, 1)"
-                }
-            }
-        });
-
-        var layer = new Mapv.Layer({
             zIndex: 2,
             mapv: mapv,
             dataType: 'polyline',
@@ -460,5 +440,26 @@ $.ajax({
                 }
             }
         });
+
+        var layer = new Mapv.Layer({
+            zIndex: 3,
+            mapv: mapv,
+            dataType: 'polyline',
+            data: data.slice(0, 10),
+            drawType: 'simple',
+            zIndex: 2,
+            animation: true,
+            coordType: 'bd09mc',
+            drawOptions: {
+                simple: {
+                    shadowBlur: 40,
+                    shadowColor: "yellow",
+                    globalCompositeOperation: 'lighter',
+                    lineWidth: 10,
+                    strokeStyle: "rgba(250, 255, 0, 0.5)"
+                }
+            }
+        });
+
     }
 });
