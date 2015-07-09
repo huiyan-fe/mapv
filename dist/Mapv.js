@@ -114,6 +114,7 @@
         self.target = target;
         self.targetKey = targetKey;
     }
+
     Accessor.prototype.transform = function(from, to) {
         var self = this;
         self.from = from;
@@ -360,24 +361,31 @@
         };
 
         proto.initOptions = function(options) {
+
             for (var key in options) {
-                this.set(key, options[key]);
+
                 this[getGetterName(key)] = (function(key) {
                     return function () {
                         return this.get(key);
                     }
                 })(key);
+
                 this[getSetterName(key)] = (function(key) {
                     return function (value) {
                         this.set(key, value);
                     }
                 })(key);
+
+                this[toKey(key)] = options[key];
+
             }
+
         }
 
         return MVCObject;
 
     })();
+
 })();
 ;function Class () {
     this.__listeners = {}; // 存储自定义事件对象
@@ -450,6 +458,7 @@ Class.prototype.dispose = function () {
 }
 
 ;/* globals Layer GeoData DrawTypeControl OptionalData util DataControl DrawScale DataRangeControl*/
+
 /**
  * @param {Object}
  */
@@ -498,16 +507,22 @@ Mapv.prototype._initDrawTypeControl = function () {
 
     Class.call(this);
 
-    this.ctx = null;
     this._drawer = {};
 
-    this.options = {
+    this.initOptions($.extend({
+        ctx: null,
+        mapv: null,
+        map: null,
+        data: [],
+        dataType: 'point',
+        coordType: 'bd09ll',
         drawType: 'simple',
-        data: []
-    };
+        geometry: null,
+        zIndex: 1
+    }, options));
 
-    util.extend(this.options, options);
-    this.setData(this.options.data);
+    this.notify('mapv');
+
 }
 
 util.inherits(Layer, Class);
@@ -518,13 +533,16 @@ util.extend(Layer.prototype, {
             return;
         }
 
+        this.setMap(this.getMapv().getMap());
+        this.bindTo('map', this.getMapv());
+
         this.mapMask = new MapMask({
-            map: this._mapv.getMap(),
-            zIndex: this.options.zIndex,
+            map: this.getMapv().getMap(),
+            zIndex: this.getZIndex(),
             elementTag: "canvas"
         });
 
-        this.ctx = this.mapMask.getContainer().getContext("2d");
+        this.setCtx(this.mapMask.getContainer().getContext("2d"));
 
         var that = this;
         this.mapMask.addEventListener('draw', function () {
@@ -533,35 +551,47 @@ util.extend(Layer.prototype, {
     },
 
     draw: function () {
-        var ctx = this.ctx;
+        var ctx = this.getCtx();
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         ctx.canvas.width = ctx.canvas.width;
         ctx.canvas.height = ctx.canvas.height;
         this._calculatePixel();
 
-        this._getDrawer().drawMap(this._mapv, ctx);
+        this._getDrawer().drawMap();
     },
 
-    _layerAdd: function (mapv) {
-        this._mapv = mapv;
+    mapv_changed: function () {
+        if (!this.getMapv()) {
+            this.mapMask && this.mapMask.hide();
+            return;
+        } else {
+            this.mapMask && this.mapMask.show();
+        }
+
         this.initialize();
         this.updateControl();
 
         this.draw();
     },
 
-    getData: function () {
-        return this.options.data;
-    },
-
-    setDrawType: function (drawType) {
-        this.options.drawType = drawType;
+    drawType_changed: function () {
         this.updateControl();
         this.draw();
     },
 
+    drawOptions_changed: function () {
+        this.updateControl();
+        var drawOptions = this.getDrawOptions();
+        for (var key in drawOptions) {
+            if (this._drawer[key]) {
+                this._drawer[key].setDrawOptions(drawOptions[key]);
+            }
+        }
+        this.draw();
+    },
+
     updateControl: function () {
-        var mapv = this._mapv;
+        var mapv = this.getMapv();
         var drawer = this._getDrawer();
         if (drawer.drawDataRange) {
             map.addControl(mapv.getDataRangeCtrol());
@@ -579,11 +609,11 @@ util.extend(Layer.prototype, {
         }
 
         mapv._drawTypeControl.showLayer(this);
-        this._mapv.OptionalData && this._mapv.OptionalData.initController(this, this.options.drawType);
+        this.getMapv().OptionalData && this.getMapv().OptionalData.initController(this, this.getDrawType());
     },
 
     _getDrawer: function () {
-        var drawType = this.options.drawType;
+        var drawType = this.getDrawType();
 
         if (!this._drawer[drawType]) {
             var funcName = drawType.replace(/(\w)/, function (v) {
@@ -591,19 +621,19 @@ util.extend(Layer.prototype, {
             });
             funcName += 'Drawer';
             var drawer = this._drawer[drawType] = eval('(new ' + funcName + '(this))');
-            drawer.setDrawOptions(this.options.drawOptions[drawType]);
+            drawer.setDrawOptions(this.getDrawOptions()[drawType]);
             if (drawer.scale) {
-                drawer.scale(this._mapv.Scale);
-                this._mapv.Scale.show();
+                drawer.scale(this.getMapv().Scale);
+                this.getMapv().Scale.show();
             } else {
-                this._mapv.Scale.hide();
+                this.getMapv().Scale.hide();
             }
         }
         return this._drawer[drawType];
     },
 
     _calculatePixel: function () {
-        var map = this._mapv.getMap();
+        var map = this.getMapv().getMap();
         var mercatorProjection = map.getMapType().getProjection();
         // 墨卡托坐标计算方法
         var zoom = map.getZoom();
@@ -612,29 +642,45 @@ util.extend(Layer.prototype, {
         var nwMc = new BMap.Pixel(mcCenter.x - (map.getSize().width / 2) * zoomUnit,
             mcCenter.y + (map.getSize().height / 2) * zoomUnit); //左上角墨卡托坐标
 
-        var data = this.options.data;
+        var data = this.getData();
+        var map = this.getMap();
 
         for (var j = 0; j < data.length; j++) {
 
             if (data[j].lng && data[j].lat) {
-                var pixel = this._mapv.getMap().pointToPixel(new BMap.Point(data[j].lng, data[j].lat));
+                var pixel = map.pointToPixel(new BMap.Point(data[j].lng, data[j].lat));
                 data[j].px = pixel.x;
                 data[j].py = pixel.y;
             }
 
             if (data[j].x && data[j].y) {
-
                 data[j].px = (data[j].x - nwMc.x) / zoomUnit;
                 data[j].py = (nwMc.y - data[j].y) / zoomUnit;
+            }
 
+            if (data[j].geo) {
+                var tmp = [];
+
+                if (this.getCoordType() === 'bd09ll') {
+                    for (var i = 0; i < data[j].geo.length; i++) {
+                        var pixel = map.pointToPixel(new BMap.Point(data[j].geo[i][0], data[j].geo[i][1]));
+                        tmp.push([pixel.x, pixel.y]);
+                    }
+                } else if (this.getCoordType() === 'bd09mc') {
+                    for (var i = 0; i < data[j].geo.length; i++) {
+                        tmp.push([(data[j].geo[i][0] - nwMc.x) / zoomUnit, (nwMc.y - data[j].geo[i][1]) / zoomUnit]);
+                    }
+                }
+
+                data[j].pgeo = tmp; 
             }
         }
     },
 
-    setData: function (data) {
-        // console.log('GGGG',data)
-        if (!data) {
-            this.data = [];
+    data_changed: function () {
+        var data = this.getData();
+
+        if (!data || data.length < 1) {
             return;
         }
 
@@ -644,7 +690,6 @@ util.extend(Layer.prototype, {
             this._max = Math.max(this._max, data[i].count);
             this._min = Math.min(this._min, data[i].count);
         }
-        this.options.data = data;
     },
 
     getDataRange: function () {
@@ -1312,10 +1357,10 @@ DrawTypeControl.prototype.showLayer = function (layer) {
     // get the drawTypes from options by Mofei
     var ul = this.ul;
     ul.innerHTML = "";
-    var drawTypes = layer.options.drawOptions;
+    var drawTypes = layer.getDrawOptions();
     for (var key in drawTypes) {
         var li = document.createElement('li');
-        if (layer.options.drawType === key) {
+        if (layer.getDrawType() === key) {
             li.className = 'current';
         }
         li.setAttribute('drawType', key);
@@ -1538,17 +1583,23 @@ OptionalData.prototype.bindEvent = function () {
 function Drawer(layer) {
     Class.call(this);
 
-    this._layer = layer;
     this.mapv = layer._mapv;
-    this.drawOptions = {};
+    this.initOptions({
+        layer: layer,
+        map: layer.getMap(),
+        ctx: null,
+        mapv: null,
+        drawOptions: {
+            radius: 2
+        }
+    });
+
+    this.bindTo('ctx', layer)
+    this.bindTo('mapv', layer)
+    this.bindTo('map', layer)
 }
 
 util.inherits(Drawer, Class);
-
-
-Drawer.prototype.defaultDrawOptions = {
-    radius: 2
-};
 
 Drawer.prototype.drawMap = function () {};
 
@@ -1556,27 +1607,16 @@ Drawer.prototype.drawMap = function () {};
 //      we can shwo or remove range cans by drawer.drawDataRange
 // Drawer.prototype.drawDataRange = function () {};
 
-Drawer.prototype.setDrawOptions = function (drawOptions) {
-    var defaultObj = util.copy(this.defaultDrawOptions);
-    this.drawOptions = util.extend(defaultObj, drawOptions);
-    if (this.drawOptions.splitList) {
-        this.splitList = this.drawOptions.splitList;
+Drawer.prototype.drawOptions_changed = function () {
+    var drawOptions = this.getDrawOptions();
+    if (drawOptions && drawOptions.splitList) {
+        this.splitList = drawOptions.splitList;
     } else {
         this.generalSplitList();
     }
 
     this.drawDataRange && this.drawDataRange();
 
-    // console.log('set-----',this.drawOptions);
-};
-
-Drawer.prototype.getDrawOptions = function () {
-    // console.log('get-----',this.drawOptions);
-    return this.drawOptions;
-};
-
-Drawer.prototype.clearDrawOptions = function (drawOptions) {
-    this.drawOptions = {};
 };
 
 Drawer.prototype.colors = [
@@ -1591,7 +1631,7 @@ Drawer.prototype.colors = [
 ];
 
 Drawer.prototype.generalSplitList = function () {
-    var dataRange = this._layer.getDataRange();
+    var dataRange = this.getLayer().getDataRange();
     var splitNum = Math.ceil((dataRange.max - dataRange.min) / 7);
     var index = dataRange.min;
     this.splitList = [];
@@ -1615,13 +1655,15 @@ function BubbleDrawer() {
 
 util.inherits(BubbleDrawer, Drawer);
 
-BubbleDrawer.prototype.drawMap = function (mapv, ctx) {
+BubbleDrawer.prototype.drawMap = function () {
 
-    var data = this._layer.getData();
+    var data = this.getLayer().getData();
+
+    var ctx = this.getCtx();
 
     ctx.save();
 
-    var drawOptions = this.drawOptions;
+    var drawOptions = this.getDrawOptions();
 
     if (drawOptions.globalCompositeOperation) {
         ctx.globalCompositeOperation = drawOptions.globalCompositeOperation;
@@ -1667,13 +1709,13 @@ BubbleDrawer.prototype.getRadius = function (val) {
 };
 
 BubbleDrawer.prototype.drawDataRange = function () {
-    var canvas = this.mapv.getDataRangeCtrol().getContainer();
+    var canvas = this.getMapv().getDataRangeCtrol().getContainer();
     canvas.width = 100;
     canvas.height = 190;
     canvas.style.width = '100px';
     canvas.style.height = '190px';
     var ctx = canvas.getContext('2d');
-    ctx.fillStyle = this.drawOptions.fillStyle || 'rgba(50, 50, 200, 0.8)';
+    ctx.fillStyle = this.getDrawOptions().fillStyle || 'rgba(50, 50, 200, 0.8)';
     var splitList = this.splitList;
 
     for (var i = 0; i < splitList.length; i++) {
@@ -1695,12 +1737,13 @@ function CategoryDrawer() {
 
 util.inherits(CategoryDrawer, Drawer);
 
-CategoryDrawer.prototype.drawMap = function (mapv, ctx) {
+CategoryDrawer.prototype.drawMap = function () {
 
-    var data = this._layer.getData();
+    var data = this.getLayer().getData();
+    var ctx = this.getCtx();
 
 
-    var drawOptions = this.drawOptions;
+    var drawOptions = this.getDrawOptions();
 
     ctx.strokeStyle = drawOptions.strokeStyle;
 
@@ -1734,7 +1777,7 @@ CategoryDrawer.prototype.generalSplitList = function () {
 };
 
 CategoryDrawer.prototype.drawDataRange = function () {
-    var canvas = this.mapv.getDataRangeCtrol().getContainer();
+    var canvas = this.getMapv().getDataRangeCtrol().getContainer();
     canvas.width = 80;
     canvas.height = 190;
     canvas.style.width = "80px";
@@ -1779,12 +1822,12 @@ function ChoroplethDrawer() {
 
 util.inherits(ChoroplethDrawer, Drawer);
 
-ChoroplethDrawer.prototype.drawMap = function (mapv, ctx) {
+ChoroplethDrawer.prototype.drawMap = function () {
 
-    var data = this._layer.getData();
+    var data = this.getLayer().getData();
+    var ctx = this.getCtx();
 
-
-    var drawOptions = this.drawOptions;
+    var drawOptions = this.getDrawOptions();
 
     ctx.strokeStyle = drawOptions.strokeStyle;
 
@@ -1805,8 +1848,8 @@ ChoroplethDrawer.prototype.drawMap = function (mapv, ctx) {
 };
 
 ChoroplethDrawer.prototype.drawDataRange = function () {
-    var canvas = this.mapv.getDataRangeCtrol().getContainer();
-    var drawOptions = this.drawOptions;
+    var canvas = this.getMapv().getDataRangeCtrol().getContainer();
+    var drawOptions = this.getDrawOptions();
     canvas.width = 100;
     canvas.height = 190;
     canvas.style.width = '100px';
@@ -1852,17 +1895,16 @@ function ClusterDrawer() {
 
 util.inherits(ClusterDrawer, Drawer);
 
-ClusterDrawer.prototype.drawMap = function (mapv, ctx) {
+ClusterDrawer.prototype.drawMap = function () {
     // console.log('ClusterDrawer');
     window.console.time('computerMapData');
+    var ctx = this.getCtx();
     // TODO: ser workder
     max = min = undefined;
 
-    // var data = mapv.geoData.getData();
-    var data = this._layer.getData();
-    console.log(data)
+    var data = this.getLayer().getData();
 
-    var map = mapv.getMap();
+    var map = this.getMapv().getMap();
     var zoom = map.getZoom();
     var zoomUnit = this.zoomUnit = Math.pow(2, 18 - zoom);
 
@@ -1988,9 +2030,8 @@ ClusterDrawer.prototype.drawMap = function (mapv, ctx) {
         ctx.restore();
         // }
     }
-    // this.drawDataRange(mapv._dataRangeCtrol.getContainer());
+
     window.console.timeEnd('drawMap');
-    // console.timeEnd('drawMap')
 };
 
 // ClusterDrawer.prototype.drawDataRange = function (canvas, data, drawOptions) {
@@ -2003,7 +2044,7 @@ ClusterDrawer.prototype.drawMap = function (mapv, ctx) {
 ClusterDrawer.prototype.formatParam = function () {
 
     // console.log('AAA')
-    var options = this.drawOptions;
+    var options = this.getDrawOptions();
     // console.log(options)
     var fillColors = this.fillColors = [
         [73, 174, 34],
@@ -2049,8 +2090,6 @@ var max;
 function DensityDrawer() {
     this.Scale;
     this.masker = {};
-    this.mapv = null;
-    this.ctx = null;
     Drawer.apply(this, arguments);
 }
 
@@ -2070,17 +2109,15 @@ DensityDrawer.prototype.scale = function (scale) {
     this.Scale = scale;
 };
 
-DensityDrawer.prototype.drawMap = function (mapv, ctx) {
+DensityDrawer.prototype.drawMap = function () {
 
     var self = this;
-    mapv = this.mapv = this.mapv || mapv;
-    ctx = this.ctx = this.ctx || ctx;
+    var ctx = this.getCtx();
 
     // TODO: use workder
-    // var data = mapv.geoData.getData();
-    var data = this._layer.getData();
+    var data = this.getLayer().getData();
 
-    var map = mapv.getMap();
+    var map = this.getMapv().getMap();
     var zoom = map.getZoom();
     var zoomUnit = this.zoomUnit = Math.pow(2, 18 - zoom);
 
@@ -2103,7 +2140,7 @@ DensityDrawer.prototype.drawMap = function (mapv, ctx) {
     };
 
     var gridsObj = {};
-    if (this.drawOptions.gridType === 'honeycomb') {
+    if (this.getDrawOptions().gridType === 'honeycomb') {
         gridsObj = honeycombGrid(obj);
     } else {
         gridsObj = recGrids(obj);
@@ -2128,7 +2165,7 @@ DensityDrawer.prototype.drawMap = function (mapv, ctx) {
     };
 
     var gridsObj = {};
-    if (this.drawOptions.gridType === 'honeycomb') {
+    if (this.getDrawOptions().gridType === 'honeycomb') {
         drawHoneycomb(obj);
     } else {
         drawRec(obj);
@@ -2250,7 +2287,7 @@ function drawRec(obj) {
         ctx.fillRect(x, y, gridStep - 1, gridStep - 1);
 
 
-        if (self.drawOptions.showNum) {
+        if (self.getDrawOptions().showNum) {
 
             ctx.save();
             // ctx.fillStyle = 'black';
@@ -2378,7 +2415,7 @@ function drawHoneycomb(obj) {
             draw(x, y, gridsW - 1, 'rgba(0,0,0,0.2)', ctx);
         }
 
-        if (obj.sup.drawOptions.showNum && !isTooSmall && !isTooBig) {
+        if (obj.sup.getDrawOptions().showNum && !isTooSmall && !isTooBig) {
             ctx.save();
             ctx.textBaseline = 'middle';
             ctx.textAlign = 'center';
@@ -2410,7 +2447,7 @@ function draw(x, y, gridStep, color, ctx) {
  */
 function formatParam() {
 
-    var options = this.drawOptions;
+    var options = this.getDrawOptions();
     // console.log(options)
     var fillColors = this.fillColors = [
         [73, 174, 34],
@@ -2459,16 +2496,13 @@ function HeatmapDrawer() {
 
 util.inherits(HeatmapDrawer, Drawer);
 
-HeatmapDrawer.prototype.drawMap = function (mapv, ctx) {
+HeatmapDrawer.prototype.drawMap = function () {
     var self = this;
-    mapv = self.mapv = self.mapv || mapv;
-    ctx = self.ctx = self.ctx || ctx;
-    this._ctx = ctx;
+    var ctx = this.getCtx();
     this._map = map;
     this._width = ctx.canvas.width;
     this._height = ctx.canvas.height;
-    var data = this._layer.getData();
-    // var drawOptions = this.drawOptions;
+    var data = this.getLayer().getData();
     this._data = data;
     this.drawHeatmap();
 
@@ -2493,31 +2527,6 @@ HeatmapDrawer.prototype.scale = function (scale) {
     self.Scale = scale;
 };
 
-// HeatmapDrawer.prototype.drawDataRange = function () {
-//     var canvas = this.mapv.getDataRangeCtrol().getContainer();
-//     canvas.width = 60;
-//     canvas.height = 160;
-//     canvas.style.width = '60px';
-//     canvas.style.height = '160px';
-
-//     var ctx = canvas.getContext('2d');
-
-//     var gradient = ctx.createLinearGradient(0, 0, 0, 160);
-
-//     var grad = this.getGradient();
-
-//     for (var i in grad) {
-//         gradient.addColorStop(i, grad[i]);
-//     }
-
-//     ctx.fillStyle = gradient;
-//     ctx.fillRect(5, 5, 30, 150);
-
-//     ctx.fillStyle = '#333';
-//     ctx.fillText(0, 37, 15);
-//     ctx.fillText(this.getMax(), 37, 153);
-// };
-
 util.extend(HeatmapDrawer.prototype, {
 
     defaultRadius: 10,
@@ -2531,22 +2540,22 @@ util.extend(HeatmapDrawer.prototype, {
     },
 
     getGradient: function () {
-        return this.drawOptions.gradient || this.defaultGradient;
+        return this.getDrawOptions().gradient || this.defaultGradient;
     },
 
     getRadius: function () {
         var zoom = this._map.getZoom();
         var zoomUnit = Math.pow(2, 18 - zoom);
-        var distance = this.drawOptions.radius || 200;
+        var distance = this.getDrawOptions().radius || 200;
         return distance / zoomUnit;
     },
 
     getMax: function () {
         var max = this._max;
-        if (this.drawOptions.max !== undefined) {
-            max = this.drawOptions.max;
+        if (this.getDrawOptions().max !== undefined) {
+            max = this.getDrawOptions().max;
         } else {
-            var dataRange = this.mapv.geoData.getDataRange();
+            var dataRange = this.getLayer().getDataRange();
             max = dataRange.min + (dataRange.max - dataRange.min) * 0.7;
         }
         return max;
@@ -2580,20 +2589,20 @@ util.extend(HeatmapDrawer.prototype, {
             ctx = circle.getContext('2d'),
             r2 = this._r = r + blur;
 
-        if (this.drawOptions.type === 'rect') {
+        if (this.getDrawOptions().type === 'rect') {
             circle.width = circle.height = r2;
         } else {
             circle.width = circle.height = r2 * 2;
         }
 
         ctx.shadowOffsetX = ctx.shadowOffsetY = 200;
-        if (this.drawOptions.blur) {
+        if (this.getDrawOptions().blur) {
             ctx.shadowBlur = blur;
         }
         ctx.shadowColor = 'black';
 
         ctx.beginPath();
-        if (this.drawOptions.type === 'rect') {
+        if (this.getDrawOptions().type === 'rect') {
             ctx.fillRect(-200, -200, circle.width, circle.height);
         } else {
             ctx.arc(r2 - 200, r2 - 200, r, 0, Math.PI * 2, true);
@@ -2633,23 +2642,38 @@ util.extend(HeatmapDrawer.prototype, {
         this.gradient(this.getGradient());
         // }
 
-        var ctx = this._ctx;
+        var ctx = this.getCtx();
 
         ctx.clearRect(0, 0, this._width, this._height);
 
         // console.log(this.masker)
         // draw a grayscale heatmap by putting a blurred circle at each data point
-        for (var i = 0, len = this._data.length, p; i < len; i++) {
-            p = this._data[i];
-            if (p.px < 0 || p.py < 0 || p.px > ctx.canvas.width || p.py > ctx.canvas.height) {
-                continue;
+        var dataType = this.getLayer().getDataType();
+        if (dataType === 'polyline') {
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.lineWidth = 1;
+            for (var i = 0, len = this._data.length; i < len; i++) {
+                p = this._data[i];
+                var geo = p.pgeo;
+                ctx.moveTo(geo[0][0], geo[0][1]);
+                for (var j = 1; j < geo.length; j++) {
+                    ctx.lineTo(geo[j][0], geo[j][1]);
+                }
             }
-            // if (p.count < this.masker.min || p.count > this.masker.max) {
-            //     continue;
-            // }
-            // console.log(p.count)
-            ctx.globalAlpha = Math.max(p.count / this.getMax(), minOpacity === undefined ? 0.05 : minOpacity);
-            ctx.drawImage(this._circle, p.px - this._r, p.py - this._r);
+            ctx.stroke();
+        } else {
+            for (var i = 0, len = this._data.length, p; i < len; i++) {
+                p = this._data[i];
+                if (p.px < 0 || p.py < 0 || p.px > ctx.canvas.width || p.py > ctx.canvas.height) {
+                    continue;
+                }
+                // if (p.count < this.masker.min || p.count > this.masker.max) {
+                //     continue;
+                // }
+                // console.log(p.count)
+                ctx.globalAlpha = Math.max(p.count / this.getMax(), minOpacity === undefined ? 0.05 : minOpacity);
+                ctx.drawImage(this._circle, p.px - this._r, p.py - this._r);
+            }
         }
 
         // colorize the heatmap, using opacity value of each pixel to get the right color from our gradient
@@ -2675,7 +2699,7 @@ util.extend(HeatmapDrawer.prototype, {
         for (var i = 3, len = pixels.length, j; i < len; i += 4) {
             j = pixels[i] * 4; // get gradient color from opacity value
 
-            var maxOpacity = this.drawOptions.maxOpacity || 0.8;
+            var maxOpacity = this.getDrawOptions().maxOpacity || 0.8;
             if (pixels[i] / 256 > maxOpacity) {
                 pixels[i] = 256 * maxOpacity;
             }
@@ -2711,16 +2735,15 @@ IntensityDrawer.prototype.defaultGradient = {
     '1.0': 'red'
 };
 
-IntensityDrawer.prototype.drawMap = function (mapv, ctx) {
+IntensityDrawer.prototype.drawMap = function () {
     var self = this;
-    mapv = self.mapv = self.mapv || mapv;
-    ctx = self.ctx = self.ctx || ctx;
+    var ctx = this.getCtx();
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
 
-    var data = this._layer.getData();
-    var drawOptions = this.drawOptions;
+    var data = this.getLayer().getData();
+    var drawOptions = this.getDrawOptions();
     ctx.strokeStyle = drawOptions.strokeStyle;
 
     var ctxW = ctx.canvas.width;
@@ -2774,11 +2797,11 @@ IntensityDrawer.prototype.scale = function (scale) {
 };
 
 IntensityDrawer.prototype.getMax = function () {
-    var dataRange = this._layer.getDataRange();
+    var dataRange = this.getLayer().getDataRange();
     var max = dataRange.max;
 
-    if (this.drawOptions.max) {
-        max = this.drawOptions.max;
+    if (this.getDrawOptions().max) {
+        max = this.getDrawOptions().max;
     }
     return max;
 };
@@ -2826,10 +2849,11 @@ function SimpleDrawer() {
 
 util.inherits(SimpleDrawer, Drawer);
 
-SimpleDrawer.prototype.drawMap = function (mapv, ctx) {
-    var data = this._layer.getData();
+SimpleDrawer.prototype.drawMap = function () {
+    var data = this.getLayer().getData();
+    var ctx = this.getCtx();
 
-    var drawOptions = this.drawOptions;
+    var drawOptions = this.getDrawOptions();
 
     ctx.fillStyle = drawOptions.fillStyle || "rgba(50, 50, 200, 0.8)";
     ctx.strokeStyle = drawOptions.strokeStyle;
@@ -2841,23 +2865,51 @@ SimpleDrawer.prototype.drawMap = function (mapv, ctx) {
         ctx.globalCompositeOperation = drawOptions.globalCompositeOperation;
     }
 
+    var zoomUnit = Math.pow(2, 18 - this.getMap().getZoom());
+
     var radius = drawOptions.radius || 3;
-    // console.log(data);
-    for (var i = 0, len = data.length; i < len; i++) {
-        var item = data[i];
-        if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {
-            continue;
+
+    var dataType = this.getLayer().getDataType();
+
+    if (dataType === 'polyline' || dataType === 'polygon') {
+
+        for (var i = 0, len = data.length; i < len; i++) {
+            var geo = data[i].pgeo;
+            ctx.moveTo(geo[0][0], geo[0][1]);
+            for (var j = 1; j < geo.length; j++) {
+                ctx.lineTo(geo[j][0], geo[j][1]);
+            }
         }
-        ctx.moveTo(item.px, item.py);
-        ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
+
+        if (dataType === 'polygon') {
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        if (drawOptions.strokeStyle || dataType === 'polyline') {
+            ctx.stroke();
+        } 
+
+    } else {
+        // console.log(data);
+        for (var i = 0, len = data.length; i < len; i++) {
+            var item = data[i];
+            if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {
+                continue;
+            }
+            ctx.moveTo(item.px, item.py);
+            ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
+        }
+
+        ctx.fill();
+
+        if (drawOptions.strokeStyle) {
+            ctx.stroke();
+        }
     }
 
-    if (drawOptions.strokeStyle) {
-        ctx.stroke();
-    }
-
-    ctx.fill();
 }
+
 ;    Mapv.Layer = Layer;
     this.Mapv = Mapv;
 }();

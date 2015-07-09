@@ -1,5 +1,5 @@
 /**
- * @file ***
+ * @file 示例代码
  */
 
 /* globals Drawer mercatorProjection BMap util Mapv*/
@@ -12,15 +12,12 @@ var map = new BMap.Map('map', {
 
 var mercatorProjection = map.getMapType().getProjection();
 
-// var point = new BMap.Point();
-// this.options.map.centerAndZoom(point, 15);
 map.centerAndZoom(new BMap.Point(116.403119, 39.928658), 12); // 初始化地图,设置中心点坐标和地图级别
 map.enableScrollWheelZoom(); // 启用滚轮放大缩小
 
 var mapv;
 
 map.getContainer().style.background = '#081734';
-/*
 map.setMapStyle({
     styleJson: [{
         featureType: 'water',
@@ -147,24 +144,6 @@ map.setMapStyle({
         }
     }]
 });
-*/
-
-// map.setMapStyle({
-//     styleJson: [{
-//         featureType: 'all',
-//         elementType: 'geometry',
-//         stylers: {
-//             hue: '#007fff',
-//             saturation: 89
-//         }
-//     }, {
-//         featureType: 'water',
-//         elementType: 'all',
-//         stylers: {
-//             color: '#ffffff'
-//         }
-//     }]
-// });
 
 var data = null;
 var drawOptions = {
@@ -299,6 +278,12 @@ var drawOptions = {
     }
 };
 
+
+var options = {
+    map: map
+};
+mapv = new Mapv(options);
+
 $.ajax({
     url: 'data/beijing.json',
     dataType: 'JSON',
@@ -313,50 +298,141 @@ $.ajax({
             });
         }
 
-
-        var options = {
-            map: map
-        };
-        mapv = new Mapv(options);
-
         var layer = new Mapv.Layer({
-            zIndex: 2,
-            data: [{
-                lng: 116.39507,
-                lat: 39.929101
-            },
-            {
-                lng: 116.49507,
-                lat: 39.889101
-            },
-            {
-                lng: 116.46507,
-                lat: 39.929101
-            },
-            {
-                lng: 116.43507,
-                lat: 39.909101
-            }
+            zIndex: 3,
+            mapv: mapv,
+            dataType: 'polygon',
+            data: [
+                {
+                    geo: [
+                        [116.39507, 39.879101], 
+                        [116.49507, 39.889101],
+                        [116.46507, 39.929101],
+                        [116.43507, 39.909101]
+                    ],
+                    count: 10
+                }
             ],
             drawType: 'simple',
             drawOptions: {
                 simple: {
-                    fillStyle: "rgba(255, 255, 0, 1)",
-                    strokeStyle: "rgba(255, 0, 0, 1)",
-                    lineWidth: 10,
+                    lineWidth: 8,
+                    strokeStyle: "rgba(255, 255, 0, 1)",
+                    fillStyle: "rgba(255, 0, 0, 0.8)"
+                }
+            }
+        });
+
+        var layer = new Mapv.Layer({
+            mapv: mapv,
+            dataType: 'polyline',
+            data: [
+                {
+                    geo: [
+                        [116.39507, 39.879101], 
+                        [116.49507, 39.889101],
+                        [116.46507, 39.929101],
+                        [116.43507, 39.909101]
+                    ],
+                    count: 10
+                }
+            ],
+            drawType: 'simple',
+            zIndex: 5,
+            drawOptions: {
+                simple: {
+                    lineWidth: 2,
+                    strokeStyle: "rgba(0, 0, 255, 1)"
+                }
+            }
+        });
+
+
+        var layer = new Mapv.Layer({
+            zIndex: 3,
+            mapv: mapv,
+            dataType: 'point',
+            data: [
+                {
+                    lng: 116.39507,
+                    lat: 39.879101
+                },
+                {
+                    lng: 116.49507,
+                    lat: 39.889101
+                },
+                {
+                    lng: 116.46507,
+                    lat: 39.929101
+                },
+                {
+                    lng: 116.43507,
+                    lat: 39.909101
+                }
+            ],
+            drawType: 'simple',
+            drawOptions: {
+                simple: {
+                    fillStyle: "rgba(255, 255, 50, 1)",
+                    lineWidth: 5,
                     radius: 20
                 }
             }
         });
-        mapv.addLayer(layer);
-        
+
         var layer = new Mapv.Layer({
             zIndex: 1,
+            geometryType: 'point',
             data: data,
             drawType: 'heatmap',
             drawOptions: drawOptions
         });
-        mapv.addLayer(layer);
+        layer.setMapv(mapv);
 
+    }
+});
+
+
+$.ajax({
+    url: 'data/drive.json',
+    dataType: 'JSON',
+    success: function (rs) {
+        var data = [];
+
+        for (var i = 0; i < rs.length; i++) {
+            data.push({
+                geo: rs[i][0],
+                count: rs[i][1]
+            });
+        }
+
+        var layer = new Mapv.Layer({
+            zIndex: 2,
+            mapv: mapv,
+            dataType: 'polyline',
+            data: data,
+            drawType: 'heatmap',
+            zIndex: 2,
+            coordType: 'bd09mc',
+            drawOptions: {
+                simple: {
+                    globalCompositeOperation: 'lighter',
+                    lineWidth: 0.2,
+                    strokeStyle: "rgba(50, 50, 255, 1)"
+                },
+                heatmap: {
+                    radius: 500,
+                    maxOpacity: 0.8,
+                    max: 100,
+                    blur: true,
+                    type: 'arc',
+                    fillStyle: 'rgba(55, 55, 255, 0.8)',
+                    gradient: {
+                        '0.4': 'blue',
+                        '1.0': 'yellow'
+                    },
+                }
+            }
+        });
     }
 });
