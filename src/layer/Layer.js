@@ -15,6 +15,9 @@ function Layer (options) {
         map: null,
         data: [],
         dataType: 'point',
+        animationOptions: {
+            radius: 5
+        },
         coordType: 'bd09ll',
         drawType: 'simple',
         animation: false,
@@ -223,7 +226,7 @@ util.extend(Layer.prototype, {
 
         if (this.getDataType() === "polyline" && this.getAnimation()) {
             for (var i = 0; i < data.length; i++) {
-                data[i].index = 0;
+                data[i].index = parseInt(Math.random() * data[i].geo.length, 10);
             }
         }
 

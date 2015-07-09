@@ -83,6 +83,7 @@ SimpleDrawer.prototype.drawMap = function () {
 SimpleDrawer.prototype.drawAnimation = function () {
     var data = this.getLayer().getData();
     var dataType = this.getLayer().getDataType();
+    var animationOptions = this.getLayer().getAnimationOptions();
     var ctx = this.getLayer().getAnimationCtx();
 
     if (dataType === 'polyline') {
@@ -93,14 +94,14 @@ SimpleDrawer.prototype.drawAnimation = function () {
             /* 设定渐变区域 */
             var x = pgeo[index][0];
             var y = pgeo[index][1];
-            var grad  = ctx.createRadialGradient(x, y, 0, x, y, 15);
+            var grad  = ctx.createRadialGradient(x, y, 0, x, y, animationOptions.radius);
             grad.addColorStop(0,'rgba(255, 255, 255, 1)');
             grad.addColorStop(0.4,'rgba(255, 255, 255, 0.9)');
             grad.addColorStop(1,'rgba(255, 255, 255, 0)');
             ctx.fillStyle = grad;
 
             ctx.beginPath();
-            ctx.arc(x, y, 15, 0, 2 * Math.PI, false);
+            ctx.arc(x, y, animationOptions.radius, 0, 2 * Math.PI, false);
             ctx.closePath();
             ctx.fill();
             data[i].index++;

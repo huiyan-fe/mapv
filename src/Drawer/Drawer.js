@@ -13,19 +13,22 @@ function Drawer(layer) {
         map: layer.getMap(),
         ctx: null,
         mapv: null,
+        animationOptions: {},
         drawOptions: {
             radius: 2
         }
     });
 
     this.bindTo('ctx', layer)
+    this.bindTo('animationOptions', layer)
     this.bindTo('mapv', layer)
     this.bindTo('map', layer)
 }
 
 util.inherits(Drawer, Class);
 
-Drawer.prototype.drawMap = function () {};
+Drawer.prototype.drawMap = function () {
+};
 
 // we need defined drawDataRange so that in Mapv.js
 //      we can shwo or remove range cans by drawer.drawDataRange

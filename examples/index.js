@@ -345,6 +345,9 @@ $.ajax({
                     lineWidth: 2,
                     strokeStyle: "rgba(0, 0, 255, 1)"
                 }
+            },
+            animationOptions: {
+                radius: 10
             }
         });
 
@@ -388,7 +391,7 @@ $.ajax({
             drawType: 'heatmap',
             drawOptions: drawOptions
         });
-        //layer.setMapv(mapv);
+        layer.setMapv(mapv);
 
     }
 });
@@ -412,13 +415,38 @@ $.ajax({
         });
 
         var layer = new Mapv.Layer({
+            mapv: mapv,
+            dataType: 'polyline',
+            data: data.slice(0, 10),
+            zIndex: 3,
+            animation: true,
+            animationOptions: {
+                radius: 15
+            },
+            coordType: 'bd09mc',
+            drawType: 'simple',
+            drawOptions: {
+                simple: {
+                    shadowBlur: 40,
+                    shadowColor: "yellow",
+                    globalCompositeOperation: 'lighter',
+                    lineWidth: 10,
+                    strokeStyle: "rgba(250, 255, 0, 0.5)"
+                }
+            }
+        });
+
+        var layer = new Mapv.Layer({
             zIndex: 2,
             mapv: mapv,
             dataType: 'polyline',
             data: data,
-            drawType: 'simple',
-            zIndex: 2,
             coordType: 'bd09mc',
+            animation: true,
+            animationOptions: {
+                radius: 2
+            },
+            drawType: 'simple',
             drawOptions: {
                 simple: {
                     globalCompositeOperation: 'lighter',
@@ -437,26 +465,6 @@ $.ajax({
                         '0': 'yellow',
                         '1.0': 'red'
                     },
-                }
-            }
-        });
-
-        var layer = new Mapv.Layer({
-            zIndex: 3,
-            mapv: mapv,
-            dataType: 'polyline',
-            data: data.slice(0, 10),
-            drawType: 'simple',
-            zIndex: 2,
-            animation: true,
-            coordType: 'bd09mc',
-            drawOptions: {
-                simple: {
-                    shadowBlur: 40,
-                    shadowColor: "yellow",
-                    globalCompositeOperation: 'lighter',
-                    lineWidth: 10,
-                    strokeStyle: "rgba(250, 255, 0, 0.5)"
                 }
             }
         });
