@@ -339,6 +339,7 @@ $.ajax({
             ],
             drawType: 'simple',
             zIndex: 5,
+            animation: true,
             drawOptions: {
                 simple: {
                     lineWidth: 2,
@@ -417,6 +418,7 @@ $.ajax({
             data: data.slice(0, 10),
             drawType: 'simple',
             zIndex: 2,
+            animation: true,
             coordType: 'bd09mc',
             drawOptions: {
                 simple: {

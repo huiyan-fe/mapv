@@ -10,16 +10,19 @@ function Layer (options) {
 
     this.initOptions($.extend({
         ctx: null,
+        animationCtx: null,
         mapv: null,
         map: null,
         data: [],
         dataType: 'point',
         coordType: 'bd09ll',
         drawType: 'simple',
+        animation: false,
         geometry: null,
         zIndex: 1
     }, options));
 
+    this.notify('data');
     this.notify('mapv');
 
 }
@@ -47,16 +50,51 @@ util.extend(Layer.prototype, {
         this.mapMask.addEventListener('draw', function () {
             that.draw();
         });
+
+        if (this.getAnimation()) {
+            this.animationMask = new MapMask({
+                map: this.getMapv().getMap(),
+                zIndex: this.getZIndex(),
+                elementTag: "canvas"
+            });
+
+            this.setAnimationCtx(this.animationMask.getContainer().getContext("2d"));
+        }
+
     },
 
     draw: function () {
         var ctx = this.getCtx();
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        ctx.canvas.width = ctx.canvas.width;
-        ctx.canvas.height = ctx.canvas.height;
         this._calculatePixel();
 
         this._getDrawer().drawMap();
+
+        if (this.getDataType() === 'polyline' && this.getAnimation() && !this._animationFlag) {
+            this.drawAnimation();
+            this._animationFlag = true;
+        }
+
+    },
+
+    drawAnimation: function () {
+        var animationCtx = this.getAnimationCtx();
+        animationCtx.clearRect(0, 0, animationCtx.canvas.width, animationCtx.canvas.height);
+
+        var that = this;
+        this._getDrawer().drawAnimation();
+
+        if (this.getAnimation()) {
+            requestAnimationFrame(function () {
+                that.drawAnimation();
+            });
+        }
+    },
+
+    animation_changed: function () {
+        if (this.getAnimation()) {
+            this.drawAnimation();
+        }
     },
 
     mapv_changed: function () {
@@ -181,6 +219,12 @@ util.extend(Layer.prototype, {
 
         if (!data || data.length < 1) {
             return;
+        }
+
+        if (this.getDataType() === "polyline" && this.getAnimation()) {
+            for (var i = 0; i < data.length; i++) {
+                data[i].index = 0;
+            }
         }
 
         this._min = data[0].count;

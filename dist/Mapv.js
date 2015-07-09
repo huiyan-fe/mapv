@@ -511,16 +511,19 @@ Mapv.prototype._initDrawTypeControl = function () {
 
     this.initOptions($.extend({
         ctx: null,
+        animationCtx: null,
         mapv: null,
         map: null,
         data: [],
         dataType: 'point',
         coordType: 'bd09ll',
         drawType: 'simple',
+        animation: false,
         geometry: null,
         zIndex: 1
     }, options));
 
+    this.notify('data');
     this.notify('mapv');
 
 }
@@ -548,16 +551,51 @@ util.extend(Layer.prototype, {
         this.mapMask.addEventListener('draw', function () {
             that.draw();
         });
+
+        if (this.getAnimation()) {
+            this.animationMask = new MapMask({
+                map: this.getMapv().getMap(),
+                zIndex: this.getZIndex(),
+                elementTag: "canvas"
+            });
+
+            this.setAnimationCtx(this.animationMask.getContainer().getContext("2d"));
+        }
+
     },
 
     draw: function () {
         var ctx = this.getCtx();
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        ctx.canvas.width = ctx.canvas.width;
-        ctx.canvas.height = ctx.canvas.height;
         this._calculatePixel();
 
         this._getDrawer().drawMap();
+
+        if (this.getDataType() === 'polyline' && this.getAnimation() && !this._animationFlag) {
+            this.drawAnimation();
+            this._animationFlag = true;
+        }
+
+    },
+
+    drawAnimation: function () {
+        var animationCtx = this.getAnimationCtx();
+        animationCtx.clearRect(0, 0, animationCtx.canvas.width, animationCtx.canvas.height);
+
+        var that = this;
+        this._getDrawer().drawAnimation();
+
+        if (this.getAnimation()) {
+            requestAnimationFrame(function () {
+                that.drawAnimation();
+            });
+        }
+    },
+
+    animation_changed: function () {
+        if (this.getAnimation()) {
+            this.drawAnimation();
+        }
     },
 
     mapv_changed: function () {
@@ -682,6 +720,12 @@ util.extend(Layer.prototype, {
 
         if (!data || data.length < 1) {
             return;
+        }
+
+        if (this.getDataType() === "polyline" && this.getAnimation()) {
+            for (var i = 0; i < data.length; i++) {
+                data[i].index = 0;
+            }
         }
 
         this._min = data[0].count;
@@ -2923,6 +2967,39 @@ SimpleDrawer.prototype.drawMap = function () {
 
 }
 
+/**
+ * 绘制动画
+ */
+SimpleDrawer.prototype.drawAnimation = function () {
+    var data = this.getLayer().getData();
+    var dataType = this.getLayer().getDataType();
+    var ctx = this.getLayer().getAnimationCtx();
+
+    if (dataType === 'polyline') {
+        for (var i = 0, len = data.length; i < len; i++) {
+            var index = data[i].index;
+            var pgeo = data[i].pgeo;
+
+            /* 设定渐变区域 */
+            var x = pgeo[index][0];
+            var y = pgeo[index][1];
+            var grad  = ctx.createRadialGradient(x, y, 0, x, y, 15);
+            grad.addColorStop(0,'rgba(255, 255, 255, 1)');
+            grad.addColorStop(0.4,'rgba(255, 255, 255, 0.9)');
+            grad.addColorStop(1,'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = grad;
+
+            ctx.beginPath();
+            ctx.arc(x, y, 15, 0, 2 * Math.PI, false);
+            ctx.closePath();
+            ctx.fill();
+            data[i].index++;
+            if (data[i].index >= data[i].pgeo.length) {
+                data[i].index = 0;
+            }
+        }
+    }
+}
 ;    Mapv.Layer = Layer;
     this.Mapv = Mapv;
 }();

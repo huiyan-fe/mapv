@@ -77,3 +77,36 @@ SimpleDrawer.prototype.drawMap = function () {
 
 }
 
+/**
+ * 绘制动画
+ */
+SimpleDrawer.prototype.drawAnimation = function () {
+    var data = this.getLayer().getData();
+    var dataType = this.getLayer().getDataType();
+    var ctx = this.getLayer().getAnimationCtx();
+
+    if (dataType === 'polyline') {
+        for (var i = 0, len = data.length; i < len; i++) {
+            var index = data[i].index;
+            var pgeo = data[i].pgeo;
+
+            /* 设定渐变区域 */
+            var x = pgeo[index][0];
+            var y = pgeo[index][1];
+            var grad  = ctx.createRadialGradient(x, y, 0, x, y, 15);
+            grad.addColorStop(0,'rgba(255, 255, 255, 1)');
+            grad.addColorStop(0.4,'rgba(255, 255, 255, 0.9)');
+            grad.addColorStop(1,'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = grad;
+
+            ctx.beginPath();
+            ctx.arc(x, y, 15, 0, 2 * Math.PI, false);
+            ctx.closePath();
+            ctx.fill();
+            data[i].index++;
+            if (data[i].index >= data[i].pgeo.length) {
+                data[i].index = 0;
+            }
+        }
+    }
+}
