@@ -1609,7 +1609,7 @@ Drawer.prototype.drawMap = function () {};
 
 Drawer.prototype.drawOptions_changed = function () {
     var drawOptions = this.getDrawOptions();
-    if (drawOptions.splitList) {
+    if (drawOptions && drawOptions.splitList) {
         this.splitList = drawOptions.splitList;
     } else {
         this.generalSplitList();
@@ -2648,17 +2648,32 @@ util.extend(HeatmapDrawer.prototype, {
 
         // console.log(this.masker)
         // draw a grayscale heatmap by putting a blurred circle at each data point
-        for (var i = 0, len = this._data.length, p; i < len; i++) {
-            p = this._data[i];
-            if (p.px < 0 || p.py < 0 || p.px > ctx.canvas.width || p.py > ctx.canvas.height) {
-                continue;
+        var dataType = this.getLayer().getDataType();
+        if (dataType === 'polyline') {
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.lineWidth = 1;
+            for (var i = 0, len = this._data.length; i < len; i++) {
+                p = this._data[i];
+                var geo = p.pgeo;
+                ctx.moveTo(geo[0][0], geo[0][1]);
+                for (var j = 1; j < geo.length; j++) {
+                    ctx.lineTo(geo[j][0], geo[j][1]);
+                }
             }
-            // if (p.count < this.masker.min || p.count > this.masker.max) {
-            //     continue;
-            // }
-            // console.log(p.count)
-            ctx.globalAlpha = Math.max(p.count / this.getMax(), minOpacity === undefined ? 0.05 : minOpacity);
-            ctx.drawImage(this._circle, p.px - this._r, p.py - this._r);
+            ctx.stroke();
+        } else {
+            for (var i = 0, len = this._data.length, p; i < len; i++) {
+                p = this._data[i];
+                if (p.px < 0 || p.py < 0 || p.px > ctx.canvas.width || p.py > ctx.canvas.height) {
+                    continue;
+                }
+                // if (p.count < this.masker.min || p.count > this.masker.max) {
+                //     continue;
+                // }
+                // console.log(p.count)
+                ctx.globalAlpha = Math.max(p.count / this.getMax(), minOpacity === undefined ? 0.05 : minOpacity);
+                ctx.drawImage(this._circle, p.px - this._r, p.py - this._r);
+            }
         }
 
         // colorize the heatmap, using opacity value of each pixel to get the right color from our gradient

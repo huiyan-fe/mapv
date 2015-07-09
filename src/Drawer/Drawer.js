@@ -33,7 +33,7 @@ Drawer.prototype.drawMap = function () {};
 
 Drawer.prototype.drawOptions_changed = function () {
     var drawOptions = this.getDrawOptions();
-    if (drawOptions.splitList) {
+    if (drawOptions && drawOptions.splitList) {
         this.splitList = drawOptions.splitList;
     } else {
         this.generalSplitList();

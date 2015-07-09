@@ -299,7 +299,7 @@ $.ajax({
         }
 
         var layer = new Mapv.Layer({
-            zIndex: 2,
+            zIndex: 3,
             mapv: mapv,
             dataType: 'polygon',
             data: [
@@ -324,7 +324,6 @@ $.ajax({
         });
 
         var layer = new Mapv.Layer({
-            zIndex: 2,
             mapv: mapv,
             dataType: 'polyline',
             data: [
@@ -350,7 +349,7 @@ $.ajax({
 
 
         var layer = new Mapv.Layer({
-            zIndex: 2,
+            zIndex: 3,
             mapv: mapv,
             dataType: 'point',
             data: [
@@ -412,13 +411,26 @@ $.ajax({
             mapv: mapv,
             dataType: 'polyline',
             data: data,
-            drawType: 'simple',
+            drawType: 'heatmap',
             zIndex: 2,
             coordType: 'bd09mc',
             drawOptions: {
                 simple: {
-                    lineWidth: 0.1,
-                    strokeStyle: "rgba(255, 255, 0, 1)"
+                    globalCompositeOperation: 'lighter',
+                    lineWidth: 0.2,
+                    strokeStyle: "rgba(50, 50, 255, 1)"
+                },
+                heatmap: {
+                    radius: 500,
+                    maxOpacity: 0.8,
+                    max: 100,
+                    blur: true,
+                    type: 'arc',
+                    fillStyle: 'rgba(55, 55, 255, 0.8)',
+                    gradient: {
+                        '0.4': 'blue',
+                        '1.0': 'yellow'
+                    },
                 }
             }
         });
