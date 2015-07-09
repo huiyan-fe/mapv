@@ -387,7 +387,7 @@ $.ajax({
             drawType: 'heatmap',
             drawOptions: drawOptions
         });
-        layer.setMapv(mapv);
+        //layer.setMapv(mapv);
 
     }
 });
@@ -406,12 +406,35 @@ $.ajax({
             });
         }
 
+        data = data.sort(function(a, b){
+            return a.count - b.count;
+        });
+
+        var layer = new Mapv.Layer({
+            zIndex: 3,
+            mapv: mapv,
+            dataType: 'polyline',
+            data: data.slice(0, 10),
+            drawType: 'simple',
+            zIndex: 2,
+            coordType: 'bd09mc',
+            drawOptions: {
+                simple: {
+                    shadowBlur: 10,
+                    shadowColor: "yellow",
+                    globalCompositeOperation: 'lighter',
+                    lineWidth: 5,
+                    strokeStyle: "rgba(250, 0, 0, 1)"
+                }
+            }
+        });
+
         var layer = new Mapv.Layer({
             zIndex: 2,
             mapv: mapv,
             dataType: 'polyline',
             data: data,
-            drawType: 'heatmap',
+            drawType: 'simple',
             zIndex: 2,
             coordType: 'bd09mc',
             drawOptions: {
@@ -426,10 +449,11 @@ $.ajax({
                     max: 100,
                     blur: true,
                     type: 'arc',
+                    lineWidth: 1,
                     fillStyle: 'rgba(55, 55, 255, 0.8)',
                     gradient: {
-                        '0.4': 'blue',
-                        '1.0': 'yellow'
+                        '0': 'yellow',
+                        '1.0': 'red'
                     },
                 }
             }

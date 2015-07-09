@@ -494,7 +494,7 @@ Mapv.prototype._initOptionDataControl = function () {
 
 Mapv.prototype._initDataRange = function () {
     this.setDataRangeCtrol(new DataRangeControl()); 
-    this.getMap().addControl(this.getDataRangeCtrol());
+    //this.getMap().addControl(this.getDataRangeCtrol());
 }
 
 Mapv.prototype._initDrawTypeControl = function () {
@@ -2650,8 +2650,15 @@ util.extend(HeatmapDrawer.prototype, {
         // draw a grayscale heatmap by putting a blurred circle at each data point
         var dataType = this.getLayer().getDataType();
         if (dataType === 'polyline') {
-            ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
-            ctx.lineWidth = 1;
+            ctx.strokeStyle = this.getDrawOptions().strokeStyle || 'rgba(0, 0, 0, 0.05)';
+
+            /*
+            ctx.shadowOffsetX = ctx.shadowOffsetY = 0;
+            ctx.shadowBlur = 0.1;
+            ctx.shadowColor = 'black';
+            */
+
+            ctx.lineWidth = this.getDrawOptions().lineWidth || 1;
             for (var i = 0, len = this._data.length; i < len; i++) {
                 p = this._data[i];
                 var geo = p.pgeo;
@@ -2858,6 +2865,12 @@ SimpleDrawer.prototype.drawMap = function () {
     ctx.fillStyle = drawOptions.fillStyle || "rgba(50, 50, 200, 0.8)";
     ctx.strokeStyle = drawOptions.strokeStyle;
     ctx.lineWidth = drawOptions.lineWidth || 1;
+    if (drawOptions.shadowColor) {
+        ctx.shadowColor = drawOptions.shadowColor || 'black';
+    }
+    if (drawOptions.shadowBlur) {
+        ctx.shadowBlur = drawOptions.shadowBlur;
+    }
 
     ctx.beginPath();
 

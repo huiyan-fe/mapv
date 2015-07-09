@@ -41,7 +41,7 @@ Mapv.prototype._initOptionDataControl = function () {
 
 Mapv.prototype._initDataRange = function () {
     this.setDataRangeCtrol(new DataRangeControl()); 
-    this.getMap().addControl(this.getDataRangeCtrol());
+    //this.getMap().addControl(this.getDataRangeCtrol());
 }
 
 Mapv.prototype._initDrawTypeControl = function () {
