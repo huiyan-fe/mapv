@@ -301,29 +301,81 @@ $.ajax({
         var layer = new Mapv.Layer({
             zIndex: 2,
             mapv: mapv,
-            data: [{
-                lng: 116.39507,
-                lat: 39.929101
-            },
-            {
-                lng: 116.49507,
-                lat: 39.889101
-            },
-            {
-                lng: 116.46507,
-                lat: 39.929101
-            },
-            {
-                lng: 116.43507,
-                lat: 39.909101
+            dataType: 'polygon',
+            data: [
+                {
+                    geo: [
+                        [116.39507, 39.879101], 
+                        [116.49507, 39.889101],
+                        [116.46507, 39.929101],
+                        [116.43507, 39.909101]
+                    ],
+                    count: 10
+                }
+            ],
+            drawType: 'simple',
+            drawOptions: {
+                simple: {
+                    lineWidth: 8,
+                    strokeStyle: "rgba(255, 255, 0, 1)",
+                    fillStyle: "rgba(255, 0, 0, 0.8)"
+                }
             }
+        });
+
+        var layer = new Mapv.Layer({
+            zIndex: 2,
+            mapv: mapv,
+            dataType: 'polyline',
+            data: [
+                {
+                    geo: [
+                        [116.39507, 39.879101], 
+                        [116.49507, 39.889101],
+                        [116.46507, 39.929101],
+                        [116.43507, 39.909101]
+                    ],
+                    count: 10
+                }
+            ],
+            drawType: 'simple',
+            zIndex: 5,
+            drawOptions: {
+                simple: {
+                    lineWidth: 2,
+                    strokeStyle: "rgba(0, 0, 255, 1)"
+                }
+            }
+        });
+
+
+        var layer = new Mapv.Layer({
+            zIndex: 2,
+            mapv: mapv,
+            dataType: 'point',
+            data: [
+                {
+                    lng: 116.39507,
+                    lat: 39.879101
+                },
+                {
+                    lng: 116.49507,
+                    lat: 39.889101
+                },
+                {
+                    lng: 116.46507,
+                    lat: 39.929101
+                },
+                {
+                    lng: 116.43507,
+                    lat: 39.909101
+                }
             ],
             drawType: 'simple',
             drawOptions: {
                 simple: {
                     fillStyle: "rgba(255, 255, 50, 1)",
-                    strokeStyle: "rgba(255, 255, 255, 1)",
-                    lineWidth: 10,
+                    lineWidth: 5,
                     radius: 20
                 }
             }
@@ -331,6 +383,7 @@ $.ajax({
 
         var layer = new Mapv.Layer({
             zIndex: 1,
+            geometryType: 'point',
             data: data,
             drawType: 'heatmap',
             drawOptions: drawOptions

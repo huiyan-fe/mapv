@@ -12,8 +12,10 @@ function Layer (options) {
         ctx: null,
         mapv: null,
         map: null,
-        drawType: 'simple',
         data: [],
+        dataType: 'point',
+        drawType: 'simple',
+        geometry: null,
         zIndex: 1
     }, options));
 
@@ -139,20 +141,27 @@ util.extend(Layer.prototype, {
             mcCenter.y + (map.getSize().height / 2) * zoomUnit); //左上角墨卡托坐标
 
         var data = this.getData();
+        var map = this.getMap();
 
         for (var j = 0; j < data.length; j++) {
 
             if (data[j].lng && data[j].lat) {
-                var pixel = this.getMapv().getMap().pointToPixel(new BMap.Point(data[j].lng, data[j].lat));
+                var pixel = map.pointToPixel(new BMap.Point(data[j].lng, data[j].lat));
                 data[j].px = pixel.x;
                 data[j].py = pixel.y;
             }
 
             if (data[j].x && data[j].y) {
-
                 data[j].px = (data[j].x - nwMc.x) / zoomUnit;
                 data[j].py = (nwMc.y - data[j].y) / zoomUnit;
+            }
 
+            if (data[j].geo) {
+                var tmp = [];
+                for (var i = 0; i < data[j].geo.length; i++) {
+                    tmp.push(map.pointToPixel(new BMap.Point(data[j].geo[i][0], data[j].geo[i][1])));
+                }
+                data[j].pgeo = tmp; 
             }
         }
     },

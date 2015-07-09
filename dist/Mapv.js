@@ -511,8 +511,10 @@ Mapv.prototype._initDrawTypeControl = function () {
         ctx: null,
         mapv: null,
         map: null,
-        drawType: 'simple',
         data: [],
+        dataType: 'point',
+        drawType: 'simple',
+        geometry: null,
         zIndex: 1
     }, options));
 
@@ -638,20 +640,27 @@ util.extend(Layer.prototype, {
             mcCenter.y + (map.getSize().height / 2) * zoomUnit); //左上角墨卡托坐标
 
         var data = this.getData();
+        var map = this.getMap();
 
         for (var j = 0; j < data.length; j++) {
 
             if (data[j].lng && data[j].lat) {
-                var pixel = this.getMapv().getMap().pointToPixel(new BMap.Point(data[j].lng, data[j].lat));
+                var pixel = map.pointToPixel(new BMap.Point(data[j].lng, data[j].lat));
                 data[j].px = pixel.x;
                 data[j].py = pixel.y;
             }
 
             if (data[j].x && data[j].y) {
-
                 data[j].px = (data[j].x - nwMc.x) / zoomUnit;
                 data[j].py = (nwMc.y - data[j].y) / zoomUnit;
+            }
 
+            if (data[j].geo) {
+                var tmp = [];
+                for (var i = 0; i < data[j].geo.length; i++) {
+                    tmp.push(map.pointToPixel(new BMap.Point(data[j].geo[i][0], data[j].geo[i][1])));
+                }
+                data[j].pgeo = tmp; 
             }
         }
     },
@@ -2832,22 +2841,48 @@ SimpleDrawer.prototype.drawMap = function () {
     var zoomUnit = Math.pow(2, 18 - this.getMap().getZoom());
 
     var radius = drawOptions.radius || 3;
-    // console.log(data);
-    for (var i = 0, len = data.length; i < len; i++) {
-        var item = data[i];
-        if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {
-            continue;
+
+    var dataType = this.getLayer().getDataType();
+
+    if (dataType === 'polyline' || dataType === 'polygon') {
+
+        for (var i = 0, len = data.length; i < len; i++) {
+            var geo = data[i].pgeo;
+            ctx.moveTo(geo[0].x, geo[0].y);
+            for (var j = 1; j < geo.length; j++) {
+                ctx.lineTo(geo[j].x, geo[j].y);
+            }
         }
-        ctx.moveTo(item.px, item.py);
-        ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
+        ctx.closePath();
+
+        if (dataType === 'polygon') {
+            ctx.fill();
+        }
+
+        if (drawOptions.strokeStyle || dataType === 'polyline') {
+            ctx.stroke();
+        } 
+
+    } else {
+        // console.log(data);
+        for (var i = 0, len = data.length; i < len; i++) {
+            var item = data[i];
+            if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {
+                continue;
+            }
+            ctx.moveTo(item.px, item.py);
+            ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
+        }
+
+        ctx.fill();
+
+        if (drawOptions.strokeStyle) {
+            ctx.stroke();
+        }
     }
 
-    if (drawOptions.strokeStyle) {
-        ctx.stroke();
-    }
-
-    ctx.fill();
 }
+
 ;    Mapv.Layer = Layer;
     this.Mapv = Mapv;
 }();
