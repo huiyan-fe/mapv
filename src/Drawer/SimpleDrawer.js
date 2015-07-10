@@ -19,6 +19,7 @@ SimpleDrawer.prototype.drawMap = function () {
     ctx.fillStyle = drawOptions.fillStyle || "rgba(50, 50, 200, 0.8)";
     ctx.strokeStyle = drawOptions.strokeStyle;
     ctx.lineWidth = drawOptions.lineWidth || 1;
+
     if (drawOptions.shadowColor) {
         ctx.shadowColor = drawOptions.shadowColor || 'black';
     }
@@ -58,7 +59,6 @@ SimpleDrawer.prototype.drawMap = function () {
         } 
 
     } else {
-        // console.log(data);
         for (var i = 0, len = data.length; i < len; i++) {
             var item = data[i];
             if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {

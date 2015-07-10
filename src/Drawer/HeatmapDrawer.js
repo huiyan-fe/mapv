@@ -162,6 +162,7 @@ util.extend(HeatmapDrawer.prototype, {
         // }
 
         var ctx = this.getCtx();
+        ctx.save();
 
         ctx.clearRect(0, 0, this._width, this._height);
 
@@ -187,7 +188,9 @@ util.extend(HeatmapDrawer.prototype, {
                 }
             }
             ctx.stroke();
+
         } else {
+
             for (var i = 0, len = this._data.length, p; i < len; i++) {
                 p = this._data[i];
                 if (p.px < 0 || p.py < 0 || p.px > ctx.canvas.width || p.py > ctx.canvas.height) {
@@ -208,6 +211,7 @@ util.extend(HeatmapDrawer.prototype, {
         this.colorize(colored.data, this._grad);
         ctx.putImageData(colored, 0, 0);
 
+        ctx.restore();
         return this;
     },
 

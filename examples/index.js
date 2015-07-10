@@ -284,14 +284,14 @@ var options = {
 };
 mapv = new Mapv(options);
 
+var beijingData = [];
 $.ajax({
     url: 'data/beijing.json',
     dataType: 'JSON',
     success: function (rs) {
-        var data = [];
         for (var i = 1; i < rs.length; i++) {
             var tmp = rs[i];
-            data.push({
+            beijingData.push({
                 lng: tmp[0],
                 lat: tmp[1],
                 count: tmp[2]
@@ -384,15 +384,6 @@ $.ajax({
             }
         });
 
-        var layer = new Mapv.Layer({
-            zIndex: 1,
-            geometryType: 'point',
-            data: data,
-            drawType: 'heatmap',
-            drawOptions: drawOptions
-        });
-        layer.setMapv(mapv);
-
     }
 });
 
@@ -468,6 +459,15 @@ $.ajax({
                 }
             }
         });
+
+        var layer = new Mapv.Layer({
+            zIndex: 1,
+            geometryType: 'point',
+            data: beijingData,
+            drawType: 'heatmap',
+            drawOptions: drawOptions
+        });
+        layer.setMapv(mapv);
 
     }
 });

@@ -494,7 +494,7 @@ Mapv.prototype._initOptionDataControl = function () {
 
 Mapv.prototype._initDataRange = function () {
     this.setDataRangeCtrol(new DataRangeControl()); 
-    //this.getMap().addControl(this.getDataRangeCtrol());
+    this.getMap().addControl(this.getDataRangeCtrol());
 }
 
 Mapv.prototype._initDrawTypeControl = function () {
@@ -2693,6 +2693,7 @@ util.extend(HeatmapDrawer.prototype, {
         // }
 
         var ctx = this.getCtx();
+        ctx.save();
 
         ctx.clearRect(0, 0, this._width, this._height);
 
@@ -2718,7 +2719,9 @@ util.extend(HeatmapDrawer.prototype, {
                 }
             }
             ctx.stroke();
+
         } else {
+
             for (var i = 0, len = this._data.length, p; i < len; i++) {
                 p = this._data[i];
                 if (p.px < 0 || p.py < 0 || p.px > ctx.canvas.width || p.py > ctx.canvas.height) {
@@ -2739,6 +2742,7 @@ util.extend(HeatmapDrawer.prototype, {
         this.colorize(colored.data, this._grad);
         ctx.putImageData(colored, 0, 0);
 
+        ctx.restore();
         return this;
     },
 
@@ -2915,6 +2919,7 @@ SimpleDrawer.prototype.drawMap = function () {
     ctx.fillStyle = drawOptions.fillStyle || "rgba(50, 50, 200, 0.8)";
     ctx.strokeStyle = drawOptions.strokeStyle;
     ctx.lineWidth = drawOptions.lineWidth || 1;
+
     if (drawOptions.shadowColor) {
         ctx.shadowColor = drawOptions.shadowColor || 'black';
     }
@@ -2954,7 +2959,6 @@ SimpleDrawer.prototype.drawMap = function () {
         } 
 
     } else {
-        // console.log(data);
         for (var i = 0, len = data.length; i < len; i++) {
             var item = data[i];
             if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {

@@ -4,8 +4,8 @@ module.exports = function(grunt) {
         name: 'Mapv',
         version: '1.0.0',
         pkg: grunt.file.readJSON('package.json'),
-            concat: {
-                options: {
+        concat: {
+            options: {
                 separator: ';',
                 stripBanners: true
             },
