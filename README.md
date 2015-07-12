@@ -41,9 +41,7 @@ var layer = new Mapv.Layer({
     }
 });
 ```
-
 #### 画线示例代码
-
 
 #### bubble类型
 ![bubble类型](/doc/asset/img/bubble.png)
