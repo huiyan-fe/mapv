@@ -212,7 +212,7 @@ util.extend(Layer.prototype, {
                     }
                 }
 
-                data[j].pgeo = tmp; 
+                data[j].pgeo = tmp;
             }
         }
     },

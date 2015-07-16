@@ -4,7 +4,6 @@
  */
 
 function DataControl(superObj) {
-    console.log('@@@@@',superObj)
     this.initDom();
     this.initEvent();
     this.initHistory();
@@ -50,8 +49,6 @@ DataControl.prototype.initDom = function () {
     tipstitle.textContent = '自定义数据：';
     var tips = document.createElement('div');
     tips.textContent = '拖拽文件到窗口或者选择自定义文件';
-
-
 
     control.appendChild(tipstitle);
     control.appendChild(tips);
@@ -116,11 +113,7 @@ DataControl.prototype.initEvent = function () {
         if (node.nodeName === 'A') {
             var storageName = node.getAttribute('storageName');
             var dataStr = localStorage.getItem(storageName);
-            // console.log(dataStr);
             formatRender(dataStr);
-            // reader.readAsText(dataStr);
-            // reader.fileName = null;
-            // reader.fileSize = null;
         }
         return false;
     });
@@ -199,14 +192,11 @@ DataControl.prototype.initEvent = function () {
         }
 
         self.geoData.setData(data);
-
+        console.log(self.super._layers)
         for(var i=0;i<self.super._layers.length;i++){
                 self.super._layers[i].draw();
         }
 
-
-        // var drawer = this.super._getDrawer(this.super.options.drawType);
-        // drawer.drawDataRange(this.super._dataRangeCtrol.getContainer(), this.super.options.data);
         return true;
     }
 
