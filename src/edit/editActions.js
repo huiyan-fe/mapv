@@ -10,32 +10,30 @@ define(['config'], function(config) {
         document.body.appendChild(add);
     };
     edit.prototype.showBox = (function() {
-            var boxDom;
-
-            function addDom() {
-                // append dom
-                var funBox = document.createElement('div');
-                funBox.setAttribute('class', 'E-funBox');
-                funBox.innerHTML =
-                    '<div class="E-funBox-title"></div><div class="E-funBox-content"></div>';
-                document.body.appendChild(funBox);
-                return funBox;
+        var boxDom;
+        function addDom() {
+            // append dom
+            var funBox = document.createElement('div');
+            funBox.setAttribute('class', 'E-funBox');
+            funBox.innerHTML = '<div class="E-funBox-title"></div><div class="E-funBox-content"></div>';
+            document.body.appendChild(funBox);
+            return funBox;
+        }
+        return function(title) {
+            if (!boxDom) {
+                boxDom = addDom();
             }
-            return function(title) {
-                if (!boxDom) {
-                    boxDom = addDom();
-                }
-                // console.log()
-                var titleDom = boxDom.querySelector(
-                    '.E-funBox-title');
-                titleDom.innerHTML = title;
-                boxDom.style.display = 'block';
-                var content = boxDom.querySelector(
-                    '.E-funBox-content');
-                content.innerHTML = '';
-                return content;
-            }
-        })()
+            // console.log()
+            var titleDom = boxDom.querySelector(
+                '.E-funBox-title');
+            titleDom.innerHTML = title;
+            boxDom.style.display = 'block';
+            var content = boxDom.querySelector(
+                '.E-funBox-content');
+            content.innerHTML = '';
+            return content;
+        }
+    })();
         // showUpload
     edit.prototype.showUpload = function() {
         // shwobox
@@ -90,48 +88,28 @@ define(['config'], function(config) {
             var type = $(this).attr('data-type');
             var typeConfig = config.drawOptions[type];
             //prepare for the setings
-            console.log(typeConfig)
             var configHtml = [];
             if (typeConfig.editable) {
                 for (var i = 0, len = typeConfig.editable.length; i <
                     len; i++) {
                     var key = typeConfig.editable[i];
-                    console.log('----', key, typeConfig.editable)
-                    if ((typeof(key) === 'string' || typeof(
-                            key) === 'json') && typeConfig[
-                            key]) {
-                        var tempHtml =
-                            '<div class="E-editBlock">';
-                        tempHtml +=
-                            '<div class="E-editTitle">' +
-                            key + '</div>';
-                        tempHtml +=
-                            '<div class="E-editBlock"><input type="text" class="E-input" name="' +
-                            key + '" value="' + typeConfig[
-                                key] + '"></div>';
+                    if ((typeof(key) === 'string' || typeof(key) === 'json') && typeConfig[key]) {
+                        var tempHtml = '<div class="E-editBlock">';
+                        tempHtml += '<div class="E-editTitle">' + key + '</div>';
+                        tempHtml += '<div class="E-editBlock"><input type="text" class="E-input" name="' + key + '" value="' + typeConfig[key] + '"></div>';
                         tempHtml += '</div>';
                         configHtml.push(tempHtml);
                     } else {
                         if (key.type === 'check') {
-                            var tempHtml =
-                                '<div class="E-editBlock">';
-                            tempHtml +=
-                                '<div class="E-editTitle">' +
-                                key.name + '</div>';
-                            tempHtml +=
-                                '<div class="E-editBlock"><label class="E-label"><input name="' +
-                                key + '" type="checkbox"> ' +
-                                key.name + '</label></div>';
+                            var tempHtml = '<div class="E-editBlock">';
+                            tempHtml += '<div class="E-editTitle">' + key.name + '</div>';
+                            tempHtml += '<div class="E-editBlock"><label class="E-label"><input name="' + key + '" type="checkbox"> ' + key.name + '</label></div>';
                             tempHtml += '</div>'
                             configHtml.push(tempHtml);
                         } else if (key.type === 'option') {
-                            var tempHtml =
-                                '<div class="E-editBlock">';
-                            tempHtml +=
-                                '<div class="E-editTitle">' +
-                                key.name + '</div>';
-                            tempHtml +=
-                                '<div class="E-editBlock">';
+                            var tempHtml = '<div class="E-editBlock">';
+                            tempHtml += '<div class="E-editTitle">' + key.name + '</div>';
+                            tempHtml += '<div class="E-editBlock">';
                             for (var i = 0, len = key.value.length; i < len; i++) {
                                 if (i === 0) {
                                     tempHtml += '<button class="E-button E-button-active">' + key.value[i] + '</button>';
@@ -151,20 +129,6 @@ define(['config'], function(config) {
             // change setings
             return false;
         });
-        // add layer
-        $('body').on('click', '.E-button-addLayer', function() {
-            var config = {};
-            config.type = $('.E-type-active').attr(
-                'data-type');
-            config.option = {
-                enable: $('input[name="isEnable"]')[0].checked
-            };
-            $('.E-editArea input').each(function(index, dom) {
-                config.option[dom.name] = $(dom).val();
-            });
-            console.log(config);
-            return false;
-        });
         // layer change
         $('body').on('click', '.E-editBlock .E-button', function() {
             var parent = $(this).parents('.E-editBlock');
@@ -179,6 +143,19 @@ define(['config'], function(config) {
             } else {
                 parent.removeClass('E-label-active')
             }
+        });
+        // add layer
+        $('body').on('click', '.E-button-addLayer', function() {
+            var config = {};
+            config.type = $('.E-type-active').attr('data-type');
+            config.option = {
+                enable: $('input[name="isEnable"]')[0].checked
+            };
+            $('.E-editArea input').each(function(index, dom) {
+                config.option[dom.name] = $(dom).val();
+            });
+            console.log(config);
+            return false;
         });
     };
     return edit;
