@@ -15,6 +15,7 @@ SimpleDrawer.prototype.drawMap = function () {
     var ctx = this.getCtx();
 
     var drawOptions = this.getDrawOptions();
+    console.log('????',drawOptions)
 
     ctx.fillStyle = drawOptions.fillStyle || "rgba(50, 50, 200, 0.8)";
     ctx.strokeStyle = drawOptions.strokeStyle;
@@ -56,7 +57,7 @@ SimpleDrawer.prototype.drawMap = function () {
 
         if (drawOptions.strokeStyle || dataType === 'polyline') {
             ctx.stroke();
-        } 
+        }
 
     } else {
         for (var i = 0, len = data.length; i < len; i++) {

@@ -477,3 +477,53 @@ $.ajax({
 });
 
 **/
+
+$.ajax({
+    url: 'http://huiyan.baidu.com/huiyan/api/heatmap/?file=beijing_16_2015060316&callback=?',
+    dataType: 'JSON',
+    success: function (rs) {
+        rs = JSON.parse(rs);
+        var data = [];
+        for (var i = 1; i < rs.length; i++) {
+            var tmp = rs[i];
+            data.push({
+                lng: tmp[0],
+                lat: tmp[1],
+                count: tmp[2]
+            });
+        }
+        // var options = {
+        //     map: map,
+        //     data: data,
+        //     drawType: 'heatmap',
+        //     drawOptions: drawOptions
+        // };
+        console.log(data)
+        mapv = new Mapv(options);
+
+        var layer = new Mapv.Layer({
+            zIndex: 3,
+            mapv: mapv,
+            dataType: 'point',
+            data: data,
+            drawType: 'density',
+            drawOptions: {
+              density: {
+                  gridWidth: '30',
+                  gridUnit: 'px',
+                  showNum: true,
+                  editable: ['gridWidth', {
+                      name: 'gridUnit',
+                      type: 'option',
+                      value: ['px', 'm']
+                  }, {
+                      name: 'showNum',
+                      type: 'check'
+                  }]
+              }
+            }
+        });
+
+
+    }
+});

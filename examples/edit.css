@@ -1,4 +1,6 @@
-.E-add { position: absolute; top:10px; right:10px; width: 50px; height: 50px; line-height: 45px; background: #fb4f4f; z-index: 10000; color:#fff; text-align: center; font-size: 30px; }
+.E-layers { position: absolute; right: 10px; top:10px; overflow: hidden; }
+.E-layers-block { text-align: center; padding:5px; width: 40px; height: 40px; line-height: 40px; background: #fb4f4f; z-index: 10000;  color:#fff; font-size: 20px;  margin-bottom: 10px;}
+.E-add { text-align: center; font-size: 30px; cursor: pointer;}
 .E-funBox { position: absolute; top:10px; right:70px; width: 400px; background: white; z-index: 10000; box-shadow: 0 0 20px rgba(0,0,0,0.1); border:1px solid #ddd; }
 .E-funBox-title { width: 100%; height: 50px; line-height: 50px; color:#666; text-indent: 10px; background: #dedede; }
 .E-funBox-content {width: 100%; padding: 10px 0; }

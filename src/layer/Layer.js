@@ -3,7 +3,6 @@
  */
 
 function Layer (options) {
-
     Class.call(this);
 
     this._drawer = {};
@@ -120,13 +119,14 @@ util.extend(Layer.prototype, {
     },
 
     drawOptions_changed: function () {
-        this.updateControl();
-        var drawOptions = this.getDrawOptions();
-        for (var key in drawOptions) {
-            if (this._drawer[key]) {
-                this._drawer[key].setDrawOptions(drawOptions[key]);
-            }
-        }
+        // console.log('XXXXXXX')
+        // this.updateControl();
+        // var drawOptions = this.getDrawOptions();
+        // for (var key in drawOptions) {
+        //     if (this._drawer[key]) {
+        //         this._drawer[key].setDrawOptions(drawOptions[key]);
+        //     }
+        // }
         this.draw();
     },
 
@@ -139,7 +139,6 @@ util.extend(Layer.prototype, {
         } else {
             map.removeControl(mapv.getDataRangeCtrol());
         }
-
         // for drawer scale
         if(drawer.scale) {
             drawer.scale(mapv.Scale);
@@ -161,7 +160,7 @@ util.extend(Layer.prototype, {
             });
             funcName += 'Drawer';
             var drawer = this._drawer[drawType] = eval('(new ' + funcName + '(this))');
-            drawer.setDrawOptions(this.getDrawOptions()[drawType]);
+            drawer.setDrawOptions(this.getDrawOptions()/*[drawType]*/);
             if (drawer.scale) {
                 drawer.scale(this.getMapv().Scale);
                 this.getMapv().Scale.show();

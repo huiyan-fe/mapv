@@ -471,15 +471,10 @@ function Mapv(options) {
     });
 
     this.setOptions(options);
-
     this._layers = [];
-
     this._initDrawScale();
     this._initDataRange();
     this._initDrawTypeControl();
-    this._initOptionDataControl();
-
-    new DataControl(this);
 }
 
 util.inherits(Mapv, Class);
@@ -488,12 +483,8 @@ Mapv.prototype._initDrawScale = function () {
     this.Scale = new DrawScale();
 };
 
-Mapv.prototype._initOptionDataControl = function () {
-    this.OptionalData = new OptionalData(this);
-};
-
 Mapv.prototype._initDataRange = function () {
-    this.setDataRangeCtrol(new DataRangeControl()); 
+    this.setDataRangeCtrol(new DataRangeControl());
     this.getMap().addControl(this.getDataRangeCtrol());
 }
 
@@ -504,7 +495,6 @@ Mapv.prototype._initDrawTypeControl = function () {
     this.getMap().addControl(this._drawTypeControl);
 };
 ;function Layer (options) {
-
     Class.call(this);
 
     this._drawer = {};
@@ -621,13 +611,14 @@ util.extend(Layer.prototype, {
     },
 
     drawOptions_changed: function () {
-        this.updateControl();
-        var drawOptions = this.getDrawOptions();
-        for (var key in drawOptions) {
-            if (this._drawer[key]) {
-                this._drawer[key].setDrawOptions(drawOptions[key]);
-            }
-        }
+        // console.log('XXXXXXX')
+        // this.updateControl();
+        // var drawOptions = this.getDrawOptions();
+        // for (var key in drawOptions) {
+        //     if (this._drawer[key]) {
+        //         this._drawer[key].setDrawOptions(drawOptions[key]);
+        //     }
+        // }
         this.draw();
     },
 
@@ -640,7 +631,6 @@ util.extend(Layer.prototype, {
         } else {
             map.removeControl(mapv.getDataRangeCtrol());
         }
-
         // for drawer scale
         if(drawer.scale) {
             drawer.scale(mapv.Scale);
@@ -662,7 +652,7 @@ util.extend(Layer.prototype, {
             });
             funcName += 'Drawer';
             var drawer = this._drawer[drawType] = eval('(new ' + funcName + '(this))');
-            drawer.setDrawOptions(this.getDrawOptions()[drawType]);
+            drawer.setDrawOptions(this.getDrawOptions()/*[drawType]*/);
             if (drawer.scale) {
                 drawer.scale(this.getMapv().Scale);
                 this.getMapv().Scale.show();
@@ -1414,16 +1404,11 @@ function OptionalData(superObj) {
     this.drawType = options.drawType;
     this.super = superObj;
     // init options
-
     this.options = options.drawOptions || {};
-
-
     // init css
     this.initCSS();
     // append dom to body
     this.initDom();
-    // append controller
-    this.initController();
     // bind event
     this.bindEvent();
 }
@@ -1466,6 +1451,7 @@ OptionalData.prototype.initDom = function () {
  */
 
 OptionalData.prototype.initController = function (layer, drawType) {
+  return false
     this._layer = layer;
     var self = this;
     var options;
@@ -1634,6 +1620,7 @@ function Drawer(layer) {
 
     this.bindTo('ctx', layer)
     this.bindTo('animationOptions', layer)
+    this.bindTo('drawOptions', layer)
     this.bindTo('mapv', layer)
     this.bindTo('map', layer)
 }
@@ -1748,27 +1735,27 @@ BubbleDrawer.prototype.getRadius = function (val) {
 
 };
 
-BubbleDrawer.prototype.drawDataRange = function () {
-    var canvas = this.getMapv().getDataRangeCtrol().getContainer();
-    canvas.width = 100;
-    canvas.height = 190;
-    canvas.style.width = '100px';
-    canvas.style.height = '190px';
-    var ctx = canvas.getContext('2d');
-    ctx.fillStyle = this.getDrawOptions().fillStyle || 'rgba(50, 50, 200, 0.8)';
-    var splitList = this.splitList;
-
-    for (var i = 0; i < splitList.length; i++) {
-        ctx.beginPath();
-        ctx.arc(15, i * 25 + 20, splitList[i].radius, 0, Math.PI * 2, false);
-        var startText = splitList[i].start || '~';
-        var endText = splitList[i].end || '~';
-        var text =  startText + ' - ' + endText;
-        ctx.fillText(text, 25, i * 25 + 25);
-        ctx.closePath();
-        ctx.fill();
-    }
-};
+// BubbleDrawer.prototype.drawDataRange = function () {
+//     var canvas = this.getMapv().getDataRangeCtrol().getContainer();
+//     canvas.width = 100;
+//     canvas.height = 190;
+//     canvas.style.width = '100px';
+//     canvas.style.height = '190px';
+//     var ctx = canvas.getContext('2d');
+//     ctx.fillStyle = this.getDrawOptions().fillStyle || 'rgba(50, 50, 200, 0.8)';
+//     var splitList = this.splitList;
+//
+//     for (var i = 0; i < splitList.length; i++) {
+//         ctx.beginPath();
+//         ctx.arc(15, i * 25 + 20, splitList[i].radius, 0, Math.PI * 2, false);
+//         var startText = splitList[i].start || '~';
+//         var endText = splitList[i].end || '~';
+//         var text =  startText + ' - ' + endText;
+//         ctx.fillText(text, 25, i * 25 + 25);
+//         ctx.closePath();
+//         ctx.fill();
+//     }
+// };
 ;/* globals Drawer, util */
 
 function CategoryDrawer() {
@@ -2905,6 +2892,7 @@ SimpleDrawer.prototype.drawMap = function () {
     var ctx = this.getCtx();
 
     var drawOptions = this.getDrawOptions();
+    console.log('????',drawOptions)
 
     ctx.fillStyle = drawOptions.fillStyle || "rgba(50, 50, 200, 0.8)";
     ctx.strokeStyle = drawOptions.strokeStyle;
@@ -2946,7 +2934,7 @@ SimpleDrawer.prototype.drawMap = function () {
 
         if (drawOptions.strokeStyle || dataType === 'polyline') {
             ctx.stroke();
-        } 
+        }
 
     } else {
         for (var i = 0, len = data.length; i < len; i++) {

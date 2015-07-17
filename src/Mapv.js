@@ -18,15 +18,10 @@ function Mapv(options) {
     });
 
     this.setOptions(options);
-
     this._layers = [];
-
     this._initDrawScale();
     this._initDataRange();
     this._initDrawTypeControl();
-    this._initOptionDataControl();
-
-    new DataControl(this);
 }
 
 util.inherits(Mapv, Class);
@@ -35,12 +30,8 @@ Mapv.prototype._initDrawScale = function () {
     this.Scale = new DrawScale();
 };
 
-Mapv.prototype._initOptionDataControl = function () {
-    this.OptionalData = new OptionalData(this);
-};
-
 Mapv.prototype._initDataRange = function () {
-    this.setDataRangeCtrol(new DataRangeControl()); 
+    this.setDataRangeCtrol(new DataRangeControl());
     this.getMap().addControl(this.getDataRangeCtrol());
 }
 

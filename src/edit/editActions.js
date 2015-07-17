@@ -4,24 +4,31 @@ define(['config'], function(config) {
         this.actions();
     }
     edit.prototype.init = function() {
+        var layers = this.domAdd = document.createElement('div');
+        layers.setAttribute('class', 'E-layers');
+        document.body.appendChild(layers);
         var add = this.domAdd = document.createElement('div');
-        add.setAttribute('class', 'E-add');
+        add.setAttribute('class', 'E-add E-layers-block');
         add.textContent = '+';
-        document.body.appendChild(add);
+        layers.appendChild(add);
     };
+    edit.prototype.closeBox = function(){
+        this.funBox.style.display = 'none';
+    }
     edit.prototype.showBox = (function() {
         var boxDom;
         function addDom() {
             // append dom
-            var funBox = document.createElement('div');
+            var funBox =  document.createElement('div');
             funBox.setAttribute('class', 'E-funBox');
             funBox.innerHTML = '<div class="E-funBox-title"></div><div class="E-funBox-content"></div>';
             document.body.appendChild(funBox);
             return funBox;
         }
         return function(title) {
+            var self = this;
             if (!boxDom) {
-                boxDom = addDom();
+                self.funBox = boxDom = addDom();
             }
             // console.log()
             var titleDom = boxDom.querySelector(
@@ -67,19 +74,21 @@ define(['config'], function(config) {
         var layers = config.drawOptions;
         var layHtml = [];
         for (var i in layers) {
-            layHtml.push('<a href="#" class="E-type E-type-' + i +
-                '" data-type="' + i + '">' + i + '</a>')
+            layHtml.push('<a href="#" class="E-type E-type-' + i + '" data-type="' + i + '">' + i + '</a>')
         }
-        edit.querySelector('.E-typesArea').innerHTML = layHtml.join(
-            '');
+        edit.querySelector('.E-typesArea').innerHTML = layHtml.join('');
         edit.querySelector('.E-type').click();
     };
     // bind actions
+    edit.prototype.done = function(fn){
+      console.log('doing done')
+      this.done = fn;
+    }
     edit.prototype.actions = function() {
         var self = this;
         this.domAdd.addEventListener('click', function() {
-            // self.showUpload()
-            self.shwoEdit()
+            self.showUpload()
+            // self.shwoEdit()
         }, false);
         // change graph type
         $('body').on('click', '.E-type', function() {
@@ -154,7 +163,8 @@ define(['config'], function(config) {
             $('.E-editArea input').each(function(index, dom) {
                 config.option[dom.name] = $(dom).val();
             });
-            console.log(config);
+
+            self.done&&self.done(config)
             return false;
         });
     };
