@@ -37,7 +37,6 @@ ChoroplethDrawer.prototype.drawMap = function () {
 
 ChoroplethDrawer.prototype.getColor = function (val) {
     var splitList = this.splitList;
-
     var color = 'yellow';
 
     for (var i = 0; i < splitList.length; i++) {

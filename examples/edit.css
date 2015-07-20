@@ -1,5 +1,5 @@
 .E-layers { position: absolute; right: 10px; top:10px; overflow: hidden; }
-.E-layers-block { text-align: center; padding:5px; width: 40px; height: 40px; line-height: 40px; background: #fb4f4f; z-index: 10000;  color:#fff; font-size: 20px;  margin-bottom: 10px;}
+.E-layers-block { text-align: center; padding:5px; width: 40px; height: 40px; line-height: 35px; background: #fb4f4f; z-index: 10000;  color:#fff; font-size: 20px;  margin-bottom: 10px;}
 .E-add { text-align: center; font-size: 30px; cursor: pointer;}
 .E-funBox { position: absolute; top:10px; right:70px; width: 400px; background: white; z-index: 10000; box-shadow: 0 0 20px rgba(0,0,0,0.1); border:1px solid #ddd; }
 .E-funBox-title { width: 100%; height: 50px; line-height: 50px; color:#666; text-indent: 10px; background: #dedede; }
@@ -19,3 +19,12 @@
 .E-button-active { background: #fb4f4f; }
 .E-label { background: #FFCCCC; height: 40px; display: inline-block; line-height: 40px; padding: 0 10px; color:#fff; }
 .E-label-active {background: #fb4f4f; }
+
+.E-mapstyle { position: absolute; top:10px; left:10px; }
+.E-maystyle-day,.E-maystyle-night { display: inline-block; width:50px; height:50px; background: #FFCCCC; margin-right: 5px; position: relative; overflow: hidden; border-radius: 2px; }
+.E-maystyle-night::after { content: ' '; position: absolute; top:10px; left:12px; width:30px; height: 30px; background: white; border-radius: 20px; z-index: 10;}
+.E-maystyle-night::before { content: ' '; position: absolute; top:2px; left:22px; width:30px; height: 30px; background: #FFCCCC; border-radius: 20px; z-index: 100;}
+.E-maystyle-day::after { content: ' '; position: absolute; top:10px; left:10px; width:30px; height: 30px; background: white; border-radius: 20px; z-index: 10;}
+.E-maystyle-active { background: #fb4f4f; }
+.E-maystyle-active::before {  background: #fb4f4f; }
+.E-maystyle-active::after { box-shadow: -1px 3px 4px rgba(0,0,0,0.2);}

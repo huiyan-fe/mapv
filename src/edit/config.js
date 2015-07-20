@@ -2,7 +2,7 @@ define(function () {
 	var drawOptions = {
 		simple: {
 			radius: 1.5,
-			fillStyle: 'rgba(55, 55, 255, 0.8)',
+			fillStyle: 'rgba(239, 168, 0, 0.8)',
 			editable: ['radius', 'fillStyle']
 		},
 		bubble: {
@@ -27,7 +27,7 @@ define(function () {
 				radius: 6
 			}],
 			globalCompositeOperation: 'lighter',
-			fillStyle: 'rgba(50, 50, 255, 0.8)',
+			fillStyle: 'rgba(239, 168, 0, 0.8)',
 			editable: ['strokeStyle', 'fillStyle', 'globalCompositeOperation', {
 				name: 'splitList',
 				type: 'json'
@@ -35,26 +35,26 @@ define(function () {
 		},
 		choropleth: {
 			radius: 2,
-			fillStyle: 'rgba(55, 55, 255, 0.8)',
+			fillStyle: 'rgba(130, 195, 44, 0.8)',
 			splitList: [{
 				start: 1,
 				end: 2,
-				color: 'rgba(17, 102, 252, 0.8)'
+				color: 'rgba(198, 225, 22, 0.8)'
 			}, {
 				start: 2,
 				end: 3,
-				color: 'rgba(52, 139, 251, 0.8)'
+				color: 'rgba(251, 221, 12, 0.8)'
 			}, {
 				start: 3,
 				end: 4,
-				color: 'rgba(110, 176, 253, 0.8)'
+				color: 'rgba(243, 165, 0, 0.8)'
 			}, {
 				start: 4,
 				end: 5,
-				color: 'rgba(255, 241, 193, 0.8)'
+				color: 'rgba(230, 119, 10, 0.8)'
 			}, {
 				start: 5,
-				color: 'rgba(255, 146, 149, 0.8)'
+				color: 'rgba(223, 66, 3, 0.8)'
 			}],
 			editable: ['radius', {
 				name: 'splitList',
@@ -116,19 +116,7 @@ define(function () {
 			fillStyle: 'rgba(55, 55, 255, 0.8)',
 			editable: ['radius', 'max']
 		},
-		cluster: {
-			// gridWidth: '30',
-			// gridUnit: 'px',
-			// showNum: true,
-			// editable: ['gridWidth', {
-			//     name: 'gridUnit',
-			//     type: 'option',
-			//     value: ['px', 'm']
-			// }, {
-			//     name: 'showNum',
-			//     type: 'check'
-			// }]
-		}
+		cluster: {}
 	};
 	return {
 		drawOptions: drawOptions

@@ -42,3 +42,8 @@ requirejs(['uploadDate', 'editActions'], function (upCallback, edit) {
 		app.closeBox();
 	})
 });
+
+// edity map style
+requirejs(['mapstyle'],function(mapstyle){
+	mapstyle.setMap(map)
+})
