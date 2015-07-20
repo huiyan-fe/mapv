@@ -96,11 +96,12 @@ define(['config'], function(config) {
             $(this).addClass('E-type-active');
             var type = $(this).attr('data-type');
             var typeConfig = config.drawOptions[type];
+            console.log(typeConfig.editable)
             //prepare for the setings
             var configHtml = [];
             if (typeConfig.editable) {
-                for (var i = 0, len = typeConfig.editable.length; i <
-                    len; i++) {
+                console.log( '@@@@@@',typeConfig.editable.length)
+                for (var i = 0, len = typeConfig.editable.length; i < len; i++) {
                     var key = typeConfig.editable[i];
                     if ((typeof(key) === 'string' || typeof(key) === 'json') && typeConfig[key]) {
                         var tempHtml = '<div class="E-editBlock">';
@@ -112,18 +113,18 @@ define(['config'], function(config) {
                         if (key.type === 'check') {
                             var tempHtml = '<div class="E-editBlock">';
                             tempHtml += '<div class="E-editTitle">' + key.name + '</div>';
-                            tempHtml += '<div class="E-editBlock"><label class="E-label"><input name="' + key + '" type="checkbox"> ' + key.name + '</label></div>';
+                            tempHtml += '<div class="E-editBlock"><label class="E-label"><input name="' + key.name + '" type="checkbox"> ' + key.name + '</label></div>';
                             tempHtml += '</div>'
                             configHtml.push(tempHtml);
                         } else if (key.type === 'option') {
                             var tempHtml = '<div class="E-editBlock">';
                             tempHtml += '<div class="E-editTitle">' + key.name + '</div>';
                             tempHtml += '<div class="E-editBlock">';
-                            for (var i = 0, len = key.value.length; i < len; i++) {
-                                if (i === 0) {
-                                    tempHtml += '<button class="E-button E-button-active">' + key.value[i] + '</button>';
+                            for (var j = 0, jLen = key.value.length; j < jLen; j++) {
+                                if (j === 0) {
+                                    tempHtml += '<button class="E-button E-button-active"  name="' + key.name + '" >' + key.value[j] + '</button>';
                                 } else {
-                                    tempHtml += '<button class="E-button">' + key.value[i] + '</button>';
+                                    tempHtml += '<button class="E-button" name="' + key.name + '" >' + key.value[j] + '</button>';
                                 }
                             }
                             tempHtml += '</div></div>'
@@ -162,6 +163,10 @@ define(['config'], function(config) {
             };
             $('.E-editArea input').each(function(index, dom) {
                 config.option[dom.name] = $(dom).val();
+            });
+            // buttom
+            $('.E-button-active').each(function(index,dom){
+                config.option[dom.name] = $(dom).html();
             });
 
             self.done&&self.done(config)

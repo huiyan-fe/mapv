@@ -6,39 +6,10 @@
 function DataControl(superObj) {
     this.initDom();
     this.initEvent();
-    this.initHistory();
     this.super = superObj;
     this.geoData = superObj.geoData;
     // console.log(this.geoData.setData);
 }
-
-DataControl.prototype.initHistory = function () {
-    var historyFiles = localStorage.getItem('filenames');
-    historyFiles = JSON.parse(historyFiles);
-    this.history.innerHTML = '';
-    // window.console.log('history', historyFiles);
-
-    var unit = ['bit', 'KB', 'MB', 'GB'];
-
-    for (var i in historyFiles) {
-        var saveName = i;
-        var fileName = historyFiles[i].name;
-        var fileSize = historyFiles[i].size;
-        var a = document.createElement('a');
-        a.setAttribute('storageName', i);
-
-        var index = 0;
-        while (fileSize > 1024) {
-            fileSize = parseInt(fileSize / 1024, 10);
-            index++;
-        }
-        a.href = '#';
-        a.style.color = 'orange';
-        a.style.marginRight = '10px';
-        a.textContent = fileName + '(' + fileSize + unit[index] + ')  ';
-        this.history.appendChild(a);
-    }
-};
 
 DataControl.prototype.initDom = function () {
     var control = this.control = document.createElement('div');

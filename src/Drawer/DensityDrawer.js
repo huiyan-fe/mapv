@@ -23,7 +23,7 @@ DensityDrawer.prototype.scale = function (scale) {
             min: min,
             max: max
         };
-
+        self.ctx = self.getCtx();
         self.ctx.clearRect(0, 0, self.ctx.canvas.width, self.ctx.canvas.height);
         self.drawMap();
     });

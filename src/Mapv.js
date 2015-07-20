@@ -20,8 +20,8 @@ function Mapv(options) {
     this.setOptions(options);
     this._layers = [];
     this._initDrawScale();
-    this._initDataRange();
-    this._initDrawTypeControl();
+    // this._initDataRange();
+    // this._initDrawTypeControl();
 }
 
 util.inherits(Mapv, Class);

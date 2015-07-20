@@ -24,8 +24,8 @@ HeatmapDrawer.prototype.drawMap = function () {
     var data = this.getLayer().getData();
     this._data = data;
     this.drawHeatmap();
-
-    self.Scale.set({
+    // console.log('---??? do ')
+    self.Scale && self.Scale.set({
         min: 0,
         max: self.getMax(),
         colors: this.getGradient()
@@ -36,6 +36,7 @@ HeatmapDrawer.prototype.scale = function (scale) {
     var self = this;
 
     scale.change(function (min, max) {
+        console.log('???change')
         self.masker = {
             min: min,
             max: max
@@ -43,6 +44,7 @@ HeatmapDrawer.prototype.scale = function (scale) {
 
         self.drawMap();
     });
+    console.log('---??? prepare')
     self.Scale = scale;
 };
 

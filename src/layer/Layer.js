@@ -119,26 +119,22 @@ util.extend(Layer.prototype, {
     },
 
     drawOptions_changed: function () {
-        // console.log('XXXXXXX')
-        // this.updateControl();
-        // var drawOptions = this.getDrawOptions();
-        // for (var key in drawOptions) {
-        //     if (this._drawer[key]) {
-        //         this._drawer[key].setDrawOptions(drawOptions[key]);
-        //     }
-        // }
         this.draw();
     },
 
     updateControl: function () {
+        console.log('update con')
         var mapv = this.getMapv();
+        console.log('update con1')
         var drawer = this._getDrawer();
+        console.log('update con2')
         if (drawer.drawDataRange) {
             map.addControl(mapv.getDataRangeCtrol());
             drawer.drawDataRange(mapv.getDataRangeCtrol().getContainer());
         } else {
             map.removeControl(mapv.getDataRangeCtrol());
         }
+        console.log('update con3')
         // for drawer scale
         if(drawer.scale) {
             drawer.scale(mapv.Scale);
@@ -146,15 +142,17 @@ util.extend(Layer.prototype, {
         } else {
             mapv.Scale.hide();
         }
-
-        mapv._drawTypeControl.showLayer(this);
+        console.log('update con4')
+        // mapv._drawTypeControl.showLayer(this);
         this.getMapv().OptionalData && this.getMapv().OptionalData.initController(this, this.getDrawType());
+        console.log('update conend')
     },
-
     _getDrawer: function () {
+        console.log('1')
         var drawType = this.getDrawType();
-
+        console.log('2')
         if (!this._drawer[drawType]) {
+            console.log('***')
             var funcName = drawType.replace(/(\w)/, function (v) {
                 return v.toUpperCase();
             });
@@ -168,9 +166,9 @@ util.extend(Layer.prototype, {
                 this.getMapv().Scale.hide();
             }
         }
+        console.log('3')
         return this._drawer[drawType];
     },
-
     _calculatePixel: function () {
         var map = this.getMapv().getMap();
         var mercatorProjection = map.getMapType().getProjection();
@@ -180,26 +178,20 @@ util.extend(Layer.prototype, {
         var mcCenter = mercatorProjection.lngLatToPoint(map.getCenter());
         var nwMc = new BMap.Pixel(mcCenter.x - (map.getSize().width / 2) * zoomUnit,
             mcCenter.y + (map.getSize().height / 2) * zoomUnit); //左上角墨卡托坐标
-
         var data = this.getData();
         var map = this.getMap();
-
         for (var j = 0; j < data.length; j++) {
-
             if (data[j].lng && data[j].lat) {
                 var pixel = map.pointToPixel(new BMap.Point(data[j].lng, data[j].lat));
                 data[j].px = pixel.x;
                 data[j].py = pixel.y;
             }
-
             if (data[j].x && data[j].y) {
                 data[j].px = (data[j].x - nwMc.x) / zoomUnit;
                 data[j].py = (nwMc.y - data[j].y) / zoomUnit;
             }
-
             if (data[j].geo) {
                 var tmp = [];
-
                 if (this.getCoordType() === 'bd09ll') {
                     for (var i = 0; i < data[j].geo.length; i++) {
                         var pixel = map.pointToPixel(new BMap.Point(data[j].geo[i][0], data[j].geo[i][1]));
@@ -210,25 +202,20 @@ util.extend(Layer.prototype, {
                         tmp.push([(data[j].geo[i][0] - nwMc.x) / zoomUnit, (nwMc.y - data[j].geo[i][1]) / zoomUnit]);
                     }
                 }
-
                 data[j].pgeo = tmp;
             }
         }
     },
-
     data_changed: function () {
         var data = this.getData();
-
         if (!data || data.length < 1) {
             return;
         }
-
         if (this.getDataType() === "polyline" && this.getAnimation()) {
             for (var i = 0; i < data.length; i++) {
                 data[i].index = parseInt(Math.random() * data[i].geo.length, 10);
             }
         }
-
         this._min = data[0].count;
         this._max = data[0].count;
         for (var i = 0; i < data.length; i++) {
@@ -236,7 +223,6 @@ util.extend(Layer.prototype, {
             this._min = Math.min(this._min, data[i].count);
         }
     },
-
     getDataRange: function () {
         return {
             min: this._min,
@@ -246,12 +232,10 @@ util.extend(Layer.prototype, {
 });
 
 util.extend(Mapv.prototype, {
-
     addLayer: function (layer) {
         this._layers.push(layer);
         layer._layerAdd(this);
     },
-
     removeLayer: function (layer) {
         for (var i = this._layers.length--; i >= 0; i--) {
             if (this._layers[i] === layer) {
