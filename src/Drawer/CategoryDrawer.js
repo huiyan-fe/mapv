@@ -50,8 +50,6 @@ CategoryDrawer.prototype.generalSplitList = function () {
     };
 };
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 // CategoryDrawer.prototype.drawDataRange = function () {
 //     var canvas = this.getMapv().getDataRangeCtrol().getContainer();
 //     canvas.width = 80;
@@ -75,36 +73,6 @@ CategoryDrawer.prototype.generalSplitList = function () {
 //         i++;
 //     }
 // };
-=======
-=======
->>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
-CategoryDrawer.prototype.drawDataRange = function () {
-    var canvas = this.getMapv().getDataRangeCtrol().getContainer();
-    canvas.width = 80;
-    canvas.height = 190;
-    canvas.style.width = "80px";
-    canvas.style.height = "190px";
-
-    var ctx = canvas.getContext("2d");
-
-    var splitList = this.splitList;
-
-    var i = 0;
-    for (var key in splitList) {
-        ctx.fillStyle = splitList[key];
-        ctx.beginPath();
-        ctx.arc(15, i * 25 + 15, 5, 0, Math.PI * 2, false);
-        ctx.closePath();
-        ctx.fill();
-        ctx.fillStyle = '#333';
-        ctx.fillText(key, 25, i * 25 + 20);
-        i++;
-    }
-};
-<<<<<<< HEAD
->>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
-=======
->>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 
 CategoryDrawer.prototype.getColor = function (val) {
     var splitList = this.splitList;

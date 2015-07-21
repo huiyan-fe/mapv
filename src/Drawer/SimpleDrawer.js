@@ -15,20 +15,12 @@ SimpleDrawer.prototype.drawMap = function () {
     var ctx = this.getCtx();
 
     var drawOptions = this.getDrawOptions();
-<<<<<<< HEAD
-<<<<<<< HEAD
     console.log('????',drawOptions)
-=======
->>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
-=======
->>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 
     ctx.fillStyle = drawOptions.fillStyle || "rgba(50, 50, 200, 0.8)";
     ctx.strokeStyle = drawOptions.strokeStyle;
     ctx.lineWidth = drawOptions.lineWidth || 1;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     if (drawOptions.shadowColor) {
         ctx.shadowColor = drawOptions.shadowColor || 'black';
     }
@@ -36,10 +28,6 @@ SimpleDrawer.prototype.drawMap = function () {
         ctx.shadowBlur = drawOptions.shadowBlur;
     }
 
-=======
->>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
-=======
->>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     ctx.beginPath();
 
     if (drawOptions.globalCompositeOperation) {
@@ -69,22 +57,9 @@ SimpleDrawer.prototype.drawMap = function () {
 
         if (drawOptions.strokeStyle || dataType === 'polyline') {
             ctx.stroke();
-<<<<<<< HEAD
-<<<<<<< HEAD
         }
 
     } else {
-=======
-=======
->>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
-        } 
-
-    } else {
-        // console.log(data);
-<<<<<<< HEAD
->>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
-=======
->>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         for (var i = 0, len = data.length; i < len; i++) {
             var item = data[i];
             if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {
@@ -103,8 +78,6 @@ SimpleDrawer.prototype.drawMap = function () {
 
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 /**
  * 绘制动画
  */
@@ -139,7 +112,3 @@ SimpleDrawer.prototype.drawAnimation = function () {
         }
     }
 }
-=======
->>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
-=======
->>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b

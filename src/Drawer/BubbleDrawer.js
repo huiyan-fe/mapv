@@ -63,8 +63,6 @@ BubbleDrawer.prototype.getRadius = function (val) {
 
 };
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 // BubbleDrawer.prototype.drawDataRange = function () {
 //     var canvas = this.getMapv().getDataRangeCtrol().getContainer();
 //     canvas.width = 100;
@@ -86,31 +84,3 @@ BubbleDrawer.prototype.getRadius = function (val) {
 //         ctx.fill();
 //     }
 // };
-=======
-=======
->>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
-BubbleDrawer.prototype.drawDataRange = function () {
-    var canvas = this.getMapv().getDataRangeCtrol().getContainer();
-    canvas.width = 100;
-    canvas.height = 190;
-    canvas.style.width = '100px';
-    canvas.style.height = '190px';
-    var ctx = canvas.getContext('2d');
-    ctx.fillStyle = this.getDrawOptions().fillStyle || 'rgba(50, 50, 200, 0.8)';
-    var splitList = this.splitList;
-
-    for (var i = 0; i < splitList.length; i++) {
-        ctx.beginPath();
-        ctx.arc(15, i * 25 + 20, splitList[i].radius, 0, Math.PI * 2, false);
-        var startText = splitList[i].start || '~';
-        var endText = splitList[i].end || '~';
-        var text =  startText + ' - ' + endText;
-        ctx.fillText(text, 25, i * 25 + 25);
-        ctx.closePath();
-        ctx.fill();
-    }
-};
-<<<<<<< HEAD
->>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
-=======
->>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b

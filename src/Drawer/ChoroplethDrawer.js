@@ -35,43 +35,8 @@ ChoroplethDrawer.prototype.drawMap = function () {
 
 };
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 ChoroplethDrawer.prototype.getColor = function (val) {
     var splitList = this.splitList;
-=======
-=======
->>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
-ChoroplethDrawer.prototype.drawDataRange = function () {
-    var canvas = this.getMapv().getDataRangeCtrol().getContainer();
-    var drawOptions = this.getDrawOptions();
-    canvas.width = 100;
-    canvas.height = 190;
-    canvas.style.width = '100px';
-    canvas.style.height = '190px';
-    var ctx = canvas.getContext('2d');
-    ctx.fillStyle = drawOptions.fillStyle || 'rgba(50, 50, 200, 0.8)';
-
-    var splitList = this.splitList;
-
-    for (var i = 0; i < splitList.length; i++) {
-        ctx.fillStyle = splitList[i].color;
-        ctx.beginPath();
-        ctx.arc(15, i * 25 + 15, drawOptions.radius, 0, Math.PI * 2, false);
-        var text = (splitList[i].start || '~') + ' - ' + (splitList[i].end || '~');
-        ctx.fillText(text, 25, i * 25 + 20);
-        ctx.closePath();
-        ctx.fill();
-    }
-};
-
-ChoroplethDrawer.prototype.getColor = function (val) {
-    var splitList = this.splitList;
-
-<<<<<<< HEAD
->>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
-=======
->>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     var color = 'yellow';
 
     for (var i = 0; i < splitList.length; i++) {
