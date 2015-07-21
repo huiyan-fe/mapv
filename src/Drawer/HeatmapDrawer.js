@@ -25,8 +25,13 @@ HeatmapDrawer.prototype.drawMap = function () {
     this._data = data;
     this.drawHeatmap();
 <<<<<<< HEAD
+<<<<<<< HEAD
     // console.log('---??? do ')
     self.Scale && self.Scale.set({
+=======
+
+    self.Scale.set({
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 =======
 
     self.Scale.set({
@@ -168,7 +173,10 @@ util.extend(HeatmapDrawer.prototype, {
 
         var ctx = this.getCtx();
 <<<<<<< HEAD
+<<<<<<< HEAD
         ctx.save();
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 =======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 
@@ -178,6 +186,7 @@ util.extend(HeatmapDrawer.prototype, {
         // draw a grayscale heatmap by putting a blurred circle at each data point
         var dataType = this.getLayer().getDataType();
         if (dataType === 'polyline') {
+<<<<<<< HEAD
 <<<<<<< HEAD
             ctx.strokeStyle = this.getDrawOptions().strokeStyle || 'rgba(0, 0, 0, 0.05)';
 
@@ -192,6 +201,10 @@ util.extend(HeatmapDrawer.prototype, {
             ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
             ctx.lineWidth = 1;
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
+=======
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.lineWidth = 1;
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
             for (var i = 0, len = this._data.length; i < len; i++) {
                 p = this._data[i];
                 var geo = p.pgeo;
@@ -202,9 +215,13 @@ util.extend(HeatmapDrawer.prototype, {
             }
             ctx.stroke();
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         } else {
 
+=======
+        } else {
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 =======
         } else {
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
@@ -229,7 +246,10 @@ util.extend(HeatmapDrawer.prototype, {
         ctx.putImageData(colored, 0, 0);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         ctx.restore();
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 =======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         return this;

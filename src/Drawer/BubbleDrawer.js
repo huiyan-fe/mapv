@@ -64,6 +64,7 @@ BubbleDrawer.prototype.getRadius = function (val) {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 // BubbleDrawer.prototype.drawDataRange = function () {
 //     var canvas = this.getMapv().getDataRangeCtrol().getContainer();
 //     canvas.width = 100;
@@ -86,6 +87,8 @@ BubbleDrawer.prototype.getRadius = function (val) {
 //     }
 // };
 =======
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 BubbleDrawer.prototype.drawDataRange = function () {
     var canvas = this.getMapv().getDataRangeCtrol().getContainer();
     canvas.width = 100;
@@ -107,4 +110,7 @@ BubbleDrawer.prototype.drawDataRange = function () {
         ctx.fill();
     }
 };
+<<<<<<< HEAD
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
+=======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b

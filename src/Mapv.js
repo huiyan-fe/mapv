@@ -19,11 +19,14 @@ function Mapv(options) {
 
     this.setOptions(options);
 <<<<<<< HEAD
+<<<<<<< HEAD
     this._layers = [];
     this._initDrawScale();
     // this._initDataRange();
     // this._initDrawTypeControl();
 =======
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 
     this._layers = [];
 
@@ -33,6 +36,9 @@ function Mapv(options) {
     this._initOptionDataControl();
 
     new DataControl(this);
+<<<<<<< HEAD
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
+=======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 }
 
@@ -43,15 +49,21 @@ Mapv.prototype._initDrawScale = function () {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 Mapv.prototype._initDataRange = function () {
     this.setDataRangeCtrol(new DataRangeControl());
 =======
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 Mapv.prototype._initOptionDataControl = function () {
     this.OptionalData = new OptionalData(this);
 };
 
 Mapv.prototype._initDataRange = function () {
     this.setDataRangeCtrol(new DataRangeControl()); 
+<<<<<<< HEAD
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
+=======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     this.getMap().addControl(this.getDataRangeCtrol());
 }

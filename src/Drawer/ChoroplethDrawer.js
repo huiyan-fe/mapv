@@ -36,9 +36,12 @@ ChoroplethDrawer.prototype.drawMap = function () {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ChoroplethDrawer.prototype.getColor = function (val) {
     var splitList = this.splitList;
 =======
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 ChoroplethDrawer.prototype.drawDataRange = function () {
     var canvas = this.getMapv().getDataRangeCtrol().getContainer();
     var drawOptions = this.getDrawOptions();
@@ -65,6 +68,9 @@ ChoroplethDrawer.prototype.drawDataRange = function () {
 ChoroplethDrawer.prototype.getColor = function (val) {
     var splitList = this.splitList;
 
+<<<<<<< HEAD
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
+=======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     var color = 'yellow';
 

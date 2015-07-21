@@ -24,7 +24,11 @@ DensityDrawer.prototype.scale = function (scale) {
             max: max
         };
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.ctx = self.getCtx();
+=======
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 =======
 
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b

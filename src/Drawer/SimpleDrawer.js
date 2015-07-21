@@ -16,7 +16,10 @@ SimpleDrawer.prototype.drawMap = function () {
 
     var drawOptions = this.getDrawOptions();
 <<<<<<< HEAD
+<<<<<<< HEAD
     console.log('????',drawOptions)
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 =======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 
@@ -25,6 +28,7 @@ SimpleDrawer.prototype.drawMap = function () {
     ctx.lineWidth = drawOptions.lineWidth || 1;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (drawOptions.shadowColor) {
         ctx.shadowColor = drawOptions.shadowColor || 'black';
     }
@@ -32,6 +36,8 @@ SimpleDrawer.prototype.drawMap = function () {
         ctx.shadowBlur = drawOptions.shadowBlur;
     }
 
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 =======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     ctx.beginPath();
@@ -64,14 +70,20 @@ SimpleDrawer.prototype.drawMap = function () {
         if (drawOptions.strokeStyle || dataType === 'polyline') {
             ctx.stroke();
 <<<<<<< HEAD
+<<<<<<< HEAD
         }
 
     } else {
 =======
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         } 
 
     } else {
         // console.log(data);
+<<<<<<< HEAD
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
+=======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         for (var i = 0, len = data.length; i < len; i++) {
             var item = data[i];
@@ -91,6 +103,7 @@ SimpleDrawer.prototype.drawMap = function () {
 
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 /**
  * 绘制动画
@@ -126,5 +139,7 @@ SimpleDrawer.prototype.drawAnimation = function () {
         }
     }
 }
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 =======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b

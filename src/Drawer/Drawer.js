@@ -14,7 +14,10 @@ function Drawer(layer) {
         ctx: null,
         mapv: null,
 <<<<<<< HEAD
+<<<<<<< HEAD
         animationOptions: {},
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 =======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         drawOptions: {
@@ -24,8 +27,11 @@ function Drawer(layer) {
 
     this.bindTo('ctx', layer)
 <<<<<<< HEAD
+<<<<<<< HEAD
     this.bindTo('animationOptions', layer)
     this.bindTo('drawOptions', layer)
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 =======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     this.bindTo('mapv', layer)
@@ -35,8 +41,12 @@ function Drawer(layer) {
 util.inherits(Drawer, Class);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 Drawer.prototype.drawMap = function () {
 };
+=======
+Drawer.prototype.drawMap = function () {};
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 =======
 Drawer.prototype.drawMap = function () {};
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b

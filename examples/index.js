@@ -285,9 +285,12 @@ var options = {
 mapv = new Mapv(options);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 var beijingData = [];
 
 /**
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 =======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 $.ajax({
@@ -295,14 +298,20 @@ $.ajax({
     dataType: 'JSON',
     success: function (rs) {
 <<<<<<< HEAD
+<<<<<<< HEAD
         for (var i = 1; i < rs.length; i++) {
             var tmp = rs[i];
             beijingData.push({
 =======
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         var data = [];
         for (var i = 1; i < rs.length; i++) {
             var tmp = rs[i];
             data.push({
+<<<<<<< HEAD
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
+=======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
                 lng: tmp[0],
                 lat: tmp[1],
@@ -318,7 +327,11 @@ $.ajax({
                 {
                     geo: [
 <<<<<<< HEAD
+<<<<<<< HEAD
                         [116.39507, 39.879101],
+=======
+                        [116.39507, 39.879101], 
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 =======
                         [116.39507, 39.879101], 
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
@@ -346,7 +359,11 @@ $.ajax({
                 {
                     geo: [
 <<<<<<< HEAD
+<<<<<<< HEAD
                         [116.39507, 39.879101],
+=======
+                        [116.39507, 39.879101], 
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 =======
                         [116.39507, 39.879101], 
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
@@ -360,7 +377,10 @@ $.ajax({
             drawType: 'simple',
             zIndex: 5,
 <<<<<<< HEAD
+<<<<<<< HEAD
             animation: true,
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 =======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
             drawOptions: {
@@ -369,9 +389,12 @@ $.ajax({
                     strokeStyle: "rgba(0, 0, 255, 1)"
                 }
 <<<<<<< HEAD
+<<<<<<< HEAD
             },
             animationOptions: {
                 radius: 10
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 =======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
             }
@@ -411,12 +434,15 @@ $.ajax({
         });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     }
 });
 **/
 
 /**
 =======
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         var layer = new Mapv.Layer({
             zIndex: 1,
             geometryType: 'point',
@@ -429,6 +455,9 @@ $.ajax({
     }
 });
 
+<<<<<<< HEAD
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
+=======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 
 $.ajax({
@@ -444,6 +473,7 @@ $.ajax({
             });
         }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         data = data.sort(function(a, b){
             return a.count - b.count;
@@ -473,11 +503,14 @@ $.ajax({
 
 =======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         var layer = new Mapv.Layer({
             zIndex: 2,
             mapv: mapv,
             dataType: 'polyline',
             data: data,
+<<<<<<< HEAD
 <<<<<<< HEAD
             coordType: 'bd09mc',
             animation: true,
@@ -485,6 +518,11 @@ $.ajax({
                 radius: 2
             },
             drawType: 'simple',
+=======
+            drawType: 'heatmap',
+            zIndex: 2,
+            coordType: 'bd09mc',
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 =======
             drawType: 'heatmap',
             zIndex: 2,
@@ -503,21 +541,28 @@ $.ajax({
                     blur: true,
                     type: 'arc',
 <<<<<<< HEAD
+<<<<<<< HEAD
                     lineWidth: 1,
                     fillStyle: 'rgba(55, 55, 255, 0.8)',
                     gradient: {
                         '0': 'yellow',
                         '1.0': 'red'
 =======
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
                     fillStyle: 'rgba(55, 55, 255, 0.8)',
                     gradient: {
                         '0.4': 'blue',
                         '1.0': 'yellow'
+<<<<<<< HEAD
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
+=======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
                     },
                 }
             }
         });
+<<<<<<< HEAD
 <<<<<<< HEAD
 
         var layer = new Mapv.Layer({
@@ -581,6 +626,8 @@ $.ajax({
         });
 
 
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 =======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     }

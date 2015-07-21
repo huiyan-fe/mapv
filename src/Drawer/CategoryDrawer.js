@@ -51,6 +51,7 @@ CategoryDrawer.prototype.generalSplitList = function () {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 // CategoryDrawer.prototype.drawDataRange = function () {
 //     var canvas = this.getMapv().getDataRangeCtrol().getContainer();
 //     canvas.width = 80;
@@ -75,6 +76,8 @@ CategoryDrawer.prototype.generalSplitList = function () {
 //     }
 // };
 =======
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 CategoryDrawer.prototype.drawDataRange = function () {
     var canvas = this.getMapv().getDataRangeCtrol().getContainer();
     canvas.width = 80;
@@ -98,6 +101,9 @@ CategoryDrawer.prototype.drawDataRange = function () {
         i++;
     }
 };
+<<<<<<< HEAD
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
+=======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 
 CategoryDrawer.prototype.getColor = function (val) {

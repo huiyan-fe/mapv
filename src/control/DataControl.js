@@ -5,13 +5,19 @@
 
 function DataControl(superObj) {
 <<<<<<< HEAD
+<<<<<<< HEAD
     this.initDom();
     this.initEvent();
 =======
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     console.log('@@@@@',superObj)
     this.initDom();
     this.initEvent();
     this.initHistory();
+<<<<<<< HEAD
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
+=======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     this.super = superObj;
     this.geoData = superObj.geoData;
@@ -19,7 +25,10 @@ function DataControl(superObj) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 DataControl.prototype.initHistory = function () {
     var historyFiles = localStorage.getItem('filenames');
     historyFiles = JSON.parse(historyFiles);
@@ -48,6 +57,9 @@ DataControl.prototype.initHistory = function () {
     }
 };
 
+<<<<<<< HEAD
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
+=======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 DataControl.prototype.initDom = function () {
     var control = this.control = document.createElement('div');
@@ -60,6 +72,11 @@ DataControl.prototype.initDom = function () {
     tips.textContent = '拖拽文件到窗口或者选择自定义文件';
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 =======
 
 
@@ -128,13 +145,19 @@ DataControl.prototype.initEvent = function () {
             var storageName = node.getAttribute('storageName');
             var dataStr = localStorage.getItem(storageName);
 <<<<<<< HEAD
+<<<<<<< HEAD
             formatRender(dataStr);
 =======
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
             // console.log(dataStr);
             formatRender(dataStr);
             // reader.readAsText(dataStr);
             // reader.fileName = null;
             // reader.fileSize = null;
+<<<<<<< HEAD
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
+=======
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         }
         return false;
@@ -215,7 +238,11 @@ DataControl.prototype.initEvent = function () {
 
         self.geoData.setData(data);
 <<<<<<< HEAD
+<<<<<<< HEAD
         console.log(self.super._layers)
+=======
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 =======
 
 >>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
@@ -224,6 +251,12 @@ DataControl.prototype.initEvent = function () {
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+        // var drawer = this.super._getDrawer(this.super.options.drawType);
+        // drawer.drawDataRange(this.super._dataRangeCtrol.getContainer(), this.super.options.data);
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 =======
 
         // var drawer = this.super._getDrawer(this.super.options.drawType);
