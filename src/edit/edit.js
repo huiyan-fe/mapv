@@ -30,20 +30,24 @@ requirejs(['uploadDate', 'editActions'], function (upCallback, edit) {
 	})
 	app.done(function(options){
 		console.log(pointData,options.option);
+		var name = (+new Date()).toString(36)+ (Math.random()*10e7|0).toString(36);
 		var layer = new Mapv.Layer({
+			name: name,
 			mapv: mapv,
 			data: pointData,
 			drawType: options.type,
 			drawOptions: options.option
 		});
-
-		$('.E-layers').append('<div class="E-layers-block">'+options.type.substring(0,2).toUpperCase()+'</div>');
-
-		app.closeBox();
+		$('.E-layers').append('<div class="E-layers-block E-layers-layer" name="'+name+'">'+options.type.substring(0,2).toUpperCase()+'</div>');
+		app.addLayer(layer);
 	})
 });
 
 // edity map style
 requirejs(['mapstyle'],function(mapstyle){
 	mapstyle.setMap(map)
+})
+
+requirejs(['sort'],function(){
+	
 })

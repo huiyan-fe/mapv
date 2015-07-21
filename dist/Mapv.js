@@ -615,18 +615,14 @@ util.extend(Layer.prototype, {
     },
 
     updateControl: function () {
-        console.log('update con')
         var mapv = this.getMapv();
-        console.log('update con1')
         var drawer = this._getDrawer();
-        console.log('update con2')
         if (drawer.drawDataRange) {
             map.addControl(mapv.getDataRangeCtrol());
             drawer.drawDataRange(mapv.getDataRangeCtrol().getContainer());
         } else {
             map.removeControl(mapv.getDataRangeCtrol());
         }
-        console.log('update con3')
         // for drawer scale
         if(drawer.scale) {
             drawer.scale(mapv.Scale);
@@ -634,17 +630,12 @@ util.extend(Layer.prototype, {
         } else {
             mapv.Scale.hide();
         }
-        console.log('update con4')
         // mapv._drawTypeControl.showLayer(this);
         this.getMapv().OptionalData && this.getMapv().OptionalData.initController(this, this.getDrawType());
-        console.log('update conend')
     },
     _getDrawer: function () {
-        console.log('1')
         var drawType = this.getDrawType();
-        console.log('2')
         if (!this._drawer[drawType]) {
-            console.log('***')
             var funcName = drawType.replace(/(\w)/, function (v) {
                 return v.toUpperCase();
             });
@@ -658,7 +649,6 @@ util.extend(Layer.prototype, {
                 this.getMapv().Scale.hide();
             }
         }
-        console.log('3')
         return this._drawer[drawType];
     },
     _calculatePixel: function () {
@@ -2475,7 +2465,6 @@ HeatmapDrawer.prototype.scale = function (scale) {
     var self = this;
 
     scale.change(function (min, max) {
-        console.log('???change')
         self.masker = {
             min: min,
             max: max
@@ -2483,7 +2472,6 @@ HeatmapDrawer.prototype.scale = function (scale) {
 
         self.drawMap();
     });
-    console.log('---??? prepare')
     self.Scale = scale;
 };
 

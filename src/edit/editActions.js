@@ -1,8 +1,13 @@
-define(['config'], function(config) {
+define(['config','layersControl'], function(config,layersControl) {
     function edit() {
+        // layersControl.apply(this,arguments)
         this.init();
         this.actions();
     }
+    // inherit
+    edit.prototype = new layersControl();
+    edit.prototype.contructor = edit;
+    //
     edit.prototype.init = function() {
         var layers = this.domAdd = document.createElement('div');
         layers.setAttribute('class', 'E-layers');
@@ -41,7 +46,7 @@ define(['config'], function(config) {
             return content;
         }
     })();
-        // showUpload
+    // showUpload
     edit.prototype.showUpload = function() {
         // shwobox
         var box = this.showBox('上传文件 (1/2)');
@@ -52,9 +57,16 @@ define(['config'], function(config) {
         box.appendChild(upload);
     };
     // showedit
-    edit.prototype.shwoEdit = function() {
+    edit.prototype.shwoEdit = function(layer) {
+        console.log(layer)
+        var title;
+        if(layer){
+            title = '修改图层';
+        }else{
+            title = '设置图层 (2/2)';
+        }
         // shwobox
-        var box = this.showBox('设置图层 (2/2)');
+        var box = this.showBox(title);
         // edit
         var edit = this.domedit = document.createElement('div');
         edit.setAttribute('class', 'E-eidt');
@@ -70,6 +82,9 @@ define(['config'], function(config) {
             '</div>', '</div>'
         ].join('');
         box.appendChild(edit);
+        //
+
+
         // show types
         var layers = config.drawOptions;
         var layHtml = [];
@@ -77,11 +92,17 @@ define(['config'], function(config) {
             layHtml.push('<a href="#" class="E-type E-type-' + i + '" data-type="' + i + '">' + i + '</a>')
         }
         edit.querySelector('.E-typesArea').innerHTML = layHtml.join('');
-        edit.querySelector('.E-type').click();
+
+        // if layer
+        if(layer && layer.getDrawType()){
+            $(edit).find('.E-button-addLayer').attr('type','editing').attr('name',layer.getName());
+            edit.querySelector('.E-type-' + layer.getDrawType()).click();
+        }else{
+            edit.querySelector('.E-type').click();
+        }
     };
     // bind actions
     edit.prototype.done = function(fn){
-      console.log('doing done')
       this.done = fn;
     }
     edit.prototype.actions = function() {
@@ -96,11 +117,9 @@ define(['config'], function(config) {
             $(this).addClass('E-type-active');
             var type = $(this).attr('data-type');
             var typeConfig = config.drawOptions[type];
-            console.log(typeConfig.editable)
             //prepare for the setings
             var configHtml = [];
             if (typeConfig.editable) {
-                console.log( '@@@@@@',typeConfig.editable.length)
                 for (var i = 0, len = typeConfig.editable.length; i < len; i++) {
                     var key = typeConfig.editable[i];
                     if ((typeof(key) === 'string' || typeof(key) === 'json') && typeConfig[key]) {
@@ -154,7 +173,7 @@ define(['config'], function(config) {
                 parent.removeClass('E-label-active')
             }
         });
-        // add layer
+        // add or edit layer
         $('body').on('click', '.E-button-addLayer', function() {
             var config = {};
             config.type = $('.E-type-active').attr('data-type');
@@ -169,9 +188,26 @@ define(['config'], function(config) {
                 config.option[dom.name] = $(dom).html();
             });
 
-            self.done&&self.done(config)
+            var isEditing = $(this).attr('type') === 'editing';
+            if(isEditing){
+                var name  = $(this).attr('name');
+                self.getLayer(name).setDrawType(config.type);
+                self.getLayer(name).setDrawOptions(config.option);
+            }else{
+                self.done && self.done(config)
+            }
+            self.closeBox();
             return false;
         });
+
+        //layer edit
+        $('body').on('click','.E-layers-layer',function(){
+            var name = $(this).attr('name');
+            var layer = self.getLayer(name);
+            self.shwoEdit(layer);
+            return false;
+        })
     };
+
     return edit;
 })

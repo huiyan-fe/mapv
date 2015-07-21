@@ -36,7 +36,6 @@ HeatmapDrawer.prototype.scale = function (scale) {
     var self = this;
 
     scale.change(function (min, max) {
-        console.log('???change')
         self.masker = {
             min: min,
             max: max
@@ -44,7 +43,6 @@ HeatmapDrawer.prototype.scale = function (scale) {
 
         self.drawMap();
     });
-    console.log('---??? prepare')
     self.Scale = scale;
 };
 
