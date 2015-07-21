@@ -1,8 +1,8 @@
 define(function(){
 
-    setTimeout(function(){
-        $('.E-layers').append('<div class="E-layers-block E-layers-layer" name="icbqkadde9236hb">SI</div><div class="E-layers-block E-layers-layer" name="icbqkadfdde96hb">S5I</div><div class="E-layers-block E-layers-layer" name="icbqkaddef96hb">S3I</div>')
-    },1000);
+    // setTimeout(function(){
+    //     $('.E-layers').append('<div class="E-layers-block E-layers-layer" name="icbqkadde9236hb">SI</div><div class="E-layers-block E-layers-layer" name="icbqkadfdde96hb">S5I</div><div class="E-layers-block E-layers-layer" name="icbqkaddef96hb">S3I</div>')
+    // },1000);
 
     var app;
 
@@ -11,7 +11,8 @@ define(function(){
         y: 0,
         pageY : 0,
         list : {},
-        points : []
+        points : [],
+        isChange: false
     };
 
     function tarinit(){
@@ -20,7 +21,8 @@ define(function(){
             y: 0,
             pageY : 0,
             list : {},
-            points : []
+            points : [],
+            isChange: false
         };
     }
 
@@ -67,15 +69,24 @@ define(function(){
             tar.dom = null;
             e.preventDefault();
             moveBack();
-            console.log(tar)
+            if(tar.isChange){
+                //
+                var doms = [];
+                for(var i in tar.list){
+                    doms.push(tar.list[i]);
+                }
+                doms.sort(function(a,b){
+                    return a.top - b.top;
+                })
+                for(var i=0,len=doms.length;i<len;i++){
+                    doms[i].dom.attr('style','');
+                    $('.E-layers').append(doms[i].dom)
+                }
+            }
+            //
             tarinit();
-
-            //
-
-            //
             return false;
         }
-        console.log(app)
     });
 
     function moveCheck(pos){
@@ -99,6 +110,7 @@ define(function(){
             tar.y = max;
             tar.pageY += 60;
             moveBack();
+            tar.isChange = true;
         }
 
         if(pos < min){
@@ -107,6 +119,7 @@ define(function(){
             tar.y = min;
             tar.pageY -= 60
             moveBack();
+            tar.isChange = true;
         }
     }
 
