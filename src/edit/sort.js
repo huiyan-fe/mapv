@@ -79,9 +79,13 @@ define(function(){
                     return a.top - b.top;
                 })
                 for(var i=0,len=doms.length;i<len;i++){
+                    var name  = doms[i].dom.attr('name');
+                    console.log(app)
+                    app.getLayer(name).setZIndex(i);
                     doms[i].dom.attr('style','');
                     $('.E-layers').append(doms[i].dom)
                 }
+
             }
             //
             tarinit();
@@ -154,8 +158,8 @@ define(function(){
         }
     }
 
-    function init(app){
-        app = app;
+    function init(obj){
+        app = obj;
     }
     return {init:init};
 })

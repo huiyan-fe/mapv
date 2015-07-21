@@ -54,10 +54,11 @@ define(function () {
 		return data;
 	}
 
-	$('body').on('dragover', '.E-upload', function () {
+	$('body').on('dragover', /*'.E-upload',*/ function () {
 		event.preventDefault();
 	});
-	$('body').on('drop', '.E-upload', function () {
+
+	$('body').on('drop', /*'.E-upload',*/ function () {
 		event.preventDefault();
 		reader.readAsText(event.dataTransfer.files[0]);
 		reader.fileName = event.dataTransfer.files[0].name;
