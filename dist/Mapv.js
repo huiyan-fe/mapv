@@ -471,10 +471,22 @@ function Mapv(options) {
     });
 
     this.setOptions(options);
+<<<<<<< HEAD
     this._layers = [];
     this._initDrawScale();
     // this._initDataRange();
     // this._initDrawTypeControl();
+=======
+
+    this._layers = [];
+
+    this._initDrawScale();
+    this._initDataRange();
+    this._initDrawTypeControl();
+    this._initOptionDataControl();
+
+    new DataControl(this);
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 }
 
 util.inherits(Mapv, Class);
@@ -483,8 +495,17 @@ Mapv.prototype._initDrawScale = function () {
     this.Scale = new DrawScale();
 };
 
+<<<<<<< HEAD
 Mapv.prototype._initDataRange = function () {
     this.setDataRangeCtrol(new DataRangeControl());
+=======
+Mapv.prototype._initOptionDataControl = function () {
+    this.OptionalData = new OptionalData(this);
+};
+
+Mapv.prototype._initDataRange = function () {
+    this.setDataRangeCtrol(new DataRangeControl()); 
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     this.getMap().addControl(this.getDataRangeCtrol());
 }
 
@@ -495,28 +516,43 @@ Mapv.prototype._initDrawTypeControl = function () {
     this.getMap().addControl(this._drawTypeControl);
 };
 ;function Layer (options) {
+<<<<<<< HEAD
+=======
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     Class.call(this);
 
     this._drawer = {};
 
     this.initOptions($.extend({
         ctx: null,
+<<<<<<< HEAD
         animationCtx: null,
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         mapv: null,
         map: null,
         data: [],
         dataType: 'point',
+<<<<<<< HEAD
         animationOptions: {
             radius: 5
         },
         coordType: 'bd09ll',
         drawType: 'simple',
         animation: false,
+=======
+        coordType: 'bd09ll',
+        drawType: 'simple',
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         geometry: null,
         zIndex: 1
     }, options));
 
+<<<<<<< HEAD
     this.notify('data');
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     this.notify('mapv');
 
 }
@@ -544,6 +580,7 @@ util.extend(Layer.prototype, {
         this.mapMask.addEventListener('draw', function () {
             that.draw();
         });
+<<<<<<< HEAD
 
         if (this.getAnimation()) {
             this.animationMask = new MapMask({
@@ -555,11 +592,14 @@ util.extend(Layer.prototype, {
             this.setAnimationCtx(this.animationMask.getContainer().getContext("2d"));
         }
 
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     },
 
     draw: function () {
         var ctx = this.getCtx();
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+<<<<<<< HEAD
         this._calculatePixel();
 
         this._getDrawer().drawMap();
@@ -589,6 +629,13 @@ util.extend(Layer.prototype, {
         if (this.getAnimation()) {
             this.drawAnimation();
         }
+=======
+        ctx.canvas.width = ctx.canvas.width;
+        ctx.canvas.height = ctx.canvas.height;
+        this._calculatePixel();
+
+        this._getDrawer().drawMap();
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     },
 
     mapv_changed: function () {
@@ -611,6 +658,16 @@ util.extend(Layer.prototype, {
     },
 
     drawOptions_changed: function () {
+<<<<<<< HEAD
+=======
+        this.updateControl();
+        var drawOptions = this.getDrawOptions();
+        for (var key in drawOptions) {
+            if (this._drawer[key]) {
+                this._drawer[key].setDrawOptions(drawOptions[key]);
+            }
+        }
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         this.draw();
     },
 
@@ -623,6 +680,10 @@ util.extend(Layer.prototype, {
         } else {
             map.removeControl(mapv.getDataRangeCtrol());
         }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         // for drawer scale
         if(drawer.scale) {
             drawer.scale(mapv.Scale);
@@ -630,18 +691,33 @@ util.extend(Layer.prototype, {
         } else {
             mapv.Scale.hide();
         }
+<<<<<<< HEAD
         // mapv._drawTypeControl.showLayer(this);
         this.getMapv().OptionalData && this.getMapv().OptionalData.initController(this, this.getDrawType());
     },
     _getDrawer: function () {
         var drawType = this.getDrawType();
+=======
+
+        mapv._drawTypeControl.showLayer(this);
+        this.getMapv().OptionalData && this.getMapv().OptionalData.initController(this, this.getDrawType());
+    },
+
+    _getDrawer: function () {
+        var drawType = this.getDrawType();
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         if (!this._drawer[drawType]) {
             var funcName = drawType.replace(/(\w)/, function (v) {
                 return v.toUpperCase();
             });
             funcName += 'Drawer';
             var drawer = this._drawer[drawType] = eval('(new ' + funcName + '(this))');
+<<<<<<< HEAD
             drawer.setDrawOptions(this.getDrawOptions()/*[drawType]*/);
+=======
+            drawer.setDrawOptions(this.getDrawOptions()[drawType]);
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
             if (drawer.scale) {
                 drawer.scale(this.getMapv().Scale);
                 this.getMapv().Scale.show();
@@ -651,6 +727,10 @@ util.extend(Layer.prototype, {
         }
         return this._drawer[drawType];
     },
+<<<<<<< HEAD
+=======
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     _calculatePixel: function () {
         var map = this.getMapv().getMap();
         var mercatorProjection = map.getMapType().getProjection();
@@ -660,20 +740,40 @@ util.extend(Layer.prototype, {
         var mcCenter = mercatorProjection.lngLatToPoint(map.getCenter());
         var nwMc = new BMap.Pixel(mcCenter.x - (map.getSize().width / 2) * zoomUnit,
             mcCenter.y + (map.getSize().height / 2) * zoomUnit); //左上角墨卡托坐标
+<<<<<<< HEAD
         var data = this.getData();
         var map = this.getMap();
         for (var j = 0; j < data.length; j++) {
+=======
+
+        var data = this.getData();
+        var map = this.getMap();
+
+        for (var j = 0; j < data.length; j++) {
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
             if (data[j].lng && data[j].lat) {
                 var pixel = map.pointToPixel(new BMap.Point(data[j].lng, data[j].lat));
                 data[j].px = pixel.x;
                 data[j].py = pixel.y;
             }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
             if (data[j].x && data[j].y) {
                 data[j].px = (data[j].x - nwMc.x) / zoomUnit;
                 data[j].py = (nwMc.y - data[j].y) / zoomUnit;
             }
+<<<<<<< HEAD
             if (data[j].geo) {
                 var tmp = [];
+=======
+
+            if (data[j].geo) {
+                var tmp = [];
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
                 if (this.getCoordType() === 'bd09ll') {
                     for (var i = 0; i < data[j].geo.length; i++) {
                         var pixel = map.pointToPixel(new BMap.Point(data[j].geo[i][0], data[j].geo[i][1]));
@@ -684,6 +784,7 @@ util.extend(Layer.prototype, {
                         tmp.push([(data[j].geo[i][0] - nwMc.x) / zoomUnit, (nwMc.y - data[j].geo[i][1]) / zoomUnit]);
                     }
                 }
+<<<<<<< HEAD
                 data[j].pgeo = tmp;
             }
         }
@@ -698,6 +799,21 @@ util.extend(Layer.prototype, {
                 data[i].index = parseInt(Math.random() * data[i].geo.length, 10);
             }
         }
+=======
+
+                data[j].pgeo = tmp; 
+            }
+        }
+    },
+
+    data_changed: function () {
+        var data = this.getData();
+
+        if (!data || data.length < 1) {
+            return;
+        }
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         this._min = data[0].count;
         this._max = data[0].count;
         for (var i = 0; i < data.length; i++) {
@@ -705,6 +821,10 @@ util.extend(Layer.prototype, {
             this._min = Math.min(this._min, data[i].count);
         }
     },
+<<<<<<< HEAD
+=======
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     getDataRange: function () {
         return {
             min: this._min,
@@ -714,10 +834,18 @@ util.extend(Layer.prototype, {
 });
 
 util.extend(Mapv.prototype, {
+<<<<<<< HEAD
+=======
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     addLayer: function (layer) {
         this._layers.push(layer);
         layer._layerAdd(this);
     },
+<<<<<<< HEAD
+=======
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     removeLayer: function (layer) {
         for (var i = this._layers.length--; i >= 0; i--) {
             if (this._layers[i] === layer) {
@@ -782,13 +910,51 @@ MapMask.prototype.hide = function(){
 }
 
 ;function DataControl(superObj) {
+<<<<<<< HEAD
     this.initDom();
     this.initEvent();
+=======
+    console.log('@@@@@',superObj)
+    this.initDom();
+    this.initEvent();
+    this.initHistory();
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     this.super = superObj;
     this.geoData = superObj.geoData;
     // console.log(this.geoData.setData);
 }
 
+<<<<<<< HEAD
+=======
+DataControl.prototype.initHistory = function () {
+    var historyFiles = localStorage.getItem('filenames');
+    historyFiles = JSON.parse(historyFiles);
+    this.history.innerHTML = '';
+    // window.console.log('history', historyFiles);
+
+    var unit = ['bit', 'KB', 'MB', 'GB'];
+
+    for (var i in historyFiles) {
+        var saveName = i;
+        var fileName = historyFiles[i].name;
+        var fileSize = historyFiles[i].size;
+        var a = document.createElement('a');
+        a.setAttribute('storageName', i);
+
+        var index = 0;
+        while (fileSize > 1024) {
+            fileSize = parseInt(fileSize / 1024, 10);
+            index++;
+        }
+        a.href = '#';
+        a.style.color = 'orange';
+        a.style.marginRight = '10px';
+        a.textContent = fileName + '(' + fileSize + unit[index] + ')  ';
+        this.history.appendChild(a);
+    }
+};
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 DataControl.prototype.initDom = function () {
     var control = this.control = document.createElement('div');
 
@@ -799,6 +965,11 @@ DataControl.prototype.initDom = function () {
     var tips = document.createElement('div');
     tips.textContent = '拖拽文件到窗口或者选择自定义文件';
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     control.appendChild(tipstitle);
     control.appendChild(tips);
     control.appendChild(input);
@@ -862,7 +1033,15 @@ DataControl.prototype.initEvent = function () {
         if (node.nodeName === 'A') {
             var storageName = node.getAttribute('storageName');
             var dataStr = localStorage.getItem(storageName);
+<<<<<<< HEAD
             formatRender(dataStr);
+=======
+            // console.log(dataStr);
+            formatRender(dataStr);
+            // reader.readAsText(dataStr);
+            // reader.fileName = null;
+            // reader.fileSize = null;
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         }
         return false;
     });
@@ -941,11 +1120,21 @@ DataControl.prototype.initEvent = function () {
         }
 
         self.geoData.setData(data);
+<<<<<<< HEAD
         console.log(self.super._layers)
+=======
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         for(var i=0;i<self.super._layers.length;i++){
                 self.super._layers[i].draw();
         }
 
+<<<<<<< HEAD
+=======
+
+        // var drawer = this.super._getDrawer(this.super.options.drawType);
+        // drawer.drawDataRange(this.super._dataRangeCtrol.getContainer(), this.super.options.data);
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         return true;
     }
 
@@ -1349,11 +1538,23 @@ function OptionalData(superObj) {
     this.drawType = options.drawType;
     this.super = superObj;
     // init options
+<<<<<<< HEAD
     this.options = options.drawOptions || {};
+=======
+
+    this.options = options.drawOptions || {};
+
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     // init css
     this.initCSS();
     // append dom to body
     this.initDom();
+<<<<<<< HEAD
+=======
+    // append controller
+    this.initController();
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     // bind event
     this.bindEvent();
 }
@@ -1396,7 +1597,10 @@ OptionalData.prototype.initDom = function () {
  */
 
 OptionalData.prototype.initController = function (layer, drawType) {
+<<<<<<< HEAD
   return false
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     this._layer = layer;
     var self = this;
     var options;
@@ -1557,23 +1761,33 @@ function Drawer(layer) {
         map: layer.getMap(),
         ctx: null,
         mapv: null,
+<<<<<<< HEAD
         animationOptions: {},
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         drawOptions: {
             radius: 2
         }
     });
 
     this.bindTo('ctx', layer)
+<<<<<<< HEAD
     this.bindTo('animationOptions', layer)
     this.bindTo('drawOptions', layer)
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     this.bindTo('mapv', layer)
     this.bindTo('map', layer)
 }
 
 util.inherits(Drawer, Class);
 
+<<<<<<< HEAD
 Drawer.prototype.drawMap = function () {
 };
+=======
+Drawer.prototype.drawMap = function () {};
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 
 // we need defined drawDataRange so that in Mapv.js
 //      we can shwo or remove range cans by drawer.drawDataRange
@@ -1680,6 +1894,7 @@ BubbleDrawer.prototype.getRadius = function (val) {
 
 };
 
+<<<<<<< HEAD
 // BubbleDrawer.prototype.drawDataRange = function () {
 //     var canvas = this.getMapv().getDataRangeCtrol().getContainer();
 //     canvas.width = 100;
@@ -1701,6 +1916,29 @@ BubbleDrawer.prototype.getRadius = function (val) {
 //         ctx.fill();
 //     }
 // };
+=======
+BubbleDrawer.prototype.drawDataRange = function () {
+    var canvas = this.getMapv().getDataRangeCtrol().getContainer();
+    canvas.width = 100;
+    canvas.height = 190;
+    canvas.style.width = '100px';
+    canvas.style.height = '190px';
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = this.getDrawOptions().fillStyle || 'rgba(50, 50, 200, 0.8)';
+    var splitList = this.splitList;
+
+    for (var i = 0; i < splitList.length; i++) {
+        ctx.beginPath();
+        ctx.arc(15, i * 25 + 20, splitList[i].radius, 0, Math.PI * 2, false);
+        var startText = splitList[i].start || '~';
+        var endText = splitList[i].end || '~';
+        var text =  startText + ' - ' + endText;
+        ctx.fillText(text, 25, i * 25 + 25);
+        ctx.closePath();
+        ctx.fill();
+    }
+};
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 ;/* globals Drawer, util */
 
 function CategoryDrawer() {
@@ -1748,6 +1986,7 @@ CategoryDrawer.prototype.generalSplitList = function () {
     };
 };
 
+<<<<<<< HEAD
 // CategoryDrawer.prototype.drawDataRange = function () {
 //     var canvas = this.getMapv().getDataRangeCtrol().getContainer();
 //     canvas.width = 80;
@@ -1771,6 +2010,31 @@ CategoryDrawer.prototype.generalSplitList = function () {
 //         i++;
 //     }
 // };
+=======
+CategoryDrawer.prototype.drawDataRange = function () {
+    var canvas = this.getMapv().getDataRangeCtrol().getContainer();
+    canvas.width = 80;
+    canvas.height = 190;
+    canvas.style.width = "80px";
+    canvas.style.height = "190px";
+
+    var ctx = canvas.getContext("2d");
+
+    var splitList = this.splitList;
+
+    var i = 0;
+    for (var key in splitList) {
+        ctx.fillStyle = splitList[key];
+        ctx.beginPath();
+        ctx.arc(15, i * 25 + 15, 5, 0, Math.PI * 2, false);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#333';
+        ctx.fillText(key, 25, i * 25 + 20);
+        i++;
+    }
+};
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 
 CategoryDrawer.prototype.getColor = function (val) {
     var splitList = this.splitList;
@@ -1819,8 +2083,37 @@ ChoroplethDrawer.prototype.drawMap = function () {
 
 };
 
+<<<<<<< HEAD
 ChoroplethDrawer.prototype.getColor = function (val) {
     var splitList = this.splitList;
+=======
+ChoroplethDrawer.prototype.drawDataRange = function () {
+    var canvas = this.getMapv().getDataRangeCtrol().getContainer();
+    var drawOptions = this.getDrawOptions();
+    canvas.width = 100;
+    canvas.height = 190;
+    canvas.style.width = '100px';
+    canvas.style.height = '190px';
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = drawOptions.fillStyle || 'rgba(50, 50, 200, 0.8)';
+
+    var splitList = this.splitList;
+
+    for (var i = 0; i < splitList.length; i++) {
+        ctx.fillStyle = splitList[i].color;
+        ctx.beginPath();
+        ctx.arc(15, i * 25 + 15, drawOptions.radius, 0, Math.PI * 2, false);
+        var text = (splitList[i].start || '~') + ' - ' + (splitList[i].end || '~');
+        ctx.fillText(text, 25, i * 25 + 20);
+        ctx.closePath();
+        ctx.fill();
+    }
+};
+
+ChoroplethDrawer.prototype.getColor = function (val) {
+    var splitList = this.splitList;
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     var color = 'yellow';
 
     for (var i = 0; i < splitList.length; i++) {
@@ -2050,7 +2343,11 @@ DensityDrawer.prototype.scale = function (scale) {
             min: min,
             max: max
         };
+<<<<<<< HEAD
         self.ctx = self.getCtx();
+=======
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         self.ctx.clearRect(0, 0, self.ctx.canvas.width, self.ctx.canvas.height);
         self.drawMap();
     });
@@ -2453,8 +2750,13 @@ HeatmapDrawer.prototype.drawMap = function () {
     var data = this.getLayer().getData();
     this._data = data;
     this.drawHeatmap();
+<<<<<<< HEAD
     // console.log('---??? do ')
     self.Scale && self.Scale.set({
+=======
+
+    self.Scale.set({
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         min: 0,
         max: self.getMax(),
         colors: this.getGradient()
@@ -2591,7 +2893,10 @@ util.extend(HeatmapDrawer.prototype, {
         // }
 
         var ctx = this.getCtx();
+<<<<<<< HEAD
         ctx.save();
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 
         ctx.clearRect(0, 0, this._width, this._height);
 
@@ -2599,6 +2904,7 @@ util.extend(HeatmapDrawer.prototype, {
         // draw a grayscale heatmap by putting a blurred circle at each data point
         var dataType = this.getLayer().getDataType();
         if (dataType === 'polyline') {
+<<<<<<< HEAD
             ctx.strokeStyle = this.getDrawOptions().strokeStyle || 'rgba(0, 0, 0, 0.05)';
 
             /*
@@ -2608,6 +2914,10 @@ util.extend(HeatmapDrawer.prototype, {
             */
 
             ctx.lineWidth = this.getDrawOptions().lineWidth || 1;
+=======
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.lineWidth = 1;
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
             for (var i = 0, len = this._data.length; i < len; i++) {
                 p = this._data[i];
                 var geo = p.pgeo;
@@ -2617,9 +2927,13 @@ util.extend(HeatmapDrawer.prototype, {
                 }
             }
             ctx.stroke();
+<<<<<<< HEAD
 
         } else {
 
+=======
+        } else {
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
             for (var i = 0, len = this._data.length, p; i < len; i++) {
                 p = this._data[i];
                 if (p.px < 0 || p.py < 0 || p.px > ctx.canvas.width || p.py > ctx.canvas.height) {
@@ -2640,7 +2954,10 @@ util.extend(HeatmapDrawer.prototype, {
         this.colorize(colored.data, this._grad);
         ctx.putImageData(colored, 0, 0);
 
+<<<<<<< HEAD
         ctx.restore();
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         return this;
     },
 
@@ -2700,6 +3017,10 @@ IntensityDrawer.prototype.drawMap = function () {
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     var data = this.getLayer().getData();
     var drawOptions = this.getDrawOptions();
     ctx.strokeStyle = drawOptions.strokeStyle;
@@ -2733,7 +3054,11 @@ IntensityDrawer.prototype.drawMap = function () {
         ctx.stroke();
     }
 
+<<<<<<< HEAD
     this.Scale && this.Scale.set({
+=======
+    this.Scale.set({
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         min: 0,
         max: self.getMax(),
         colors: 'default'
@@ -2812,12 +3137,16 @@ SimpleDrawer.prototype.drawMap = function () {
     var ctx = this.getCtx();
 
     var drawOptions = this.getDrawOptions();
+<<<<<<< HEAD
     console.log('????',drawOptions)
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 
     ctx.fillStyle = drawOptions.fillStyle || "rgba(50, 50, 200, 0.8)";
     ctx.strokeStyle = drawOptions.strokeStyle;
     ctx.lineWidth = drawOptions.lineWidth || 1;
 
+<<<<<<< HEAD
     if (drawOptions.shadowColor) {
         ctx.shadowColor = drawOptions.shadowColor || 'black';
     }
@@ -2825,6 +3154,8 @@ SimpleDrawer.prototype.drawMap = function () {
         ctx.shadowBlur = drawOptions.shadowBlur;
     }
 
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     ctx.beginPath();
 
     if (drawOptions.globalCompositeOperation) {
@@ -2854,9 +3185,16 @@ SimpleDrawer.prototype.drawMap = function () {
 
         if (drawOptions.strokeStyle || dataType === 'polyline') {
             ctx.stroke();
+<<<<<<< HEAD
         }
 
     } else {
+=======
+        } 
+
+    } else {
+        // console.log(data);
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         for (var i = 0, len = data.length; i < len; i++) {
             var item = data[i];
             if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {
@@ -2875,6 +3213,7 @@ SimpleDrawer.prototype.drawMap = function () {
 
 }
 
+<<<<<<< HEAD
 /**
  * 绘制动画
  */
@@ -2909,6 +3248,8 @@ SimpleDrawer.prototype.drawAnimation = function () {
         }
     }
 }
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 ;    Mapv.Layer = Layer;
     this.Mapv = Mapv;
 }();

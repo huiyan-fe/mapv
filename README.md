@@ -6,6 +6,7 @@ mapv 是一款基于百度地图的海量点打点工具，用户可以通过直
 
 ## 示例
 
+<<<<<<< HEAD
 访问[示例地址](http://huiyan-fe.github.io/mapv/examples/)
 
 #### 画点示例代码
@@ -43,6 +44,8 @@ var layer = new Mapv.Layer({
 ```
 #### 画线示例代码
 
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 #### bubble类型
 ![bubble类型](/doc/asset/img/bubble.png)
 

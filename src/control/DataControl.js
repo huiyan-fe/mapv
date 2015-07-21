@@ -4,13 +4,51 @@
  */
 
 function DataControl(superObj) {
+<<<<<<< HEAD
     this.initDom();
     this.initEvent();
+=======
+    console.log('@@@@@',superObj)
+    this.initDom();
+    this.initEvent();
+    this.initHistory();
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     this.super = superObj;
     this.geoData = superObj.geoData;
     // console.log(this.geoData.setData);
 }
 
+<<<<<<< HEAD
+=======
+DataControl.prototype.initHistory = function () {
+    var historyFiles = localStorage.getItem('filenames');
+    historyFiles = JSON.parse(historyFiles);
+    this.history.innerHTML = '';
+    // window.console.log('history', historyFiles);
+
+    var unit = ['bit', 'KB', 'MB', 'GB'];
+
+    for (var i in historyFiles) {
+        var saveName = i;
+        var fileName = historyFiles[i].name;
+        var fileSize = historyFiles[i].size;
+        var a = document.createElement('a');
+        a.setAttribute('storageName', i);
+
+        var index = 0;
+        while (fileSize > 1024) {
+            fileSize = parseInt(fileSize / 1024, 10);
+            index++;
+        }
+        a.href = '#';
+        a.style.color = 'orange';
+        a.style.marginRight = '10px';
+        a.textContent = fileName + '(' + fileSize + unit[index] + ')  ';
+        this.history.appendChild(a);
+    }
+};
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 DataControl.prototype.initDom = function () {
     var control = this.control = document.createElement('div');
 
@@ -21,6 +59,11 @@ DataControl.prototype.initDom = function () {
     var tips = document.createElement('div');
     tips.textContent = '拖拽文件到窗口或者选择自定义文件';
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     control.appendChild(tipstitle);
     control.appendChild(tips);
     control.appendChild(input);
@@ -84,7 +127,15 @@ DataControl.prototype.initEvent = function () {
         if (node.nodeName === 'A') {
             var storageName = node.getAttribute('storageName');
             var dataStr = localStorage.getItem(storageName);
+<<<<<<< HEAD
             formatRender(dataStr);
+=======
+            // console.log(dataStr);
+            formatRender(dataStr);
+            // reader.readAsText(dataStr);
+            // reader.fileName = null;
+            // reader.fileSize = null;
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         }
         return false;
     });
@@ -163,11 +214,21 @@ DataControl.prototype.initEvent = function () {
         }
 
         self.geoData.setData(data);
+<<<<<<< HEAD
         console.log(self.super._layers)
+=======
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         for(var i=0;i<self.super._layers.length;i++){
                 self.super._layers[i].draw();
         }
 
+<<<<<<< HEAD
+=======
+
+        // var drawer = this.super._getDrawer(this.super.options.drawType);
+        // drawer.drawDataRange(this.super._dataRangeCtrol.getContainer(), this.super.options.data);
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         return true;
     }
 

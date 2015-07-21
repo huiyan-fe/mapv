@@ -15,12 +15,16 @@ SimpleDrawer.prototype.drawMap = function () {
     var ctx = this.getCtx();
 
     var drawOptions = this.getDrawOptions();
+<<<<<<< HEAD
     console.log('????',drawOptions)
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
 
     ctx.fillStyle = drawOptions.fillStyle || "rgba(50, 50, 200, 0.8)";
     ctx.strokeStyle = drawOptions.strokeStyle;
     ctx.lineWidth = drawOptions.lineWidth || 1;
 
+<<<<<<< HEAD
     if (drawOptions.shadowColor) {
         ctx.shadowColor = drawOptions.shadowColor || 'black';
     }
@@ -28,6 +32,8 @@ SimpleDrawer.prototype.drawMap = function () {
         ctx.shadowBlur = drawOptions.shadowBlur;
     }
 
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     ctx.beginPath();
 
     if (drawOptions.globalCompositeOperation) {
@@ -57,9 +63,16 @@ SimpleDrawer.prototype.drawMap = function () {
 
         if (drawOptions.strokeStyle || dataType === 'polyline') {
             ctx.stroke();
+<<<<<<< HEAD
         }
 
     } else {
+=======
+        } 
+
+    } else {
+        // console.log(data);
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
         for (var i = 0, len = data.length; i < len; i++) {
             var item = data[i];
             if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {
@@ -78,6 +91,7 @@ SimpleDrawer.prototype.drawMap = function () {
 
 }
 
+<<<<<<< HEAD
 /**
  * 绘制动画
  */
@@ -112,3 +126,5 @@ SimpleDrawer.prototype.drawAnimation = function () {
         }
     }
 }
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b

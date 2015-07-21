@@ -10,11 +10,23 @@ function OptionalData(superObj) {
     this.drawType = options.drawType;
     this.super = superObj;
     // init options
+<<<<<<< HEAD
     this.options = options.drawOptions || {};
+=======
+
+    this.options = options.drawOptions || {};
+
+
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     // init css
     this.initCSS();
     // append dom to body
     this.initDom();
+<<<<<<< HEAD
+=======
+    // append controller
+    this.initController();
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     // bind event
     this.bindEvent();
 }
@@ -57,7 +69,10 @@ OptionalData.prototype.initDom = function () {
  */
 
 OptionalData.prototype.initController = function (layer, drawType) {
+<<<<<<< HEAD
   return false
+=======
+>>>>>>> 272f53538359c1104b2cfc4d398585d9fa5c007b
     this._layer = layer;
     var self = this;
     var options;
