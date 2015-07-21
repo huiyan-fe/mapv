@@ -16,13 +16,15 @@ var options = {
 };
 mapv = new Mapv(options);
 
+var app;
+
 /*****/
 requirejs.config({
 	baseUrl: '../src/edit',
 });
 
 requirejs(['uploadDate', 'editActions'], function (upCallback, edit) {
-	var app = new edit();
+	app = new edit();
 	var pointData,options;
 	upCallback(function(data){
 		pointData = data;
@@ -48,6 +50,6 @@ requirejs(['mapstyle'],function(mapstyle){
 	mapstyle.setMap(map)
 })
 
-requirejs(['sort'],function(){
-	
+requirejs(['sort'],function(sort){
+	sort.init(app);
 })

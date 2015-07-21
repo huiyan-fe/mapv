@@ -1,7 +1,10 @@
 define(function(){
-    // setTimeout(function(){
-    //     $('.E-layers').append('<div class="E-layers-block E-layers-layer" name="icbqkadde9236hb">SI</div><div class="E-layers-block E-layers-layer" name="icbqkadfdde96hb">S5I</div><div class="E-layers-block E-layers-layer" name="icbqkaddef96hb">S3I</div>')
-    // },1000)
+
+    setTimeout(function(){
+        $('.E-layers').append('<div class="E-layers-block E-layers-layer" name="icbqkadde9236hb">SI</div><div class="E-layers-block E-layers-layer" name="icbqkadfdde96hb">S5I</div><div class="E-layers-block E-layers-layer" name="icbqkaddef96hb">S3I</div>')
+    },1000);
+
+    var app;
 
     var tar = {
         dom : null,
@@ -64,9 +67,15 @@ define(function(){
             tar.dom = null;
             e.preventDefault();
             moveBack();
+            console.log(tar)
             tarinit();
+
+            //
+
+            //
             return false;
         }
+        console.log(app)
     });
 
     function moveCheck(pos){
@@ -131,4 +140,9 @@ define(function(){
             },200);
         }
     }
+
+    function init(app){
+        app = app;
+    }
+    return {init:init};
 })
