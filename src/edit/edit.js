@@ -23,8 +23,11 @@ requirejs.config({
 	baseUrl: '../src/edit',
 });
 
-requirejs(['uploadDate', 'editActions'], function (upCallback, edit) {
+requirejs(['uploadDate', 'editActions','sort'], function (upCallback, edit,sort) {
 	app = new edit();
+	// init sort action
+	sort.init(app);
+	//
 	var pointData,options;
 	upCallback(function(data){
 		pointData = data;
@@ -48,8 +51,9 @@ requirejs(['uploadDate', 'editActions'], function (upCallback, edit) {
 // edity map style
 requirejs(['mapstyle'],function(mapstyle){
 	mapstyle.setMap(map)
-})
+});
 
-requirejs(['sort'],function(sort){
-	sort.init(app);
+// login
+requirejs(['login'],function(login){
+
 })

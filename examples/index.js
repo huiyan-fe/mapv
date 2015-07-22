@@ -15,8 +15,6 @@ var mercatorProjection = map.getMapType().getProjection();
 map.centerAndZoom(new BMap.Point(116.403119, 39.928658), 12); // 初始化地图,设置中心点坐标和地图级别
 map.enableScrollWheelZoom(); // 启用滚轮放大缩小
 
-var mapv;
-
 map.getContainer().style.background = '#081734';
 map.setMapStyle({
     styleJson: [{
@@ -280,9 +278,10 @@ var drawOptions = {
 
 
 var options = {
+    drawTypeControl: true,
     map: map
 };
-mapv = new Mapv(options);
+var mapv = new Mapv(options);
 
 var beijingData = [];
 
@@ -499,7 +498,6 @@ $.ajax({
         //     drawOptions: drawOptions
         // };
         console.log(data)
-        mapv = new Mapv(options);
 
         var layer = new Mapv.Layer({
             zIndex: 3,
@@ -508,19 +506,23 @@ $.ajax({
             data: data,
             drawType: 'density',
             drawOptions: {
-              density: {
-                  gridWidth: '30',
-                  gridUnit: 'px',
-                  showNum: true,
-                  editable: ['gridWidth', {
-                      name: 'gridUnit',
-                      type: 'option',
-                      value: ['px', 'm']
-                  }, {
-                      name: 'showNum',
-                      type: 'check'
-                  }]
-              }
+                gridWidth: '30',
+                gridUnit: 'px',
+                showNum: true,
+                editable: ['gridWidth', {
+                    name: 'gridUnit',
+                    type: 'option',
+                    value: ['px', 'm']
+                }, {
+                    name: 'showNum',
+                    type: 'check'
+                }]
+            }
+        });
+        
+        mapv.setOptions({
+            drawTypeControlOptions: {
+                layer: layer
             }
         });
 

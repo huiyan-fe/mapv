@@ -66,6 +66,7 @@ DensityDrawer.prototype.drawMap = function () {
     } else {
         gridsObj = recGrids(obj);
     }
+    console.log(gridsObj);
 
     var grids = gridsObj.grids;
     var max = gridsObj.max;
@@ -333,7 +334,7 @@ function drawHoneycomb(obj) {
         if (count > 0 && !isTooSmall && !isTooBig) {
             draw(x, y, gridsW - 1, useColor, ctx);
         } else {
-            draw(x, y, gridsW - 1, 'rgba(0,0,0,0.2)', ctx);
+            draw(x, y, gridsW - 1, 'rgba(0,0,0,0.4)', ctx);
         }
 
         if (obj.sup.getDrawOptions().showNum && !isTooSmall && !isTooBig) {
@@ -348,9 +349,19 @@ function drawHoneycomb(obj) {
     // console.log(obj, step);
 }
 
+var r =0;g=0;b=0;
 function draw(x, y, gridStep, color, ctx) {
     ctx.beginPath();
     ctx.fillStyle = color;
+
+    // TODO: only for demo
+    // b++;
+    // if(b>=255){
+    //     b=0;
+    //     g++;
+    // }
+    // ctx.fillStyle = 'rgb('+r+','+g+','+b+')';
+
     ctx.moveTo(x, y - gridStep / 2);
     ctx.lineTo(x + gridStep / 2, y - gridStep / 4);
     ctx.lineTo(x + gridStep / 2, y + gridStep / 4);

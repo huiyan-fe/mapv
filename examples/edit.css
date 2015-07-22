@@ -28,3 +28,7 @@
 .E-maystyle-active { background: #fb4f4f; }
 .E-maystyle-active::before {  background: #fb4f4f; }
 .E-maystyle-active::after { box-shadow: -1px 3px 4px rgba(0,0,0,0.2);}
+
+.login-box { position: absolute; top:10px; right: 70px; color:white; }
+.login-box img {height: 50px; line-height: 50px; vertical-align: middle; }
+.login-box a { color:white }
