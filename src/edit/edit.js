@@ -52,3 +52,8 @@ requirejs(['uploadDate', 'editActions','sort'], function (upCallback, edit,sort)
 requirejs(['mapstyle'],function(mapstyle){
 	mapstyle.setMap(map)
 });
+
+// login
+requirejs(['login'],function(login){
+
+})
