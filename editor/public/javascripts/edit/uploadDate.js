@@ -4,6 +4,7 @@ define(function () {
 	var reader = new FileReader();
 	reader.addEventListener('load', function (e) {
 		var text = reader.result;
+		// console.log(reader)
 		var draw = formatRender(text);
 		if(draw && callbackFn){
 			callbackFn(draw)
@@ -24,15 +25,14 @@ define(function () {
 		} catch(e) {
 			wrongType = true;
 		}
+
 		if(wrongType) {
 			try {
 				data = [];
 				var dataT = dataStr.split('\n');
-				if(dataT.length <= 1) {
-					dataT = dataStr.split('\\n');
-				}
+				// console.log(dataT);
 				var keys = dataT[0].split(',');
-				for(var i = 1; i < keys.length; i++) {
+				for(var i = 1; i < dataT.length; i++) {
 					var values = dataT[i].split(',');
 					var obj = {};
 					var nonameIndex = 0;
@@ -51,6 +51,7 @@ define(function () {
 				wrongType = true;
 			}
 		}
+		// console.log('XXXX',data);
 		return data;
 	}
 
