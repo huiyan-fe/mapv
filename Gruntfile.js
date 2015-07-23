@@ -35,19 +35,28 @@ module.exports = function(grunt) {
                 }
             }
         },
-        watch: {    
+        copy:{
+            main:{
+                files:[
+                    {expand: true, cwd:'dist/',src: ['**'], dest: 'editor/public/javascripts/', filter: 'isFile'},
+                    {expand: true, cwd:'examples/',src: ['style.css'], dest: 'editor/public/stylesheets/', filter: 'isFile'},
+                ]
+            }
+        },
+        watch: {
             js: {
                 files: ['src/*.js', 'src/**/*.js'],
-                tasks: ['concat', 'uglify']
+                tasks: ['concat', 'uglify','copy']
             }
         }
     });
- 
+
     //载入concat和uglify插件，分别对于合并和压缩
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
- 
+    grunt.loadNpmTasks('grunt-contrib-copy');
+
     //注册任务
-    grunt.registerTask('default', ['concat', 'uglify', 'watch']);
+    grunt.registerTask('default', ['concat', 'uglify','copy', 'watch']);
 }
