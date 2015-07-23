@@ -6,6 +6,7 @@
 var map = new BMap.Map('map', {
 	enableMapClick: false
 });
+
 var mercatorProjection = map.getMapType().getProjection();
 map.centerAndZoom(new BMap.Point(116.403119, 39.928658), 12); // 初始化地图,设置中心点坐标和地图级别
 map.enableScrollWheelZoom(); // 启用滚轮放大缩小
@@ -20,7 +21,7 @@ var app;
 
 /*****/
 requirejs.config({
-	baseUrl: '../src/edit',
+	baseUrl: '/javascripts/edit',
 });
 
 requirejs(['uploadDate', 'editActions','sort'], function (upCallback, edit,sort) {

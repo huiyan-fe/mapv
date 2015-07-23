@@ -5,7 +5,7 @@
  */
 
 var app = require('../app');
-var debug = require('debug')('server:server');
+var debug = require('debug')('editor:server');
 var http = require('http');
 
 /**

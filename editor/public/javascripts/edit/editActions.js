@@ -74,10 +74,11 @@ define(['config','layersControl'], function(config,layersControl) {
             '<div class="E-editTitle">图层类型</div>',
             '<div class="E-editBlock E-typesArea"></div>',
             '<div class="E-editArea"></div>',
-            '<div class="E-editTitle">是否启用</div>',
+            // '<div class="E-editTitle">是否启用</div>',
+            // '<div class="E-editBlock">',
+            // '<label class="E-label E-label-active"><input type="checkbox" checked="checked" name="isEnable"> 是否启用</label>',
+            // '</div>',
             '<div class="E-editBlock">',
-            '<label class="E-label E-label-active"><input type="checkbox" checked="checked" name="isEnable"> 是否启用</label>',
-            '</div>', '<div class="E-editBlock">',
             '<button class="E-button E-button-addLayer E-button-active">确定</button>',
             '</div>', '</div>'
         ].join('');
@@ -178,7 +179,7 @@ define(['config','layersControl'], function(config,layersControl) {
             var config = {};
             config.type = $('.E-type-active').attr('data-type');
             config.option = {
-                enable: $('input[name="isEnable"]')[0].checked
+                // enable: $('input[name="isEnable"]')[0].checked
             };
             $('.E-editArea input').each(function(index, dom) {
                 config.option[dom.name] = $(dom).val();
