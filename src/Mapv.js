@@ -23,7 +23,6 @@ function Mapv(options) {
 
     this._layers = [];
     this._initDrawScale();
-    // this._initDataRange();
     
     this.notify('drawTypeControl');
 }
