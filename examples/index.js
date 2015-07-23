@@ -230,6 +230,7 @@ var drawOptions = {
         max: 100,
         blur: true,
         type: 'arc',
+        unit: 'm',
         fillStyle: 'rgba(55, 55, 255, 0.8)',
         gradient: {
             '0.4': 'blue',
@@ -285,7 +286,6 @@ var mapv = new Mapv(options);
 
 var beijingData = [];
 
-/**
 $.ajax({
     url: 'data/beijing.json',
     dataType: 'JSON',
@@ -316,11 +316,9 @@ $.ajax({
             ],
             drawType: 'simple',
             drawOptions: {
-                simple: {
-                    lineWidth: 8,
-                    strokeStyle: "rgba(255, 255, 0, 1)",
-                    fillStyle: "rgba(255, 0, 0, 0.8)"
-                }
+                lineWidth: 8,
+                strokeStyle: "rgba(255, 255, 0, 1)",
+                fillStyle: "rgba(255, 0, 0, 0.8)"
             }
         });
 
@@ -342,10 +340,8 @@ $.ajax({
             zIndex: 5,
             animation: true,
             drawOptions: {
-                simple: {
-                    lineWidth: 2,
-                    strokeStyle: "rgba(0, 0, 255, 1)"
-                }
+                lineWidth: 2,
+                strokeStyle: "rgba(0, 0, 255, 1)"
             },
             animationOptions: {
                 radius: 10
@@ -377,19 +373,14 @@ $.ajax({
             ],
             drawType: 'simple',
             drawOptions: {
-                simple: {
-                    fillStyle: "rgba(255, 255, 50, 1)",
-                    lineWidth: 5,
-                    radius: 20
-                }
+                fillStyle: "rgba(255, 255, 50, 1)",
+                lineWidth: 5,
+                radius: 20
             }
         });
 
     }
 });
-**/
-
-/**
 
 $.ajax({
     url: 'data/drive.json',
@@ -420,13 +411,11 @@ $.ajax({
             coordType: 'bd09mc',
             drawType: 'simple',
             drawOptions: {
-                simple: {
-                    shadowBlur: 40,
-                    shadowColor: "yellow",
-                    globalCompositeOperation: 'lighter',
-                    lineWidth: 10,
-                    strokeStyle: "rgba(250, 255, 0, 0.5)"
-                }
+                shadowBlur: 40,
+                shadowColor: "yellow",
+                globalCompositeOperation: 'lighter',
+                lineWidth: 10,
+                strokeStyle: "rgba(250, 255, 0, 0.5)"
             }
         });
 
@@ -442,24 +431,9 @@ $.ajax({
             },
             drawType: 'simple',
             drawOptions: {
-                simple: {
-                    globalCompositeOperation: 'lighter',
-                    lineWidth: 0.2,
-                    strokeStyle: "rgba(50, 50, 255, 1)"
-                },
-                heatmap: {
-                    radius: 500,
-                    maxOpacity: 0.8,
-                    max: 100,
-                    blur: true,
-                    type: 'arc',
-                    lineWidth: 1,
-                    fillStyle: 'rgba(55, 55, 255, 0.8)',
-                    gradient: {
-                        '0': 'yellow',
-                        '1.0': 'red'
-                    },
-                }
+                globalCompositeOperation: 'lighter',
+                lineWidth: 0.2,
+                strokeStyle: "rgba(50, 50, 255, 1)"
             }
         });
 
@@ -468,64 +442,15 @@ $.ajax({
             geometryType: 'point',
             data: beijingData,
             drawType: 'heatmap',
-            drawOptions: drawOptions
+            drawOptions: drawOptions['heatmap']
         });
         layer.setMapv(mapv);
-
-    }
-});
-
-**/
-
-$.ajax({
-    url: 'http://huiyan.baidu.com/huiyan/api/heatmap/?file=beijing_16_2015060316&callback=?',
-    dataType: 'JSON',
-    success: function (rs) {
-        rs = JSON.parse(rs);
-        var data = [];
-        for (var i = 1; i < rs.length; i++) {
-            var tmp = rs[i];
-            data.push({
-                lng: tmp[0],
-                lat: tmp[1],
-                count: tmp[2]
-            });
-        }
-        // var options = {
-        //     map: map,
-        //     data: data,
-        //     drawType: 'heatmap',
-        //     drawOptions: drawOptions
-        // };
-        console.log(data)
-
-        var layer = new Mapv.Layer({
-            zIndex: 3,
-            mapv: mapv,
-            dataType: 'point',
-            data: data,
-            drawType: 'density',
-            drawOptions: {
-                gridWidth: '30',
-                gridUnit: 'px',
-                showNum: true,
-                editable: ['gridWidth', {
-                    name: 'gridUnit',
-                    type: 'option',
-                    value: ['px', 'm']
-                }, {
-                    name: 'showNum',
-                    type: 'check'
-                }]
-            }
-        });
         
         mapv.setOptions({
             drawTypeControlOptions: {
                 layer: layer
             }
         });
-
 
     }
 });

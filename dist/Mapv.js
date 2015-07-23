@@ -2885,6 +2885,12 @@ SimpleDrawer.prototype.drawMap = function () {
     var zoomUnit = Math.pow(2, 18 - this.getMap().getZoom());
 
     var radius = drawOptions.radius || 3;
+    var unit = drawOptions.unit || 'px';
+    if (unit === 'm') {
+        radius = parseInt(radius, 10) / zoomUnit;
+    } else {
+        radius = parseInt(radius, 10);
+    }
 
     var dataType = this.getLayer().getDataType();
 
