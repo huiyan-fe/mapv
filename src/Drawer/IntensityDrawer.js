@@ -52,7 +52,7 @@ IntensityDrawer.prototype.drawMap = function () {
         ctx.beginPath();
         ctx.moveTo(item.px, item.py);
         ctx.fillStyle = this.getColor(item.count);
-        ctx.arc(item.px, item.py, drawOptions.radius, 0, 2 * Math.PI);
+        ctx.arc(item.px, item.py, drawOptions.radius || 1, 0, 2 * Math.PI);
         ctx.closePath();
         ctx.fill();
     }

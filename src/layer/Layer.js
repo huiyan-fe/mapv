@@ -33,40 +33,45 @@ util.inherits(Layer, Class);
 
 util.extend(Layer.prototype, {
     initialize: function () {
-        if (this.mapMask) {
+        if (this.canvasLayer) {
             return;
         }
 
         this.setMap(this.getMapv().getMap());
         this.bindTo('map', this.getMapv());
 
-        this.mapMask = new MapMask({
+        var that = this;
+
+        this.canvasLayer = new CanvasLayer({
             map: this.getMapv().getMap(),
             zIndex: this.getZIndex(),
+            update: function () {
+                that.draw();
+            },
             elementTag: "canvas"
         });
 
-        this.setCtx(this.mapMask.getContainer().getContext("2d"));
-
-        var that = this;
-        this.mapMask.addEventListener('draw', function () {
-            that.draw();
-        });
+        this.setCtx(this.canvasLayer.getContainer().getContext("2d"));
 
         if (this.getAnimation()) {
-            this.animationMask = new MapMask({
+            this.animationLayer = new CanvasLayer({
                 map: this.getMapv().getMap(),
                 zIndex: this.getZIndex(),
                 elementTag: "canvas"
             });
 
-            this.setAnimationCtx(this.animationMask.getContainer().getContext("2d"));
+            this.setAnimationCtx(this.animationLayer.getContainer().getContext("2d"));
         }
 
     },
 
-    draw: function () {
+    draw: function (ctx) {
         var ctx = this.getCtx();
+
+        if (!ctx) {
+            return false;
+        }
+
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         this._calculatePixel();
 
@@ -81,6 +86,11 @@ util.extend(Layer.prototype, {
 
     drawAnimation: function () {
         var animationCtx = this.getAnimationCtx();
+
+        if (!animationCtx ) {
+            return false;
+        }
+
         animationCtx.clearRect(0, 0, animationCtx.canvas.width, animationCtx.canvas.height);
 
         var that = this;
@@ -101,10 +111,10 @@ util.extend(Layer.prototype, {
 
     mapv_changed: function () {
         if (!this.getMapv()) {
-            this.mapMask && this.mapMask.hide();
+            this.canvasLayer && this.canvasLayer.hide();
             return;
         } else {
-            this.mapMask && this.mapMask.show();
+            this.canvasLayer && this.canvasLayer.show();
         }
 
         this.initialize();
@@ -149,7 +159,6 @@ util.extend(Layer.prototype, {
             });
             funcName += 'Drawer';
             var drawer = this._drawer[drawType] = eval('(new ' + funcName + '(this))');
-            drawer.setDrawOptions(this.getDrawOptions()/*[drawType]*/);
             if (drawer.scale) {
                 drawer.scale(this.getMapv().Scale);
                 this.getMapv().Scale.show();
@@ -218,19 +227,8 @@ util.extend(Layer.prototype, {
             min: this._min,
             max: this._max
         };
-    }
-});
-
-util.extend(Mapv.prototype, {
-    addLayer: function (layer) {
-        this._layers.push(layer);
-        layer._layerAdd(this);
     },
-    removeLayer: function (layer) {
-        for (var i = this._layers.length--; i >= 0; i--) {
-            if (this._layers[i] === layer) {
-                this._layers.splice(i, 1);
-            }
-        }
+    zIndex_changed: function (zIndex) {
+        this.canvasLayer.setZIndex(zIndex);
     }
 });
