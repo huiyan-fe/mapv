@@ -600,13 +600,12 @@ util.extend(Layer.prototype, {
             return;
         }
 
-        this.setMap(this.getMapv().getMap());
         this.bindTo('map', this.getMapv());
 
         var that = this;
 
         this.canvasLayer = new CanvasLayer({
-            map: this.getMapv().getMap(),
+            map: this.getMap(),
             zIndex: this.getZIndex(),
             update: function () {
                 that.draw();
@@ -618,7 +617,7 @@ util.extend(Layer.prototype, {
 
         if (this.getAnimation()) {
             this.animationLayer = new CanvasLayer({
-                map: this.getMapv().getMap(),
+                map: this.getMap(),
                 zIndex: this.getZIndex(),
                 elementTag: "canvas"
             });
@@ -698,6 +697,7 @@ util.extend(Layer.prototype, {
     updateControl: function () {
         var mapv = this.getMapv();
         var drawer = this._getDrawer();
+        var map = this.getMap();
         if (drawer.drawDataRange) {
             map.addControl(mapv.getDataRangeCtrol());
             drawer.drawDataRange(mapv.getDataRangeCtrol().getContainer());
