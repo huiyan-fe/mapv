@@ -2545,8 +2545,17 @@ util.extend(HeatmapDrawer.prototype, {
     getRadius: function () {
         var zoom = this.getMap().getZoom();
         var zoomUnit = Math.pow(2, 18 - zoom);
-        var distance = this.getDrawOptions().radius || 200;
-        return distance / zoomUnit;
+
+        var drawOptions = this.getDrawOptions();
+        var radius = drawOptions.radius || 13;
+        var unit = drawOptions.unit || 'px';
+        if (unit === 'm') {
+            radius = parseInt(radius, 10) / zoomUnit;
+        } else {
+            radius = parseInt(radius, 10);
+        }
+
+        return radius;
     },
 
     getMax: function () {
