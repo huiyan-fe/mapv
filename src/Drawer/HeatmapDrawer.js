@@ -61,22 +61,6 @@ util.extend(HeatmapDrawer.prototype, {
         return this.getDrawOptions().gradient || this.defaultGradient;
     },
 
-    getRadius: function () {
-        var zoom = this.getMap().getZoom();
-        var zoomUnit = Math.pow(2, 18 - zoom);
-
-        var drawOptions = this.getDrawOptions();
-        var radius = drawOptions.radius || 13;
-        var unit = drawOptions.unit || 'px';
-        if (unit === 'm') {
-            radius = parseInt(radius, 10) / zoomUnit;
-        } else {
-            radius = parseInt(radius, 10);
-        }
-
-        return radius;
-    },
-
     getMax: function () {
         var max = this._max;
         if (this.getDrawOptions().max !== undefined) {

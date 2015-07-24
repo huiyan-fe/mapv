@@ -1604,11 +1604,11 @@ function Drawer(layer) {
         }
     });
 
-    this.bindTo('ctx', layer)
-    this.bindTo('animationOptions', layer)
-    this.bindTo('drawOptions', layer)
-    this.bindTo('mapv', layer)
-    this.bindTo('map', layer)
+    this.bindTo('ctx', layer);
+    this.bindTo('animationOptions', layer);
+    this.bindTo('drawOptions', layer);
+    this.bindTo('mapv', layer);
+    this.bindTo('map', layer);
 }
 
 util.inherits(Drawer, Class);
@@ -1621,6 +1621,7 @@ Drawer.prototype.drawMap = function () {
 // Drawer.prototype.drawDataRange = function () {};
 
 Drawer.prototype.drawOptions_changed = function () {
+
     var drawOptions = this.getDrawOptions();
     if (drawOptions && drawOptions.splitList) {
         this.splitList = drawOptions.splitList;
@@ -1660,6 +1661,21 @@ Drawer.prototype.generalSplitList = function () {
         radius++;
     }
 };
+
+Drawer.prototype.getRadius = function () {
+    var zoom = this.getMap().getZoom();
+    var zoomUnit = Math.pow(2, 18 - zoom);
+
+    var drawOptions = this.getDrawOptions();
+    var radius = drawOptions.radius || 13;
+    var unit = drawOptions.unit || 'px';
+    if (unit === 'm') {
+        radius = parseInt(radius, 10) / zoomUnit;
+    } else {
+        radius = parseInt(radius, 10);
+    }
+    return radius;
+}
 ;/* globals Drawer, util */
 
 function BubbleDrawer() {
@@ -1760,7 +1776,7 @@ CategoryDrawer.prototype.drawMap = function () {
 
     ctx.strokeStyle = drawOptions.strokeStyle;
 
-    var radius = drawOptions.radius;
+    var radius = this.getRadius();
     for (var i = 0, len = data.length; i < len; i++) {
         var item = data[i];
         ctx.beginPath();
@@ -1844,15 +1860,18 @@ ChoroplethDrawer.prototype.drawMap = function () {
 
     ctx.strokeStyle = drawOptions.strokeStyle;
 
+    var radius = this.getRadius(); 
     for (var i = 0, len = data.length; i < len; i++) {
         var item = data[i];
         ctx.fillStyle = this.getColor(item.count);
         ctx.beginPath();
         ctx.moveTo(item.px, item.py);
-        ctx.arc(item.px, item.py, drawOptions.radius, 0, 2 * Math.PI);
+        ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI);
         ctx.closePath();
         ctx.fill();
     }
+
+    console.log(this.splitList);
 
     if (drawOptions.strokeStyle) {
         ctx.stroke();
@@ -2132,7 +2151,7 @@ DensityDrawer.prototype.drawMap = function () {
     if (this.getDrawOptions().gridType === 'honeycomb') {
         gridsObj = honeycombGrid(obj);
     } else {
-        gridsObj = recGrids(obj);
+        gridsObj = recGrids(obj, map);
     }
     console.log(gridsObj);
 
@@ -2169,7 +2188,7 @@ DensityDrawer.prototype.drawMap = function () {
     });
 };
 
-function recGrids(obj) {
+function recGrids(obj, map) {
     var data = obj.data;
     var nwMc = obj.nwMc;
     var gridWidth = obj.gridWidth;
@@ -2542,22 +2561,6 @@ util.extend(HeatmapDrawer.prototype, {
         return this.getDrawOptions().gradient || this.defaultGradient;
     },
 
-    getRadius: function () {
-        var zoom = this.getMap().getZoom();
-        var zoomUnit = Math.pow(2, 18 - zoom);
-
-        var drawOptions = this.getDrawOptions();
-        var radius = drawOptions.radius || 13;
-        var unit = drawOptions.unit || 'px';
-        if (unit === 'm') {
-            radius = parseInt(radius, 10) / zoomUnit;
-        } else {
-            radius = parseInt(radius, 10);
-        }
-
-        return radius;
-    },
-
     getMax: function () {
         var max = this._max;
         if (this.getDrawOptions().max !== undefined) {
@@ -2769,22 +2772,45 @@ IntensityDrawer.prototype.drawMap = function () {
 
     window.console.time('drawMap');
 
-    for (var i = 0, len = data.length; i < len; i++) {
-        var item = data[i];
-        if (item.px < 0 || item.px > ctxW || item.py < 0 || item.py > ctxH) {
-            continue;
+    var radius = this.getRadius();
+
+    var dataType = this.getLayer().getDataType();
+
+    if (dataType === 'polygon') {
+
+        for (var i = 0, len = data.length; i < len; i++) {
+            var geo = data[i].pgeo;
+            ctx.beginPath();
+            ctx.moveTo(geo[0][0], geo[0][1]);
+            ctx.fillStyle = this.getColor(data[i].count);
+            for (var j = 1; j < geo.length; j++) {
+                ctx.lineTo(geo[j][0], geo[j][1]);
+            }
+            ctx.closePath();
+            ctx.fill();
         }
-        var isTooSmall = self.masker.min && (item.count < self.masker.min);
-        var isTooBig = self.masker.max && (item.count > self.masker.max);
-        if (isTooSmall || isTooBig) {
-            continue;
+
+    } else { 
+
+        // 画点数据
+        for (var i = 0, len = data.length; i < len; i++) {
+            var item = data[i];
+            if (item.px < 0 || item.px > ctxW || item.py < 0 || item.py > ctxH) {
+                continue;
+            }
+            var isTooSmall = self.masker.min && (item.count < self.masker.min);
+            var isTooBig = self.masker.max && (item.count > self.masker.max);
+            if (isTooSmall || isTooBig) {
+                continue;
+            }
+            ctx.beginPath();
+            ctx.moveTo(item.px, item.py);
+            ctx.fillStyle = this.getColor(item.count);
+            ctx.arc(item.px, item.py, radius || 1, 0, 2 * Math.PI);
+            ctx.closePath();
+            ctx.fill();
         }
-        ctx.beginPath();
-        ctx.moveTo(item.px, item.py);
-        ctx.fillStyle = this.getColor(item.count);
-        ctx.arc(item.px, item.py, drawOptions.radius || 1, 0, 2 * Math.PI);
-        ctx.closePath();
-        ctx.fill();
+
     }
 
     window.console.timeEnd('drawMap');
@@ -2891,15 +2917,7 @@ SimpleDrawer.prototype.drawMap = function () {
         ctx.globalCompositeOperation = drawOptions.globalCompositeOperation;
     }
 
-    var zoomUnit = Math.pow(2, 18 - this.getMap().getZoom());
-
-    var radius = drawOptions.radius || 3;
-    var unit = drawOptions.unit || 'px';
-    if (unit === 'm') {
-        radius = parseInt(radius, 10) / zoomUnit;
-    } else {
-        radius = parseInt(radius, 10);
-    }
+    var radius = this.getRadius();
 
     var dataType = this.getLayer().getDataType();
 

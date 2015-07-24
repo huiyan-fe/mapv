@@ -64,7 +64,7 @@ DensityDrawer.prototype.drawMap = function () {
     if (this.getDrawOptions().gridType === 'honeycomb') {
         gridsObj = honeycombGrid(obj);
     } else {
-        gridsObj = recGrids(obj);
+        gridsObj = recGrids(obj, map);
     }
     console.log(gridsObj);
 
@@ -101,7 +101,7 @@ DensityDrawer.prototype.drawMap = function () {
     });
 };
 
-function recGrids(obj) {
+function recGrids(obj, map) {
     var data = obj.data;
     var nwMc = obj.nwMc;
     var gridWidth = obj.gridWidth;

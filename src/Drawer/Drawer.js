@@ -19,11 +19,11 @@ function Drawer(layer) {
         }
     });
 
-    this.bindTo('ctx', layer)
-    this.bindTo('animationOptions', layer)
-    this.bindTo('drawOptions', layer)
-    this.bindTo('mapv', layer)
-    this.bindTo('map', layer)
+    this.bindTo('ctx', layer);
+    this.bindTo('animationOptions', layer);
+    this.bindTo('drawOptions', layer);
+    this.bindTo('mapv', layer);
+    this.bindTo('map', layer);
 }
 
 util.inherits(Drawer, Class);
@@ -36,6 +36,7 @@ Drawer.prototype.drawMap = function () {
 // Drawer.prototype.drawDataRange = function () {};
 
 Drawer.prototype.drawOptions_changed = function () {
+
     var drawOptions = this.getDrawOptions();
     if (drawOptions && drawOptions.splitList) {
         this.splitList = drawOptions.splitList;
@@ -75,3 +76,18 @@ Drawer.prototype.generalSplitList = function () {
         radius++;
     }
 };
+
+Drawer.prototype.getRadius = function () {
+    var zoom = this.getMap().getZoom();
+    var zoomUnit = Math.pow(2, 18 - zoom);
+
+    var drawOptions = this.getDrawOptions();
+    var radius = drawOptions.radius || 13;
+    var unit = drawOptions.unit || 'px';
+    if (unit === 'm') {
+        radius = parseInt(radius, 10) / zoomUnit;
+    } else {
+        radius = parseInt(radius, 10);
+    }
+    return radius;
+}
