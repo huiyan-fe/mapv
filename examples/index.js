@@ -5,18 +5,16 @@
 /* globals Drawer mercatorProjection BMap util Mapv*/
 
 // 创建Map实例
-var map = new BMap.Map('map', {
+var bmap = new BMap.Map('map', {
     enableMapClick: false
     //vectorMapLevel: 3
 });
 
-var mercatorProjection = map.getMapType().getProjection();
+bmap.centerAndZoom(new BMap.Point(116.403119, 39.928658), 12); // 初始化地图,设置中心点坐标和地图级别
+bmap.enableScrollWheelZoom(); // 启用滚轮放大缩小
 
-map.centerAndZoom(new BMap.Point(116.403119, 39.928658), 12); // 初始化地图,设置中心点坐标和地图级别
-map.enableScrollWheelZoom(); // 启用滚轮放大缩小
-
-map.getContainer().style.background = '#081734';
-map.setMapStyle({
+bmap.getContainer().style.background = '#081734';
+bmap.setMapStyle({
     styleJson: [{
         featureType: 'water',
         elementType: 'all',
@@ -280,7 +278,7 @@ var drawOptions = {
 
 var options = {
     drawTypeControl: true,
-    map: map
+    map: bmap
 };
 var mapv = new Mapv(options);
 

@@ -45,7 +45,7 @@ DensityDrawer.prototype.drawMap = function () {
     var param = formatParam.call(this);
     var gridWidth = param.gridWidth;
 
-
+    var mercatorProjection = map.getMapType().getProjection();
     var mcCenter = mercatorProjection.lngLatToPoint(map.getCenter());
     var nwMcX = mcCenter.x - (map.getSize().width / 2) * zoomUnit;
     var nwMc = new BMap.Pixel(nwMcX, mcCenter.y + (map.getSize().height / 2) * zoomUnit);
