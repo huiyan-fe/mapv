@@ -93,6 +93,10 @@ IntensityDrawer.prototype.drawMap = function () {
     });
 };
 
+IntensityDrawer.prototype.getGradient = function () {
+    return this.getDrawOptions().gradient || this.defaultGradient;
+}
+
 IntensityDrawer.prototype.scale = function (scale) {
     var self = this;
 
