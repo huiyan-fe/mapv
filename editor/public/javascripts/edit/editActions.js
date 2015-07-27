@@ -1,4 +1,4 @@
-define(['config','layersControl'], function(config,layersControl) {
+define(['config','layersControl','login'], function(config,layersControl,login) {
     function edit() {
         // layersControl.apply(this,arguments)
         this.init();
@@ -74,18 +74,12 @@ define(['config','layersControl'], function(config,layersControl) {
             '<div class="E-editTitle">图层类型</div>',
             '<div class="E-editBlock E-typesArea"></div>',
             '<div class="E-editArea"></div>',
-            // '<div class="E-editTitle">是否启用</div>',
-            // '<div class="E-editBlock">',
-            // '<label class="E-label E-label-active"><input type="checkbox" checked="checked" name="isEnable"> 是否启用</label>',
-            // '</div>',
             '<div class="E-editBlock">',
             '<button class="E-button E-button-addLayer E-button-active">确定</button>',
             '</div>', '</div>'
         ].join('');
         box.appendChild(edit);
         //
-
-
         // show types
         var layers = config.drawOptions;
         var layHtml = [];
@@ -195,12 +189,12 @@ define(['config','layersControl'], function(config,layersControl) {
                 self.getLayer(name).setDrawType(config.type);
                 self.getLayer(name).setDrawOptions(config.option);
             }else{
+                console.log('layer Config',config)
                 self.done && self.done(config)
             }
             self.closeBox();
             return false;
         });
-
         //layer edit
         $('body').on('click','.E-layers-layer',function(){
             var name = $(this).attr('name');

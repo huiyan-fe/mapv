@@ -1,9 +1,5 @@
 define(function(){
 
-    // setTimeout(function(){
-    //     $('.E-layers').append('<div class="E-layers-block E-layers-layer" name="icbqkadde9236hb">SI</div><div class="E-layers-block E-layers-layer" name="icbqkadfdde96hb">S5I</div><div class="E-layers-block E-layers-layer" name="icbqkaddef96hb">S3I</div>')
-    // },1000);
-
     var app;
 
     var tar = {

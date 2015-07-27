@@ -104,7 +104,24 @@
         } else {
             doc.documentElement.appendChild(style);
         }
+    },
+
+    // 获取坐标的中心点
+    getGeoCenter: function (geo) {
+        var minX = geo[0][0];
+        var minY = geo[0][1];
+        var maxX = geo[0][0];
+        var maxY = geo[0][1];
+        for (var i = 1; i < geo.length; i++) {
+            minX = Math.min(minX, geo[i][0]);
+            maxX = Math.max(maxX, geo[i][0]);
+            minY = Math.min(minY, geo[i][1]);
+            maxY = Math.max(maxY, geo[i][1]);
+        }
+        return [minX + (maxX - minX) / 2, minY + (maxY - minY) / 2];
     }
+
+
 }
 ;var MVCObject;
 (function() {
@@ -796,7 +813,8 @@ util.extend(Layer.prototype, {
             max: this._max
         };
     },
-    zIndex_changed: function (zIndex) {
+    zIndex_changed: function () {
+        var zIndex = this.getZIndex();
         this.canvasLayer.setZIndex(zIndex);
     }
 });
@@ -2781,6 +2799,14 @@ IntensityDrawer.prototype.drawMap = function () {
 
     var dataType = this.getLayer().getDataType();
 
+    var label = drawOptions.label;
+    var zoom = this.getMap().getZoom();
+    if (label) {
+        if (label.font) {
+            ctx.font = label.font;
+        }
+    }
+
     if (dataType === 'polygon') {
 
         for (var i = 0, len = data.length; i < len; i++) {
@@ -2793,6 +2819,14 @@ IntensityDrawer.prototype.drawMap = function () {
             }
             ctx.closePath();
             ctx.fill();
+
+            if (label && label.show && (!label.minZoom || label.minZoom && zoom >= label.minZoom)) {
+                if (label.fillStyle) {
+                    ctx.fillStyle = label.fillStyle;
+                }
+                var center = util.getGeoCenter(geo);
+                ctx.fillText(data[i].count, center[0], center[1]);
+            }
         }
 
     } else { 
@@ -2930,7 +2964,7 @@ SimpleDrawer.prototype.drawMap = function () {
 
     var dataType = this.getLayer().getDataType();
 
-    if (dataType === 'polyline' || dataType === 'polygon') {
+    if (dataType === 'polyline' || dataType === 'polygon') { // 画线或面
 
         for (var i = 0, len = data.length; i < len; i++) {
             var geo = data[i].pgeo;
@@ -2938,6 +2972,7 @@ SimpleDrawer.prototype.drawMap = function () {
             for (var j = 1; j < geo.length; j++) {
                 ctx.lineTo(geo[j][0], geo[j][1]);
             }
+
         }
 
         if (dataType === 'polygon') {
@@ -2949,21 +2984,36 @@ SimpleDrawer.prototype.drawMap = function () {
             ctx.stroke();
         }
 
-    } else {
-        for (var i = 0, len = data.length; i < len; i++) {
-            var item = data[i];
-            if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {
-                continue;
+    } else { // 画点
+
+        if (drawOptions.strokeStyle || drawOptions.globalCompositeOperation) {
+            // 圆描边或设置颜色叠加方式需要一个个元素进行绘制
+            for (var i = 0, len = data.length; i < len; i++) {
+                var item = data[i];
+                if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {
+                    continue;
+                }
+                ctx.beginPath();
+                ctx.moveTo(item.px, item.py);
+                ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
+                ctx.fill();
+                ctx.stroke();
             }
-            ctx.moveTo(item.px, item.py);
-            ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
+
+        } else {
+            //普通填充可一起绘制路径，最后再统一填充，性能上会好点
+            for (var i = 0, len = data.length; i < len; i++) {
+                var item = data[i];
+                if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {
+                    continue;
+                }
+                ctx.moveTo(item.px, item.py);
+                ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
+            }
+
+            ctx.fill();
         }
 
-        ctx.fill();
-
-        if (drawOptions.strokeStyle) {
-            ctx.stroke();
-        }
     }
 
 }

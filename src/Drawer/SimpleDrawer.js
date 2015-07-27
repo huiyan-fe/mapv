@@ -38,7 +38,7 @@ SimpleDrawer.prototype.drawMap = function () {
 
     var dataType = this.getLayer().getDataType();
 
-    if (dataType === 'polyline' || dataType === 'polygon') {
+    if (dataType === 'polyline' || dataType === 'polygon') { // 画线或面
 
         for (var i = 0, len = data.length; i < len; i++) {
             var geo = data[i].pgeo;
@@ -46,6 +46,7 @@ SimpleDrawer.prototype.drawMap = function () {
             for (var j = 1; j < geo.length; j++) {
                 ctx.lineTo(geo[j][0], geo[j][1]);
             }
+
         }
 
         if (dataType === 'polygon') {
@@ -57,21 +58,36 @@ SimpleDrawer.prototype.drawMap = function () {
             ctx.stroke();
         }
 
-    } else {
-        for (var i = 0, len = data.length; i < len; i++) {
-            var item = data[i];
-            if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {
-                continue;
+    } else { // 画点
+
+        if (drawOptions.strokeStyle || drawOptions.globalCompositeOperation) {
+            // 圆描边或设置颜色叠加方式需要一个个元素进行绘制
+            for (var i = 0, len = data.length; i < len; i++) {
+                var item = data[i];
+                if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {
+                    continue;
+                }
+                ctx.beginPath();
+                ctx.moveTo(item.px, item.py);
+                ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
+                ctx.fill();
+                ctx.stroke();
             }
-            ctx.moveTo(item.px, item.py);
-            ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
+
+        } else {
+            //普通填充可一起绘制路径，最后再统一填充，性能上会好点
+            for (var i = 0, len = data.length; i < len; i++) {
+                var item = data[i];
+                if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {
+                    continue;
+                }
+                ctx.moveTo(item.px, item.py);
+                ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
+            }
+
+            ctx.fill();
         }
 
-        ctx.fill();
-
-        if (drawOptions.strokeStyle) {
-            ctx.stroke();
-        }
     }
 
 }
