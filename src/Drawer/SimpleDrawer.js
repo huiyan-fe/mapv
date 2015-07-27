@@ -42,21 +42,23 @@ SimpleDrawer.prototype.drawMap = function () {
 
         for (var i = 0, len = data.length; i < len; i++) {
             var geo = data[i].pgeo;
+            ctx.beginPath();
             ctx.moveTo(geo[0][0], geo[0][1]);
             for (var j = 1; j < geo.length; j++) {
                 ctx.lineTo(geo[j][0], geo[j][1]);
             }
 
+            if (drawOptions.strokeStyle || dataType === 'polyline') {
+                ctx.stroke();
+            }
+
+            if (dataType === 'polygon') {
+                ctx.closePath();
+                ctx.fill();
+            }
+
         }
 
-        if (dataType === 'polygon') {
-            ctx.closePath();
-            ctx.fill();
-        }
-
-        if (drawOptions.strokeStyle || dataType === 'polyline') {
-            ctx.stroke();
-        }
 
     } else { // 画点
 
