@@ -44,7 +44,7 @@ var layer = new Mapv.Layer({
             count: 2
         }
     ],
-    drawType: 'simple', // 渲染数据方式, simple:普通的打点,
+    drawType: 'simple', // 渲染数据方式, simple:普通的打点, [更多查看类参考](https://github.com/huiyan-fe/mapv/wiki/%E7%B1%BB%E5%8F%82%E8%80%83)
     // 渲染数据参数
     drawOptions: {
         fillStyle: "rgba(255, 255, 50, 1)",  // 填充颜色
