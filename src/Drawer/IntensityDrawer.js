@@ -14,7 +14,7 @@ function IntensityDrawer() {
 
     // 临时canvas，用来绘制颜色条，获取颜色
     this._tmpCanvas = document.createElement('canvas');
-    this.gradient(this.defaultGradient);
+    this.gradient(this.getGradient());
 }
 
 util.inherits(IntensityDrawer, Drawer);
@@ -39,22 +39,45 @@ IntensityDrawer.prototype.drawMap = function () {
 
     window.console.time('drawMap');
 
-    for (var i = 0, len = data.length; i < len; i++) {
-        var item = data[i];
-        if (item.px < 0 || item.px > ctxW || item.py < 0 || item.py > ctxH) {
-            continue;
+    var radius = this.getRadius();
+
+    var dataType = this.getLayer().getDataType();
+
+    if (dataType === 'polygon') {
+
+        for (var i = 0, len = data.length; i < len; i++) {
+            var geo = data[i].pgeo;
+            ctx.beginPath();
+            ctx.moveTo(geo[0][0], geo[0][1]);
+            ctx.fillStyle = this.getColor(data[i].count);
+            for (var j = 1; j < geo.length; j++) {
+                ctx.lineTo(geo[j][0], geo[j][1]);
+            }
+            ctx.closePath();
+            ctx.fill();
         }
-        var isTooSmall = self.masker.min && (item.count < self.masker.min);
-        var isTooBig = self.masker.max && (item.count > self.masker.max);
-        if (isTooSmall || isTooBig) {
-            continue;
+
+    } else { 
+
+        // 画点数据
+        for (var i = 0, len = data.length; i < len; i++) {
+            var item = data[i];
+            if (item.px < 0 || item.px > ctxW || item.py < 0 || item.py > ctxH) {
+                continue;
+            }
+            var isTooSmall = self.masker.min && (item.count < self.masker.min);
+            var isTooBig = self.masker.max && (item.count > self.masker.max);
+            if (isTooSmall || isTooBig) {
+                continue;
+            }
+            ctx.beginPath();
+            ctx.moveTo(item.px, item.py);
+            ctx.fillStyle = this.getColor(item.count);
+            ctx.arc(item.px, item.py, radius || 1, 0, 2 * Math.PI);
+            ctx.closePath();
+            ctx.fill();
         }
-        ctx.beginPath();
-        ctx.moveTo(item.px, item.py);
-        ctx.fillStyle = this.getColor(item.count);
-        ctx.arc(item.px, item.py, drawOptions.radius, 0, 2 * Math.PI);
-        ctx.closePath();
-        ctx.fill();
+
     }
 
     window.console.timeEnd('drawMap');
@@ -66,9 +89,13 @@ IntensityDrawer.prototype.drawMap = function () {
     this.Scale && this.Scale.set({
         min: 0,
         max: self.getMax(),
-        colors: 'default'
+        colors: this.getGradient()
     });
 };
+
+IntensityDrawer.prototype.getGradient = function () {
+    return this.getDrawOptions().gradient || this.defaultGradient;
+}
 
 IntensityDrawer.prototype.scale = function (scale) {
     var self = this;

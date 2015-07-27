@@ -21,7 +21,7 @@ CategoryDrawer.prototype.drawMap = function () {
 
     ctx.strokeStyle = drawOptions.strokeStyle;
 
-    var radius = drawOptions.radius;
+    var radius = this.getRadius();
     for (var i = 0, len = data.length; i < len; i++) {
         var item = data[i];
         ctx.beginPath();

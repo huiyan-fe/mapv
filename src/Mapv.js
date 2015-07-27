@@ -12,16 +12,19 @@
 function Mapv(options) {
     Class.call(this);
 
-    this.initOptions({
+    this.initOptions($.extend({
         map: null, //地图参数
+        drawTypeControl: false,
+        drawTypeControlOptions: {
+            a: 1
+        },
         dataRangeCtrol: null
-    });
+    }, options));
 
-    this.setOptions(options);
     this._layers = [];
     this._initDrawScale();
-    // this._initDataRange();
-    // this._initDrawTypeControl();
+    
+    this.notify('drawTypeControl');
 }
 
 util.inherits(Mapv, Class);
@@ -35,9 +38,18 @@ Mapv.prototype._initDataRange = function () {
     this.getMap().addControl(this.getDataRangeCtrol());
 }
 
-Mapv.prototype._initDrawTypeControl = function () {
-    this._drawTypeControl = new DrawTypeControl({
-        mapv: this
-    });
-    this.getMap().addControl(this._drawTypeControl);
-};
+Mapv.prototype.drawTypeControl_changed = function () {
+    if (this.getDrawTypeControl()) {
+        console.log(this.getMap());
+        if (!this.drawTypeControl) {
+            this.drawTypeControl = new DrawTypeControl({
+                mapv: this
+            });
+        }
+        this.getMap().addControl(this.drawTypeControl);
+    } else {
+        if (this.drawTypeControl) {
+            this.getMap().removeControl(this.drawTypeControl);
+        }
+    }
+}

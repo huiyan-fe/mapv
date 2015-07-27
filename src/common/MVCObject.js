@@ -283,3 +283,5 @@ var MVCObject;
     })();
 
 })();
+
+Mapv.MVCObject = MVCObject;

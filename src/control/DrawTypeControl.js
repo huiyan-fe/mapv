@@ -15,7 +15,17 @@ util.addCssByStyle(
 );
 
 function DrawTypeControl(options) {
+    Class.call(this);
     options = options || {};
+
+    this.initOptions($.extend({
+        mapv: null,
+        drawTypeControlOptions: {},
+        layer: null
+    }, options));
+
+    this.bindTo('drawTypeControlOptions', this.getMapv());
+
     // console.log('@@@@@@', options)
     this.mapv = options.mapv;
     // 默认停靠位置和偏移量
@@ -23,7 +33,8 @@ function DrawTypeControl(options) {
     this.defaultOffset = new BMap.Size(10, 10);
 }
 
-DrawTypeControl.prototype = new BMap.Control();
+util.inherits(DrawTypeControl, Class);
+util.inherits(DrawTypeControl, BMap.Control);
 
 DrawTypeControl.prototype.initialize = function (map) {
     var ul = this.ul = document.createElement('ul');
@@ -42,10 +53,12 @@ DrawTypeControl.prototype.initialize = function (map) {
             var drawType = target.getAttribute('drawType');
             target.className = 'current';
 
-            me._layer.setDrawType(drawType);
+            me.layer.setDrawType(drawType);
 
         }
     });
+
+    this.showLayer();
 
     // 添加DOM元素到地图中
     map.getContainer().appendChild(ul);
@@ -58,15 +71,29 @@ DrawTypeControl.prototype.getContainer = function () {
     return this.ul;
 };
 
-DrawTypeControl.prototype.showLayer = function (layer) {
-    this._layer = layer;
+DrawTypeControl.prototype.drawTypeControlOptions_changed = function () {
+    this.layer = this.getDrawTypeControlOptions().layer;
+
+    if (!this.layer) {
+        return;
+    }
+
+    this.showLayer();
+
+}
+
+DrawTypeControl.prototype.showLayer = function () {
+    if (!this.layer) {
+        return;
+    }
     // get the drawTypes from options by Mofei
     var ul = this.ul;
     ul.innerHTML = "";
-    var drawTypes = layer.getDrawOptions();
-    for (var key in drawTypes) {
+    var drawTypes = ['simple', 'heatmap', 'density', 'bubble', 'category', 'choropleth', 'intensity', 'cluster'];
+    for (var i = 0; i < drawTypes.length; i++) {
+        var key = drawTypes[i];
         var li = document.createElement('li');
-        if (layer.getDrawType() === key) {
+        if (this.layer.getDrawType() === key) {
             li.className = 'current';
         }
         li.setAttribute('drawType', key);
