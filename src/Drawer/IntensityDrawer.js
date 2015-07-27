@@ -14,7 +14,7 @@ function IntensityDrawer() {
 
     // 临时canvas，用来绘制颜色条，获取颜色
     this._tmpCanvas = document.createElement('canvas');
-    this.gradient(this.defaultGradient);
+    this.gradient(this.getGradient());
 }
 
 util.inherits(IntensityDrawer, Drawer);
