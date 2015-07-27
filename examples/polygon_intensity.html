@@ -39,13 +39,13 @@ var polygonLayer = new Mapv.Layer({
     drawType: 'intensity',
     drawOptions: {
         max: 5000,
-        label: {
-            show: true,
-            font: "11px",
-            minZoom: 7,
-            fillStyle: 'rgba(255, 255, 255, 1)'
+        label: { // 显示label文字
+            show: true, // 是否显示
+            font: "11px", // 设置字号
+            minZoom: 7, // 最小显示的级别
+            fillStyle: 'rgba(255, 255, 255, 1)' // label颜色
         },
-        gradient: {
+        gradient: { 
             '0.01': 'blue',
             '0.1': 'cyan',
             '0.2': 'lime',
