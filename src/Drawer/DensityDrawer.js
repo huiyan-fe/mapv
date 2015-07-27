@@ -45,7 +45,7 @@ DensityDrawer.prototype.drawMap = function () {
     var param = formatParam.call(this);
     var gridWidth = param.gridWidth;
 
-
+    var mercatorProjection = map.getMapType().getProjection();
     var mcCenter = mercatorProjection.lngLatToPoint(map.getCenter());
     var nwMcX = mcCenter.x - (map.getSize().width / 2) * zoomUnit;
     var nwMc = new BMap.Pixel(nwMcX, mcCenter.y + (map.getSize().height / 2) * zoomUnit);
@@ -64,7 +64,7 @@ DensityDrawer.prototype.drawMap = function () {
     if (this.getDrawOptions().gridType === 'honeycomb') {
         gridsObj = honeycombGrid(obj);
     } else {
-        gridsObj = recGrids(obj);
+        gridsObj = recGrids(obj, map);
     }
     console.log(gridsObj);
 
@@ -101,7 +101,7 @@ DensityDrawer.prototype.drawMap = function () {
     });
 };
 
-function recGrids(obj) {
+function recGrids(obj, map) {
     var data = obj.data;
     var nwMc = obj.nwMc;
     var gridWidth = obj.gridWidth;

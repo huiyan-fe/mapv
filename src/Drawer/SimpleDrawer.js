@@ -34,9 +34,7 @@ SimpleDrawer.prototype.drawMap = function () {
         ctx.globalCompositeOperation = drawOptions.globalCompositeOperation;
     }
 
-    var zoomUnit = Math.pow(2, 18 - this.getMap().getZoom());
-
-    var radius = drawOptions.radius || 3;
+    var radius = this.getRadius();
 
     var dataType = this.getLayer().getDataType();
 

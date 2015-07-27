@@ -600,13 +600,12 @@ util.extend(Layer.prototype, {
             return;
         }
 
-        this.setMap(this.getMapv().getMap());
         this.bindTo('map', this.getMapv());
 
         var that = this;
 
         this.canvasLayer = new CanvasLayer({
-            map: this.getMapv().getMap(),
+            map: this.getMap(),
             zIndex: this.getZIndex(),
             update: function () {
                 that.draw();
@@ -618,13 +617,17 @@ util.extend(Layer.prototype, {
 
         if (this.getAnimation()) {
             this.animationLayer = new CanvasLayer({
-                map: this.getMapv().getMap(),
+                map: this.getMap(),
                 zIndex: this.getZIndex(),
                 elementTag: "canvas"
             });
 
             this.setAnimationCtx(this.animationLayer.getContainer().getContext("2d"));
         }
+
+        this.addEventListener('draw', function () {
+            this.draw();
+        });
 
     },
 
@@ -698,6 +701,7 @@ util.extend(Layer.prototype, {
     updateControl: function () {
         var mapv = this.getMapv();
         var drawer = this._getDrawer();
+        var map = this.getMap();
         if (drawer.drawDataRange) {
             map.addControl(mapv.getDataRangeCtrol());
             drawer.drawDataRange(mapv.getDataRangeCtrol().getContainer());
@@ -770,20 +774,21 @@ util.extend(Layer.prototype, {
     },
     data_changed: function () {
         var data = this.getData();
-        if (!data || data.length < 1) {
-            return;
-        }
-        if (this.getDataType() === "polyline" && this.getAnimation()) {
+        if (data && data.length > 0) {
+            if (this.getDataType() === "polyline" && this.getAnimation()) {
+                for (var i = 0; i < data.length; i++) {
+                    data[i].index = parseInt(Math.random() * data[i].geo.length, 10);
+                }
+            }
+            this._min = data[0].count;
+            this._max = data[0].count;
             for (var i = 0; i < data.length; i++) {
-                data[i].index = parseInt(Math.random() * data[i].geo.length, 10);
+                this._max = Math.max(this._max, data[i].count);
+                this._min = Math.min(this._min, data[i].count);
             }
         }
-        this._min = data[0].count;
-        this._max = data[0].count;
-        for (var i = 0; i < data.length; i++) {
-            this._max = Math.max(this._max, data[i].count);
-            this._min = Math.min(this._min, data[i].count);
-        }
+
+        this.dispatchEvent('draw');
     },
     getDataRange: function () {
         return {
@@ -1604,11 +1609,11 @@ function Drawer(layer) {
         }
     });
 
-    this.bindTo('ctx', layer)
-    this.bindTo('animationOptions', layer)
-    this.bindTo('drawOptions', layer)
-    this.bindTo('mapv', layer)
-    this.bindTo('map', layer)
+    this.bindTo('ctx', layer);
+    this.bindTo('animationOptions', layer);
+    this.bindTo('drawOptions', layer);
+    this.bindTo('mapv', layer);
+    this.bindTo('map', layer);
 }
 
 util.inherits(Drawer, Class);
@@ -1621,6 +1626,7 @@ Drawer.prototype.drawMap = function () {
 // Drawer.prototype.drawDataRange = function () {};
 
 Drawer.prototype.drawOptions_changed = function () {
+
     var drawOptions = this.getDrawOptions();
     if (drawOptions && drawOptions.splitList) {
         this.splitList = drawOptions.splitList;
@@ -1660,6 +1666,21 @@ Drawer.prototype.generalSplitList = function () {
         radius++;
     }
 };
+
+Drawer.prototype.getRadius = function () {
+    var zoom = this.getMap().getZoom();
+    var zoomUnit = Math.pow(2, 18 - zoom);
+
+    var drawOptions = this.getDrawOptions();
+    var radius = drawOptions.radius || 13;
+    var unit = drawOptions.unit || 'px';
+    if (unit === 'm') {
+        radius = parseInt(radius, 10) / zoomUnit;
+    } else {
+        radius = parseInt(radius, 10);
+    }
+    return radius;
+}
 ;/* globals Drawer, util */
 
 function BubbleDrawer() {
@@ -1760,7 +1781,7 @@ CategoryDrawer.prototype.drawMap = function () {
 
     ctx.strokeStyle = drawOptions.strokeStyle;
 
-    var radius = drawOptions.radius;
+    var radius = this.getRadius();
     for (var i = 0, len = data.length; i < len; i++) {
         var item = data[i];
         ctx.beginPath();
@@ -1844,15 +1865,18 @@ ChoroplethDrawer.prototype.drawMap = function () {
 
     ctx.strokeStyle = drawOptions.strokeStyle;
 
+    var radius = this.getRadius(); 
     for (var i = 0, len = data.length; i < len; i++) {
         var item = data[i];
         ctx.fillStyle = this.getColor(item.count);
         ctx.beginPath();
         ctx.moveTo(item.px, item.py);
-        ctx.arc(item.px, item.py, drawOptions.radius, 0, 2 * Math.PI);
+        ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI);
         ctx.closePath();
         ctx.fill();
     }
+
+    console.log(this.splitList);
 
     if (drawOptions.strokeStyle) {
         ctx.stroke();
@@ -2113,7 +2137,7 @@ DensityDrawer.prototype.drawMap = function () {
     var param = formatParam.call(this);
     var gridWidth = param.gridWidth;
 
-
+    var mercatorProjection = map.getMapType().getProjection();
     var mcCenter = mercatorProjection.lngLatToPoint(map.getCenter());
     var nwMcX = mcCenter.x - (map.getSize().width / 2) * zoomUnit;
     var nwMc = new BMap.Pixel(nwMcX, mcCenter.y + (map.getSize().height / 2) * zoomUnit);
@@ -2132,7 +2156,7 @@ DensityDrawer.prototype.drawMap = function () {
     if (this.getDrawOptions().gridType === 'honeycomb') {
         gridsObj = honeycombGrid(obj);
     } else {
-        gridsObj = recGrids(obj);
+        gridsObj = recGrids(obj, map);
     }
     console.log(gridsObj);
 
@@ -2169,7 +2193,7 @@ DensityDrawer.prototype.drawMap = function () {
     });
 };
 
-function recGrids(obj) {
+function recGrids(obj, map) {
     var data = obj.data;
     var nwMc = obj.nwMc;
     var gridWidth = obj.gridWidth;
@@ -2499,7 +2523,6 @@ util.inherits(HeatmapDrawer, Drawer);
 HeatmapDrawer.prototype.drawMap = function () {
     var self = this;
     var ctx = this.getCtx();
-    this._map = map;
     this._width = ctx.canvas.width;
     this._height = ctx.canvas.height;
     var data = this.getLayer().getData();
@@ -2541,13 +2564,6 @@ util.extend(HeatmapDrawer.prototype, {
 
     getGradient: function () {
         return this.getDrawOptions().gradient || this.defaultGradient;
-    },
-
-    getRadius: function () {
-        var zoom = this._map.getZoom();
-        var zoomUnit = Math.pow(2, 18 - zoom);
-        var distance = this.getDrawOptions().radius || 200;
-        return distance / zoomUnit;
     },
 
     getMax: function () {
@@ -2736,7 +2752,7 @@ function IntensityDrawer() {
 
     // 临时canvas，用来绘制颜色条，获取颜色
     this._tmpCanvas = document.createElement('canvas');
-    this.gradient(this.defaultGradient);
+    this.gradient(this.getGradient());
 }
 
 util.inherits(IntensityDrawer, Drawer);
@@ -2761,22 +2777,45 @@ IntensityDrawer.prototype.drawMap = function () {
 
     window.console.time('drawMap');
 
-    for (var i = 0, len = data.length; i < len; i++) {
-        var item = data[i];
-        if (item.px < 0 || item.px > ctxW || item.py < 0 || item.py > ctxH) {
-            continue;
+    var radius = this.getRadius();
+
+    var dataType = this.getLayer().getDataType();
+
+    if (dataType === 'polygon') {
+
+        for (var i = 0, len = data.length; i < len; i++) {
+            var geo = data[i].pgeo;
+            ctx.beginPath();
+            ctx.moveTo(geo[0][0], geo[0][1]);
+            ctx.fillStyle = this.getColor(data[i].count);
+            for (var j = 1; j < geo.length; j++) {
+                ctx.lineTo(geo[j][0], geo[j][1]);
+            }
+            ctx.closePath();
+            ctx.fill();
         }
-        var isTooSmall = self.masker.min && (item.count < self.masker.min);
-        var isTooBig = self.masker.max && (item.count > self.masker.max);
-        if (isTooSmall || isTooBig) {
-            continue;
+
+    } else { 
+
+        // 画点数据
+        for (var i = 0, len = data.length; i < len; i++) {
+            var item = data[i];
+            if (item.px < 0 || item.px > ctxW || item.py < 0 || item.py > ctxH) {
+                continue;
+            }
+            var isTooSmall = self.masker.min && (item.count < self.masker.min);
+            var isTooBig = self.masker.max && (item.count > self.masker.max);
+            if (isTooSmall || isTooBig) {
+                continue;
+            }
+            ctx.beginPath();
+            ctx.moveTo(item.px, item.py);
+            ctx.fillStyle = this.getColor(item.count);
+            ctx.arc(item.px, item.py, radius || 1, 0, 2 * Math.PI);
+            ctx.closePath();
+            ctx.fill();
         }
-        ctx.beginPath();
-        ctx.moveTo(item.px, item.py);
-        ctx.fillStyle = this.getColor(item.count);
-        ctx.arc(item.px, item.py, drawOptions.radius || 1, 0, 2 * Math.PI);
-        ctx.closePath();
-        ctx.fill();
+
     }
 
     window.console.timeEnd('drawMap');
@@ -2788,9 +2827,13 @@ IntensityDrawer.prototype.drawMap = function () {
     this.Scale && this.Scale.set({
         min: 0,
         max: self.getMax(),
-        colors: 'default'
+        colors: this.getGradient()
     });
 };
+
+IntensityDrawer.prototype.getGradient = function () {
+    return this.getDrawOptions().gradient || this.defaultGradient;
+}
 
 IntensityDrawer.prototype.scale = function (scale) {
     var self = this;
@@ -2883,9 +2926,7 @@ SimpleDrawer.prototype.drawMap = function () {
         ctx.globalCompositeOperation = drawOptions.globalCompositeOperation;
     }
 
-    var zoomUnit = Math.pow(2, 18 - this.getMap().getZoom());
-
-    var radius = drawOptions.radius || 3;
+    var radius = this.getRadius();
 
     var dataType = this.getLayer().getDataType();
 

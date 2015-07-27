@@ -18,7 +18,6 @@ util.inherits(HeatmapDrawer, Drawer);
 HeatmapDrawer.prototype.drawMap = function () {
     var self = this;
     var ctx = this.getCtx();
-    this._map = map;
     this._width = ctx.canvas.width;
     this._height = ctx.canvas.height;
     var data = this.getLayer().getData();
@@ -60,13 +59,6 @@ util.extend(HeatmapDrawer.prototype, {
 
     getGradient: function () {
         return this.getDrawOptions().gradient || this.defaultGradient;
-    },
-
-    getRadius: function () {
-        var zoom = this._map.getZoom();
-        var zoomUnit = Math.pow(2, 18 - zoom);
-        var distance = this.getDrawOptions().radius || 200;
-        return distance / zoomUnit;
     },
 
     getMax: function () {

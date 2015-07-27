@@ -37,13 +37,12 @@ util.extend(Layer.prototype, {
             return;
         }
 
-        this.setMap(this.getMapv().getMap());
         this.bindTo('map', this.getMapv());
 
         var that = this;
 
         this.canvasLayer = new CanvasLayer({
-            map: this.getMapv().getMap(),
+            map: this.getMap(),
             zIndex: this.getZIndex(),
             update: function () {
                 that.draw();
@@ -55,13 +54,17 @@ util.extend(Layer.prototype, {
 
         if (this.getAnimation()) {
             this.animationLayer = new CanvasLayer({
-                map: this.getMapv().getMap(),
+                map: this.getMap(),
                 zIndex: this.getZIndex(),
                 elementTag: "canvas"
             });
 
             this.setAnimationCtx(this.animationLayer.getContainer().getContext("2d"));
         }
+
+        this.addEventListener('draw', function () {
+            this.draw();
+        });
 
     },
 
@@ -135,6 +138,7 @@ util.extend(Layer.prototype, {
     updateControl: function () {
         var mapv = this.getMapv();
         var drawer = this._getDrawer();
+        var map = this.getMap();
         if (drawer.drawDataRange) {
             map.addControl(mapv.getDataRangeCtrol());
             drawer.drawDataRange(mapv.getDataRangeCtrol().getContainer());
@@ -207,20 +211,21 @@ util.extend(Layer.prototype, {
     },
     data_changed: function () {
         var data = this.getData();
-        if (!data || data.length < 1) {
-            return;
-        }
-        if (this.getDataType() === "polyline" && this.getAnimation()) {
+        if (data && data.length > 0) {
+            if (this.getDataType() === "polyline" && this.getAnimation()) {
+                for (var i = 0; i < data.length; i++) {
+                    data[i].index = parseInt(Math.random() * data[i].geo.length, 10);
+                }
+            }
+            this._min = data[0].count;
+            this._max = data[0].count;
             for (var i = 0; i < data.length; i++) {
-                data[i].index = parseInt(Math.random() * data[i].geo.length, 10);
+                this._max = Math.max(this._max, data[i].count);
+                this._min = Math.min(this._min, data[i].count);
             }
         }
-        this._min = data[0].count;
-        this._max = data[0].count;
-        for (var i = 0; i < data.length; i++) {
-            this._max = Math.max(this._max, data[i].count);
-            this._min = Math.min(this._min, data[i].count);
-        }
+
+        this.dispatchEvent('draw');
     },
     getDataRange: function () {
         return {
