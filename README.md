@@ -6,7 +6,11 @@ mapv 是一款基于百度地图的海量点打点工具，用户可以通过直
 
 ## 示例
 
-访问[示例地址](http://huiyan-fe.github.io/mapv/examples/)
+访问[示例地址](https://github.com/huiyan-fe/mapv/wiki/%E7%A4%BA%E4%BE%8B)
+[![point_simple](http://huiyan-fe.github.io/mapv/doc/asset/gallery/point_simple.jpg)](http://huiyan-fe.github.io/mapv/examples/point_simple.html)
+[![polygon_intensity](http://huiyan-fe.github.io/mapv/doc/asset/gallery/polygon_intensity.jpg)](http://huiyan-fe.github.io/mapv/examples/polygon_intensity.html)
+[![polyline_simple](http://huiyan-fe.github.io/mapv/doc/asset/gallery/polyline_simple.jpg)](http://huiyan-fe.github.io/mapv/examples/polyline_simple.html)
+[![polyline_simple_animation](http://huiyan-fe.github.io/mapv/doc/asset/gallery/polyline_simple_animation.jpg)](http://huiyan-fe.github.io/mapv/examples/polyline_simple_animation.html)
 
 ### 示例代码
 
