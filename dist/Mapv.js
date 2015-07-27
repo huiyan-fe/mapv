@@ -2820,7 +2820,7 @@ IntensityDrawer.prototype.drawMap = function () {
             ctx.closePath();
             ctx.fill();
 
-            if (label && label.show && (!label.minZoom || label.minZoom && zoom > label.minZoom)) {
+            if (label && label.show && (!label.minZoom || label.minZoom && zoom >= label.minZoom)) {
                 if (label.fillStyle) {
                     ctx.fillStyle = label.fillStyle;
                 }
