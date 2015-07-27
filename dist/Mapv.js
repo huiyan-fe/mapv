@@ -796,7 +796,8 @@ util.extend(Layer.prototype, {
             max: this._max
         };
     },
-    zIndex_changed: function (zIndex) {
+    zIndex_changed: function () {
+        var zIndex = this.getZIndex();
         this.canvasLayer.setZIndex(zIndex);
     }
 });
