@@ -1,6 +1,7 @@
 // 创建Map实例
 var bmap = new BMap.Map('map', {
-    enableMapClick: false
+    enableMapClick: false,
+    minZoom: 4
     //vectorMapLevel: 3
 });
 
