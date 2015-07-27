@@ -89,7 +89,7 @@ IntensityDrawer.prototype.drawMap = function () {
     this.Scale && this.Scale.set({
         min: 0,
         max: self.getMax(),
-        colors: 'default'
+        colors: this.getGradient()
     });
 };
 
