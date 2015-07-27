@@ -12,22 +12,26 @@ mapv 是一款基于百度地图的海量点打点工具，用户可以通过直
 
 #### 创建mapv对象
 ```js
+// 第一步创建mapv示例
 var mapv = new Mapv({
-    map: map
+    map: map  // 百度地图的map实例
 });
 ```
 
 #### 创建点数据图层
 ```js
+
+// 创建一个图层
 var layer = new Mapv.Layer({
-    zIndex: 3,
-    mapv: mapv,
-    dataType: 'point', 
+    zIndex: 3, // 图层的层级
+    mapv: mapv, // 对应的mapv
+    dataType: 'point', // 数据类型，point:点数据类型,polyline:线数据类型,polygon:面数据类型
+    //数据，格式如下
     data: [
         {
-            lng: 116.46507,
-            lat: 39.929101,
-            count: 1
+            lng: 116.46507, // 经度
+            lat: 39.929101, // 纬度
+            count: 1 // 当前点的权重值
         },
         {
             lng: 116.43507,
@@ -35,11 +39,14 @@ var layer = new Mapv.Layer({
             count: 2
         }
     ],
-    drawType: 'simple',
+    drawType: 'simple', // 渲染数据方式, simple:普通的打点,
+    // 渲染数据参数
     drawOptions: {
-        fillStyle: "rgba(255, 255, 50, 1)",
-        lineWidth: 5,
-        radius: 5
+        fillStyle: "rgba(255, 255, 50, 1)",  // 填充颜色
+        strokeStyle: "rgba(50, 50, 255, 0.8)", // 描边颜色，不传就不描边
+        lineWidth: 5, // 描边宽度
+        radius: 5, // 半径大小
+        unit: 'px' // 半径对应的单位，px:默认值，屏幕像素单位,m:米,对应地图上的大约距离,18级别时候1像素大约代表1米
     }
 });
 ```
