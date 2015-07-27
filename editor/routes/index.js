@@ -3,7 +3,12 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: '地图可视化' });
+    var login = false;
+    if(req.cookies.mapv_session){
+        login = true;
+    }
+    console.log(login)
+    res.render('index', { title: '地图可视化',login:login });
 });
 
 module.exports = router;
