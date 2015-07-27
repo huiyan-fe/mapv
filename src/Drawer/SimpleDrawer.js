@@ -46,6 +46,7 @@ SimpleDrawer.prototype.drawMap = function () {
             for (var j = 1; j < geo.length; j++) {
                 ctx.lineTo(geo[j][0], geo[j][1]);
             }
+
         }
 
         if (dataType === 'polygon') {

@@ -39,6 +39,12 @@ var polygonLayer = new Mapv.Layer({
     drawType: 'intensity',
     drawOptions: {
         max: 5000,
+        label: {
+            show: true,
+            font: "11px",
+            minZoom: 8,
+            fillStyle: 'rgba(255, 255, 255, 1)'
+        },
         gradient: {
             '0.01': 'blue',
             '0.1': 'cyan',
