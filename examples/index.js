@@ -259,6 +259,7 @@ $.ajax({
     url: 'data/drive.json',
     dataType: 'JSON',
     success: function (rs) {
+        console.log(1, rs);
         var data = [];
 
         for (var i = 0; i < rs.length; i++) {
@@ -271,6 +272,8 @@ $.ajax({
         data = data.sort(function(a, b){
             return a.count - b.count;
         });
+
+        console.log(JSON.stringify(data.slice(0, 100)));
 
         var layer = new Mapv.Layer({
             mapv: mapv,
