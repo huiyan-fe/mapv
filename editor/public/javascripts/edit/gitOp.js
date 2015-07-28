@@ -1,5 +1,17 @@
+/**
+ * @file this is dozens of method which get the info from the git api
+ * @author Mofei Zhu <zhuwenlong@baidu.com>
+ */
 define(function(){
     var git={
+        /**
+         * create response
+         * @param   {Object}    obj
+         * @param   {Sting}     obj.token       the user's token
+         * @param   {Object}    obj.data        the data info
+         *                                  	see https://developer.github.com/v3/repos/#create
+         * @param   {function}  obj.callback    the callback
+         */
         createRepos:function(obj){
             $.ajax({
                 'url':'https://api.github.com/user/repos?access_token='+obj.token,
@@ -10,6 +22,16 @@ define(function(){
                 }
             })
         },
+        /**
+         * create files
+         * @param   {Object}    obj
+         * @param   {Sting}     obj.user        the user's username
+         * @param   {Sting}     obj.path        the files's path
+         * @param   {Sting}     obj.token       the user's token
+         * @param   {Object}    obj.data        the data info
+         *                                  	see https://developer.github.com/v3/repos/contents/#create-a-file
+         * @param   {function}  obj.callback    the callback
+         */
         createFiles:function(obj){
             $.ajax({
                 'url':'https://api.github.com/repos/'+obj.user+'/mapv_datas/contents/'+obj.path+'?access_token='+obj.token,
@@ -21,13 +43,22 @@ define(function(){
                 }
             });
         },
+        /**
+         * updateFiles files
+         * @param   {Object}    obj
+         * @param   {Sting}     obj.user        the user's username
+         * @param   {Sting}     obj.path        the files's path
+         * @param   {Sting}     obj.token       the user's token
+         * @param   {Object}    obj.data        the data info
+         *                                  	see https://developer.github.com/v3/repos/contents/#update-a-file
+         * @param   {function}  obj.callback    the callback
+         */
         updateFiles:function(obj){
-            // get sha
+            // get sha the use the sha to update the file
             $.ajax({
                 dataType:'jsonp',
-                url:'https://api.github.com/repos/'+obj.user+'/mapv_datas/contents/'+obj.path,
+                url:'https://api.github.com/repos/'+obj.user+'/mapv_datas/contents/'+obj.path+'?access_token='+obj.token,
                 success: function(data){
-                    console.log('get sha',data);
                     obj.data.sha = data.data.sha;
                     update();
                 }
@@ -43,6 +74,13 @@ define(function(){
                 });
             }
         },
+        /**
+         * getFiles files
+         * @param   {Object}    obj
+         * @param   {Sting}     obj.user        the user's username
+         * @param   {Sting}     obj.path        the files's path
+         * @param   {function}  obj.callback    the callback
+         */
         getFiles:function(obj){
             $.ajax({
                 dataType:'jsonp',
@@ -52,6 +90,13 @@ define(function(){
                 }
             });
         },
+        /**
+         * get files data
+         * @param   {Object}    obj
+         * @param   {Sting}     obj.user        the user's username
+         * @param   {Sting}     obj.sha        the files's sha
+         * @param   {function}  obj.callback    the callback
+         */
         getData:function(obj){
             var self = this;
             $.ajax({
@@ -65,9 +110,19 @@ define(function(){
         upload:function(){},
         download:function(){},
         delete:function(){},
+        /**
+         * encode to base 64
+         * @param  {String} str
+         * @return {String}
+         */
         utf8_to_b64:function(str) {
             return window.btoa(unescape(encodeURIComponent( str )));
         },
+        /**
+         * decode from base 64
+         * @param  {String} str
+         * @return {String}
+         */
         b64_to_utf8:function(str) {
             return decodeURIComponent(escape(window.atob( str )));
         }

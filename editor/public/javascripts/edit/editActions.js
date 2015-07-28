@@ -1,13 +1,17 @@
+/**
+ * @file the main action of edit
+ */
+
 define(['config','layersControl','login'], function(config,layersControl,login) {
+    // edit
     function edit() {
-        // layersControl.apply(this,arguments)
         this.init();
         this.actions();
     }
-    // inherit
+    // inherit layersControl
     edit.prototype = new layersControl();
     edit.prototype.contructor = edit;
-    //
+    // init (create the doms)
     edit.prototype.init = function() {
         var layers = this.domAdd = document.createElement('div');
         layers.setAttribute('class', 'E-layers');
@@ -17,9 +21,11 @@ define(['config','layersControl','login'], function(config,layersControl,login) 
         add.textContent = '+';
         layers.appendChild(add);
     };
+    // close the upload or edit box
     edit.prototype.closeBox = function(){
         this.funBox.style.display = 'none';
     }
+    // show the boxs
     edit.prototype.showBox = (function() {
         var boxDom;
         function addDom() {
@@ -35,7 +41,6 @@ define(['config','layersControl','login'], function(config,layersControl,login) 
             if (!boxDom) {
                 self.funBox = boxDom = addDom();
             }
-            // console.log()
             var titleDom = boxDom.querySelector(
                 '.E-funBox-title');
             titleDom.innerHTML = title;
@@ -46,7 +51,7 @@ define(['config','layersControl','login'], function(config,layersControl,login) 
             return content;
         }
     })();
-    // showUpload
+    // show Upload box
     edit.prototype.showUpload = function() {
         // shwobox
         var box = this.showBox('上传文件 (1/2)');
@@ -56,7 +61,7 @@ define(['config','layersControl','login'], function(config,layersControl,login) 
         upload.textContent = '拖拽文件上传数据';
         box.appendChild(upload);
     };
-    // showedit
+    // show edit box
     edit.prototype.shwoEdit = function(layer) {
         console.log(layer)
         var title;
@@ -79,7 +84,6 @@ define(['config','layersControl','login'], function(config,layersControl,login) 
             '</div>', '</div>'
         ].join('');
         box.appendChild(edit);
-        //
         // show types
         var layers = config.drawOptions;
         var layHtml = [];
@@ -96,10 +100,11 @@ define(['config','layersControl','login'], function(config,layersControl,login) 
             edit.querySelector('.E-type').click();
         }
     };
-    // bind actions
+    // bind actions while the edit is done
     edit.prototype.done = function(fn){
       this.done = fn;
     }
+    // bind the events
     edit.prototype.actions = function() {
         var self = this;
         this.domAdd.addEventListener('click', function() {

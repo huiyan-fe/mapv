@@ -61,15 +61,13 @@ var layer = new Mapv.Layer({
     zIndex: 1, // 图层层级
     dataType: 'point', // 数据类型，点类型
     data: data, // 数据
-    drawType: 'simple', // 展示形式
+    drawType: 'heatmap', // 展示形式
     drawOptions: { // 绘制参数
-        fillStyle: 'rgba(200, 200, 50, 1)', // 填充颜色
-        //strokeStyle: 'rgba(0, 0, 255, 1)', // 描边颜色
-        //lineWidth: 4, // 描边宽度
-        shadowColor: 'rgba(255, 255, 255, 1)', // 投影颜色
-        shadowBlur: 35,  // 投影模糊级数
-        globalCompositeOperation: 'lighter', // 颜色叠加方式
-        radius: 4 // 半径
+        blur: true, // 是否有模糊效果
+        unit: 'm', // 单位,px:像素(默认),m:米
+        max: 10, // 设置显示的权重最大值
+        type: 'circle', // 点形状,可选circle:圆形(默认),rect:矩形
+        radius: 70000 // 半径大小
     }
 });
 

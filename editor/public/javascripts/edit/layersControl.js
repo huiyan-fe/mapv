@@ -1,18 +1,32 @@
+/**
+ * @file control and cache the layers
+ * @author Mofei Zhu <zhuwenlong@baidu.com>
+ */
 define(function(){
+    // the layers object
     function layer(){
         this.layers={};
     }
 
-    // layer control
+    /**
+     * add layer
+     * @param  {Object} layer the layer info
+     */
     layer.prototype.addLayer = function(layer){
         var self = this;
         self.layers[layer.getName()] = layer;
     }
 
+    // TODO: remove layer form
     layer.prototype.removeLayer = function(layerName){
 
     }
 
+    /**
+     * get the layer by name
+     * @param  {String} layerName the layer's name
+     * @return {Object}           the layer
+     */
     layer.prototype.getLayer = function(layerName){
         var self = this;
         return self.layers[layerName];
