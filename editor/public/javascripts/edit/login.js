@@ -123,7 +123,7 @@ define(['cookie','gitOp'],function(cookie,git){
             var layers = obj[type];
             console.log('get layers: ', layers);
             for(var i in layers){
-                getLayerData(layers[i]);
+                getLayerData(i,layers[i]);
             }
         }
     }
@@ -132,30 +132,32 @@ define(['cookie','gitOp'],function(cookie,git){
      * get the loayer info
      * @param  {Object} data the layers info
      */
-    function getLayerData(data){
+    function getLayerData(layerName,data){
         for(var i in data){
-            (function(options){
+            (function(layerName,options){
                 git.getData({
                     user : user.username,
                     token: user.session,
                     sha : data[i].sha,
                     success : function(pointData){
-                        showLayer(JSON.parse(pointData),options)
+                        showLayer(layerName,JSON.parse(pointData),options)
                     }
                 })
-            })(data[i].options);
+            })(i,data[i].options);
+            $('.E-layers').append('<div class="E-layers-block E-layers-layer E-layers-layer-loading" name="'+i+'">...</div>');
         }
     }
 
     /**
      * shwo layer
+     * @param  {Sgring} layerName the name of the layer
      * @param  {Object} pointData the data of one layer
      * @param  {Object} options   the options of this layer
      */
-    function showLayer(pointData,options){
-        console.info(data,options)
+    function showLayer(layerName,pointData,options){
+        console.info('showLayer', layerName,pointData,options)
         //
-        var name = (+new Date()).toString(36)+ (Math.random()*10e7|0).toString(36);
+        var name = layerName;
 		var layerInfo = {
 			name: name,
 			mapv: mapv,
@@ -164,7 +166,7 @@ define(['cookie','gitOp'],function(cookie,git){
 			drawOptions: options.option
 		}
 		var layer = new Mapv.Layer(layerInfo);
-		$('.E-layers').append('<div class="E-layers-block E-layers-layer" name="'+name+'">'+options.type.substring(0,2).toUpperCase()+'</div>');
+        $('.E-layers-layer[name="'+layerName+'"]').html(options.type.substring(0,2).toUpperCase()).removeClass('E-layers-layer-loading');
 		app.addLayer(layer);
     }
 

@@ -29,7 +29,7 @@ requirejs.config({
 // main
 requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp'], function (upCallback, edit, sort, login, git) {
 	// new app
-	app = new edit();
+	app = edit;
 	// init sort action and login
 	sort.init(app);
 	login.reg(app);
@@ -55,8 +55,13 @@ requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp'], function (upC
 		app.addLayer(layer);
 
 		// update and save info
+		if(!login.user.session){
+			return false;
+		}
+
 		var project = 'default';
 		var config = login.config();
+		options.layerName = name;
 		config[project].layers[name] = {};
 		config[project].layers[name].options = options;
 		config[project].layers[name].data = 'data/'+name;
@@ -98,10 +103,15 @@ requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp'], function (upC
 				}
 			})
 		}
-	})
+	});
+
 });
 
 // edity map style
 requirejs(['mapstyle'],function(mapstyle){
 	mapstyle.setMap(map)
+});
+
+// // project manage
+requirejs(['projectControl'],function(){
 });

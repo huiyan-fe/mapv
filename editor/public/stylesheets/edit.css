@@ -4,6 +4,8 @@
 .E-funBox { position: absolute; top:10px; right:70px; width: 400px; background: white; z-index: 10000; box-shadow: 0 0 20px rgba(0,0,0,0.1); border:1px solid #ddd; }
 .E-funBox-title { width: 100%; height: 50px; line-height: 50px; color:#666; text-indent: 10px; background: #dedede; }
 .E-funBox-content {width: 100%; padding: 10px 0; }
+.E-funBox-close {position: absolute; top:15px; right: 20px; color:#999; cursor: pointer;}
+.E-funBox-close:hover { color: #000; }
 
 .E-upload { margin:20px; border:4px dashed #ccc; padding: 40px 0; text-align: center; color:#999; font-size: 20px;}
 
@@ -15,7 +17,7 @@
 .E-type-active { background: #fb4f4f; }
 
 .E-input { border:1px solid #ccc; width: 375px ; padding: 0; height:30px; font-size: 14px; text-indent: 10px; color:#999; }
-.E-button { width: 80px; height: 30px; background: #FFCCCC; border:none; font-size: 14px; margin-right: 5px; color:#fff; }
+.E-button { width: 80px; height: 30px; background: #FFCCCC; border:none; font-size: 14px; margin-right: 5px; color:#fff; cursor: pointer;}
 .E-button-active { background: #fb4f4f; }
 .E-label { background: #FFCCCC; height: 30px; display: inline-block; line-height: 30px; padding: 0 10px; color:#fff; font-size: 14px;}
 .E-label-active {background: #fb4f4f; }
@@ -34,5 +36,15 @@
 .login-box a { color:white }
 
 .user-block { width:50px; height: 50px; background: #59C062;  float:left; margin-right:10px; position:relative; cursor:pointer; }
-.user-block-layers::after { content: ' ';position: absolute; width:24px; height:18px; background: rgba(255,255,255,0.7); left:9px; top:12px;border:1px solid #666; border-radius: 2px;}
-.user-block-layers::before { content: ' ';position: absolute; width:24px; height:18px; background: white; right:9px; bottom:12px; border:1px solid #666; border-radius: 2px;}
+.user-block-layers::after { content: ' ';position: absolute; width:24px; height:18px; background: rgba(255,255,255,0.7); left:9px; top:12px;border:1px solid #aaa; border-radius: 2px;}
+.user-block-layers::before { content: ' ';position: absolute; width:24px; height:18px; background: white; right:9px; bottom:12px; border:1px solid #aaa; border-radius: 2px;}
+.user-block-share::after { content: ' ';position: absolute; width:18px; margin-left:-13px; height:14px; left:50%; bottom:10px;border:4px solid white; border-radius: 2px; }
+.user-block-share::before { content: '↑';position: absolute; width:100%; text-align:center; height:30px; line-height: 30px; top:0; color: white; font-size: 30px; font-weight: bold; }
+
+.E-funBox-content table { width:100%; border-collapse: collapse; border-top:1px solid #ccc; font-size: 14px;}
+.E-funBox-content table .E-button {margin:0;}
+.E-funBox-content table th { font-weight: normal; text-align: left; padding:0 10px; text-align: center;}
+.E-funBox-content table td { color:#999; padding:0 10px; text-align: center;}
+.E-funBox-content table th:first-child,
+.E-funBox-content table td:first-child {text-align: left;}
+.E-funBox-content table tr { height: 30px; line-height: 30px; margin:0 10px; border-bottom: 1px solid #ccc; }

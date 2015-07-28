@@ -23,6 +23,7 @@ define(['config','layersControl','login'], function(config,layersControl,login) 
     };
     // close the upload or edit box
     edit.prototype.closeBox = function(){
+        this.funBox.setAttribute('style','');
         this.funBox.style.display = 'none';
     }
     // show the boxs
@@ -32,22 +33,28 @@ define(['config','layersControl','login'], function(config,layersControl,login) 
             // append dom
             var funBox =  document.createElement('div');
             funBox.setAttribute('class', 'E-funBox');
-            funBox.innerHTML = '<div class="E-funBox-title"></div><div class="E-funBox-content"></div>';
+            funBox.innerHTML = '<div class="E-funBox-title"></div><div class="E-funBox-close">[关闭]</div><div class="E-funBox-content"></div>';
             document.body.appendChild(funBox);
             return funBox;
         }
-        return function(title) {
+        return function(title,css) {
             var self = this;
             if (!boxDom) {
                 self.funBox = boxDom = addDom();
             }
-            var titleDom = boxDom.querySelector(
-                '.E-funBox-title');
+            var titleDom = boxDom.querySelector('.E-funBox-title');
             titleDom.innerHTML = title;
             boxDom.style.display = 'block';
-            var content = boxDom.querySelector(
-                '.E-funBox-content');
+            var content = boxDom.querySelector('.E-funBox-content');
             content.innerHTML = '';
+            if(css){
+                if(css.top){
+                    boxDom.style.top = css.top
+                }
+                if(css.right){
+                    boxDom.style.right = css.right
+                }
+            }
             return content;
         }
     })();
@@ -109,7 +116,6 @@ define(['config','layersControl','login'], function(config,layersControl,login) 
         var self = this;
         this.domAdd.addEventListener('click', function() {
             self.showUpload()
-            // self.shwoEdit()
         }, false);
         // change graph type
         $('body').on('click', '.E-type', function() {
@@ -207,7 +213,11 @@ define(['config','layersControl','login'], function(config,layersControl,login) 
             self.shwoEdit(layer);
             return false;
         })
+        // close the layer
+        $('body').on('click','.E-funBox-close',function(){
+            self.closeBox();
+        })
     };
 
-    return edit;
+    return new edit();
 })
