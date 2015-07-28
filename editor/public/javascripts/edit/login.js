@@ -121,7 +121,7 @@ define(['cookie','gitOp','tools'],function(cookie,git,tools){
                         }
                     })
                 }else{
-                    console.log('config is found,read config',data.data.content );
+                    console.log('config is found,read config');
                     config = JSON.parse(git.b64_to_utf8(data.data.content));
                     getLayers(config);
                 }
@@ -135,7 +135,7 @@ define(['cookie','gitOp','tools'],function(cookie,git,tools){
      */
     function getLayers(obj){
         console.log('getLayers',obj)
-        var type = 'default';
+        var type = tools.getSearch().project;
         if(obj[type]){
             var layers = obj[type];
             console.log('get layers: ', layers);

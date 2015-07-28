@@ -103,7 +103,7 @@ define(function(){
             var self = this;
             $.ajax({
                 dataType:'jsonp',
-                url:'https://api.github.com/repos/'+obj.user+'/mapv_datas/git/blobs/'+obj.sha+'?access_token='+obj.token,
+                url:'https://api.github.com/repos/'+obj.user+'/mapv_datas/git/blobs/'+obj.sha,
                 success:function(data){
                     obj.success && obj.success(self.b64_to_utf8(data.data.content));
                 }
