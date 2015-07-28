@@ -107,7 +107,7 @@ util.extend(HeatmapDrawer.prototype, {
         }
 
         ctx.shadowOffsetX = ctx.shadowOffsetY = 200;
-        if (this.getDrawOptions().blur) {
+        if (this.getDrawOptions().blur !== false) {
             ctx.shadowBlur = blur;
         }
         ctx.shadowColor = 'black';
