@@ -61,15 +61,26 @@ var layer = new Mapv.Layer({
     zIndex: 1, // 图层层级
     dataType: 'point', // 数据类型，点类型
     data: data, // 数据
-    drawType: 'simple', // 展示形式
+    drawType: 'bubble', // 展示形式
     drawOptions: { // 绘制参数
-        fillStyle: 'rgba(200, 200, 50, 1)', // 填充颜色
-        //strokeStyle: 'rgba(0, 0, 255, 1)', // 描边颜色
-        //lineWidth: 4, // 描边宽度
-        shadowColor: 'rgba(255, 255, 255, 1)', // 投影颜色
-        shadowBlur: 35,  // 投影模糊级数
-        globalCompositeOperation: 'lighter', // 颜色叠加方式
-        radius: 4 // 半径
+        // splitList数值表示按数值区间来展示不同大小的圆
+        splitList: [{
+            start: 0,
+            end: 3,
+            radius: 5
+        },{
+            start: 5,
+            end: 7,
+            radius: 10
+        },{
+            start: 7,
+            end: 11,
+            radius: 15
+        }],
+        //globalCompositeOperation: 'lighter', //叠加模式
+        strokeStyle: 'rgba(255, 255, 255, 1)', // 描边颜色，不设置则不描边
+        lineWidth: 3, // 描边宽度，不设置则不描边
+        fillStyle: "rgba(255, 255, 50, 0.8)" // 填充颜色
     }
 });
 
