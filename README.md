@@ -1,12 +1,17 @@
-# mapv - 方便的地图打点工具
+# mapv - 地图可视化工具库
 
 TIPS:
 
-mapv 是一款基于百度地图的海量点打点工具，用户可以通过直接打点，热力图等方式展示数据。
+mapv 是一款基于百度地图的大数据可视化工具，可以用来展示大量的点、线、面的数据，每种数据也有不同的展示类型，如直接打点、热力图、网格、聚合等方式展示数据。
 
 ## 示例
 
-访问[示例地址](http://huiyan-fe.github.io/mapv/examples/)
+访问[示例地址](https://github.com/huiyan-fe/mapv/wiki/%E7%A4%BA%E4%BE%8B)
+
+[![point_simple](http://huiyan-fe.github.io/mapv/doc/asset/gallery/point_simple.jpg)](http://huiyan-fe.github.io/mapv/examples/point_simple.html)
+[![polygon_intensity](http://huiyan-fe.github.io/mapv/doc/asset/gallery/polygon_intensity.jpg)](http://huiyan-fe.github.io/mapv/examples/polygon_intensity.html)
+[![polyline_simple](http://huiyan-fe.github.io/mapv/doc/asset/gallery/polyline_simple.jpg)](http://huiyan-fe.github.io/mapv/examples/polyline_simple.html)
+[![polyline_simple_animation](http://huiyan-fe.github.io/mapv/doc/asset/gallery/polyline_simple_animation.jpg)](http://huiyan-fe.github.io/mapv/examples/polyline_simple_animation.html)
 
 ### 示例代码
 
@@ -39,7 +44,7 @@ var layer = new Mapv.Layer({
             count: 2
         }
     ],
-    drawType: 'simple', // 渲染数据方式, simple:普通的打点,
+    drawType: 'simple', // 渲染数据方式, simple:普通的打点, [更多查看类参考](https://github.com/huiyan-fe/mapv/wiki/%E7%B1%BB%E5%8F%82%E8%80%83)
     // 渲染数据参数
     drawOptions: {
         fillStyle: "rgba(255, 255, 50, 1)",  // 填充颜色

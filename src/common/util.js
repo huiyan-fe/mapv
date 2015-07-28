@@ -106,5 +106,22 @@ var util = {
         } else {
             doc.documentElement.appendChild(style);
         }
+    },
+
+    // 获取坐标的中心点
+    getGeoCenter: function (geo) {
+        var minX = geo[0][0];
+        var minY = geo[0][1];
+        var maxX = geo[0][0];
+        var maxY = geo[0][1];
+        for (var i = 1; i < geo.length; i++) {
+            minX = Math.min(minX, geo[i][0]);
+            maxX = Math.max(maxX, geo[i][0]);
+            minY = Math.min(minY, geo[i][1]);
+            maxY = Math.max(maxY, geo[i][1]);
+        }
+        return [minX + (maxX - minX) / 2, minY + (maxY - minY) / 2];
     }
+
+
 }

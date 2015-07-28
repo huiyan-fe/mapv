@@ -43,6 +43,14 @@ IntensityDrawer.prototype.drawMap = function () {
 
     var dataType = this.getLayer().getDataType();
 
+    var label = drawOptions.label;
+    var zoom = this.getMap().getZoom();
+    if (label) {
+        if (label.font) {
+            ctx.font = label.font;
+        }
+    }
+
     if (dataType === 'polygon') {
 
         for (var i = 0, len = data.length; i < len; i++) {
@@ -55,6 +63,14 @@ IntensityDrawer.prototype.drawMap = function () {
             }
             ctx.closePath();
             ctx.fill();
+
+            if (label && label.show && (!label.minZoom || label.minZoom && zoom >= label.minZoom)) {
+                if (label.fillStyle) {
+                    ctx.fillStyle = label.fillStyle;
+                }
+                var center = util.getGeoCenter(geo);
+                ctx.fillText(data[i].count, center[0], center[1]);
+            }
         }
 
     } else { 

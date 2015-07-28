@@ -21,7 +21,7 @@
  * @file 示例代码
  */
 
-bmap.centerAndZoom(new BMap.Point(116.403119, 32.928658), 6); // 初始化地图,设置中心点坐标和地图级别
+bmap.centerAndZoom(new BMap.Point(118.403119, 32.928658), 8); // 初始化地图,设置中心点坐标和地图级别
 
 // 第一步创建mapv示例
 var mapv = new Mapv({
@@ -39,7 +39,13 @@ var polygonLayer = new Mapv.Layer({
     drawType: 'intensity',
     drawOptions: {
         max: 5000,
-        gradient: {
+        label: { // 显示label文字
+            show: true, // 是否显示
+            font: "11px", // 设置字号
+            minZoom: 7, // 最小显示的级别
+            fillStyle: 'rgba(255, 255, 255, 1)' // label颜色
+        },
+        gradient: { 
             '0.01': 'blue',
             '0.1': 'cyan',
             '0.2': 'lime',
