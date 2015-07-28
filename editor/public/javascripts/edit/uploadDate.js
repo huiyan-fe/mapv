@@ -1,19 +1,29 @@
+/**
+ * @file this file is to control the update file
+ * @author Mofei Zhu <zhuwenlong@baidu.com>
+ */
 define(function () {
 	var callbackFn = null;
-	// reader
+	// new reader to get the file which user upload
 	var reader = new FileReader();
 	reader.addEventListener('load', function (e) {
 		var text = reader.result;
-		// console.log(reader)
 		var draw = formatRender(text);
 		if(draw && callbackFn){
 			callbackFn(draw)
 		}
 	});
 
+	/**
+	 * for the the string to data object
+	 * we only support JSON and CSV files
+	 * @param  {String} dataStr the file's content
+	 * @return {Object}         return the formated data
+	 */
 	function formatRender(dataStr) {
 		var data = false;
 		var wrongType = false;
+		// try to deal with the JSON data
 		try {
 			data = JSON.parse(dataStr.replace(/\s/g, ''));
 			var count = 0;
@@ -27,10 +37,10 @@ define(function () {
 		}
 
 		if(wrongType) {
+			// try to deal with the CSV data
 			try {
 				data = [];
 				var dataT = dataStr.split('\n');
-				// console.log(dataT);
 				var keys = dataT[0].split(',');
 				for(var i = 1; i < dataT.length; i++) {
 					var values = dataT[i].split(',');
@@ -51,14 +61,15 @@ define(function () {
 				wrongType = true;
 			}
 		}
-		// console.log('XXXX',data);
 		return data;
 	}
 
+	// listen for the dragover event
 	$('body').on('dragover', /*'.E-upload',*/ function () {
 		event.preventDefault();
 	});
 
+	// listen for the drop event
 	$('body').on('drop', /*'.E-upload',*/ function () {
 		event.preventDefault();
 		reader.readAsText(event.dataTransfer.files[0]);

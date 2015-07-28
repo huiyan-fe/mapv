@@ -1,7 +1,9 @@
+/**
+ * @file this file is a View event , user can rank the layers buy drag .
+ * @author Mofei Zhu <zhuwenlong@baidu.com>
+ */
 define(function(){
-
     var app;
-
     var tar = {
         dom : null,
         y: 0,
@@ -11,6 +13,7 @@ define(function(){
         isChange: false
     };
 
+    // init the tar object
     function tarinit(){
         tar = {
             dom : null,
@@ -22,9 +25,9 @@ define(function(){
         };
     }
 
+    // listen for the mousedown event
     $('body').on('mousedown','.E-layers-layer',function(e){
         tar.dom = $(this);
-        // console.log(this.name)
         tar.pageY = e.pageY;
         tar.y = $(this).position().top;
         tar.points = [];
@@ -49,6 +52,7 @@ define(function(){
         e.preventDefault();
     });
 
+    // listen for the mousmove event
     $('body').on('mousemove',function(e){
         if(tar.dom){
             var top = tar.y + (e.pageY - tar.pageY)
@@ -60,6 +64,7 @@ define(function(){
         }
     });
 
+    // listen for the mouseup envet
     $('body').on('mouseup',function(e){
         if(tar.dom){
             tar.dom = null;
@@ -89,6 +94,8 @@ define(function(){
         }
     });
 
+    // when you drag a event , doing this test
+    // if the pos is max than the max data or is min than the min data call the changePos funstion
     function moveCheck(pos){
         var y = tar.y;
         var list = tar.list;
@@ -123,6 +130,7 @@ define(function(){
         }
     }
 
+    // change the pos of two object
     function changePos(val){
         var moveObjName = tar.dom[0].getAttribute('name');
         var moveObj = tar.list[moveObjName];
@@ -139,8 +147,8 @@ define(function(){
         newObj.top = moveObjPosTop;
     }
 
+    // when you release an object it will cann this function
     function moveBack(){
-        // console.log(tar.dom[0].getAttribute('name'),)
         for(var i in tar.list){
             if(tar.dom && tar.dom.attr('name') && tar.list[i].dom.attr('name')){
                 if(tar.dom.attr('name') === tar.list[i].dom.attr('name')){
@@ -154,6 +162,7 @@ define(function(){
         }
     }
 
+    // init 
     function init(obj){
         app = obj;
     }

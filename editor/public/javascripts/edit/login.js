@@ -1,5 +1,10 @@
+/**
+ * @file this file is to deal with the user login and the login init
+ * @author Mofei Zhu <zhuwenlong@baidu.com>
+ */
 define(['cookie','gitOp'],function(cookie,git){
     var app;
+    // user info , try to init from the cookie
     var user = {
         username : cookie.getItem('mapv_username'),
         session :  cookie.getItem('mapv_session'),
@@ -11,9 +16,13 @@ define(['cookie','gitOp'],function(cookie,git){
         }
     }
 
+    // if the seesion is valuable try to init
     if(user.session){
+        // if the username and user avatar is cached show it
+        // otherwist got this information from the api
+        // and also if the session is not valuable , just show the login btn
         if(user.avatar_url && user.username){
-            $('.login-box').html('<img src="'+ user.avatar_url +'"> '+user.username );
+            $('.login-box').prepend('<div style="float:left; margin-right:10px;"><img src="'+ user.avatar_url +'"> '+user.username +'</div>');
             checkRep();
         }else{
             $.ajax({
@@ -30,13 +39,16 @@ define(['cookie','gitOp'],function(cookie,git){
                     }
                     var username = data.login;
                     user.username = username;
-                    $('.login-box').html('<img src="'+ data.avatar_url +'"> '+username );
+                    $('.login-box').prepend('<div style="float:left; margin-right:10px;"><img src="'+ data.avatar_url +'"> '+user.username +'</div>');
                     checkRep();
                 }
             })
         }
     }
 
+    /**
+     * check the respos or just make a new one
+     */
     function checkRep(){
         $.ajax({
             dataType:'jsonp',
@@ -67,6 +79,9 @@ define(['cookie','gitOp'],function(cookie,git){
         })
     }
 
+    /**
+     * check the config or make a new one
+     */
     function getConfig(){
         //
         $.ajax({
@@ -75,7 +90,6 @@ define(['cookie','gitOp'],function(cookie,git){
             success: function(data){
                 if(data.meta.status === 404){
                     console.log('config is not found , try create a new one');
-
                     var data = {
                       "message": "add config",
                       "content": git.utf8_to_b64(JSON.stringify(config))
@@ -98,10 +112,10 @@ define(['cookie','gitOp'],function(cookie,git){
         })
     }
 
-    // setInterval(function(){
-	// 	console.info('@@@@!',config.default.layers);
-	// },1000)
-
+    /**
+     * get hte layers
+     * @param  {Object} obj the object of layers
+     */
     function getLayers(obj){
         console.log('getLayers',obj)
         var type = 'default';
@@ -114,6 +128,10 @@ define(['cookie','gitOp'],function(cookie,git){
         }
     }
 
+    /**
+     * get the loayer info
+     * @param  {Object} data the layers info
+     */
     function getLayerData(data){
         for(var i in data){
             (function(options){
@@ -129,6 +147,11 @@ define(['cookie','gitOp'],function(cookie,git){
         }
     }
 
+    /**
+     * shwo layer
+     * @param  {Object} pointData the data of one layer
+     * @param  {Object} options   the options of this layer
+     */
     function showLayer(pointData,options){
         console.info(data,options)
         //
@@ -145,6 +168,7 @@ define(['cookie','gitOp'],function(cookie,git){
 		app.addLayer(layer);
     }
 
+    // just get the app
     function regApp(regApp){
         app = regApp;
     }

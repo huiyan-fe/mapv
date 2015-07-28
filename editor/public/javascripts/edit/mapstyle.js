@@ -1,5 +1,10 @@
+/**
+ * @file this file is to the the map's style
+ * @author Mofei Zhu <zhuwenlong@baidu.com>
+ */
 define(function () {
     var map;
+    // add some control data to the DOM
     var dom = document.createElement('div');
     dom.setAttribute('class', 'E-mapstyle');
     document.body.appendChild(dom);

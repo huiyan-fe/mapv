@@ -32,3 +32,7 @@
 .login-box { position: absolute; top:10px; right: 70px; color:white; z-index: 10000;}
 .login-box img {height: 50px; line-height: 50px; vertical-align: middle; }
 .login-box a { color:white }
+
+.user-block { width:50px; height: 50px; background: #59C062;  float:left; margin-right:10px; position:relative; cursor:pointer; }
+.user-block-layers::after { content: ' ';position: absolute; width:24px; height:18px; background: rgba(255,255,255,0.7); left:9px; top:12px;border:1px solid #666; border-radius: 2px;}
+.user-block-layers::before { content: ' ';position: absolute; width:24px; height:18px; background: white; right:9px; bottom:12px; border:1px solid #666; border-radius: 2px;}

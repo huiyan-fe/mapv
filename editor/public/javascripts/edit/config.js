@@ -1,3 +1,7 @@
+/**
+ * @file just a config file
+ * @author Mofei Zhu <zhuwenlong@baidu.com>
+ */
 define(function () {
 	var drawOptions = {
 		simple: {
