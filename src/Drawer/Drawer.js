@@ -82,7 +82,7 @@ Drawer.prototype.getRadius = function () {
     var zoomUnit = Math.pow(2, 18 - zoom);
 
     var drawOptions = this.getDrawOptions();
-    var radius = drawOptions.radius || 13;
+    var radius = drawOptions.size || 13;
     var unit = drawOptions.unit || 'px';
     if (unit === 'm') {
         radius = parseInt(radius, 10) / zoomUnit;

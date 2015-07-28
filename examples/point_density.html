@@ -50,7 +50,7 @@ function getCityCenter(citys) {
         data.push({
             lng: center[0],
             lat: center[1],
-            count: Math.random() * 10
+            count: parseInt(Math.random() * 10)
         });
     }
     return data;
@@ -63,6 +63,12 @@ var layer = new Mapv.Layer({
     data: data, // 数据
     drawType: 'density', // 展示形式
     drawOptions: { // 绘制参数
+        type: "honeycomb", // 网格类型，方形网格或蜂窝形
+        size: 50, // 网格大小
+        unit: 'px', // 单位
+        label: { // 是否显示文字标签
+            show: true,
+        },
         gradient: { // 显示的颜色渐变范围
             '0': 'blue',
             '0.6': 'cyan',

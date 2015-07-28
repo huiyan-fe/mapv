@@ -30,9 +30,9 @@ BubbleDrawer.prototype.drawMap = function () {
 
     for (var i = 0, len = data.length; i < len; i++) {
         var item = data[i];
-        var radius = this.getRadius(item.count);
+        var size = this.getRadius(item.count);
         ctx.beginPath();
-        ctx.arc(item.px, item.py, radius, 0, Math.PI * 2, false);
+        ctx.arc(item.px, item.py, size, 0, Math.PI * 2, false);
         ctx.closePath();
         ctx.fill();
         if (drawOptions.strokeStyle) {
@@ -45,7 +45,7 @@ BubbleDrawer.prototype.drawMap = function () {
 
 BubbleDrawer.prototype.getRadius = function (val) {
 
-    var radius = 1;
+    var size = 1;
     var splitList = this.splitList;
 
     for (var i = 0; i < splitList.length; i++) {
@@ -54,12 +54,12 @@ BubbleDrawer.prototype.getRadius = function (val) {
         && val >= splitList[i].start)
         && (splitList[i].end === undefined
         || splitList[i].end !== undefined && val < splitList[i].end)) {
-            radius = splitList[i].radius;
+            size = splitList[i].size;
             break;
         }
     }
 
-    return radius;
+    return size;
 
 };
 
