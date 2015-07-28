@@ -82,9 +82,11 @@ define(function(){
          * @param   {function}  obj.callback    the callback
          */
         getFiles:function(obj){
+            var url = 'https://api.github.com/repos/'+obj.user+'/mapv_datas/contents/'+obj.path;
+            url += obj.token?('?access_token='+obj.token):'';
             $.ajax({
                 dataType:'jsonp',
-                url:'https://api.github.com/repos/'+obj.user+'/mapv_datas/contents/'+obj.path,
+                url:url,
                 success:function(data){
                     obj.success && obj.success(data);
                 }

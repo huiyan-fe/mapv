@@ -2,10 +2,15 @@
  * @file this file is to deal with the user login and the login init
  * @author Mofei Zhu <zhuwenlong@baidu.com>
  */
-define(['cookie','gitOp'],function(cookie,git){
+define(['cookie','gitOp','tools'],function(cookie,git,tools){
     var app;
+    var userCon = {
+        guest:0,
+        normal:1
+    }
     // user info , try to init from the cookie
     var user = {
+        type : userCon.normal,
         username : cookie.getItem('mapv_username'),
         session :  cookie.getItem('mapv_session'),
         avatar_url : cookie.getItem('mapv_avatar_url')
@@ -44,6 +49,13 @@ define(['cookie','gitOp'],function(cookie,git){
                 }
             })
         }
+    }else{
+        var search = tools.getSearch();
+        if(search.user && search.project){
+            user.username = search.user;
+            user.type = userCon.guest;
+            checkRep();
+        }
     }
 
     /**
@@ -56,6 +68,10 @@ define(['cookie','gitOp'],function(cookie,git){
             success: function(data){
                 if(data.meta.status===404){
                     console.log('repos is not found , try create a new one');
+                    if(user.type === userCon.guest){
+                        alert('项目不存在');
+                        return false;
+                    }
                     git.createRepos({
                         token:user.session,
                         data:{
@@ -84,15 +100,16 @@ define(['cookie','gitOp'],function(cookie,git){
      */
     function getConfig(){
         //
-        $.ajax({
-            dataType:'jsonp',
-            url:'https://api.github.com/repos/'+user.username+'/mapv_datas/contents/mapv_config.json?access_token=' + user.session,
-            success: function(data){
+        git.getFiles({
+            user : user.username,
+            token : user.session,
+            path : 'mapv_config.json',
+            success : function(data){
                 if(data.meta.status === 404){
                     console.log('config is not found , try create a new one');
                     var data = {
-                      "message": "add config",
-                      "content": git.utf8_to_b64(JSON.stringify(config))
+                        'message': 'add config',
+                        'content': git.utf8_to_b64(JSON.stringify(config))
                     };
                     git.createFiles({
                         token: user.session,
@@ -104,12 +121,12 @@ define(['cookie','gitOp'],function(cookie,git){
                         }
                     })
                 }else{
-                    console.log('config is found,read config' );
+                    console.log('config is found,read config',data.data.content );
                     config = JSON.parse(git.b64_to_utf8(data.data.content));
                     getLayers(config);
                 }
             }
-        })
+        });
     }
 
     /**
@@ -176,9 +193,14 @@ define(['cookie','gitOp'],function(cookie,git){
     }
 
     return {
-        user : user,
+        getUser : function(){
+            return user
+        },
         config : function(){
             return config;
+        },
+        setConfig:function(con){
+            config = con;
         },
         reg : regApp
     };
