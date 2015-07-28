@@ -538,17 +538,27 @@ CanvasLayer.prototype = new BMap.Overlay();
 CanvasLayer.prototype.initialize = function(map){
     this._map = map;
     var canvas = this.canvas = document.createElement("canvas");
-    var size = map.getSize();
-    canvas.width = size.width;
-    canvas.height = size.height;
     canvas.style.cssText = "position:absolute;"
                             + "left:0;" 
                             + "top:0;"
-                            + "z-index:" + this.zIndex + ";"
-                            + "width:" + size.width + "px;"
-                            + "height:" + size.height + "px";
+                            + "z-index:" + this.zIndex + ";";
+    this.adjustSize();
     map.getPanes()[this.paneName].appendChild(canvas);
+    var that = this;
+    map.addEventListener('resize', function () {
+        that.adjustSize();
+        that.draw();
+    });
     return this.canvas;
+}
+
+CanvasLayer.prototype.adjustSize = function(){
+    var size = this._map.getSize();
+    var canvas = this.canvas;
+    canvas.width = size.width;
+    canvas.height = size.height;
+    canvas.style.width = canvas.width + "px";
+    canvas.style.height = canvas.height + "px";
 }
 
 CanvasLayer.prototype.draw = function(){
@@ -1690,7 +1700,7 @@ Drawer.prototype.getRadius = function () {
     var zoomUnit = Math.pow(2, 18 - zoom);
 
     var drawOptions = this.getDrawOptions();
-    var radius = drawOptions.radius || 13;
+    var radius = drawOptions.size || 13;
     var unit = drawOptions.unit || 'px';
     if (unit === 'm') {
         radius = parseInt(radius, 10) / zoomUnit;
@@ -1727,9 +1737,9 @@ BubbleDrawer.prototype.drawMap = function () {
 
     for (var i = 0, len = data.length; i < len; i++) {
         var item = data[i];
-        var radius = this.getRadius(item.count);
+        var size = this.getRadius(item.count);
         ctx.beginPath();
-        ctx.arc(item.px, item.py, radius, 0, Math.PI * 2, false);
+        ctx.arc(item.px, item.py, size, 0, Math.PI * 2, false);
         ctx.closePath();
         ctx.fill();
         if (drawOptions.strokeStyle) {
@@ -1742,7 +1752,7 @@ BubbleDrawer.prototype.drawMap = function () {
 
 BubbleDrawer.prototype.getRadius = function (val) {
 
-    var radius = 1;
+    var size = 1;
     var splitList = this.splitList;
 
     for (var i = 0; i < splitList.length; i++) {
@@ -1751,12 +1761,12 @@ BubbleDrawer.prototype.getRadius = function (val) {
         && val >= splitList[i].start)
         && (splitList[i].end === undefined
         || splitList[i].end !== undefined && val < splitList[i].end)) {
-            radius = splitList[i].radius;
+            size = splitList[i].size;
             break;
         }
     }
 
-    return radius;
+    return size;
 
 };
 
@@ -2153,7 +2163,7 @@ DensityDrawer.prototype.drawMap = function () {
     var zoomUnit = this.zoomUnit = Math.pow(2, 18 - zoom);
 
     var param = formatParam.call(this);
-    var gridWidth = param.gridWidth;
+    var size = param.size;
 
     var mercatorProjection = map.getMapType().getProjection();
     var mcCenter = mercatorProjection.lngLatToPoint(map.getCenter());
@@ -2165,13 +2175,13 @@ DensityDrawer.prototype.drawMap = function () {
     var obj = {
         data: data,
         nwMc: nwMc,
-        gridWidth: gridWidth,
+        size: size,
         zoomUnit: zoomUnit,
         ctx: ctx
     };
 
     var gridsObj = {};
-    if (this.getDrawOptions().gridType === 'honeycomb') {
+    if (this.getDrawOptions().type === 'honeycomb') {
         gridsObj = honeycombGrid(obj);
     } else {
         gridsObj = recGrids(obj, map);
@@ -2186,7 +2196,7 @@ DensityDrawer.prototype.drawMap = function () {
 
     window.console.time('drawMap');
     var obj = {
-        gridWidth: gridWidth,
+        size: size,
         zoomUnit: zoomUnit,
         max: max,
         min: min,
@@ -2197,7 +2207,7 @@ DensityDrawer.prototype.drawMap = function () {
     };
 
     var gridsObj = {};
-    if (this.getDrawOptions().gridType === 'honeycomb') {
+    if (this.getDrawOptions().type === 'honeycomb') {
         drawHoneycomb(obj);
     } else {
         drawRec(obj);
@@ -2214,16 +2224,16 @@ DensityDrawer.prototype.drawMap = function () {
 function recGrids(obj, map) {
     var data = obj.data;
     var nwMc = obj.nwMc;
-    var gridWidth = obj.gridWidth;
+    var size = obj.size;
     var zoomUnit = obj.zoomUnit;
     var max;
     var min;
 
     var grids = {};
 
-    var gridStep = gridWidth / zoomUnit;
+    var gridStep = size / zoomUnit;
 
-    var startXMc = parseInt(nwMc.x / gridWidth, 10) * gridWidth;
+    var startXMc = parseInt(nwMc.x / size, 10) * size;
 
     var startX = (startXMc - nwMc.x) / zoomUnit;
 
@@ -2235,7 +2245,7 @@ function recGrids(obj, map) {
         stickXAIndex++;
     }
 
-    var startYMc = parseInt(nwMc.y / gridWidth, 10) * gridWidth + gridWidth;
+    var startYMc = parseInt(nwMc.y / size, 10) * size + size;
     var startY = (nwMc.y - startYMc) / zoomUnit;
     var stockYA = [];
     var stickYAIndex = 0;
@@ -2290,7 +2300,7 @@ function recGrids(obj, map) {
 }
 
 function drawRec(obj) {
-    var gridWidth = obj.gridWidth;
+    var size = obj.size;
     var zoomUnit = obj.zoomUnit;
     var max = obj.max;
     var min = obj.min;
@@ -2299,7 +2309,7 @@ function drawRec(obj) {
     var fillColors = obj.fillColors;
     var self = obj.sup;
 
-    var gridStep = gridWidth / zoomUnit;
+    var gridStep = size / zoomUnit;
     var step = (max - min + 1) / 10;
 
     for (var i in grids) {
@@ -2319,7 +2329,7 @@ function drawRec(obj) {
         ctx.fillRect(x, y, gridStep - 1, gridStep - 1);
 
 
-        if (self.getDrawOptions().showNum) {
+        if (self.getDrawOptions().label && self.getDrawOptions().label.show) {
 
             ctx.save();
             // ctx.fillStyle = 'black';
@@ -2336,7 +2346,7 @@ function drawRec(obj) {
 function honeycombGrid(obj) {
     var data = obj.data;
     var nwMc = obj.nwMc;
-    var gridWidth = obj.gridWidth;
+    var size = obj.size;
     var zoomUnit = obj.zoomUnit;
     var ctx = obj.ctx;
     var max;
@@ -2344,25 +2354,25 @@ function honeycombGrid(obj) {
 
     var grids = {};
 
-    var gridStep = gridWidth / zoomUnit;
+    var gridStep = size / zoomUnit;
 
     var depthX = gridStep;
     var depthY = gridStep * 3 / 4;
 
-    var gridWidthY = 2 * gridWidth * 3 / 4;
-    var startYMc = parseInt(nwMc.y / gridWidthY + 1, 10) * gridWidthY;
+    var sizeY = 2 * size * 3 / 4;
+    var startYMc = parseInt(nwMc.y / sizeY + 1, 10) * sizeY;
     var startY = (nwMc.y - startYMc) / zoomUnit;
     startY = parseInt(startY, 10);
 
-    // var yIsOdd = !!(startYMc / gridWidthY % 2);
+    // var yIsOdd = !!(startYMc / sizeY % 2);
 
-    var gridWidthX = depthX * gridWidth;
-    var startXMc = parseInt(nwMc.x / gridWidthX, 10) * gridWidthX;
+    var sizeX = depthX * size;
+    var startXMc = parseInt(nwMc.x / sizeX, 10) * sizeX;
     var startX = (startXMc - nwMc.x) / zoomUnit;
     startX = parseInt(startX, 10);
 
-    var endX = parseInt(ctx.canvas.width + gridWidthX / zoomUnit, 10);
-    var endY = parseInt(ctx.canvas.height + gridWidthY / zoomUnit, 10);
+    var endX = parseInt(ctx.canvas.width + sizeX / zoomUnit, 10);
+    var endY = parseInt(ctx.canvas.height + sizeY / zoomUnit, 10);
 
     var pointX = startX;
     var pointY = startY;
@@ -2424,7 +2434,7 @@ function drawHoneycomb(obj) {
     // return false;
     var ctx = obj.ctx;
     var grids = obj.grids;
-    var gridsW = obj.gridWidth / obj.zoomUnit;
+    var gridsW = obj.size / obj.zoomUnit;
 
     var color = obj.fillColors;
     var step = (obj.max - obj.min - 1) / color.length;
@@ -2447,7 +2457,7 @@ function drawHoneycomb(obj) {
             draw(x, y, gridsW - 1, 'rgba(0,0,0,0.4)', ctx);
         }
 
-        if (obj.sup.getDrawOptions().showNum && !isTooSmall && !isTooBig) {
+        if (obj.sup.getDrawOptions().label &&  obj.sup.getDrawOptions().label && !isTooSmall && !isTooBig) {
             ctx.save();
             ctx.textBaseline = 'middle';
             ctx.textAlign = 'center';
@@ -2513,16 +2523,16 @@ function formatParam() {
         this.colorBar[pos] = 'rgb(' + r + ',' + g + ',' + b + ')';
     }
 
-    var gridWidth = options.gridWidth || '50';
-    gridWidth = gridWidth + (options.gridUnit || 'px');
-    if (/px$/.test(gridWidth)) {
-        gridWidth = parseInt(gridWidth, 10) * this.zoomUnit;
+    var size = options.size || '50';
+    size = size + (options.unit || 'px');
+    if (/px$/.test(size)) {
+        size = parseInt(size, 10) * this.zoomUnit;
     } else {
-        gridWidth = parseInt(gridWidth, 10);
+        size = parseInt(size, 10);
     }
-    // console.log(gridWidth, options.gridWidth)
+    // console.log(size, options.size)
     return {
-        gridWidth: gridWidth,
+        size: size,
         colors: fillColors
     };
 }
@@ -3037,14 +3047,14 @@ SimpleDrawer.prototype.drawAnimation = function () {
             /* 设定渐变区域 */
             var x = pgeo[index][0];
             var y = pgeo[index][1];
-            var grad  = ctx.createRadialGradient(x, y, 0, x, y, animationOptions.radius);
+            var grad  = ctx.createRadialGradient(x, y, 0, x, y, animationOptions.size);
             grad.addColorStop(0,'rgba(255, 255, 255, 1)');
             grad.addColorStop(0.4,'rgba(255, 255, 255, 0.9)');
             grad.addColorStop(1,'rgba(255, 255, 255, 0)');
             ctx.fillStyle = grad;
 
             ctx.beginPath();
-            ctx.arc(x, y, animationOptions.radius, 0, 2 * Math.PI, false);
+            ctx.arc(x, y, animationOptions.size, 0, 2 * Math.PI, false);
             ctx.closePath();
             ctx.fill();
             data[i].index++;
