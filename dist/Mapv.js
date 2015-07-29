@@ -1954,8 +1954,8 @@ ClusterDrawer.prototype.drawMap = function () {
     var param = this.formatParam();
     // console.log(param)
 
-    // console.log(param.gridWidth)
-    var gridWidth = param.gridWidth;
+    // console.log(param.size)
+    var size = param.size;
     var fillColors = param.colors;
 
     var mercatorProjection = map.getMapType().getProjection();
@@ -1965,9 +1965,9 @@ ClusterDrawer.prototype.drawMap = function () {
     var nwMc = new BMap.Pixel(nwMcX, mcCenter.y + (map.getSize().height / 2) * zoomUnit);
     // 左上角墨卡托坐标
 
-    var gridStep = gridWidth / zoomUnit;
+    var gridStep = size / zoomUnit;
 
-    var startXMc = parseInt(nwMc.x / gridWidth, 10) * gridWidth;
+    var startXMc = parseInt(nwMc.x / size, 10) * size;
     var startX = (startXMc - nwMc.x) / zoomUnit;
 
     var stockXA = [];
@@ -1978,7 +1978,7 @@ ClusterDrawer.prototype.drawMap = function () {
         stickXAIndex++;
     }
 
-    var startYMc = parseInt(nwMc.y / gridWidth, 10) * gridWidth + gridWidth;
+    var startYMc = parseInt(nwMc.y / size, 10) * size + size;
     var startY = (nwMc.y - startYMc) / zoomUnit;
     var stockYA = [];
     var stickYAIndex = 0;
@@ -2100,26 +2100,17 @@ ClusterDrawer.prototype.formatParam = function () {
         [253, 54, 32]
     ];
 
-    this.colorBar = {};
-    for (var i = 0; i < fillColors.length; i++) {
-        var pos = (i + 1) / fillColors.length;
-        var r = fillColors[i][0];
-        var g = fillColors[i][1];
-        var b = fillColors[i][2];
-        this.colorBar[pos] = 'rgb(' + r + ',' + g + ',' + b + ')';
-    }
-
-    var gridWidth = 60 || options.gridWidth || '50';
-    // console.log(gridWidth, '@@@@@@')
-    gridWidth = gridWidth + (options.gridUnit || 'px');
-    if (/px$/.test(gridWidth)) {
-        gridWidth = parseInt(gridWidth, 10) * this.zoomUnit;
+    var size = options.size || 60;
+    // console.log(size, '@@@@@@')
+    size = size + (options.unit || 'px');
+    if (/px$/.test(size)) {
+        size = parseInt(size, 10) * this.zoomUnit;
     } else {
-        gridWidth = parseInt(gridWidth, 10);
+        size = parseInt(size, 10);
     }
-    // console.log(gridWidth, options.gridWidth)
+    // console.log(size, options.size)
     return {
-        gridWidth: gridWidth,
+        size: size,
         colors: fillColors
     };
 };
@@ -2513,15 +2504,6 @@ function formatParam() {
         [254, 84, 27],
         [253, 54, 32]
     ];
-
-    this.colorBar = {};
-    for (var i = 0; i < fillColors.length; i++) {
-        var pos = (i + 1) / fillColors.length;
-        var r = fillColors[i][0];
-        var g = fillColors[i][1];
-        var b = fillColors[i][2];
-        this.colorBar[pos] = 'rgb(' + r + ',' + g + ',' + b + ')';
-    }
 
     var size = options.size || '50';
     size = size + (options.unit || 'px');
