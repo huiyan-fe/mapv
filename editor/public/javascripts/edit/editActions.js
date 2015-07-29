@@ -1,5 +1,6 @@
 /**
  * @file the main action of edit
+ * @author Mofei Zhu <zhuwenlong@baidu.com>
  */
 
 define(['config','layersControl','login'], function(config,layersControl,login) {

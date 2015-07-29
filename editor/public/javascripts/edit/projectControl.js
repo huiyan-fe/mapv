@@ -26,7 +26,7 @@ define(['editActions','login','tools','gitOp'],function(edit,login,tools,git){
                 count ++;
             }
             html += '<td>'+count+'</td>'
-            html += '<td><button class="E-button E-button-addLayer E-button-active">Switch</button></td>'
+            html += '<td><button class="E-button E-button-changeproject E-button-active" name="'+i+'">Switch</button></td>'
             html += '</tr>';
         }
         html += '</table>';
@@ -91,5 +91,12 @@ define(['editActions','login','tools','gitOp'],function(edit,login,tools,git){
         box.innerHTML = '<div style="padding: 10px;">' + html + '</div>';
     }
 
+    // change project
+    $('body').on('click','.E-button-changeproject',function(){
+        var projectName = $(this).attr('name');
+        var username = login.getUser().username;
+        var url = location.protocol+'//'+location.host+'?user='+username+'&project='+projectName;
+        location.href=url;
+    });
     //
 })
