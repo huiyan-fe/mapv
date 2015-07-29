@@ -27,7 +27,7 @@ requirejs.config({
 });
 
 // main
-requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp'], function (upCallback, edit, sort, login, git) {
+requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp','tools'], function (upCallback, edit, sort, login, git,tools) {
 	// new app
 	app = edit;
 	// init sort action and login
@@ -39,6 +39,7 @@ requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp'], function (upC
 		pointData = data;
 		app.shwoEdit()
 	});
+	// console.log(tools.getSearch().user)
 	// the edit done event
 	app.done(function(options){
 		// create a new layer
@@ -55,11 +56,11 @@ requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp'], function (upC
 		app.addLayer(layer);
 
 		// update and save info
-		if(!login.getUser().session){
+		if(!login.getUser().session || (tools.getSearch().user!==login.getUser().username)){
 			return false;
 		}
 
-		var project = 'default';
+		var project = tools.getSearch().project || 'default';
 
 		// upload Date
 		console.info('start update layer for ',name);

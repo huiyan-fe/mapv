@@ -3,7 +3,7 @@
  * @author Mofei Zhu <zhuwenlong@baidu.com>
  */
 
-define(['config','layersControl','login'], function(config,layersControl,login) {
+define(['config','layersControl'], function(config,layersControl) {
     // edit
     function edit() {
         this.init();
