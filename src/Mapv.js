@@ -17,8 +17,7 @@ function Mapv(options) {
         drawTypeControl: false,
         drawTypeControlOptions: {
             a: 1
-        },
-        dataRangeCtrol: null
+        }
     }, options));
 
     this._layers = [];
@@ -32,11 +31,6 @@ util.inherits(Mapv, Class);
 Mapv.prototype._initDrawScale = function () {
     this.Scale = new DrawScale();
 };
-
-Mapv.prototype._initDataRange = function () {
-    this.setDataRangeCtrol(new DataRangeControl());
-    this.getMap().addControl(this.getDataRangeCtrol());
-}
 
 Mapv.prototype.drawTypeControl_changed = function () {
     if (this.getDrawTypeControl()) {

@@ -26,7 +26,7 @@ CategoryDrawer.prototype.drawMap = function () {
         var item = data[i];
         ctx.beginPath();
         ctx.moveTo(item.px, item.py);
-        ctx.fillStyle = this.getColor(item.count);
+        ctx.fillStyle = this.dataRange.getCategoryColor(item.count);
         ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI);
         ctx.closePath();
         ctx.fill();
@@ -36,18 +36,6 @@ CategoryDrawer.prototype.drawMap = function () {
         ctx.stroke();
     }
 
-};
-
-CategoryDrawer.prototype.generalSplitList = function () {
-    this.splitList = {
-        other: 'rgba(255, 255, 0, 0.8)',
-        1: 'rgba(253, 98, 104, 0.8)',
-        2: 'rgba(255, 146, 149, 0.8)',
-        3: 'rgba(255, 241, 193, 0.8)',
-        4: 'rgba(110, 176, 253, 0.8)',
-        5: 'rgba(52, 139, 251, 0.8)',
-        6: 'rgba(17, 102, 252)'
-    };
 };
 
 // CategoryDrawer.prototype.drawDataRange = function () {
@@ -73,18 +61,3 @@ CategoryDrawer.prototype.generalSplitList = function () {
 //         i++;
 //     }
 // };
-
-CategoryDrawer.prototype.getColor = function (val) {
-    var splitList = this.splitList;
-
-    var color = splitList['other'];
-
-    for (var i in splitList) {
-        if (val == i) {
-            color = splitList[i];
-            break;
-        }
-    }
-
-    return color;
-};

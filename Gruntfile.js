@@ -15,6 +15,8 @@ module.exports = function(grunt) {
                     "src/common/util.js",
                     "src/common/MVCObject.js",
                     "src/common/Class.js",
+                    "src/component/DataRange.js",
+                    "src/component/*.js",
                     "src/Mapv.js",
                     "src/layer/*.js",
                     "src/data/*.js",

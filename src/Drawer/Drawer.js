@@ -19,11 +19,14 @@ function Drawer(layer) {
         }
     });
 
+    this.dataRange = new DataRange(layer);
+
     this.bindTo('ctx', layer);
     this.bindTo('animationOptions', layer);
     this.bindTo('drawOptions', layer);
     this.bindTo('mapv', layer);
     this.bindTo('map', layer);
+
 }
 
 util.inherits(Drawer, Class);

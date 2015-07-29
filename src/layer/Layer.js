@@ -21,6 +21,7 @@ function Layer (options) {
         drawType: 'simple',
         animation: false,
         geometry: null,
+        dataRangeControl: new DataRangeControl(),
         zIndex: 1
     }, options));
 
@@ -38,6 +39,9 @@ util.extend(Layer.prototype, {
         }
 
         this.bindTo('map', this.getMapv());
+
+        this.getMap().addControl(this.getDataRangeControl());
+
 
         var that = this;
 
@@ -139,12 +143,7 @@ util.extend(Layer.prototype, {
         var mapv = this.getMapv();
         var drawer = this._getDrawer();
         var map = this.getMap();
-        if (drawer.drawDataRange) {
-            map.addControl(mapv.getDataRangeCtrol());
-            drawer.drawDataRange(mapv.getDataRangeCtrol().getContainer());
-        } else {
-            map.removeControl(mapv.getDataRangeCtrol());
-        }
+
         // for drawer scale
         if(drawer.scale) {
             drawer.scale(mapv.Scale);
