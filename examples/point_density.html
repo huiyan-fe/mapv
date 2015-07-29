@@ -50,7 +50,7 @@ function getCityCenter(citys) {
         data.push({
             lng: center[0],
             lat: center[1],
-            count: Math.random() * 10
+            count: parseInt(Math.random() * 10)
         });
     }
     return data;
@@ -61,13 +61,14 @@ var layer = new Mapv.Layer({
     zIndex: 1, // 图层层级
     dataType: 'point', // 数据类型，点类型
     data: data, // 数据
-    drawType: 'heatmap', // 展示形式
+    drawType: 'density', // 展示形式
     drawOptions: { // 绘制参数
-        blur: true, // 是否有模糊效果
-        unit: 'm', // 单位,px:像素(默认),m:米
-        max: 10, // 设置显示的权重最大值
-        type: 'circle', // 点形状,可选circle:圆形(默认),rect:矩形
-        size: 70000, // 半径大小
+        type: "honeycomb", // 网格类型，方形网格或蜂窝形
+        size: 50, // 网格大小
+        unit: 'px', // 单位
+        label: { // 是否显示文字标签
+            show: true,
+        },
         gradient: { // 显示的颜色渐变范围
             '0': 'blue',
             '0.6': 'cyan',

@@ -15,6 +15,7 @@
 
 <script type="text/javascript" src="../dist/Mapv.js"></script>
 <script type="text/javascript" src="data/BaiduMap_cityCenter.js"></script>
+<script type="text/javascript" src="randomColor.js"></script>
 <script type="text/javascript" src="example.js"></script>
 <script type="text/javascript">
 
@@ -50,7 +51,7 @@ function getCityCenter(citys) {
         data.push({
             lng: center[0],
             lat: center[1],
-            count: Math.random() * 10
+            count: parseInt(Math.random() * 10)
         });
     }
     return data;
@@ -61,19 +62,26 @@ var layer = new Mapv.Layer({
     zIndex: 1, // 图层层级
     dataType: 'point', // 数据类型，点类型
     data: data, // 数据
-    drawType: 'heatmap', // 展示形式
+    drawType: 'category', // 展示形式
     drawOptions: { // 绘制参数
-        blur: true, // 是否有模糊效果
-        unit: 'm', // 单位,px:像素(默认),m:米
-        max: 10, // 设置显示的权重最大值
-        type: 'circle', // 点形状,可选circle:圆形(默认),rect:矩形
-        size: 70000, // 半径大小
-        gradient: { // 显示的颜色渐变范围
-            '0': 'blue',
-            '0.6': 'cyan',
-            '0.7': 'lime',
-            '0.8': 'yellow',
-            '1.0': 'red'
+        size: 5,
+        splitList: {
+            other: randomColor(),
+            1: randomColor(),
+            2: randomColor(),
+            3: randomColor(),
+            4: randomColor(),
+            5: randomColor(),
+            6: randomColor()
+            /*
+            other: 'rgba(255, 255, 0, 0.8)',
+            1: 'rgba(253, 98, 104, 0.8)',
+            2: 'rgba(255, 146, 149, 0.8)',
+            3: 'rgba(255, 241, 193, 0.8)',
+            4: 'rgba(110, 176, 253, 0.8)',
+            5: 'rgba(52, 139, 251, 0.8)',
+            6: 'rgba(17, 102, 252)'
+            */
         }
     }
 });

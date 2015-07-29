@@ -22,17 +22,27 @@ CanvasLayer.prototype = new BMap.Overlay();
 CanvasLayer.prototype.initialize = function(map){
     this._map = map;
     var canvas = this.canvas = document.createElement("canvas");
-    var size = map.getSize();
-    canvas.width = size.width;
-    canvas.height = size.height;
     canvas.style.cssText = "position:absolute;"
                             + "left:0;" 
                             + "top:0;"
-                            + "z-index:" + this.zIndex + ";"
-                            + "width:" + size.width + "px;"
-                            + "height:" + size.height + "px";
+                            + "z-index:" + this.zIndex + ";";
+    this.adjustSize();
     map.getPanes()[this.paneName].appendChild(canvas);
+    var that = this;
+    map.addEventListener('resize', function () {
+        that.adjustSize();
+        that.draw();
+    });
     return this.canvas;
+}
+
+CanvasLayer.prototype.adjustSize = function(){
+    var size = this._map.getSize();
+    var canvas = this.canvas;
+    canvas.width = size.width;
+    canvas.height = size.height;
+    canvas.style.width = canvas.width + "px";
+    canvas.style.height = canvas.height + "px";
 }
 
 CanvasLayer.prototype.draw = function(){

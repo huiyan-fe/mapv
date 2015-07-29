@@ -476,6 +476,153 @@ Class.prototype.dispatchEvent = function (type, options) {
 Class.prototype.dispose = function () {
 }
 
+;function DataRange(layer) {
+    this.set('layer', layer);
+    this.bindTo('data', layer)
+    this.bindTo('drawOptions', layer)
+    Class.call(this);
+}
+
+util.inherits(DataRange, Class);
+
+util.extend(DataRange.prototype, {
+    colors: [
+        'rgba(17, 102, 252, 0.8)',
+        'rgba(52, 139, 251, 0.8)',
+        'rgba(110, 176, 253, 0.8)',
+        'rgba(255, 241, 193, 0.8)',
+        'rgba(255, 146, 149, 0.8)',
+        'rgba(253, 98, 104, 0.8)',
+        'rgba(255, 0, 0, 0.8)',
+        'rgba(255, 51, 61, 0.8)'
+    ],
+
+    // 根据count值获取对应的大小，在bubble绘制中用到
+    getSize: function (count) {
+        var size = 1;
+        var splitList = this.splitList;
+
+        for (var i = 0; i < splitList.length; i++) {
+            if ((splitList[i].start === undefined
+            || splitList[i].start !== undefined
+            && count >= splitList[i].start)
+            && (splitList[i].end === undefined
+            || splitList[i].end !== undefined && count < splitList[i].end)) {
+                size = splitList[i].size;
+                break;
+            }
+        }
+
+        return size;
+    },
+
+    data_changed: function () {
+        var data = this.get('data');
+        if (data && data.length > 0) {
+            this._min = data[0].count;
+            this._max = data[0].count;
+            for (var i = 0; i < data.length; i++) {
+                this._max = Math.max(this._max, data[i].count);
+                this._min = Math.min(this._min, data[i].count);
+            }
+        }
+    },
+
+    drawOptions_changed: function () {
+
+        var drawOptions = this.get("drawOptions");
+        if (drawOptions && drawOptions.splitList) {
+            this.splitList = drawOptions.splitList;
+
+        } else {
+            this.generalSplitList();
+        }
+
+        if (this.get("layer").getDrawType() === 'category') {
+            if (drawOptions && drawOptions.splitList) {
+                this.categorySplitList = drawOptions.splitList;
+            } else {
+                this.generalCategorySplitList();
+            }
+        }
+
+        if (this.get("layer").getDrawType() === 'bubble') {
+            this.get("layer").getDataRangeControl().drawSizeSplit(this.splitList, this.get('drawOptions'));
+        } else if (this.get("layer").getDrawType() === 'category') {
+            this.get("layer").getDataRangeControl().drawCategorySplit(this.categorySplitList, this.get('drawOptions'));
+        } else {
+            this.get("layer").getDataRangeControl().hide();
+        }
+
+    },
+
+    generalSplitList: function () {
+        var splitNum = Math.ceil((this._max - this._min) / 7);
+        var index = this._min;
+        this.splitList = [];
+        var radius = 1;
+        while (index < this._max) {
+            this.splitList.push({
+                start: index,
+                end: index + splitNum,
+                radius: radius,
+                color: this.colors[radius - 1]
+            });
+            index += splitNum;
+            radius++;
+        }
+    },
+
+    generalCategorySplitList: function () {
+        var colors = ['rgba(255, 255, 0, 0.8)',
+            'rgba(253, 98, 104, 0.8)',
+            'rgba(255, 146, 149, 0.8)',
+            'rgba(255, 241, 193, 0.8)',
+            'rgba(110, 176, 253, 0.8)',
+            'rgba(52, 139, 251, 0.8)',
+            'rgba(17, 102, 252, 0.8)'];
+        var data = this.get("data");
+        this.categorySplitList = {};
+        var count = 0;
+        for (var i = 0; i < data.length; i++) {
+            if (this.categorySplitList[data[i].count] === undefined) {
+                this.categorySplitList[data[i].count] = colors[count];
+                count++;
+            }
+            if (count >= colors.length - 1) {
+                break;
+            }
+        }
+
+        this.categorySplitList['other'] = colors[colors.length - 1];
+    },
+
+    getCategoryColor: function (count) {
+        var splitList = this.categorySplitList;
+
+        var color = splitList['other'];
+
+        for (var i in splitList) {
+            if (count == i) {
+                color = splitList[i];
+                break;
+            }
+        }
+
+        return color;
+    }
+
+
+}); // end extend
+;function SizeDataRange() {
+    DataRange.call(this);
+}
+
+util.inherits(SizeDataRange, DataRange);
+
+util.extend(SizeDataRange.prototype, {
+    
+}); // end extend
 ;/* globals Layer GeoData DrawTypeControl OptionalData util DataControl DrawScale DataRangeControl*/
 
 /**
@@ -489,8 +636,7 @@ function Mapv(options) {
         drawTypeControl: false,
         drawTypeControlOptions: {
             a: 1
-        },
-        dataRangeCtrol: null
+        }
     }, options));
 
     this._layers = [];
@@ -504,11 +650,6 @@ util.inherits(Mapv, Class);
 Mapv.prototype._initDrawScale = function () {
     this.Scale = new DrawScale();
 };
-
-Mapv.prototype._initDataRange = function () {
-    this.setDataRangeCtrol(new DataRangeControl());
-    this.getMap().addControl(this.getDataRangeCtrol());
-}
 
 Mapv.prototype.drawTypeControl_changed = function () {
     if (this.getDrawTypeControl()) {
@@ -538,17 +679,27 @@ CanvasLayer.prototype = new BMap.Overlay();
 CanvasLayer.prototype.initialize = function(map){
     this._map = map;
     var canvas = this.canvas = document.createElement("canvas");
-    var size = map.getSize();
-    canvas.width = size.width;
-    canvas.height = size.height;
     canvas.style.cssText = "position:absolute;"
                             + "left:0;" 
                             + "top:0;"
-                            + "z-index:" + this.zIndex + ";"
-                            + "width:" + size.width + "px;"
-                            + "height:" + size.height + "px";
+                            + "z-index:" + this.zIndex + ";";
+    this.adjustSize();
     map.getPanes()[this.paneName].appendChild(canvas);
+    var that = this;
+    map.addEventListener('resize', function () {
+        that.adjustSize();
+        that.draw();
+    });
     return this.canvas;
+}
+
+CanvasLayer.prototype.adjustSize = function(){
+    var size = this._map.getSize();
+    var canvas = this.canvas;
+    canvas.width = size.width;
+    canvas.height = size.height;
+    canvas.style.width = canvas.width + "px";
+    canvas.style.height = canvas.height + "px";
 }
 
 CanvasLayer.prototype.draw = function(){
@@ -601,6 +752,7 @@ CanvasLayer.prototype.getZIndex = function(){
         drawType: 'simple',
         animation: false,
         geometry: null,
+        dataRangeControl: new DataRangeControl(),
         zIndex: 1
     }, options));
 
@@ -618,6 +770,9 @@ util.extend(Layer.prototype, {
         }
 
         this.bindTo('map', this.getMapv());
+
+        this.getMap().addControl(this.getDataRangeControl());
+
 
         var that = this;
 
@@ -719,12 +874,7 @@ util.extend(Layer.prototype, {
         var mapv = this.getMapv();
         var drawer = this._getDrawer();
         var map = this.getMap();
-        if (drawer.drawDataRange) {
-            map.addControl(mapv.getDataRangeCtrol());
-            drawer.drawDataRange(mapv.getDataRangeCtrol().getContainer());
-        } else {
-            map.removeControl(mapv.getDataRangeCtrol());
-        }
+
         // for drawer scale
         if(drawer.scale) {
             drawer.scale(mapv.Scale);
@@ -995,21 +1145,75 @@ DataControl.prototype.initEvent = function () {
 
 DataRangeControl.prototype = new BMap.Control();
 
-DataRangeControl.prototype.initialize = function(map){
-    var canvas = this.canvas = document.createElement("canvas");
-    canvas.style.background = "#fff";
-    canvas.style.boxShadow = "rgba(0,0,0,0.2) 0 0 4px 2px";
-    canvas.style.border = "1px solid #999999";
-    canvas.style.borderRadius = "4px";
-    // 添加DOM元素到地图中
-    map.getContainer().appendChild(canvas);
-    // 将DOM元素返回
-    return canvas;
-}
+util.extend(DataRangeControl.prototype, {
 
-DataRangeControl.prototype.getContainer = function(map){
-    return this.canvas;
-}
+    initialize: function(map){
+        var canvas = this.canvas = document.createElement("canvas");
+        canvas.style.background = "#fff";
+        canvas.style.boxShadow = "rgba(0,0,0,0.2) 0 0 4px 2px";
+        canvas.style.border = "1px solid #999999";
+        canvas.style.borderRadius = "4px";
+        // 添加DOM元素到地图中
+        map.getContainer().appendChild(canvas);
+        // 将DOM元素返回
+        return canvas;
+    },
+
+    getContainer: function(){
+        return this.canvas;
+    },
+
+    drawSizeSplit: function (splitList, drawOptions) {
+        var canvas = this.canvas;
+        canvas.width = 100;
+        canvas.height = 190;
+        canvas.style.width = '100px';
+        canvas.style.height = '190px';
+        var ctx = canvas.getContext('2d');
+
+        var height = 10;
+
+        for (var i = 0; i < splitList.length; i++) {
+            height += splitList[i].size;
+            ctx.beginPath();
+            ctx.arc(20, height, splitList[i].size, 0, Math.PI * 2, false);
+            var startText = splitList[i].start || '~';
+            var endText = splitList[i].end || '~';
+            var text =  startText + ' - ' + endText;
+            ctx.closePath();
+            ctx.fillStyle = drawOptions.fillStyle || 'rgba(50, 50, 200, 0.8)';
+            ctx.fill();
+            ctx.fillStyle = "rgba(30, 30, 30, 1)";
+            ctx.fillText(text, 50, height + 6);
+            height += splitList[i].size + 5;
+        }
+    },
+
+    drawCategorySplit: function (splitList, drawOptions) {
+        var canvas = this.canvas;
+        canvas.width = 80;
+        canvas.height = 190;
+        canvas.style.width = "80px";
+        canvas.style.height = "190px";
+        var ctx = canvas.getContext("2d");
+        var i = 0;
+        for (var key in splitList) {
+            ctx.fillStyle = splitList[key];
+            ctx.beginPath();
+            ctx.arc(15, i * 25 + 15, 5, 0, Math.PI * 2, false);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = '#333';
+            ctx.fillText(key, 25, i * 25 + 20);
+            i++;
+        }
+    },
+
+    hide: function () {
+        this.canvas.style.display = "none";
+    }
+
+});
 ;function DrawScale() {
     this.init();
     this._Event();
@@ -1627,11 +1831,14 @@ function Drawer(layer) {
         }
     });
 
+    this.dataRange = new DataRange(layer);
+
     this.bindTo('ctx', layer);
     this.bindTo('animationOptions', layer);
     this.bindTo('drawOptions', layer);
     this.bindTo('mapv', layer);
     this.bindTo('map', layer);
+
 }
 
 util.inherits(Drawer, Class);
@@ -1690,7 +1897,7 @@ Drawer.prototype.getRadius = function () {
     var zoomUnit = Math.pow(2, 18 - zoom);
 
     var drawOptions = this.getDrawOptions();
-    var radius = drawOptions.radius || 13;
+    var radius = drawOptions.size || 13;
     var unit = drawOptions.unit || 'px';
     if (unit === 'm') {
         radius = parseInt(radius, 10) / zoomUnit;
@@ -1727,9 +1934,9 @@ BubbleDrawer.prototype.drawMap = function () {
 
     for (var i = 0, len = data.length; i < len; i++) {
         var item = data[i];
-        var radius = this.getRadius(item.count);
+        var size = this.dataRange.getSize(item.count);
         ctx.beginPath();
-        ctx.arc(item.px, item.py, radius, 0, Math.PI * 2, false);
+        ctx.arc(item.px, item.py, size, 0, Math.PI * 2, false);
         ctx.closePath();
         ctx.fill();
         if (drawOptions.strokeStyle) {
@@ -1739,48 +1946,6 @@ BubbleDrawer.prototype.drawMap = function () {
 
     ctx.restore();
 }
-
-BubbleDrawer.prototype.getRadius = function (val) {
-
-    var radius = 1;
-    var splitList = this.splitList;
-
-    for (var i = 0; i < splitList.length; i++) {
-        if ((splitList[i].start === undefined
-        || splitList[i].start !== undefined
-        && val >= splitList[i].start)
-        && (splitList[i].end === undefined
-        || splitList[i].end !== undefined && val < splitList[i].end)) {
-            radius = splitList[i].radius;
-            break;
-        }
-    }
-
-    return radius;
-
-};
-
-// BubbleDrawer.prototype.drawDataRange = function () {
-//     var canvas = this.getMapv().getDataRangeCtrol().getContainer();
-//     canvas.width = 100;
-//     canvas.height = 190;
-//     canvas.style.width = '100px';
-//     canvas.style.height = '190px';
-//     var ctx = canvas.getContext('2d');
-//     ctx.fillStyle = this.getDrawOptions().fillStyle || 'rgba(50, 50, 200, 0.8)';
-//     var splitList = this.splitList;
-//
-//     for (var i = 0; i < splitList.length; i++) {
-//         ctx.beginPath();
-//         ctx.arc(15, i * 25 + 20, splitList[i].radius, 0, Math.PI * 2, false);
-//         var startText = splitList[i].start || '~';
-//         var endText = splitList[i].end || '~';
-//         var text =  startText + ' - ' + endText;
-//         ctx.fillText(text, 25, i * 25 + 25);
-//         ctx.closePath();
-//         ctx.fill();
-//     }
-// };
 ;/* globals Drawer, util */
 
 function CategoryDrawer() {
@@ -1804,7 +1969,7 @@ CategoryDrawer.prototype.drawMap = function () {
         var item = data[i];
         ctx.beginPath();
         ctx.moveTo(item.px, item.py);
-        ctx.fillStyle = this.getColor(item.count);
+        ctx.fillStyle = this.dataRange.getCategoryColor(item.count);
         ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI);
         ctx.closePath();
         ctx.fill();
@@ -1814,18 +1979,6 @@ CategoryDrawer.prototype.drawMap = function () {
         ctx.stroke();
     }
 
-};
-
-CategoryDrawer.prototype.generalSplitList = function () {
-    this.splitList = {
-        other: 'rgba(255, 255, 0, 0.8)',
-        1: 'rgba(253, 98, 104, 0.8)',
-        2: 'rgba(255, 146, 149, 0.8)',
-        3: 'rgba(255, 241, 193, 0.8)',
-        4: 'rgba(110, 176, 253, 0.8)',
-        5: 'rgba(52, 139, 251, 0.8)',
-        6: 'rgba(17, 102, 252)'
-    };
 };
 
 // CategoryDrawer.prototype.drawDataRange = function () {
@@ -1851,21 +2004,6 @@ CategoryDrawer.prototype.generalSplitList = function () {
 //         i++;
 //     }
 // };
-
-CategoryDrawer.prototype.getColor = function (val) {
-    var splitList = this.splitList;
-
-    var color = splitList['other'];
-
-    for (var i in splitList) {
-        if (val == i) {
-            color = splitList[i];
-            break;
-        }
-    }
-
-    return color;
-};
 ;/* globals Drawer, util */
 
 function ChoroplethDrawer() {
@@ -1944,8 +2082,8 @@ ClusterDrawer.prototype.drawMap = function () {
     var param = this.formatParam();
     // console.log(param)
 
-    // console.log(param.gridWidth)
-    var gridWidth = param.gridWidth;
+    // console.log(param.size)
+    var size = param.size;
     var fillColors = param.colors;
 
     var mercatorProjection = map.getMapType().getProjection();
@@ -1955,9 +2093,9 @@ ClusterDrawer.prototype.drawMap = function () {
     var nwMc = new BMap.Pixel(nwMcX, mcCenter.y + (map.getSize().height / 2) * zoomUnit);
     // 左上角墨卡托坐标
 
-    var gridStep = gridWidth / zoomUnit;
+    var gridStep = size / zoomUnit;
 
-    var startXMc = parseInt(nwMc.x / gridWidth, 10) * gridWidth;
+    var startXMc = parseInt(nwMc.x / size, 10) * size;
     var startX = (startXMc - nwMc.x) / zoomUnit;
 
     var stockXA = [];
@@ -1968,7 +2106,7 @@ ClusterDrawer.prototype.drawMap = function () {
         stickXAIndex++;
     }
 
-    var startYMc = parseInt(nwMc.y / gridWidth, 10) * gridWidth + gridWidth;
+    var startYMc = parseInt(nwMc.y / size, 10) * size + size;
     var startY = (nwMc.y - startYMc) / zoomUnit;
     var stockYA = [];
     var stickYAIndex = 0;
@@ -2090,26 +2228,17 @@ ClusterDrawer.prototype.formatParam = function () {
         [253, 54, 32]
     ];
 
-    this.colorBar = {};
-    for (var i = 0; i < fillColors.length; i++) {
-        var pos = (i + 1) / fillColors.length;
-        var r = fillColors[i][0];
-        var g = fillColors[i][1];
-        var b = fillColors[i][2];
-        this.colorBar[pos] = 'rgb(' + r + ',' + g + ',' + b + ')';
-    }
-
-    var gridWidth = 60 || options.gridWidth || '50';
-    // console.log(gridWidth, '@@@@@@')
-    gridWidth = gridWidth + (options.gridUnit || 'px');
-    if (/px$/.test(gridWidth)) {
-        gridWidth = parseInt(gridWidth, 10) * this.zoomUnit;
+    var size = options.size || 60;
+    // console.log(size, '@@@@@@')
+    size = size + (options.unit || 'px');
+    if (/px$/.test(size)) {
+        size = parseInt(size, 10) * this.zoomUnit;
     } else {
-        gridWidth = parseInt(gridWidth, 10);
+        size = parseInt(size, 10);
     }
-    // console.log(gridWidth, options.gridWidth)
+    // console.log(size, options.size)
     return {
-        gridWidth: gridWidth,
+        size: size,
         colors: fillColors
     };
 };
@@ -2153,7 +2282,7 @@ DensityDrawer.prototype.drawMap = function () {
     var zoomUnit = this.zoomUnit = Math.pow(2, 18 - zoom);
 
     var param = formatParam.call(this);
-    var gridWidth = param.gridWidth;
+    var size = param.size;
 
     var mercatorProjection = map.getMapType().getProjection();
     var mcCenter = mercatorProjection.lngLatToPoint(map.getCenter());
@@ -2165,13 +2294,13 @@ DensityDrawer.prototype.drawMap = function () {
     var obj = {
         data: data,
         nwMc: nwMc,
-        gridWidth: gridWidth,
+        size: size,
         zoomUnit: zoomUnit,
         ctx: ctx
     };
 
     var gridsObj = {};
-    if (this.getDrawOptions().gridType === 'honeycomb') {
+    if (this.getDrawOptions().type === 'honeycomb') {
         gridsObj = honeycombGrid(obj);
     } else {
         gridsObj = recGrids(obj, map);
@@ -2186,7 +2315,7 @@ DensityDrawer.prototype.drawMap = function () {
 
     window.console.time('drawMap');
     var obj = {
-        gridWidth: gridWidth,
+        size: size,
         zoomUnit: zoomUnit,
         max: max,
         min: min,
@@ -2197,7 +2326,7 @@ DensityDrawer.prototype.drawMap = function () {
     };
 
     var gridsObj = {};
-    if (this.getDrawOptions().gridType === 'honeycomb') {
+    if (this.getDrawOptions().type === 'honeycomb') {
         drawHoneycomb(obj);
     } else {
         drawRec(obj);
@@ -2214,16 +2343,16 @@ DensityDrawer.prototype.drawMap = function () {
 function recGrids(obj, map) {
     var data = obj.data;
     var nwMc = obj.nwMc;
-    var gridWidth = obj.gridWidth;
+    var size = obj.size;
     var zoomUnit = obj.zoomUnit;
     var max;
     var min;
 
     var grids = {};
 
-    var gridStep = gridWidth / zoomUnit;
+    var gridStep = size / zoomUnit;
 
-    var startXMc = parseInt(nwMc.x / gridWidth, 10) * gridWidth;
+    var startXMc = parseInt(nwMc.x / size, 10) * size;
 
     var startX = (startXMc - nwMc.x) / zoomUnit;
 
@@ -2235,7 +2364,7 @@ function recGrids(obj, map) {
         stickXAIndex++;
     }
 
-    var startYMc = parseInt(nwMc.y / gridWidth, 10) * gridWidth + gridWidth;
+    var startYMc = parseInt(nwMc.y / size, 10) * size + size;
     var startY = (nwMc.y - startYMc) / zoomUnit;
     var stockYA = [];
     var stickYAIndex = 0;
@@ -2290,7 +2419,7 @@ function recGrids(obj, map) {
 }
 
 function drawRec(obj) {
-    var gridWidth = obj.gridWidth;
+    var size = obj.size;
     var zoomUnit = obj.zoomUnit;
     var max = obj.max;
     var min = obj.min;
@@ -2299,7 +2428,7 @@ function drawRec(obj) {
     var fillColors = obj.fillColors;
     var self = obj.sup;
 
-    var gridStep = gridWidth / zoomUnit;
+    var gridStep = size / zoomUnit;
     var step = (max - min + 1) / 10;
 
     for (var i in grids) {
@@ -2319,7 +2448,7 @@ function drawRec(obj) {
         ctx.fillRect(x, y, gridStep - 1, gridStep - 1);
 
 
-        if (self.getDrawOptions().showNum) {
+        if (self.getDrawOptions().label && self.getDrawOptions().label.show) {
 
             ctx.save();
             // ctx.fillStyle = 'black';
@@ -2336,7 +2465,7 @@ function drawRec(obj) {
 function honeycombGrid(obj) {
     var data = obj.data;
     var nwMc = obj.nwMc;
-    var gridWidth = obj.gridWidth;
+    var size = obj.size;
     var zoomUnit = obj.zoomUnit;
     var ctx = obj.ctx;
     var max;
@@ -2344,25 +2473,25 @@ function honeycombGrid(obj) {
 
     var grids = {};
 
-    var gridStep = gridWidth / zoomUnit;
+    var gridStep = size / zoomUnit;
 
     var depthX = gridStep;
     var depthY = gridStep * 3 / 4;
 
-    var gridWidthY = 2 * gridWidth * 3 / 4;
-    var startYMc = parseInt(nwMc.y / gridWidthY + 1, 10) * gridWidthY;
+    var sizeY = 2 * size * 3 / 4;
+    var startYMc = parseInt(nwMc.y / sizeY + 1, 10) * sizeY;
     var startY = (nwMc.y - startYMc) / zoomUnit;
     startY = parseInt(startY, 10);
 
-    // var yIsOdd = !!(startYMc / gridWidthY % 2);
+    // var yIsOdd = !!(startYMc / sizeY % 2);
 
-    var gridWidthX = depthX * gridWidth;
-    var startXMc = parseInt(nwMc.x / gridWidthX, 10) * gridWidthX;
+    var sizeX = depthX * size;
+    var startXMc = parseInt(nwMc.x / sizeX, 10) * sizeX;
     var startX = (startXMc - nwMc.x) / zoomUnit;
     startX = parseInt(startX, 10);
 
-    var endX = parseInt(ctx.canvas.width + gridWidthX / zoomUnit, 10);
-    var endY = parseInt(ctx.canvas.height + gridWidthY / zoomUnit, 10);
+    var endX = parseInt(ctx.canvas.width + sizeX / zoomUnit, 10);
+    var endY = parseInt(ctx.canvas.height + sizeY / zoomUnit, 10);
 
     var pointX = startX;
     var pointY = startY;
@@ -2424,7 +2553,7 @@ function drawHoneycomb(obj) {
     // return false;
     var ctx = obj.ctx;
     var grids = obj.grids;
-    var gridsW = obj.gridWidth / obj.zoomUnit;
+    var gridsW = obj.size / obj.zoomUnit;
 
     var color = obj.fillColors;
     var step = (obj.max - obj.min - 1) / color.length;
@@ -2447,7 +2576,7 @@ function drawHoneycomb(obj) {
             draw(x, y, gridsW - 1, 'rgba(0,0,0,0.4)', ctx);
         }
 
-        if (obj.sup.getDrawOptions().showNum && !isTooSmall && !isTooBig) {
+        if (obj.sup.getDrawOptions().label &&  obj.sup.getDrawOptions().label && !isTooSmall && !isTooBig) {
             ctx.save();
             ctx.textBaseline = 'middle';
             ctx.textAlign = 'center';
@@ -2504,25 +2633,16 @@ function formatParam() {
         [253, 54, 32]
     ];
 
-    this.colorBar = {};
-    for (var i = 0; i < fillColors.length; i++) {
-        var pos = (i + 1) / fillColors.length;
-        var r = fillColors[i][0];
-        var g = fillColors[i][1];
-        var b = fillColors[i][2];
-        this.colorBar[pos] = 'rgb(' + r + ',' + g + ',' + b + ')';
-    }
-
-    var gridWidth = options.gridWidth || '50';
-    gridWidth = gridWidth + (options.gridUnit || 'px');
-    if (/px$/.test(gridWidth)) {
-        gridWidth = parseInt(gridWidth, 10) * this.zoomUnit;
+    var size = options.size || '50';
+    size = size + (options.unit || 'px');
+    if (/px$/.test(size)) {
+        size = parseInt(size, 10) * this.zoomUnit;
     } else {
-        gridWidth = parseInt(gridWidth, 10);
+        size = parseInt(size, 10);
     }
-    // console.log(gridWidth, options.gridWidth)
+    // console.log(size, options.size)
     return {
-        gridWidth: gridWidth,
+        size: size,
         colors: fillColors
     };
 }
@@ -3037,14 +3157,14 @@ SimpleDrawer.prototype.drawAnimation = function () {
             /* 设定渐变区域 */
             var x = pgeo[index][0];
             var y = pgeo[index][1];
-            var grad  = ctx.createRadialGradient(x, y, 0, x, y, animationOptions.radius);
+            var grad  = ctx.createRadialGradient(x, y, 0, x, y, animationOptions.size);
             grad.addColorStop(0,'rgba(255, 255, 255, 1)');
             grad.addColorStop(0.4,'rgba(255, 255, 255, 0.9)');
             grad.addColorStop(1,'rgba(255, 255, 255, 0)');
             ctx.fillStyle = grad;
 
             ctx.beginPath();
-            ctx.arc(x, y, animationOptions.radius, 0, 2 * Math.PI, false);
+            ctx.arc(x, y, animationOptions.size, 0, 2 * Math.PI, false);
             ctx.closePath();
             ctx.fill();
             data[i].index++;

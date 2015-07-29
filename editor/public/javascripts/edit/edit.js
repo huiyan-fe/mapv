@@ -27,9 +27,9 @@ requirejs.config({
 });
 
 // main
-requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp'], function (upCallback, edit, sort, login, git) {
+requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp','tools'], function (upCallback, edit, sort, login, git,tools) {
 	// new app
-	app = new edit();
+	app = edit;
 	// init sort action and login
 	sort.init(app);
 	login.reg(app);
@@ -39,6 +39,7 @@ requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp'], function (upC
 		pointData = data;
 		app.shwoEdit()
 	});
+	// console.log(tools.getSearch().user)
 	// the edit done event
 	app.done(function(options){
 		// create a new layer
@@ -55,28 +56,35 @@ requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp'], function (upC
 		app.addLayer(layer);
 
 		// update and save info
-		var project = 'default';
-		var config = login.config();
-		config[project].layers[name] = {};
-		config[project].layers[name].options = options;
-		config[project].layers[name].data = 'data/'+name;
+		if(!login.getUser().session || (tools.getSearch().user!==login.getUser().username)){
+			return false;
+		}
+
+		var project = tools.getSearch().project || 'default';
+
 		// upload Date
 		console.info('start update layer for ',name);
 		var pointStr = JSON.stringify(pointData);
 		var data = {
-		  "message": "add layer data for layer " + name,
-		  "content": git.utf8_to_b64(pointStr)
+			'message': 'add layer data for layer ' + name,
+			'content': git.utf8_to_b64(pointStr)
 		};
-
+		var dataPath = 'data/'+name;
 		// upload files
 		git.createFiles({
-			token: login.user.session,
-			user: login.user.username,
-			path: config[project].layers[name].data,
+			token: login.getUser().session,
+			user: login.getUser().username,
+			path: dataPath,
 			data: data,
 			success:function(data){
-				console.info('update config');
+				var config = login.config();
+				options.layerName = name;
+				config[project] = config[project] || {};
+				config[project].layers[name] = {};
+				config[project].layers[name].options = options;
+				config[project].layers[name].data = 'data/'+name;
 				config[project].layers[name].sha = data.content.sha;
+				console.info('update config',config);
 				updateConfig(JSON.stringify(config));
 			}
 		});
@@ -89,19 +97,28 @@ requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp'], function (upC
 				'content': git.utf8_to_b64(conf)
 			};
 			git.updateFiles({
-				token: login.user.session,
-				user: login.user.username,
+				token: login.getUser().session,
+				user: login.getUser().username,
 				path: 'mapv_config.json',
 				data: data,
 				success:function(){
 					console.log('config updated');
+					var config = login.config();
+					config[project] = config[project] || {};
+					config[project].layers[name] = JSON.parse(conf)[project].layers[name];
+					login.setConfig(config);
 				}
 			})
 		}
-	})
+	});
+
 });
 
 // edity map style
 requirejs(['mapstyle'],function(mapstyle){
 	mapstyle.setMap(map)
+});
+
+// // project manage
+requirejs(['projectControl'],function(){
 });

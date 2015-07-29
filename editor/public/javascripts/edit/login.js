@@ -2,18 +2,19 @@
  * @file this file is to deal with the user login and the login init
  * @author Mofei Zhu <zhuwenlong@baidu.com>
  */
-define(['cookie','gitOp'],function(cookie,git){
+define(['cookie','gitOp','tools','projectControl','databank'],function(cookie,git,tools,project,databank){
     var app;
+    var owner;
+
     // user info , try to init from the cookie
-    var user = {
-        username : cookie.getItem('mapv_username'),
-        session :  cookie.getItem('mapv_session'),
-        avatar_url : cookie.getItem('mapv_avatar_url')
-    };
-    var config = {
-        'default':{
-            layers:{}
-        }
+    var user = databank.get('user') ;
+    var config = databank.get('config');
+
+    user.username = cookie.getItem('mapv_username');
+    user.session =  cookie.getItem('mapv_session');
+    user.avatar_url = cookie.getItem('mapv_avatar_url');
+    config.default = {
+        layers:{}
     }
 
     // if the seesion is valuable try to init
@@ -44,18 +45,29 @@ define(['cookie','gitOp'],function(cookie,git){
                 }
             })
         }
+    }else{
+        var search = tools.getSearch();
+        if(search.user && search.project){
+            owner = search.user;
+            checkRep();
+        }
     }
 
     /**
      * check the respos or just make a new one
      */
     function checkRep(){
+        owner = tools.getSearch().user || user.username;
         $.ajax({
             dataType:'jsonp',
-            url:'https://api.github.com/repos/'+user.username+'/mapv_datas',
+            url:'https://api.github.com/repos/' + owner + '/mapv_datas',
             success: function(data){
                 if(data.meta.status===404){
                     console.log('repos is not found , try create a new one');
+                    if(tools.getSearch().user && tools.getSearch().user !== user.username){
+                        alert('项目不存在');
+                        return false;
+                    }
                     git.createRepos({
                         token:user.session,
                         data:{
@@ -84,19 +96,20 @@ define(['cookie','gitOp'],function(cookie,git){
      */
     function getConfig(){
         //
-        $.ajax({
-            dataType:'jsonp',
-            url:'https://api.github.com/repos/'+user.username+'/mapv_datas/contents/mapv_config.json?access_token=' + user.session,
-            success: function(data){
+        git.getFiles({
+            user : owner,
+            token : user.session,
+            path : 'mapv_config.json',
+            success : function(data){
                 if(data.meta.status === 404){
                     console.log('config is not found , try create a new one');
                     var data = {
-                      "message": "add config",
-                      "content": git.utf8_to_b64(JSON.stringify(config))
+                        'message': 'add config',
+                        'content': git.utf8_to_b64(JSON.stringify(config))
                     };
                     git.createFiles({
                         token: user.session,
-                        user: user.username,
+                        user: owner,
                         path: 'mapv_config.json',
                         data: data,
                         success:function(){
@@ -104,12 +117,12 @@ define(['cookie','gitOp'],function(cookie,git){
                         }
                     })
                 }else{
-                    console.log('config is found,read config' );
-                    config = JSON.parse(git.b64_to_utf8(data.data.content));
+                    $.extend(config, JSON.parse(git.b64_to_utf8(data.data.content)));
+                    console.log('config is found',config);
                     getLayers(config);
                 }
             }
-        })
+        });
     }
 
     /**
@@ -117,13 +130,13 @@ define(['cookie','gitOp'],function(cookie,git){
      * @param  {Object} obj the object of layers
      */
     function getLayers(obj){
-        console.log('getLayers',obj)
-        var type = 'default';
+        var type = tools.getSearch().project || 'default';
+        obj[type] = obj[type] || {};
+        project.init();
         if(obj[type]){
             var layers = obj[type];
-            console.log('get layers: ', layers);
             for(var i in layers){
-                getLayerData(layers[i]);
+                getLayerData(i,layers[i]);
             }
         }
     }
@@ -132,30 +145,32 @@ define(['cookie','gitOp'],function(cookie,git){
      * get the loayer info
      * @param  {Object} data the layers info
      */
-    function getLayerData(data){
+    function getLayerData(layerName,data){
         for(var i in data){
-            (function(options){
+            (function(layerName,options){
                 git.getData({
-                    user : user.username,
+                    user : owner,
                     token: user.session,
                     sha : data[i].sha,
                     success : function(pointData){
-                        showLayer(JSON.parse(pointData),options)
+                        showLayer(layerName,JSON.parse(pointData),options)
                     }
                 })
-            })(data[i].options);
+            })(i,data[i].options);
+            $('.E-layers').append('<div class="E-layers-block E-layers-layer E-layers-layer-loading" name="'+i+'">...</div>');
         }
     }
 
     /**
      * shwo layer
+     * @param  {Sgring} layerName the name of the layer
      * @param  {Object} pointData the data of one layer
      * @param  {Object} options   the options of this layer
      */
-    function showLayer(pointData,options){
-        console.info(data,options)
+    function showLayer(layerName,pointData,options){
+        console.info('showLayer', layerName,pointData,options)
         //
-        var name = (+new Date()).toString(36)+ (Math.random()*10e7|0).toString(36);
+        var name = layerName;
 		var layerInfo = {
 			name: name,
 			mapv: mapv,
@@ -164,7 +179,7 @@ define(['cookie','gitOp'],function(cookie,git){
 			drawOptions: options.option
 		}
 		var layer = new Mapv.Layer(layerInfo);
-		$('.E-layers').append('<div class="E-layers-block E-layers-layer" name="'+name+'">'+options.type.substring(0,2).toUpperCase()+'</div>');
+        $('.E-layers-layer[name="'+layerName+'"]').html(options.type.substring(0,2).toUpperCase()).removeClass('E-layers-layer-loading');
 		app.addLayer(layer);
     }
 
@@ -174,9 +189,14 @@ define(['cookie','gitOp'],function(cookie,git){
     }
 
     return {
-        user : user,
+        getUser : function(){
+            return user
+        },
         config : function(){
             return config;
+        },
+        setConfig:function(con){
+            config = con;
         },
         reg : regApp
     };
