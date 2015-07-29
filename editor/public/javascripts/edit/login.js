@@ -64,7 +64,7 @@ define(['cookie','gitOp','tools','projectControl','databank'],function(cookie,gi
             success: function(data){
                 if(data.meta.status===404){
                     console.log('repos is not found , try create a new one');
-                    if(tools.getSearch().user !== user.username){
+                    if(tools.getSearch().user && tools.getSearch().user !== user.username){
                         alert('项目不存在');
                         return false;
                     }
@@ -108,8 +108,8 @@ define(['cookie','gitOp','tools','projectControl','databank'],function(cookie,gi
                         'content': git.utf8_to_b64(JSON.stringify(config))
                     };
                     git.createFiles({
-                        token: owner,
-                        user: user.username,
+                        token: user.session,
+                        user: owner,
                         path: 'mapv_config.json',
                         data: data,
                         success:function(){

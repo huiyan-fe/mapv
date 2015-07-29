@@ -99,11 +99,23 @@ define(['editActions','databank','tools','gitOp'],function(edit,databank,tools,g
         var url = location.protocol+'//'+location.host+'?user='+username+'&project='+projectName;
         location.href=url;
     });
+
+    // change project
+    $('body').on('click','.user-block-home',function(){
+        var url = location.protocol+'//'+location.host;
+        location.href=url;
+    });
     //
     return {
         init:function(){
-            $('.login-box').append('<div title="项目管理" class="user-block user-block-layers"></div>');
-            $('.login-box').append('<div title="分享项目" class="user-block user-block-share"></div>');
+            if(databank.get('user').session){
+                if(tools.getSearch.user && tools.getSearch.user !== databank.get('user').username ){
+                    $('.login-box').append('<div title="个人主页" class="user-block user-block-home">Home</div>');
+                }else{
+                    $('.login-box').append('<div title="项目管理" class="user-block user-block-layers"></div>');
+                    $('.login-box').append('<div title="分享项目" class="user-block user-block-share"></div>');
+                }
+            }
         }
     }
 })
