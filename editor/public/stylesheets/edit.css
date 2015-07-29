@@ -40,6 +40,9 @@
 .user-block-layers::before { content: ' ';position: absolute; width:24px; height:18px; background: white; right:9px; bottom:12px; border:1px solid #aaa; border-radius: 2px;}
 .user-block-share::after { content: ' ';position: absolute; width:18px; margin-left:-13px; height:14px; left:50%; bottom:10px;border:4px solid white; border-radius: 2px; }
 .user-block-share::before { content: '↑';position: absolute; width:100%; text-align:center; height:30px; line-height: 30px; top:0; color: white; font-size: 30px; font-weight: bold; }
+.user-block-home { line-height: 50px; text-align: center;}
+/*.user-block-home::after { content: ' ';position: absolute; width:18px; margin-left:-13px; height:14px; left:50%; bottom:10px;border:4px solid white; border-radius: 2px; }*/
+/*.user-block-home::before { content: '↑';position: absolute; width:100%; text-align:center; height:30px; line-height: 30px; top:0; color: white; font-size: 30px; font-weight: bold; }*/
 
 .E-funBox-content table { width:100%; border-collapse: collapse; border-top:1px solid #ccc; font-size: 14px;}
 .E-funBox-content table .E-button {margin:0;}

@@ -14,7 +14,7 @@ define(function(){
          */
         createRepos:function(obj){
             $.ajax({
-                'url':'https://api.github.com/user/repos?access_token='+obj.token,
+                'url':'https://api.github.com/user/repos?access_token=' + obj.token,
                 'data':JSON.stringify(obj.data),
                 'method':'POST',
                 'success':function(data){
@@ -34,7 +34,7 @@ define(function(){
          */
         createFiles:function(obj){
             $.ajax({
-                'url':'https://api.github.com/repos/'+obj.user+'/mapv_datas/contents/'+obj.path+'?access_token='+obj.token,
+                'url':'https://api.github.com/repos/' + obj.user + '/mapv_datas/contents/' + obj.path + '?access_token=' + obj.token,
                 'data':JSON.stringify(obj.data),
                 'method':'PUT',
                 'success':function(data){
@@ -82,7 +82,7 @@ define(function(){
          * @param   {function}  obj.callback    the callback
          */
         getFiles:function(obj){
-            var url = 'https://api.github.com/repos/'+obj.user+'/mapv_datas/contents/'+obj.path;
+            var url = 'https://api.github.com/repos/' + obj.user + '/mapv_datas/contents/' + obj.path;
             url += obj.token?('?access_token='+obj.token):'';
             $.ajax({
                 dataType:'jsonp',
@@ -101,9 +101,11 @@ define(function(){
          */
         getData:function(obj){
             var self = this;
+            var url = 'https://api.github.com/repos/' + obj.user + '/mapv_datas/git/blobs/' + obj.sha;
+            url += obj.token?('?access_token='+obj.token):'';
             $.ajax({
                 dataType:'jsonp',
-                url:'https://api.github.com/repos/'+obj.user+'/mapv_datas/git/blobs/'+obj.sha,
+                url:url,
                 success:function(data){
                     obj.success && obj.success(self.b64_to_utf8(data.data.content));
                 }

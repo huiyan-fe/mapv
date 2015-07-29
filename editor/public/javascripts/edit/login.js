@@ -2,23 +2,19 @@
  * @file this file is to deal with the user login and the login init
  * @author Mofei Zhu <zhuwenlong@baidu.com>
  */
-define(['cookie','gitOp','tools'],function(cookie,git,tools){
+define(['cookie','gitOp','tools','projectControl','databank'],function(cookie,git,tools,project,databank){
     var app;
-    var userCon = {
-        guest:0,
-        normal:1
-    }
+    var owner;
+
     // user info , try to init from the cookie
-    var user = {
-        type : userCon.normal,
-        username : cookie.getItem('mapv_username'),
-        session :  cookie.getItem('mapv_session'),
-        avatar_url : cookie.getItem('mapv_avatar_url')
-    };
-    var config = {
-        'default':{
-            layers:{}
-        }
+    var user = databank.get('user') ;
+    var config = databank.get('config');
+
+    user.username = cookie.getItem('mapv_username');
+    user.session =  cookie.getItem('mapv_session');
+    user.avatar_url = cookie.getItem('mapv_avatar_url');
+    config.default = {
+        layers:{}
     }
 
     // if the seesion is valuable try to init
@@ -52,8 +48,7 @@ define(['cookie','gitOp','tools'],function(cookie,git,tools){
     }else{
         var search = tools.getSearch();
         if(search.user && search.project){
-            user.username = search.user;
-            user.type = userCon.guest;
+            owner = search.user;
             checkRep();
         }
     }
@@ -62,13 +57,14 @@ define(['cookie','gitOp','tools'],function(cookie,git,tools){
      * check the respos or just make a new one
      */
     function checkRep(){
+        owner = tools.getSearch().user || user.username;
         $.ajax({
             dataType:'jsonp',
-            url:'https://api.github.com/repos/'+user.username+'/mapv_datas',
+            url:'https://api.github.com/repos/' + owner + '/mapv_datas',
             success: function(data){
                 if(data.meta.status===404){
                     console.log('repos is not found , try create a new one');
-                    if(user.type === userCon.guest){
+                    if(tools.getSearch().user && tools.getSearch().user !== user.username){
                         alert('项目不存在');
                         return false;
                     }
@@ -101,7 +97,7 @@ define(['cookie','gitOp','tools'],function(cookie,git,tools){
     function getConfig(){
         //
         git.getFiles({
-            user : user.username,
+            user : owner,
             token : user.session,
             path : 'mapv_config.json',
             success : function(data){
@@ -113,7 +109,7 @@ define(['cookie','gitOp','tools'],function(cookie,git,tools){
                     };
                     git.createFiles({
                         token: user.session,
-                        user: user.username,
+                        user: owner,
                         path: 'mapv_config.json',
                         data: data,
                         success:function(){
@@ -121,8 +117,8 @@ define(['cookie','gitOp','tools'],function(cookie,git,tools){
                         }
                     })
                 }else{
-                    console.log('config is found,read config');
-                    config = JSON.parse(git.b64_to_utf8(data.data.content));
+                    $.extend(config, JSON.parse(git.b64_to_utf8(data.data.content)));
+                    console.log('config is found',config);
                     getLayers(config);
                 }
             }
@@ -134,11 +130,11 @@ define(['cookie','gitOp','tools'],function(cookie,git,tools){
      * @param  {Object} obj the object of layers
      */
     function getLayers(obj){
-        console.log('getLayers',obj)
-        var type = tools.getSearch().project;
+        var type = tools.getSearch().project || 'default';
+        obj[type] = obj[type] || {};
+        project.init();
         if(obj[type]){
             var layers = obj[type];
-            console.log('get layers: ', layers);
             for(var i in layers){
                 getLayerData(i,layers[i]);
             }
@@ -153,7 +149,7 @@ define(['cookie','gitOp','tools'],function(cookie,git,tools){
         for(var i in data){
             (function(layerName,options){
                 git.getData({
-                    user : user.username,
+                    user : owner,
                     token: user.session,
                     sha : data[i].sha,
                     success : function(pointData){

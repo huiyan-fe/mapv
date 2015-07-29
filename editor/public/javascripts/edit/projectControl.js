@@ -3,10 +3,10 @@
  * @author Mofei Zhu <zhuwenlong@baidu.com>
  */
 
-define(['editActions','login','tools','gitOp'],function(edit,login,tools,git){
+define(['editActions','databank','tools','gitOp'],function(edit,databank,tools,git){
     function getProject(){
         var query = tools.getSearch();
-        if(query.project && login.config()[query.project]){
+        if(query.project && databank.get('config')[query.project]){
             return query.project;
         }else{
             return 'default';
@@ -15,7 +15,8 @@ define(['editActions','login','tools','gitOp'],function(edit,login,tools,git){
     // menage project
     $('body').on('click','.user-block-layers',function(){
         var box = edit.showBox('管理项目',{top:'70px',right:'80px'});
-        var config = login.config();
+        var config = databank.get('config');
+        console.log(config)
         var html = '<table>';
         html += '<tr><th>Name</th><th>Layers Count</th><th>Operation</th></tr>'
         for(i in config){
@@ -26,7 +27,7 @@ define(['editActions','login','tools','gitOp'],function(edit,login,tools,git){
                 count ++;
             }
             html += '<td>'+count+'</td>'
-            html += '<td><button class="E-button E-button-addLayer E-button-active">Switch</button></td>'
+            html += '<td><button class="E-button E-button-changeproject E-button-active" name="'+i+'">Switch</button></td>'
             html += '</tr>';
         }
         html += '</table>';
@@ -53,9 +54,9 @@ define(['editActions','login','tools','gitOp'],function(edit,login,tools,git){
 
     $('body').on('click','.E-button-share',function(){
         var projectID=(+new Date()).toString(36)+'_'+(Math.random()*10e8|0).toString(36);
-        history.pushState(null, null, '?user=' + login.getUser().username + '&project=' + projectID);
+        history.pushState(null, null, '?user=' + databank.get('user').username + '&project=' + projectID);
         // change config.default to new projectID;
-        var conf = login.config();
+        var conf = databank.get('config');
         conf[projectID] = conf.default;
         delete conf.default;
 
@@ -66,8 +67,8 @@ define(['editActions','login','tools','gitOp'],function(edit,login,tools,git){
             'content': git.utf8_to_b64(JSON.stringify(conf))
         };
         git.updateFiles({
-            token: login.getUser().session,
-            user: login.getUser().username,
+            token: databank.get('user').session,
+            user: databank.get('user').username,
             path: 'mapv_config.json',
             data: data,
             success:function(){
@@ -80,7 +81,7 @@ define(['editActions','login','tools','gitOp'],function(edit,login,tools,git){
 
     function showLink(){
         var url = location.protocol+'//'+location.host;
-        url += '?user=' + login.getUser().username + '&project=' + getProject();
+        url += '?user=' + databank.get('user').username + '&project=' + getProject();
         var box = edit.showBox('分享项目',{top:'70px',right:'80px'});
         var html = [
             '<div class="E-editBlock">',
@@ -91,5 +92,30 @@ define(['editActions','login','tools','gitOp'],function(edit,login,tools,git){
         box.innerHTML = '<div style="padding: 10px;">' + html + '</div>';
     }
 
+    // change project
+    $('body').on('click','.E-button-changeproject',function(){
+        var projectName = $(this).attr('name');
+        var username = databank.get('user').username;
+        var url = location.protocol+'//'+location.host+'?user='+username+'&project='+projectName;
+        location.href=url;
+    });
+
+    // change project
+    $('body').on('click','.user-block-home',function(){
+        var url = location.protocol+'//'+location.host;
+        location.href=url;
+    });
     //
+    return {
+        init:function(){
+            if(databank.get('user').session){
+                if(tools.getSearch.user && tools.getSearch.user !== databank.get('user').username ){
+                    $('.login-box').append('<div title="个人主页" class="user-block user-block-home">Home</div>');
+                }else{
+                    $('.login-box').append('<div title="项目管理" class="user-block user-block-layers"></div>');
+                    $('.login-box').append('<div title="分享项目" class="user-block user-block-share"></div>');
+                }
+            }
+        }
+    }
 })

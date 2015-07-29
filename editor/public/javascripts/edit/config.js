@@ -5,30 +5,30 @@
 define(function () {
 	var drawOptions = {
 		simple: {
-			radius: 1.5,
+			size: 1.5,
 			fillStyle: 'rgba(239, 168, 0, 0.8)',
-			editable: ['radius', 'fillStyle']
+			editable: ['size', 'fillStyle']
 		},
 		bubble: {
 			splitList: [{
 				start: 1,
 				end: 2,
-				radius: 1
+				size: 1
 			}, {
 				start: 2,
 				end: 3,
-				radius: 2
+				size: 2
 			}, {
 				start: 3,
 				end: 4,
-				radius: 3
+				size: 3
 			}, {
 				start: 4,
 				end: 5,
-				radius: 4
+				size: 4
 			}, {
 				start: 5,
-				radius: 6
+				size: 6
 			}],
 			globalCompositeOperation: 'lighter',
 			fillStyle: 'rgba(239, 168, 0, 0.8)',
@@ -38,7 +38,7 @@ define(function () {
 			}]
 		},
 		choropleth: {
-			radius: 2,
+			size: 2,
 			fillStyle: 'rgba(130, 195, 44, 0.8)',
 			splitList: [{
 				start: 1,
@@ -60,18 +60,18 @@ define(function () {
 				start: 5,
 				color: 'rgba(223, 66, 3, 0.8)'
 			}],
-			editable: ['radius', {
+			editable: ['size', {
 				name: 'splitList',
 				type: 'json'
 			}]
 		},
 		density: {
 			gridWidth: '30',
-			gridUnit: 'px',
+			unit: 'px',
 			gridType: 'honeycomb',
 			showNum: true,
 			editable: ['gridWidth', {
-				name: 'gridUnit',
+				name: 'unit',
 				type: 'option',
 				value: ['px', 'm']
 			}, {
@@ -84,7 +84,7 @@ define(function () {
 			}]
 		},
 		heatmap: {
-			radius: 500,
+			size: 500,
 			maxOpacity: 0.8,
 			max: 100,
 			blur: true,
@@ -97,7 +97,7 @@ define(function () {
 				'0.8': 'yellow',
 				'1.0': 'red'
 			},
-			editable: ['radius', 'max', 'maxOpacity', {
+			editable: ['size', 'max', 'maxOpacity', {
 				name: 'gradient',
 				type: 'json'
 			}, {
@@ -110,15 +110,15 @@ define(function () {
 			}]
 		},
 		category: {
-			radius: 2,
+			size: 2,
 			fillStyle: 'rgba(55, 55, 255, 0.8)',
-			editable: ['radius']
+			editable: ['size']
 		},
 		intensity: {
-			radius: 2,
+			size: 2,
 			max: 10,
 			fillStyle: 'rgba(55, 55, 255, 0.8)',
-			editable: ['radius', 'max']
+			editable: ['size', 'max']
 		},
 		cluster: {}
 	};
