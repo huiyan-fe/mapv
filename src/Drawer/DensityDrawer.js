@@ -394,15 +394,6 @@ function formatParam() {
         [253, 54, 32]
     ];
 
-    this.colorBar = {};
-    for (var i = 0; i < fillColors.length; i++) {
-        var pos = (i + 1) / fillColors.length;
-        var r = fillColors[i][0];
-        var g = fillColors[i][1];
-        var b = fillColors[i][2];
-        this.colorBar[pos] = 'rgb(' + r + ',' + g + ',' + b + ')';
-    }
-
     var size = options.size || '50';
     size = size + (options.unit || 'px');
     if (/px$/.test(size)) {
