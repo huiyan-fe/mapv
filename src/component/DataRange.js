@@ -4,15 +4,26 @@
  */
 
 function DataRange(layer) {
+    Class.call(this);
+
+    this.initOptions({
+        min: 0,
+        max: 0,
+    });
+
     this.set('layer', layer);
     this.bindTo('data', layer)
     this.bindTo('drawOptions', layer)
-    Class.call(this);
+
 }
 
 util.inherits(DataRange, Class);
 
 util.extend(DataRange.prototype, {
+    defaultGradient: {
+        '0.0': 'yellow',
+        '1.0': 'red'
+    },
     colors: [
         'rgba(17, 102, 252, 0.8)',
         'rgba(52, 139, 251, 0.8)',
@@ -41,6 +52,25 @@ util.extend(DataRange.prototype, {
         }
 
         return size;
+    },
+
+    // 根据count值获取对应的颜色，在choropleth中使用
+    getColorByRange: function (count) {
+        var color = 'rgba(50, 50, 255, 1)';
+        var splitList = this.splitList;
+
+        for (var i = 0; i < splitList.length; i++) {
+            if ((splitList[i].start === undefined
+            || splitList[i].start !== undefined
+            && count >= splitList[i].start)
+            && (splitList[i].end === undefined
+            || splitList[i].end !== undefined && count < splitList[i].end)) {
+                color = splitList[i].color;
+                break;
+            }
+        }
+
+        return color;
     },
 
     data_changed: function () {
@@ -73,10 +103,16 @@ util.extend(DataRange.prototype, {
             }
         }
 
+        if (this.get("layer").getDrawType() === 'heatmap' || this.get("layer").getDrawType() === 'density' || this.get("layer").getDrawType() === 'intensity') {
+            this.generalGradient(drawOptions.gradient || this.defaultGradient);
+        }
+
         if (this.get("layer").getDrawType() === 'bubble') {
             this.get("layer").getDataRangeControl().drawSizeSplit(this.splitList, this.get('drawOptions'));
         } else if (this.get("layer").getDrawType() === 'category') {
             this.get("layer").getDataRangeControl().drawCategorySplit(this.categorySplitList, this.get('drawOptions'));
+        } else if (this.get("layer").getDrawType() === 'choropleth') {
+            this.get("layer").getDataRangeControl().drawChoroplethSplit(this.splitList, this.get('drawOptions'));
         } else {
             this.get("layer").getDataRangeControl().hide();
         }
@@ -92,7 +128,7 @@ util.extend(DataRange.prototype, {
             this.splitList.push({
                 start: index,
                 end: index + splitNum,
-                radius: radius,
+                size: radius,
                 color: this.colors[radius - 1]
             });
             index += splitNum;
@@ -137,7 +173,44 @@ util.extend(DataRange.prototype, {
         }
 
         return color;
-    }
+    },
 
+    generalGradient: function (grad) {
+        // create a 256x1 gradient that we'll use to turn a grayscale heatmap into a colored one
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        var gradient = ctx.createLinearGradient(0, 0, 0, 256);
+
+        canvas.width = 1;
+        canvas.height = 256;
+
+        for (var i in grad) {
+            gradient.addColorStop(i, grad[i]);
+        }
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 1, 256);
+
+        this._grad = ctx.getImageData(0, 0, 1, 256).data;
+    },
+
+    getGradient: function () {
+        return this._grad;
+    },
+
+    getColorByGradient: function (count) {
+        var max = this.get("max") || 10;
+
+        var index = count / max;
+        if (index > 1) {
+            index = 1;
+        }
+        index *= 255;
+        index = parseInt(index, 10);
+        index *= 4;
+
+        var color = 'rgba(' + this._grad[index] + ', ' + this._grad[index + 1] + ', ' + this._grad[index + 2] + ',0.8)';
+        return color;
+    }
 
 }); // end extend

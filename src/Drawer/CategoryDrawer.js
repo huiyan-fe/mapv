@@ -12,14 +12,12 @@ function CategoryDrawer() {
 util.inherits(CategoryDrawer, Drawer);
 
 CategoryDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
 
     var data = this.getLayer().getData();
     var ctx = this.getCtx();
 
-
     var drawOptions = this.getDrawOptions();
-
-    ctx.strokeStyle = drawOptions.strokeStyle;
 
     var radius = this.getRadius();
     for (var i = 0, len = data.length; i < len; i++) {
@@ -36,28 +34,5 @@ CategoryDrawer.prototype.drawMap = function () {
         ctx.stroke();
     }
 
+    this.endDrawMap();
 };
-
-// CategoryDrawer.prototype.drawDataRange = function () {
-//     var canvas = this.getMapv().getDataRangeCtrol().getContainer();
-//     canvas.width = 80;
-//     canvas.height = 190;
-//     canvas.style.width = "80px";
-//     canvas.style.height = "190px";
-//
-//     var ctx = canvas.getContext("2d");
-//
-//     var splitList = this.splitList;
-//
-//     var i = 0;
-//     for (var key in splitList) {
-//         ctx.fillStyle = splitList[key];
-//         ctx.beginPath();
-//         ctx.arc(15, i * 25 + 15, 5, 0, Math.PI * 2, false);
-//         ctx.closePath();
-//         ctx.fill();
-//         ctx.fillStyle = '#333';
-//         ctx.fillText(key, 25, i * 25 + 20);
-//         i++;
-//     }
-// };

@@ -15,7 +15,7 @@ function Drawer(layer) {
         mapv: null,
         animationOptions: {},
         drawOptions: {
-            radius: 2
+            size: 2
         }
     });
 
@@ -31,8 +31,40 @@ function Drawer(layer) {
 
 util.inherits(Drawer, Class);
 
-Drawer.prototype.drawMap = function () {
+Drawer.prototype.beginDrawMap = function () {
+
+    var drawOptions = this.getDrawOptions();
+    var ctx = this.getCtx();
+
+    ctx.save();
+
+    var property = [
+        'globalCompositeOperation', 
+        'shadowColor', 
+        'shadowBlur',
+        'shadowOffsetX',
+        'shadowOffsetY',
+        'fillStyle',
+        'strokeStyle',
+        'lineWidth',
+        'lineCap',
+        'lineJoin',
+        'lineWidth',
+        'miterLimit'
+    ];
+
+    for (var i = 0; i < property.length; i++) {
+        if (drawOptions[property[i]]) {
+            ctx[property[i]] = drawOptions[property[i]];
+        }
+    }
+
 };
+
+Drawer.prototype.endDrawMap = function () {
+    var ctx = this.getCtx();
+    ctx.restore();
+}
 
 // we need defined drawDataRange so that in Mapv.js
 //      we can shwo or remove range cans by drawer.drawDataRange
@@ -72,7 +104,7 @@ Drawer.prototype.generalSplitList = function () {
         this.splitList.push({
             start: index,
             end: index + splitNum,
-            radius: radius,
+            size: radius,
             color: this.colors[radius - 1]
         });
         index += splitNum;

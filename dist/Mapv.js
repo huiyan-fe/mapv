@@ -477,15 +477,26 @@ Class.prototype.dispose = function () {
 }
 
 ;function DataRange(layer) {
+    Class.call(this);
+
+    this.initOptions({
+        min: 0,
+        max: 0,
+    });
+
     this.set('layer', layer);
     this.bindTo('data', layer)
     this.bindTo('drawOptions', layer)
-    Class.call(this);
+
 }
 
 util.inherits(DataRange, Class);
 
 util.extend(DataRange.prototype, {
+    defaultGradient: {
+        '0.0': 'yellow',
+        '1.0': 'red'
+    },
     colors: [
         'rgba(17, 102, 252, 0.8)',
         'rgba(52, 139, 251, 0.8)',
@@ -514,6 +525,25 @@ util.extend(DataRange.prototype, {
         }
 
         return size;
+    },
+
+    // 根据count值获取对应的颜色，在choropleth中使用
+    getColorByRange: function (count) {
+        var color = 'rgba(50, 50, 255, 1)';
+        var splitList = this.splitList;
+
+        for (var i = 0; i < splitList.length; i++) {
+            if ((splitList[i].start === undefined
+            || splitList[i].start !== undefined
+            && count >= splitList[i].start)
+            && (splitList[i].end === undefined
+            || splitList[i].end !== undefined && count < splitList[i].end)) {
+                color = splitList[i].color;
+                break;
+            }
+        }
+
+        return color;
     },
 
     data_changed: function () {
@@ -546,10 +576,16 @@ util.extend(DataRange.prototype, {
             }
         }
 
+        if (this.get("layer").getDrawType() === 'heatmap' || this.get("layer").getDrawType() === 'density' || this.get("layer").getDrawType() === 'intensity') {
+            this.generalGradient(drawOptions.gradient || this.defaultGradient);
+        }
+
         if (this.get("layer").getDrawType() === 'bubble') {
             this.get("layer").getDataRangeControl().drawSizeSplit(this.splitList, this.get('drawOptions'));
         } else if (this.get("layer").getDrawType() === 'category') {
             this.get("layer").getDataRangeControl().drawCategorySplit(this.categorySplitList, this.get('drawOptions'));
+        } else if (this.get("layer").getDrawType() === 'choropleth') {
+            this.get("layer").getDataRangeControl().drawChoroplethSplit(this.splitList, this.get('drawOptions'));
         } else {
             this.get("layer").getDataRangeControl().hide();
         }
@@ -565,7 +601,7 @@ util.extend(DataRange.prototype, {
             this.splitList.push({
                 start: index,
                 end: index + splitNum,
-                radius: radius,
+                size: radius,
                 color: this.colors[radius - 1]
             });
             index += splitNum;
@@ -610,8 +646,45 @@ util.extend(DataRange.prototype, {
         }
 
         return color;
-    }
+    },
 
+    generalGradient: function (grad) {
+        // create a 256x1 gradient that we'll use to turn a grayscale heatmap into a colored one
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        var gradient = ctx.createLinearGradient(0, 0, 0, 256);
+
+        canvas.width = 1;
+        canvas.height = 256;
+
+        for (var i in grad) {
+            gradient.addColorStop(i, grad[i]);
+        }
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 1, 256);
+
+        this._grad = ctx.getImageData(0, 0, 1, 256).data;
+    },
+
+    getGradient: function () {
+        return this._grad;
+    },
+
+    getColorByGradient: function (count) {
+        var max = this.get("max") || 10;
+
+        var index = count / max;
+        if (index > 1) {
+            index = 1;
+        }
+        index *= 255;
+        index = parseInt(index, 10);
+        index *= 4;
+
+        var color = 'rgba(' + this._grad[index] + ', ' + this._grad[index + 1] + ', ' + this._grad[index + 2] + ',0.8)';
+        return color;
+    }
 
 }); // end extend
 ;function SizeDataRange() {
@@ -746,7 +819,7 @@ CanvasLayer.prototype.getZIndex = function(){
         data: [],
         dataType: 'point',
         animationOptions: {
-            radius: 5
+            size: 5
         },
         coordType: 'bd09ll',
         drawType: 'simple',
@@ -1138,6 +1211,7 @@ DataControl.prototype.initEvent = function () {
 
 };
 ;function DataRangeControl(){
+
     // 默认停靠位置和偏移量
     this.defaultAnchor = BMAP_ANCHOR_BOTTOM_RIGHT;
     this.defaultOffset = new BMap.Size(10, 10);
@@ -1148,11 +1222,11 @@ DataRangeControl.prototype = new BMap.Control();
 util.extend(DataRangeControl.prototype, {
 
     initialize: function(map){
-        var canvas = this.canvas = document.createElement("canvas");
-        canvas.style.background = "#fff";
-        canvas.style.boxShadow = "rgba(0,0,0,0.2) 0 0 4px 2px";
-        canvas.style.border = "1px solid #999999";
-        canvas.style.borderRadius = "4px";
+        var canvas = this.canvas = document.createElement('canvas');
+        canvas.style.background = '#fff';
+        canvas.style.boxShadow = 'rgba(0,0,0,0.2) 0 0 4px 2px';
+        canvas.style.border = '1px solid #999999';
+        canvas.style.borderRadius = '4px';
         // 添加DOM元素到地图中
         map.getContainer().appendChild(canvas);
         // 将DOM元素返回
@@ -1183,7 +1257,7 @@ util.extend(DataRangeControl.prototype, {
             ctx.closePath();
             ctx.fillStyle = drawOptions.fillStyle || 'rgba(50, 50, 200, 0.8)';
             ctx.fill();
-            ctx.fillStyle = "rgba(30, 30, 30, 1)";
+            ctx.fillStyle = 'rgba(30, 30, 30, 1)';
             ctx.fillText(text, 50, height + 6);
             height += splitList[i].size + 5;
         }
@@ -1193,9 +1267,9 @@ util.extend(DataRangeControl.prototype, {
         var canvas = this.canvas;
         canvas.width = 80;
         canvas.height = 190;
-        canvas.style.width = "80px";
-        canvas.style.height = "190px";
-        var ctx = canvas.getContext("2d");
+        canvas.style.width = '80px';
+        canvas.style.height = '190px';
+        var ctx = canvas.getContext('2d');
         var i = 0;
         for (var key in splitList) {
             ctx.fillStyle = splitList[key];
@@ -1209,8 +1283,29 @@ util.extend(DataRangeControl.prototype, {
         }
     },
 
+    drawChoroplethSplit: function (splitList, drawOptions) {
+        var canvas = this.canvas;
+        canvas.width = 100;
+        canvas.height = 190;
+        canvas.style.width = '100px';
+        canvas.style.height = '190px';
+        var ctx = canvas.getContext('2d');
+        ctx.fillStyle = drawOptions.fillStyle || 'rgba(50, 50, 200, 0.8)';
+
+        for (var i = 0; i < splitList.length; i++) {
+            ctx.beginPath();
+            ctx.arc(15, i * 25 + 15, drawOptions.size, 0, Math.PI * 2, false);
+            var text = (splitList[i].start || '~') + ' - ' + (splitList[i].end || '~');
+            ctx.closePath();
+            ctx.fillStyle = splitList[i].color;
+            ctx.fill();
+            ctx.fillStyle = '#333';
+            ctx.fillText(text, 25, i * 25 + 20);
+        };
+    },
+
     hide: function () {
-        this.canvas.style.display = "none";
+        this.canvas.style.display = 'none';
     }
 
 });
@@ -1827,7 +1922,7 @@ function Drawer(layer) {
         mapv: null,
         animationOptions: {},
         drawOptions: {
-            radius: 2
+            size: 2
         }
     });
 
@@ -1843,8 +1938,40 @@ function Drawer(layer) {
 
 util.inherits(Drawer, Class);
 
-Drawer.prototype.drawMap = function () {
+Drawer.prototype.beginDrawMap = function () {
+
+    var drawOptions = this.getDrawOptions();
+    var ctx = this.getCtx();
+
+    ctx.save();
+
+    var property = [
+        'globalCompositeOperation', 
+        'shadowColor', 
+        'shadowBlur',
+        'shadowOffsetX',
+        'shadowOffsetY',
+        'fillStyle',
+        'strokeStyle',
+        'lineWidth',
+        'lineCap',
+        'lineJoin',
+        'lineWidth',
+        'miterLimit'
+    ];
+
+    for (var i = 0; i < property.length; i++) {
+        if (drawOptions[property[i]]) {
+            ctx[property[i]] = drawOptions[property[i]];
+        }
+    }
+
 };
+
+Drawer.prototype.endDrawMap = function () {
+    var ctx = this.getCtx();
+    ctx.restore();
+}
 
 // we need defined drawDataRange so that in Mapv.js
 //      we can shwo or remove range cans by drawer.drawDataRange
@@ -1884,7 +2011,7 @@ Drawer.prototype.generalSplitList = function () {
         this.splitList.push({
             start: index,
             end: index + splitNum,
-            radius: radius,
+            size: radius,
             color: this.colors[radius - 1]
         });
         index += splitNum;
@@ -1915,18 +2042,14 @@ function BubbleDrawer() {
 util.inherits(BubbleDrawer, Drawer);
 
 BubbleDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
 
     var data = this.getLayer().getData();
 
     var ctx = this.getCtx();
 
-    ctx.save();
 
     var drawOptions = this.getDrawOptions();
-
-    if (drawOptions.globalCompositeOperation) {
-        ctx.globalCompositeOperation = drawOptions.globalCompositeOperation;
-    }
 
     ctx.fillStyle = drawOptions.fillStyle || 'rgba(50, 50, 200, 0.8)';
     ctx.strokeStyle = drawOptions.strokeStyle;
@@ -1944,7 +2067,7 @@ BubbleDrawer.prototype.drawMap = function () {
         }
     }
 
-    ctx.restore();
+    this.endDrawMap();
 }
 ;/* globals Drawer, util */
 
@@ -1955,14 +2078,12 @@ function CategoryDrawer() {
 util.inherits(CategoryDrawer, Drawer);
 
 CategoryDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
 
     var data = this.getLayer().getData();
     var ctx = this.getCtx();
 
-
     var drawOptions = this.getDrawOptions();
-
-    ctx.strokeStyle = drawOptions.strokeStyle;
 
     var radius = this.getRadius();
     for (var i = 0, len = data.length; i < len; i++) {
@@ -1979,31 +2100,8 @@ CategoryDrawer.prototype.drawMap = function () {
         ctx.stroke();
     }
 
+    this.endDrawMap();
 };
-
-// CategoryDrawer.prototype.drawDataRange = function () {
-//     var canvas = this.getMapv().getDataRangeCtrol().getContainer();
-//     canvas.width = 80;
-//     canvas.height = 190;
-//     canvas.style.width = "80px";
-//     canvas.style.height = "190px";
-//
-//     var ctx = canvas.getContext("2d");
-//
-//     var splitList = this.splitList;
-//
-//     var i = 0;
-//     for (var key in splitList) {
-//         ctx.fillStyle = splitList[key];
-//         ctx.beginPath();
-//         ctx.arc(15, i * 25 + 15, 5, 0, Math.PI * 2, false);
-//         ctx.closePath();
-//         ctx.fill();
-//         ctx.fillStyle = '#333';
-//         ctx.fillText(key, 25, i * 25 + 20);
-//         i++;
-//     }
-// };
 ;/* globals Drawer, util */
 
 function ChoroplethDrawer() {
@@ -2013,18 +2111,18 @@ function ChoroplethDrawer() {
 util.inherits(ChoroplethDrawer, Drawer);
 
 ChoroplethDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
 
     var data = this.getLayer().getData();
+
     var ctx = this.getCtx();
 
     var drawOptions = this.getDrawOptions();
 
-    ctx.strokeStyle = drawOptions.strokeStyle;
-
     var radius = this.getRadius(); 
     for (var i = 0, len = data.length; i < len; i++) {
         var item = data[i];
-        ctx.fillStyle = this.getColor(item.count);
+        ctx.fillStyle = this.dataRange.getColorByRange(item.count);
         ctx.beginPath();
         ctx.moveTo(item.px, item.py);
         ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI);
@@ -2032,26 +2130,11 @@ ChoroplethDrawer.prototype.drawMap = function () {
         ctx.fill();
     }
 
-    console.log(this.splitList);
-
     if (drawOptions.strokeStyle) {
         ctx.stroke();
     }
 
-};
-
-ChoroplethDrawer.prototype.getColor = function (val) {
-    var splitList = this.splitList;
-    var color = 'yellow';
-
-    for (var i = 0; i < splitList.length; i++) {
-        if ((splitList[i].start === undefined || splitList[i].start !== undefined && val >= splitList[i].start) && (splitList[i].end === undefined || splitList[i].end !== undefined && val < splitList[i].end)) {
-            color = splitList[i].color;
-            break;
-        }
-    }
-
-    return color;
+    this.endDrawMap();
 };
 ;/* globals Drawer mercatorProjection BMap util */
 
@@ -2065,9 +2148,12 @@ function ClusterDrawer() {
 util.inherits(ClusterDrawer, Drawer);
 
 ClusterDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
+
     // console.log('ClusterDrawer');
     window.console.time('computerMapData');
     var ctx = this.getCtx();
+
     // TODO: ser workder
     max = min = undefined;
 
@@ -2195,12 +2281,13 @@ ClusterDrawer.prototype.drawMap = function () {
 
             ctx.fillStyle = '#fff';
             ctx.fillText(grids[i], cx, cy);
+            ctx.restore();
         }
-        ctx.restore();
         // }
     }
 
     window.console.timeEnd('drawMap');
+    this.endDrawMap();
 };
 
 // ClusterDrawer.prototype.drawDataRange = function (canvas, data, drawOptions) {
@@ -2270,6 +2357,7 @@ DensityDrawer.prototype.scale = function (scale) {
 };
 
 DensityDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
 
     var self = this;
     var ctx = this.getCtx();
@@ -2308,6 +2396,8 @@ DensityDrawer.prototype.drawMap = function () {
     console.log(gridsObj);
 
     var grids = gridsObj.grids;
+    this.dataRange.setMax(gridsObj.max);
+    this.dataRange.setMin(gridsObj.min);
     var max = gridsObj.max;
     var min = gridsObj.min;
     // console.log(gridsObj);
@@ -2322,6 +2412,7 @@ DensityDrawer.prototype.drawMap = function () {
         ctx: ctx,
         grids: grids,
         fillColors: param.colors,
+        dataRange: this.dataRange,
         sup: self
     };
 
@@ -2336,8 +2427,10 @@ DensityDrawer.prototype.drawMap = function () {
     this.Scale && this.Scale.set({
         max: max,
         min: min,
-        colors: 'default'
+        colors: this.getDrawOptions().gradient || 'default'
     });
+
+    this.endDrawMap();
 };
 
 function recGrids(obj, map) {
@@ -2436,14 +2529,16 @@ function drawRec(obj) {
         var x = sp[0];
         var y = sp[1];
         var v = (grids[i] - min) / step;
-        var color = fillColors[v | 0];
+        //var color = fillColors[v | 0];
+        var color = obj.dataRange.getColorByGradient(grids[i]);
 
         var isTooSmall = self.masker.min && (grids[i] < self.masker.min);
         var isTooBig = self.masker.max && (grids[i] > self.masker.max);
         if (grids[i] === 0 || isTooSmall || isTooBig) {
             ctx.fillStyle = 'rgba(255,255,255,0.1)';
         } else {
-            ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',0.4)';
+            //ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',0.4)';
+            ctx.fillStyle = color;
         }
         ctx.fillRect(x, y, gridStep - 1, gridStep - 1);
 
@@ -2566,7 +2661,8 @@ function drawHoneycomb(obj) {
         var level = count / step | 0;
         level = level >= color.length ? color.length - 1 : level;
         level = level < 0 ? 0 : level;
-        var useColor = 'rgba(' + color[level].join(',') + ',0.6)';
+        //var useColor = 'rgba(' + color[level].join(',') + ',0.6)';
+        var useColor = obj.dataRange.getColorByGradient(count);
 
         var isTooSmall = obj.sup.masker.min && (obj.sup.masker.min > count);
         var isTooBig = obj.sup.masker.max && (obj.sup.masker.max < count);
@@ -2659,8 +2755,11 @@ function HeatmapDrawer() {
 util.inherits(HeatmapDrawer, Drawer);
 
 HeatmapDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
+
     var self = this;
     var ctx = this.getCtx();
+
     this._width = ctx.canvas.width;
     this._height = ctx.canvas.height;
     var data = this.getLayer().getData();
@@ -2672,6 +2771,8 @@ HeatmapDrawer.prototype.drawMap = function () {
         max: self.getMax(),
         colors: this.getGradient()
     });
+
+    this.endDrawMap();
 };
 
 HeatmapDrawer.prototype.scale = function (scale) {
@@ -2767,33 +2868,9 @@ util.extend(HeatmapDrawer.prototype, {
         return this;
     },
 
-    gradient: function (grad) {
-        // create a 256x1 gradient that we'll use to turn a grayscale heatmap into a colored one
-        var canvas = document.createElement('canvas');
-        var ctx = canvas.getContext('2d');
-        var gradient = ctx.createLinearGradient(0, 0, 0, 256);
-
-        canvas.width = 1;
-        canvas.height = 256;
-
-        for (var i in grad) {
-            gradient.addColorStop(i, grad[i]);
-        }
-
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, 1, 256);
-
-        this._grad = ctx.getImageData(0, 0, 1, 256).data;
-
-        return this;
-    },
-
     drawHeatmap: function (minOpacity) {
         // if (!this._circle) {
         this.radius(this.getRadius());
-        // }
-        // if (!this._grad) {
-        this.gradient(this.getGradient());
         // }
 
         var ctx = this.getCtx();
@@ -2843,7 +2920,7 @@ util.extend(HeatmapDrawer.prototype, {
         // colorize the heatmap, using opacity value of each pixel to get the right color from our gradient
         // console.log( this._width, this._height)
         var colored = ctx.getImageData(0, 0, this._width, this._height);
-        this.colorize(colored.data, this._grad);
+        this.colorize(colored.data, this.dataRange.getGradient());
         ctx.putImageData(colored, 0, 0);
 
         ctx.restore();
@@ -2890,7 +2967,6 @@ function IntensityDrawer() {
 
     // 临时canvas，用来绘制颜色条，获取颜色
     this._tmpCanvas = document.createElement('canvas');
-    this.gradient(this.getGradient());
 }
 
 util.inherits(IntensityDrawer, Drawer);
@@ -2901,10 +2977,10 @@ IntensityDrawer.prototype.defaultGradient = {
 };
 
 IntensityDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
+
     var self = this;
     var ctx = this.getCtx();
-
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     var data = this.getLayer().getData();
     var drawOptions = this.getDrawOptions();
@@ -2933,7 +3009,7 @@ IntensityDrawer.prototype.drawMap = function () {
             var geo = data[i].pgeo;
             ctx.beginPath();
             ctx.moveTo(geo[0][0], geo[0][1]);
-            ctx.fillStyle = this.getColor(data[i].count);
+            ctx.fillStyle = this.dataRange.getColorByGradient(data[i].count);
             for (var j = 1; j < geo.length; j++) {
                 ctx.lineTo(geo[j][0], geo[j][1]);
             }
@@ -2964,7 +3040,7 @@ IntensityDrawer.prototype.drawMap = function () {
             }
             ctx.beginPath();
             ctx.moveTo(item.px, item.py);
-            ctx.fillStyle = this.getColor(item.count);
+            ctx.fillStyle = this.dataRange.getColorByGradient(item.count);
             ctx.arc(item.px, item.py, radius || 1, 0, 2 * Math.PI);
             ctx.closePath();
             ctx.fill();
@@ -2983,6 +3059,8 @@ IntensityDrawer.prototype.drawMap = function () {
         max: self.getMax(),
         colors: this.getGradient()
     });
+
+    this.endDrawMap();
 };
 
 IntensityDrawer.prototype.getGradient = function () {
@@ -3012,42 +3090,6 @@ IntensityDrawer.prototype.getMax = function () {
     }
     return max;
 };
-
-IntensityDrawer.prototype.getColor = function (val) {
-    var max = this.getMax();
-
-    var index = val / max;
-    if (index > 1) {
-        index = 1;
-    }
-    index *= 255;
-    index = parseInt(index, 10);
-    index *= 4;
-
-    var color = 'rgba(' + this._grad[index] + ', ' + this._grad[index + 1] + ', ' + this._grad[index + 2] + ',0.8)';
-    return color;
-};
-
-IntensityDrawer.prototype.gradient = function (grad) {
-    // create a 256x1 gradient
-    var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
-    var gradient = ctx.createLinearGradient(0, 0, 0, 256);
-
-    canvas.width = 1;
-    canvas.height = 256;
-
-    for (var i in grad) {
-        gradient.addColorStop(i, grad[i]);
-    }
-
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, 1, 256);
-
-    this._grad = ctx.getImageData(0, 0, 1, 256).data;
-
-    return this;
-};
 ;/* globals Drawer, util */
 
 function SimpleDrawer() {
@@ -3057,22 +3099,14 @@ function SimpleDrawer() {
 util.inherits(SimpleDrawer, Drawer);
 
 SimpleDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
+
     var data = this.getLayer().getData();
+
     var ctx = this.getCtx();
 
     var drawOptions = this.getDrawOptions();
     console.log('????',drawOptions)
-
-    ctx.fillStyle = drawOptions.fillStyle || "rgba(50, 50, 200, 0.8)";
-    ctx.strokeStyle = drawOptions.strokeStyle;
-    ctx.lineWidth = drawOptions.lineWidth || 1;
-
-    if (drawOptions.shadowColor) {
-        ctx.shadowColor = drawOptions.shadowColor || 'black';
-    }
-    if (drawOptions.shadowBlur) {
-        ctx.shadowBlur = drawOptions.shadowBlur;
-    }
 
     ctx.beginPath();
 
@@ -3138,6 +3172,7 @@ SimpleDrawer.prototype.drawMap = function () {
 
     }
 
+    this.endDrawMap();
 }
 
 /**

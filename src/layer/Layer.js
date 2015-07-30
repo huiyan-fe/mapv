@@ -15,7 +15,7 @@ function Layer (options) {
         data: [],
         dataType: 'point',
         animationOptions: {
-            radius: 5
+            size: 5
         },
         coordType: 'bd09ll',
         drawType: 'simple',

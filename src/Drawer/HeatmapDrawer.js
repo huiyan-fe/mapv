@@ -16,8 +16,11 @@ function HeatmapDrawer() {
 util.inherits(HeatmapDrawer, Drawer);
 
 HeatmapDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
+
     var self = this;
     var ctx = this.getCtx();
+
     this._width = ctx.canvas.width;
     this._height = ctx.canvas.height;
     var data = this.getLayer().getData();
@@ -29,6 +32,8 @@ HeatmapDrawer.prototype.drawMap = function () {
         max: self.getMax(),
         colors: this.getGradient()
     });
+
+    this.endDrawMap();
 };
 
 HeatmapDrawer.prototype.scale = function (scale) {
@@ -124,33 +129,9 @@ util.extend(HeatmapDrawer.prototype, {
         return this;
     },
 
-    gradient: function (grad) {
-        // create a 256x1 gradient that we'll use to turn a grayscale heatmap into a colored one
-        var canvas = document.createElement('canvas');
-        var ctx = canvas.getContext('2d');
-        var gradient = ctx.createLinearGradient(0, 0, 0, 256);
-
-        canvas.width = 1;
-        canvas.height = 256;
-
-        for (var i in grad) {
-            gradient.addColorStop(i, grad[i]);
-        }
-
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, 1, 256);
-
-        this._grad = ctx.getImageData(0, 0, 1, 256).data;
-
-        return this;
-    },
-
     drawHeatmap: function (minOpacity) {
         // if (!this._circle) {
         this.radius(this.getRadius());
-        // }
-        // if (!this._grad) {
-        this.gradient(this.getGradient());
         // }
 
         var ctx = this.getCtx();
@@ -200,7 +181,7 @@ util.extend(HeatmapDrawer.prototype, {
         // colorize the heatmap, using opacity value of each pixel to get the right color from our gradient
         // console.log( this._width, this._height)
         var colored = ctx.getImageData(0, 0, this._width, this._height);
-        this.colorize(colored.data, this._grad);
+        this.colorize(colored.data, this.dataRange.getGradient());
         ctx.putImageData(colored, 0, 0);
 
         ctx.restore();
