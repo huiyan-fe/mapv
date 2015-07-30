@@ -43,6 +43,25 @@ util.extend(DataRange.prototype, {
         return size;
     },
 
+    // 根据count值获取对应的颜色，在choropleth中使用
+    getColorByRange: function (count) {
+        var color = 'rgba(50, 50, 255, 1)';
+        var splitList = this.splitList;
+
+        for (var i = 0; i < splitList.length; i++) {
+            if ((splitList[i].start === undefined
+            || splitList[i].start !== undefined
+            && count >= splitList[i].start)
+            && (splitList[i].end === undefined
+            || splitList[i].end !== undefined && count < splitList[i].end)) {
+                color = splitList[i].color;
+                break;
+            }
+        }
+
+        return color;
+    },
+
     data_changed: function () {
         var data = this.get('data');
         if (data && data.length > 0) {
@@ -77,6 +96,8 @@ util.extend(DataRange.prototype, {
             this.get("layer").getDataRangeControl().drawSizeSplit(this.splitList, this.get('drawOptions'));
         } else if (this.get("layer").getDrawType() === 'category') {
             this.get("layer").getDataRangeControl().drawCategorySplit(this.categorySplitList, this.get('drawOptions'));
+        } else if (this.get("layer").getDrawType() === 'choropleth') {
+            this.get("layer").getDataRangeControl().drawChoroplethSplit(this.splitList, this.get('drawOptions'));
         } else {
             this.get("layer").getDataRangeControl().hide();
         }

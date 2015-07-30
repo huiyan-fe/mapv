@@ -7,30 +7,30 @@ bmap.centerAndZoom(new BMap.Point(116.403119, 39.928658), 12); // 初始化地�
 var data = null;
 var drawOptions = {
     simple: {
-        radius: 1.5,
+        size: 1.5,
         fillStyle: 'rgba(55, 55, 255, 0.8)',
-        editable: ['radius', 'fillStyle']
+        editable: ['size', 'fillStyle']
     },
     bubble: {
         splitList: [{
             start: 1,
             end: 2,
-            radius: 1
+            size: 1
         }, {
             start: 2,
             end: 3,
-            radius: 2
+            size: 2
         }, {
             start: 3,
             end: 4,
-            radius: 3
+            size: 3
         }, {
             start: 4,
             end: 5,
-            radius: 4
+            size: 4
         }, {
             start: 5,
-            radius: 6
+            size: 6
         }],
         globalCompositeOperation: 'lighter',
         fillStyle: 'rgba(50, 50, 255, 0.8)',
@@ -40,7 +40,7 @@ var drawOptions = {
         }]
     },
     choropleth: {
-        radius: 2,
+        size: 2,
         fillStyle: 'rgba(55, 55, 255, 0.8)',
         splitList: [{
             start: 1,
@@ -62,7 +62,7 @@ var drawOptions = {
             start: 5,
             color: 'rgba(255, 146, 149, 0.8)'
         }],
-        editable: ['radius', {
+        editable: ['size', {
             name: 'splitList',
             type: 'json'
         }]
@@ -86,7 +86,7 @@ var drawOptions = {
         }]
     },
     heatmap: {
-        radius: 500,
+        size: 500,
         maxOpacity: 0.8,
         max: 100,
         blur: true,
@@ -100,7 +100,7 @@ var drawOptions = {
             '0.8': 'yellow',
             '1.0': 'red'
         },
-        editable: ['radius', 'max', 'maxOpacity', {
+        editable: ['size', 'max', 'maxOpacity', {
             name: 'gradient',
             type: 'json'
         }, {
@@ -113,15 +113,15 @@ var drawOptions = {
         }]
     },
     category: {
-        radius: 2,
+        size: 2,
         fillStyle: 'rgba(55, 55, 255, 0.8)',
-        editable: ['radius']
+        editable: ['size']
     },
     intensity: {
-        radius: 2,
+        size: 2,
         max: 10,
         fillStyle: 'rgba(55, 55, 255, 0.8)',
-        editable: ['radius', 'max']
+        editable: ['size', 'max']
     },
     cluster: {
         // gridWidth: '30',
@@ -190,7 +190,7 @@ var polylineLayer = new Mapv.Layer({
         strokeStyle: "rgba(0, 0, 255, 1)"
     },
     animationOptions: {
-        radius: 10
+        size: 10
     }
 });
 
@@ -220,7 +220,7 @@ var pointLayer = new Mapv.Layer({
     drawOptions: {
         fillStyle: "rgba(255, 255, 50, 1)",
         lineWidth: 5,
-        radius: 20
+        size: 20
     }
 });
 
@@ -282,7 +282,7 @@ $.ajax({
             zIndex: 3,
             animation: true,
             animationOptions: {
-                radius: 15
+                size: 15
             },
             coordType: 'bd09mc',
             drawType: 'simple',
@@ -303,7 +303,7 @@ $.ajax({
             coordType: 'bd09mc',
             animation: true,
             animationOptions: {
-                radius: 2
+                size: 2
             },
             drawType: 'simple',
             drawOptions: {

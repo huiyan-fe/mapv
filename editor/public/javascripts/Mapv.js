@@ -516,6 +516,25 @@ util.extend(DataRange.prototype, {
         return size;
     },
 
+    // 根据count值获取对应的颜色，在choropleth中使用
+    getColorByRange: function (count) {
+        var color = 'rgba(50, 50, 255, 1)';
+        var splitList = this.splitList;
+
+        for (var i = 0; i < splitList.length; i++) {
+            if ((splitList[i].start === undefined
+            || splitList[i].start !== undefined
+            && count >= splitList[i].start)
+            && (splitList[i].end === undefined
+            || splitList[i].end !== undefined && count < splitList[i].end)) {
+                color = splitList[i].color;
+                break;
+            }
+        }
+
+        return color;
+    },
+
     data_changed: function () {
         var data = this.get('data');
         if (data && data.length > 0) {
@@ -550,6 +569,8 @@ util.extend(DataRange.prototype, {
             this.get("layer").getDataRangeControl().drawSizeSplit(this.splitList, this.get('drawOptions'));
         } else if (this.get("layer").getDrawType() === 'category') {
             this.get("layer").getDataRangeControl().drawCategorySplit(this.categorySplitList, this.get('drawOptions'));
+        } else if (this.get("layer").getDrawType() === 'choropleth') {
+            this.get("layer").getDataRangeControl().drawChoroplethSplit(this.splitList, this.get('drawOptions'));
         } else {
             this.get("layer").getDataRangeControl().hide();
         }
@@ -1148,11 +1169,11 @@ DataRangeControl.prototype = new BMap.Control();
 util.extend(DataRangeControl.prototype, {
 
     initialize: function(map){
-        var canvas = this.canvas = document.createElement("canvas");
-        canvas.style.background = "#fff";
-        canvas.style.boxShadow = "rgba(0,0,0,0.2) 0 0 4px 2px";
-        canvas.style.border = "1px solid #999999";
-        canvas.style.borderRadius = "4px";
+        var canvas = this.canvas = document.createElement('canvas');
+        canvas.style.background = '#fff';
+        canvas.style.boxShadow = 'rgba(0,0,0,0.2) 0 0 4px 2px';
+        canvas.style.border = '1px solid #999999';
+        canvas.style.borderRadius = '4px';
         // 添加DOM元素到地图中
         map.getContainer().appendChild(canvas);
         // 将DOM元素返回
@@ -1183,7 +1204,7 @@ util.extend(DataRangeControl.prototype, {
             ctx.closePath();
             ctx.fillStyle = drawOptions.fillStyle || 'rgba(50, 50, 200, 0.8)';
             ctx.fill();
-            ctx.fillStyle = "rgba(30, 30, 30, 1)";
+            ctx.fillStyle = 'rgba(30, 30, 30, 1)';
             ctx.fillText(text, 50, height + 6);
             height += splitList[i].size + 5;
         }
@@ -1193,9 +1214,9 @@ util.extend(DataRangeControl.prototype, {
         var canvas = this.canvas;
         canvas.width = 80;
         canvas.height = 190;
-        canvas.style.width = "80px";
-        canvas.style.height = "190px";
-        var ctx = canvas.getContext("2d");
+        canvas.style.width = '80px';
+        canvas.style.height = '190px';
+        var ctx = canvas.getContext('2d');
         var i = 0;
         for (var key in splitList) {
             ctx.fillStyle = splitList[key];
@@ -1209,8 +1230,29 @@ util.extend(DataRangeControl.prototype, {
         }
     },
 
+    drawChoroplethSplit: function (splitList, drawOptions) {
+        var canvas = this.canvas;
+        canvas.width = 100;
+        canvas.height = 190;
+        canvas.style.width = '100px';
+        canvas.style.height = '190px';
+        var ctx = canvas.getContext('2d');
+        ctx.fillStyle = drawOptions.fillStyle || 'rgba(50, 50, 200, 0.8)';
+
+        for (var i = 0; i < splitList.length; i++) {
+            ctx.beginPath();
+            ctx.arc(15, i * 25 + 15, drawOptions.size, 0, Math.PI * 2, false);
+            var text = (splitList[i].start || '~') + ' - ' + (splitList[i].end || '~');
+            ctx.closePath();
+            ctx.fillStyle = splitList[i].color;
+            ctx.fill();
+            ctx.fillStyle = '#333';
+            ctx.fillText(text, 25, i * 25 + 20);
+        };
+    },
+
     hide: function () {
-        this.canvas.style.display = "none";
+        this.canvas.style.display = 'none';
     }
 
 });
@@ -1980,30 +2022,6 @@ CategoryDrawer.prototype.drawMap = function () {
     }
 
 };
-
-// CategoryDrawer.prototype.drawDataRange = function () {
-//     var canvas = this.getMapv().getDataRangeCtrol().getContainer();
-//     canvas.width = 80;
-//     canvas.height = 190;
-//     canvas.style.width = "80px";
-//     canvas.style.height = "190px";
-//
-//     var ctx = canvas.getContext("2d");
-//
-//     var splitList = this.splitList;
-//
-//     var i = 0;
-//     for (var key in splitList) {
-//         ctx.fillStyle = splitList[key];
-//         ctx.beginPath();
-//         ctx.arc(15, i * 25 + 15, 5, 0, Math.PI * 2, false);
-//         ctx.closePath();
-//         ctx.fill();
-//         ctx.fillStyle = '#333';
-//         ctx.fillText(key, 25, i * 25 + 20);
-//         i++;
-//     }
-// };
 ;/* globals Drawer, util */
 
 function ChoroplethDrawer() {
@@ -2024,7 +2042,7 @@ ChoroplethDrawer.prototype.drawMap = function () {
     var radius = this.getRadius(); 
     for (var i = 0, len = data.length; i < len; i++) {
         var item = data[i];
-        ctx.fillStyle = this.getColor(item.count);
+        ctx.fillStyle = this.dataRange.getColorByRange(item.count);
         ctx.beginPath();
         ctx.moveTo(item.px, item.py);
         ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI);
@@ -2038,20 +2056,6 @@ ChoroplethDrawer.prototype.drawMap = function () {
         ctx.stroke();
     }
 
-};
-
-ChoroplethDrawer.prototype.getColor = function (val) {
-    var splitList = this.splitList;
-    var color = 'yellow';
-
-    for (var i = 0; i < splitList.length; i++) {
-        if ((splitList[i].start === undefined || splitList[i].start !== undefined && val >= splitList[i].start) && (splitList[i].end === undefined || splitList[i].end !== undefined && val < splitList[i].end)) {
-            color = splitList[i].color;
-            break;
-        }
-    }
-
-    return color;
 };
 ;/* globals Drawer mercatorProjection BMap util */
 

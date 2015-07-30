@@ -22,7 +22,7 @@ ChoroplethDrawer.prototype.drawMap = function () {
     var radius = this.getRadius(); 
     for (var i = 0, len = data.length; i < len; i++) {
         var item = data[i];
-        ctx.fillStyle = this.getColor(item.count);
+        ctx.fillStyle = this.dataRange.getColorByRange(item.count);
         ctx.beginPath();
         ctx.moveTo(item.px, item.py);
         ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI);
@@ -36,18 +36,4 @@ ChoroplethDrawer.prototype.drawMap = function () {
         ctx.stroke();
     }
 
-};
-
-ChoroplethDrawer.prototype.getColor = function (val) {
-    var splitList = this.splitList;
-    var color = 'yellow';
-
-    for (var i = 0; i < splitList.length; i++) {
-        if ((splitList[i].start === undefined || splitList[i].start !== undefined && val >= splitList[i].start) && (splitList[i].end === undefined || splitList[i].end !== undefined && val < splitList[i].end)) {
-            color = splitList[i].color;
-            break;
-        }
-    }
-
-    return color;
 };

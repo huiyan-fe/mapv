@@ -14,11 +14,11 @@ DataRangeControl.prototype = new BMap.Control();
 util.extend(DataRangeControl.prototype, {
 
     initialize: function(map){
-        var canvas = this.canvas = document.createElement("canvas");
-        canvas.style.background = "#fff";
-        canvas.style.boxShadow = "rgba(0,0,0,0.2) 0 0 4px 2px";
-        canvas.style.border = "1px solid #999999";
-        canvas.style.borderRadius = "4px";
+        var canvas = this.canvas = document.createElement('canvas');
+        canvas.style.background = '#fff';
+        canvas.style.boxShadow = 'rgba(0,0,0,0.2) 0 0 4px 2px';
+        canvas.style.border = '1px solid #999999';
+        canvas.style.borderRadius = '4px';
         // 添加DOM元素到地图中
         map.getContainer().appendChild(canvas);
         // 将DOM元素返回
@@ -49,7 +49,7 @@ util.extend(DataRangeControl.prototype, {
             ctx.closePath();
             ctx.fillStyle = drawOptions.fillStyle || 'rgba(50, 50, 200, 0.8)';
             ctx.fill();
-            ctx.fillStyle = "rgba(30, 30, 30, 1)";
+            ctx.fillStyle = 'rgba(30, 30, 30, 1)';
             ctx.fillText(text, 50, height + 6);
             height += splitList[i].size + 5;
         }
@@ -59,9 +59,9 @@ util.extend(DataRangeControl.prototype, {
         var canvas = this.canvas;
         canvas.width = 80;
         canvas.height = 190;
-        canvas.style.width = "80px";
-        canvas.style.height = "190px";
-        var ctx = canvas.getContext("2d");
+        canvas.style.width = '80px';
+        canvas.style.height = '190px';
+        var ctx = canvas.getContext('2d');
         var i = 0;
         for (var key in splitList) {
             ctx.fillStyle = splitList[key];
@@ -75,8 +75,29 @@ util.extend(DataRangeControl.prototype, {
         }
     },
 
+    drawChoroplethSplit: function (splitList, drawOptions) {
+        var canvas = this.canvas;
+        canvas.width = 100;
+        canvas.height = 190;
+        canvas.style.width = '100px';
+        canvas.style.height = '190px';
+        var ctx = canvas.getContext('2d');
+        ctx.fillStyle = drawOptions.fillStyle || 'rgba(50, 50, 200, 0.8)';
+
+        for (var i = 0; i < splitList.length; i++) {
+            ctx.beginPath();
+            ctx.arc(15, i * 25 + 15, drawOptions.size, 0, Math.PI * 2, false);
+            var text = (splitList[i].start || '~') + ' - ' + (splitList[i].end || '~');
+            ctx.closePath();
+            ctx.fillStyle = splitList[i].color;
+            ctx.fill();
+            ctx.fillStyle = '#333';
+            ctx.fillText(text, 25, i * 25 + 20);
+        };
+    },
+
     hide: function () {
-        this.canvas.style.display = "none";
+        this.canvas.style.display = 'none';
     }
 
 });
