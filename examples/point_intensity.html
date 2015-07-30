@@ -63,7 +63,14 @@ var layer = new Mapv.Layer({
     data: data, // 数据
     drawType: 'intensity', // 展示形式
     drawOptions: { // 绘制参数
-        size: 5 // 点大小
+        size: 5, // 点大小
+        gradient: { // 显示的颜色渐变范围
+            '0': 'blue',
+            '0.6': 'cyan',
+            '0.7': 'lime',
+            '0.8': 'yellow',
+            '1.0': 'red'
+        }
     }
 });
 

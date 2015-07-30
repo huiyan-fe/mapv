@@ -15,7 +15,7 @@ function Drawer(layer) {
         mapv: null,
         animationOptions: {},
         drawOptions: {
-            radius: 2
+            size: 2
         }
     });
 
@@ -104,7 +104,7 @@ Drawer.prototype.generalSplitList = function () {
         this.splitList.push({
             start: index,
             end: index + splitNum,
-            radius: radius,
+            size: radius,
             color: this.colors[radius - 1]
         });
         index += splitNum;

@@ -486,6 +486,10 @@ Class.prototype.dispose = function () {
 util.inherits(DataRange, Class);
 
 util.extend(DataRange.prototype, {
+    defaultGradient: {
+        '0.0': 'yellow',
+        '1.0': 'red'
+    },
     colors: [
         'rgba(17, 102, 252, 0.8)',
         'rgba(52, 139, 251, 0.8)',
@@ -565,6 +569,10 @@ util.extend(DataRange.prototype, {
             }
         }
 
+        if (this.get("layer").getDrawType() === 'heatmap' || this.get("layer").getDrawType() === 'density' || this.get("layer").getDrawType() === 'intensity') {
+            this.generalGradient(drawOptions.gradient || this.defaultGradient);
+        }
+
         if (this.get("layer").getDrawType() === 'bubble') {
             this.get("layer").getDataRangeControl().drawSizeSplit(this.splitList, this.get('drawOptions'));
         } else if (this.get("layer").getDrawType() === 'category') {
@@ -631,8 +639,45 @@ util.extend(DataRange.prototype, {
         }
 
         return color;
-    }
+    },
 
+    generalGradient: function (grad) {
+        // create a 256x1 gradient that we'll use to turn a grayscale heatmap into a colored one
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        var gradient = ctx.createLinearGradient(0, 0, 0, 256);
+
+        canvas.width = 1;
+        canvas.height = 256;
+
+        for (var i in grad) {
+            gradient.addColorStop(i, grad[i]);
+        }
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 1, 256);
+
+        this._grad = ctx.getImageData(0, 0, 1, 256).data;
+    },
+
+    getGradient: function () {
+        return this._grad;
+    },
+
+    getColorByGradient: function (count) {
+        var max = 10;
+
+        var index = count / max;
+        if (index > 1) {
+            index = 1;
+        }
+        index *= 255;
+        index = parseInt(index, 10);
+        index *= 4;
+
+        var color = 'rgba(' + this._grad[index] + ', ' + this._grad[index + 1] + ', ' + this._grad[index + 2] + ',0.8)';
+        return color;
+    }
 
 }); // end extend
 ;function SizeDataRange() {
@@ -767,7 +812,7 @@ CanvasLayer.prototype.getZIndex = function(){
         data: [],
         dataType: 'point',
         animationOptions: {
-            radius: 5
+            size: 5
         },
         coordType: 'bd09ll',
         drawType: 'simple',
@@ -1869,7 +1914,7 @@ function Drawer(layer) {
         mapv: null,
         animationOptions: {},
         drawOptions: {
-            radius: 2
+            size: 2
         }
     });
 
@@ -1958,7 +2003,7 @@ Drawer.prototype.generalSplitList = function () {
         this.splitList.push({
             start: index,
             end: index + splitNum,
-            radius: radius,
+            size: radius,
             color: this.colors[radius - 1]
         });
         index += splitNum;
@@ -2371,7 +2416,7 @@ DensityDrawer.prototype.drawMap = function () {
     this.Scale && this.Scale.set({
         max: max,
         min: min,
-        colors: 'default'
+        colors: this.getDrawOptions().gradient || 'default'
     });
 
     this.endDrawMap();
@@ -2809,33 +2854,9 @@ util.extend(HeatmapDrawer.prototype, {
         return this;
     },
 
-    gradient: function (grad) {
-        // create a 256x1 gradient that we'll use to turn a grayscale heatmap into a colored one
-        var canvas = document.createElement('canvas');
-        var ctx = canvas.getContext('2d');
-        var gradient = ctx.createLinearGradient(0, 0, 0, 256);
-
-        canvas.width = 1;
-        canvas.height = 256;
-
-        for (var i in grad) {
-            gradient.addColorStop(i, grad[i]);
-        }
-
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, 1, 256);
-
-        this._grad = ctx.getImageData(0, 0, 1, 256).data;
-
-        return this;
-    },
-
     drawHeatmap: function (minOpacity) {
         // if (!this._circle) {
         this.radius(this.getRadius());
-        // }
-        // if (!this._grad) {
-        this.gradient(this.getGradient());
         // }
 
         var ctx = this.getCtx();
@@ -2885,7 +2906,7 @@ util.extend(HeatmapDrawer.prototype, {
         // colorize the heatmap, using opacity value of each pixel to get the right color from our gradient
         // console.log( this._width, this._height)
         var colored = ctx.getImageData(0, 0, this._width, this._height);
-        this.colorize(colored.data, this._grad);
+        this.colorize(colored.data, this.dataRange.getGradient());
         ctx.putImageData(colored, 0, 0);
 
         ctx.restore();
@@ -2932,7 +2953,6 @@ function IntensityDrawer() {
 
     // 临时canvas，用来绘制颜色条，获取颜色
     this._tmpCanvas = document.createElement('canvas');
-    this.gradient(this.getGradient());
 }
 
 util.inherits(IntensityDrawer, Drawer);
@@ -2975,7 +2995,7 @@ IntensityDrawer.prototype.drawMap = function () {
             var geo = data[i].pgeo;
             ctx.beginPath();
             ctx.moveTo(geo[0][0], geo[0][1]);
-            ctx.fillStyle = this.getColor(data[i].count);
+            ctx.fillStyle = this.dataRange.getColorByGradient(data[i].count);
             for (var j = 1; j < geo.length; j++) {
                 ctx.lineTo(geo[j][0], geo[j][1]);
             }
@@ -3006,7 +3026,7 @@ IntensityDrawer.prototype.drawMap = function () {
             }
             ctx.beginPath();
             ctx.moveTo(item.px, item.py);
-            ctx.fillStyle = this.getColor(item.count);
+            ctx.fillStyle = this.dataRange.getColorByGradient(item.count);
             ctx.arc(item.px, item.py, radius || 1, 0, 2 * Math.PI);
             ctx.closePath();
             ctx.fill();
@@ -3055,42 +3075,6 @@ IntensityDrawer.prototype.getMax = function () {
         max = this.getDrawOptions().max;
     }
     return max;
-};
-
-IntensityDrawer.prototype.getColor = function (val) {
-    var max = this.getMax();
-
-    var index = val / max;
-    if (index > 1) {
-        index = 1;
-    }
-    index *= 255;
-    index = parseInt(index, 10);
-    index *= 4;
-
-    var color = 'rgba(' + this._grad[index] + ', ' + this._grad[index + 1] + ', ' + this._grad[index + 2] + ',0.8)';
-    return color;
-};
-
-IntensityDrawer.prototype.gradient = function (grad) {
-    // create a 256x1 gradient
-    var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
-    var gradient = ctx.createLinearGradient(0, 0, 0, 256);
-
-    canvas.width = 1;
-    canvas.height = 256;
-
-    for (var i in grad) {
-        gradient.addColorStop(i, grad[i]);
-    }
-
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, 1, 256);
-
-    this._grad = ctx.getImageData(0, 0, 1, 256).data;
-
-    return this;
 };
 ;/* globals Drawer, util */
 
