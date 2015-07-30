@@ -11,22 +11,14 @@ function SimpleDrawer() {
 util.inherits(SimpleDrawer, Drawer);
 
 SimpleDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
+
     var data = this.getLayer().getData();
+
     var ctx = this.getCtx();
 
     var drawOptions = this.getDrawOptions();
     console.log('????',drawOptions)
-
-    ctx.fillStyle = drawOptions.fillStyle || "rgba(50, 50, 200, 0.8)";
-    ctx.strokeStyle = drawOptions.strokeStyle;
-    ctx.lineWidth = drawOptions.lineWidth || 1;
-
-    if (drawOptions.shadowColor) {
-        ctx.shadowColor = drawOptions.shadowColor || 'black';
-    }
-    if (drawOptions.shadowBlur) {
-        ctx.shadowBlur = drawOptions.shadowBlur;
-    }
 
     ctx.beginPath();
 
@@ -92,6 +84,7 @@ SimpleDrawer.prototype.drawMap = function () {
 
     }
 
+    this.endDrawMap();
 }
 
 /**

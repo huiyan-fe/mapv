@@ -31,6 +31,7 @@ DensityDrawer.prototype.scale = function (scale) {
 };
 
 DensityDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
 
     var self = this;
     var ctx = this.getCtx();
@@ -99,6 +100,8 @@ DensityDrawer.prototype.drawMap = function () {
         min: min,
         colors: 'default'
     });
+
+    this.endDrawMap();
 };
 
 function recGrids(obj, map) {

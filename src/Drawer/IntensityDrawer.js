@@ -25,10 +25,10 @@ IntensityDrawer.prototype.defaultGradient = {
 };
 
 IntensityDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
+
     var self = this;
     var ctx = this.getCtx();
-
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     var data = this.getLayer().getData();
     var drawOptions = this.getDrawOptions();
@@ -107,6 +107,8 @@ IntensityDrawer.prototype.drawMap = function () {
         max: self.getMax(),
         colors: this.getGradient()
     });
+
+    this.endDrawMap();
 };
 
 IntensityDrawer.prototype.getGradient = function () {

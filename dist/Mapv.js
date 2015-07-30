@@ -1885,8 +1885,35 @@ function Drawer(layer) {
 
 util.inherits(Drawer, Class);
 
-Drawer.prototype.drawMap = function () {
+Drawer.prototype.beginDrawMap = function () {
+
+    var drawOptions = this.getDrawOptions();
+    var ctx = this.getCtx();
+
+    ctx.save();
+
+    if (drawOptions.globalCompositeOperation) {
+        ctx.globalCompositeOperation = drawOptions.globalCompositeOperation;
+    }
+
+    if (drawOptions.shadowColor) {
+        ctx.shadowColor = drawOptions.shadowColor || 'black';
+    }
+
+    if (drawOptions.shadowBlur) {
+        ctx.shadowBlur = drawOptions.shadowBlur;
+    }
+
+    ctx.fillStyle = drawOptions.fillStyle || "rgba(50, 50, 200, 0.8)";
+    ctx.strokeStyle = drawOptions.strokeStyle;
+    ctx.lineWidth = drawOptions.lineWidth || 1;
+
 };
+
+Drawer.prototype.endDrawMap = function () {
+    var ctx = this.getCtx();
+    ctx.restore();
+}
 
 // we need defined drawDataRange so that in Mapv.js
 //      we can shwo or remove range cans by drawer.drawDataRange
@@ -1957,18 +1984,14 @@ function BubbleDrawer() {
 util.inherits(BubbleDrawer, Drawer);
 
 BubbleDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
 
     var data = this.getLayer().getData();
 
     var ctx = this.getCtx();
 
-    ctx.save();
 
     var drawOptions = this.getDrawOptions();
-
-    if (drawOptions.globalCompositeOperation) {
-        ctx.globalCompositeOperation = drawOptions.globalCompositeOperation;
-    }
 
     ctx.fillStyle = drawOptions.fillStyle || 'rgba(50, 50, 200, 0.8)';
     ctx.strokeStyle = drawOptions.strokeStyle;
@@ -1986,7 +2009,7 @@ BubbleDrawer.prototype.drawMap = function () {
         }
     }
 
-    ctx.restore();
+    this.endDrawMap();
 }
 ;/* globals Drawer, util */
 
@@ -1997,14 +2020,12 @@ function CategoryDrawer() {
 util.inherits(CategoryDrawer, Drawer);
 
 CategoryDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
 
     var data = this.getLayer().getData();
     var ctx = this.getCtx();
 
-
     var drawOptions = this.getDrawOptions();
-
-    ctx.strokeStyle = drawOptions.strokeStyle;
 
     var radius = this.getRadius();
     for (var i = 0, len = data.length; i < len; i++) {
@@ -2021,6 +2042,7 @@ CategoryDrawer.prototype.drawMap = function () {
         ctx.stroke();
     }
 
+    this.endDrawMap();
 };
 ;/* globals Drawer, util */
 
@@ -2031,13 +2053,13 @@ function ChoroplethDrawer() {
 util.inherits(ChoroplethDrawer, Drawer);
 
 ChoroplethDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
 
     var data = this.getLayer().getData();
+
     var ctx = this.getCtx();
 
     var drawOptions = this.getDrawOptions();
-
-    ctx.strokeStyle = drawOptions.strokeStyle;
 
     var radius = this.getRadius(); 
     for (var i = 0, len = data.length; i < len; i++) {
@@ -2050,12 +2072,11 @@ ChoroplethDrawer.prototype.drawMap = function () {
         ctx.fill();
     }
 
-    console.log(this.splitList);
-
     if (drawOptions.strokeStyle) {
         ctx.stroke();
     }
 
+    this.endDrawMap();
 };
 ;/* globals Drawer mercatorProjection BMap util */
 
@@ -2069,9 +2090,12 @@ function ClusterDrawer() {
 util.inherits(ClusterDrawer, Drawer);
 
 ClusterDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
+
     // console.log('ClusterDrawer');
     window.console.time('computerMapData');
     var ctx = this.getCtx();
+
     // TODO: ser workder
     max = min = undefined;
 
@@ -2199,12 +2223,13 @@ ClusterDrawer.prototype.drawMap = function () {
 
             ctx.fillStyle = '#fff';
             ctx.fillText(grids[i], cx, cy);
+            ctx.restore();
         }
-        ctx.restore();
         // }
     }
 
     window.console.timeEnd('drawMap');
+    this.endDrawMap();
 };
 
 // ClusterDrawer.prototype.drawDataRange = function (canvas, data, drawOptions) {
@@ -2274,6 +2299,7 @@ DensityDrawer.prototype.scale = function (scale) {
 };
 
 DensityDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
 
     var self = this;
     var ctx = this.getCtx();
@@ -2342,6 +2368,8 @@ DensityDrawer.prototype.drawMap = function () {
         min: min,
         colors: 'default'
     });
+
+    this.endDrawMap();
 };
 
 function recGrids(obj, map) {
@@ -2663,8 +2691,11 @@ function HeatmapDrawer() {
 util.inherits(HeatmapDrawer, Drawer);
 
 HeatmapDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
+
     var self = this;
     var ctx = this.getCtx();
+
     this._width = ctx.canvas.width;
     this._height = ctx.canvas.height;
     var data = this.getLayer().getData();
@@ -2676,6 +2707,8 @@ HeatmapDrawer.prototype.drawMap = function () {
         max: self.getMax(),
         colors: this.getGradient()
     });
+
+    this.endDrawMap();
 };
 
 HeatmapDrawer.prototype.scale = function (scale) {
@@ -2905,10 +2938,10 @@ IntensityDrawer.prototype.defaultGradient = {
 };
 
 IntensityDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
+
     var self = this;
     var ctx = this.getCtx();
-
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     var data = this.getLayer().getData();
     var drawOptions = this.getDrawOptions();
@@ -2987,6 +3020,8 @@ IntensityDrawer.prototype.drawMap = function () {
         max: self.getMax(),
         colors: this.getGradient()
     });
+
+    this.endDrawMap();
 };
 
 IntensityDrawer.prototype.getGradient = function () {
@@ -3061,22 +3096,14 @@ function SimpleDrawer() {
 util.inherits(SimpleDrawer, Drawer);
 
 SimpleDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
+
     var data = this.getLayer().getData();
+
     var ctx = this.getCtx();
 
     var drawOptions = this.getDrawOptions();
     console.log('????',drawOptions)
-
-    ctx.fillStyle = drawOptions.fillStyle || "rgba(50, 50, 200, 0.8)";
-    ctx.strokeStyle = drawOptions.strokeStyle;
-    ctx.lineWidth = drawOptions.lineWidth || 1;
-
-    if (drawOptions.shadowColor) {
-        ctx.shadowColor = drawOptions.shadowColor || 'black';
-    }
-    if (drawOptions.shadowBlur) {
-        ctx.shadowBlur = drawOptions.shadowBlur;
-    }
 
     ctx.beginPath();
 
@@ -3142,6 +3169,7 @@ SimpleDrawer.prototype.drawMap = function () {
 
     }
 
+    this.endDrawMap();
 }
 
 /**

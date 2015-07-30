@@ -31,8 +31,35 @@ function Drawer(layer) {
 
 util.inherits(Drawer, Class);
 
-Drawer.prototype.drawMap = function () {
+Drawer.prototype.beginDrawMap = function () {
+
+    var drawOptions = this.getDrawOptions();
+    var ctx = this.getCtx();
+
+    ctx.save();
+
+    if (drawOptions.globalCompositeOperation) {
+        ctx.globalCompositeOperation = drawOptions.globalCompositeOperation;
+    }
+
+    if (drawOptions.shadowColor) {
+        ctx.shadowColor = drawOptions.shadowColor || 'black';
+    }
+
+    if (drawOptions.shadowBlur) {
+        ctx.shadowBlur = drawOptions.shadowBlur;
+    }
+
+    ctx.fillStyle = drawOptions.fillStyle || "rgba(50, 50, 200, 0.8)";
+    ctx.strokeStyle = drawOptions.strokeStyle;
+    ctx.lineWidth = drawOptions.lineWidth || 1;
+
 };
+
+Drawer.prototype.endDrawMap = function () {
+    var ctx = this.getCtx();
+    ctx.restore();
+}
 
 // we need defined drawDataRange so that in Mapv.js
 //      we can shwo or remove range cans by drawer.drawDataRange

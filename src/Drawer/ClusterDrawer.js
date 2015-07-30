@@ -15,9 +15,12 @@ function ClusterDrawer() {
 util.inherits(ClusterDrawer, Drawer);
 
 ClusterDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
+
     // console.log('ClusterDrawer');
     window.console.time('computerMapData');
     var ctx = this.getCtx();
+
     // TODO: ser workder
     max = min = undefined;
 
@@ -145,12 +148,13 @@ ClusterDrawer.prototype.drawMap = function () {
 
             ctx.fillStyle = '#fff';
             ctx.fillText(grids[i], cx, cy);
+            ctx.restore();
         }
-        ctx.restore();
         // }
     }
 
     window.console.timeEnd('drawMap');
+    this.endDrawMap();
 };
 
 // ClusterDrawer.prototype.drawDataRange = function (canvas, data, drawOptions) {
