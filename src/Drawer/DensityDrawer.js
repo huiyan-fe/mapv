@@ -70,6 +70,8 @@ DensityDrawer.prototype.drawMap = function () {
     console.log(gridsObj);
 
     var grids = gridsObj.grids;
+    this.dataRange.setMax(gridsObj.max);
+    this.dataRange.setMin(gridsObj.min);
     var max = gridsObj.max;
     var min = gridsObj.min;
     // console.log(gridsObj);
@@ -84,6 +86,7 @@ DensityDrawer.prototype.drawMap = function () {
         ctx: ctx,
         grids: grids,
         fillColors: param.colors,
+        dataRange: this.dataRange,
         sup: self
     };
 
@@ -200,14 +203,16 @@ function drawRec(obj) {
         var x = sp[0];
         var y = sp[1];
         var v = (grids[i] - min) / step;
-        var color = fillColors[v | 0];
+        //var color = fillColors[v | 0];
+        var color = obj.dataRange.getColorByGradient(grids[i]);
 
         var isTooSmall = self.masker.min && (grids[i] < self.masker.min);
         var isTooBig = self.masker.max && (grids[i] > self.masker.max);
         if (grids[i] === 0 || isTooSmall || isTooBig) {
             ctx.fillStyle = 'rgba(255,255,255,0.1)';
         } else {
-            ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',0.4)';
+            //ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',0.4)';
+            ctx.fillStyle = color;
         }
         ctx.fillRect(x, y, gridStep - 1, gridStep - 1);
 
@@ -330,7 +335,8 @@ function drawHoneycomb(obj) {
         var level = count / step | 0;
         level = level >= color.length ? color.length - 1 : level;
         level = level < 0 ? 0 : level;
-        var useColor = 'rgba(' + color[level].join(',') + ',0.6)';
+        //var useColor = 'rgba(' + color[level].join(',') + ',0.6)';
+        var useColor = obj.dataRange.getColorByGradient(count);
 
         var isTooSmall = obj.sup.masker.min && (obj.sup.masker.min > count);
         var isTooBig = obj.sup.masker.max && (obj.sup.masker.max < count);

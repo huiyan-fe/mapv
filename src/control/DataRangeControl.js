@@ -4,6 +4,7 @@
  */
 
 function DataRangeControl(){
+
     // 默认停靠位置和偏移量
     this.defaultAnchor = BMAP_ANCHOR_BOTTOM_RIGHT;
     this.defaultOffset = new BMap.Size(10, 10);

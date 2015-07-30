@@ -4,10 +4,17 @@
  */
 
 function DataRange(layer) {
+    Class.call(this);
+
+    this.initOptions({
+        min: 0,
+        max: 0,
+    });
+
     this.set('layer', layer);
     this.bindTo('data', layer)
     this.bindTo('drawOptions', layer)
-    Class.call(this);
+
 }
 
 util.inherits(DataRange, Class);
@@ -192,7 +199,7 @@ util.extend(DataRange.prototype, {
     },
 
     getColorByGradient: function (count) {
-        var max = 10;
+        var max = this.get("max") || 10;
 
         var index = count / max;
         if (index > 1) {
