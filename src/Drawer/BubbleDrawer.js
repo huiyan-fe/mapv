@@ -11,18 +11,14 @@ function BubbleDrawer() {
 util.inherits(BubbleDrawer, Drawer);
 
 BubbleDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
 
     var data = this.getLayer().getData();
 
     var ctx = this.getCtx();
 
-    ctx.save();
 
     var drawOptions = this.getDrawOptions();
-
-    if (drawOptions.globalCompositeOperation) {
-        ctx.globalCompositeOperation = drawOptions.globalCompositeOperation;
-    }
 
     ctx.fillStyle = drawOptions.fillStyle || 'rgba(50, 50, 200, 0.8)';
     ctx.strokeStyle = drawOptions.strokeStyle;
@@ -40,5 +36,5 @@ BubbleDrawer.prototype.drawMap = function () {
         }
     }
 
-    ctx.restore();
+    this.endDrawMap();
 }

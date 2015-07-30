@@ -11,13 +11,13 @@ function ChoroplethDrawer() {
 util.inherits(ChoroplethDrawer, Drawer);
 
 ChoroplethDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
 
     var data = this.getLayer().getData();
+
     var ctx = this.getCtx();
 
     var drawOptions = this.getDrawOptions();
-
-    ctx.strokeStyle = drawOptions.strokeStyle;
 
     var radius = this.getRadius(); 
     for (var i = 0, len = data.length; i < len; i++) {
@@ -30,10 +30,9 @@ ChoroplethDrawer.prototype.drawMap = function () {
         ctx.fill();
     }
 
-    console.log(this.splitList);
-
     if (drawOptions.strokeStyle) {
         ctx.stroke();
     }
 
+    this.endDrawMap();
 };

@@ -12,14 +12,12 @@ function CategoryDrawer() {
 util.inherits(CategoryDrawer, Drawer);
 
 CategoryDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
 
     var data = this.getLayer().getData();
     var ctx = this.getCtx();
 
-
     var drawOptions = this.getDrawOptions();
-
-    ctx.strokeStyle = drawOptions.strokeStyle;
 
     var radius = this.getRadius();
     for (var i = 0, len = data.length; i < len; i++) {
@@ -36,4 +34,5 @@ CategoryDrawer.prototype.drawMap = function () {
         ctx.stroke();
     }
 
+    this.endDrawMap();
 };

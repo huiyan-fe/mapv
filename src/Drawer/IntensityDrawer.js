@@ -14,7 +14,6 @@ function IntensityDrawer() {
 
     // 临时canvas，用来绘制颜色条，获取颜色
     this._tmpCanvas = document.createElement('canvas');
-    this.gradient(this.getGradient());
 }
 
 util.inherits(IntensityDrawer, Drawer);
@@ -25,10 +24,10 @@ IntensityDrawer.prototype.defaultGradient = {
 };
 
 IntensityDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
+
     var self = this;
     var ctx = this.getCtx();
-
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     var data = this.getLayer().getData();
     var drawOptions = this.getDrawOptions();
@@ -57,7 +56,7 @@ IntensityDrawer.prototype.drawMap = function () {
             var geo = data[i].pgeo;
             ctx.beginPath();
             ctx.moveTo(geo[0][0], geo[0][1]);
-            ctx.fillStyle = this.getColor(data[i].count);
+            ctx.fillStyle = this.dataRange.getColorByGradient(data[i].count);
             for (var j = 1; j < geo.length; j++) {
                 ctx.lineTo(geo[j][0], geo[j][1]);
             }
@@ -88,7 +87,7 @@ IntensityDrawer.prototype.drawMap = function () {
             }
             ctx.beginPath();
             ctx.moveTo(item.px, item.py);
-            ctx.fillStyle = this.getColor(item.count);
+            ctx.fillStyle = this.dataRange.getColorByGradient(item.count);
             ctx.arc(item.px, item.py, radius || 1, 0, 2 * Math.PI);
             ctx.closePath();
             ctx.fill();
@@ -107,6 +106,8 @@ IntensityDrawer.prototype.drawMap = function () {
         max: self.getMax(),
         colors: this.getGradient()
     });
+
+    this.endDrawMap();
 };
 
 IntensityDrawer.prototype.getGradient = function () {
@@ -135,40 +136,4 @@ IntensityDrawer.prototype.getMax = function () {
         max = this.getDrawOptions().max;
     }
     return max;
-};
-
-IntensityDrawer.prototype.getColor = function (val) {
-    var max = this.getMax();
-
-    var index = val / max;
-    if (index > 1) {
-        index = 1;
-    }
-    index *= 255;
-    index = parseInt(index, 10);
-    index *= 4;
-
-    var color = 'rgba(' + this._grad[index] + ', ' + this._grad[index + 1] + ', ' + this._grad[index + 2] + ',0.8)';
-    return color;
-};
-
-IntensityDrawer.prototype.gradient = function (grad) {
-    // create a 256x1 gradient
-    var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
-    var gradient = ctx.createLinearGradient(0, 0, 0, 256);
-
-    canvas.width = 1;
-    canvas.height = 256;
-
-    for (var i in grad) {
-        gradient.addColorStop(i, grad[i]);
-    }
-
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, 1, 256);
-
-    this._grad = ctx.getImageData(0, 0, 1, 256).data;
-
-    return this;
 };
