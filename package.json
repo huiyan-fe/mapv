@@ -1,6 +1,9 @@
 {
   "name": "Mapv",
   "version": "0.1.0",
+  "scripts": {
+    "start": "PORT=8088 pm2 start ./editor/bin/www --name mapv_editor"
+  },
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-contrib-concat": "^0.5.1",
