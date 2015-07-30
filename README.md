@@ -6,7 +6,7 @@ mapv 是一款基于百度地图的大数据可视化工具，可以用来展示
 
 ## 示例
 
-访问[示例地址](https://github.com/huiyan-fe/mapv/wiki/%E7%A4%BA%E4%BE%8B)
+访问更多[示例地址](https://github.com/huiyan-fe/mapv/wiki/%E7%A4%BA%E4%BE%8B)
 
 [![point_simple](http://huiyan-fe.github.io/mapv/doc/asset/gallery/point_simple.jpg)](http://huiyan-fe.github.io/mapv/examples/point_simple.html)
 [![point_bubble](http://huiyan-fe.github.io/mapv/doc/asset/gallery/point_bubble.jpg)](http://huiyan-fe.github.io/mapv/examples/point_bubble.html)
