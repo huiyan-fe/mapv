@@ -1892,21 +1892,26 @@ Drawer.prototype.beginDrawMap = function () {
 
     ctx.save();
 
-    if (drawOptions.globalCompositeOperation) {
-        ctx.globalCompositeOperation = drawOptions.globalCompositeOperation;
-    }
+    var property = [
+        'globalCompositeOperation', 
+        'shadowColor', 
+        'shadowBlur',
+        'shadowOffsetX',
+        'shadowOffsetY',
+        'fillStyle',
+        'strokeStyle',
+        'lineWidth',
+        'lineCap',
+        'lineJoin',
+        'lineWidth',
+        'miterLimit'
+    ];
 
-    if (drawOptions.shadowColor) {
-        ctx.shadowColor = drawOptions.shadowColor || 'black';
+    for (var i = 0; i < property.length; i++) {
+        if (drawOptions[property[i]]) {
+            ctx[property[i]] = drawOptions[property[i]];
+        }
     }
-
-    if (drawOptions.shadowBlur) {
-        ctx.shadowBlur = drawOptions.shadowBlur;
-    }
-
-    ctx.fillStyle = drawOptions.fillStyle || "rgba(50, 50, 200, 0.8)";
-    ctx.strokeStyle = drawOptions.strokeStyle;
-    ctx.lineWidth = drawOptions.lineWidth || 1;
 
 };
 
