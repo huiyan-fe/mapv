@@ -66,16 +66,16 @@ define(function () {
 			}]
 		},
 		density: {
-			gridWidth: '30',
+			size: '30',
 			unit: 'px',
-			gridType: 'honeycomb',
+			type: 'honeycomb',
 			showNum: true,
-			editable: ['gridWidth', {
+			editable: ['size', {
 				name: 'unit',
 				type: 'option',
 				value: ['px', 'm']
 			}, {
-				name: 'gridType',
+				name: 'type',
 				type: 'option',
 				value: ['honeycomb', 'brick']
 			}, {
