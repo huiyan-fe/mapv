@@ -37,7 +37,6 @@ ClusterDrawer.prototype.drawMap = function () {
 
     // console.log(param.size)
     var size = param.size;
-    var fillColors = param.colors;
 
     var mercatorProjection = map.getMapType().getProjection();
 
@@ -117,19 +116,12 @@ ClusterDrawer.prototype.drawMap = function () {
         y = Number(sp[1]);
         var v = (grids[i] - min) / step;
         v = v < 0 ? 0 : v;
-        var color = fillColors[v | 0];
-
-
-        // if (grids[i] === 0) {
-        //     ctx.fillStyle = 'rgba(255,255,255,0.1)';
-        // } else {
-        //     ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',0.4)';
-        // }
 
         var cx = x + gridStep / 2;
         var cy = y + gridStep / 2;
-        ctx.fillStyle = '#fa8b2e';
-        // ctx.fillRect(x, y, 2, 2);
+
+        //ctx.fillStyle = '#fa8b2e';
+
         ctx.beginPath();
 
         ctx.arc(cx, cy, v * 5, 0, 2 * Math.PI);
@@ -169,18 +161,6 @@ ClusterDrawer.prototype.formatParam = function () {
     // console.log('AAA')
     var options = this.getDrawOptions();
     // console.log(options)
-    var fillColors = this.fillColors = [
-        [73, 174, 34],
-        [119, 191, 26],
-        [160, 205, 18],
-        [202, 221, 10],
-        [248, 237, 1],
-        [225, 222, 3],
-        [254, 182, 10],
-        [254, 126, 19],
-        [254, 84, 27],
-        [253, 54, 32]
-    ];
 
     var size = options.size || 60;
     // console.log(size, '@@@@@@')
@@ -192,7 +172,6 @@ ClusterDrawer.prototype.formatParam = function () {
     }
     // console.log(size, options.size)
     return {
-        size: size,
-        colors: fillColors
+        size: size
     };
 };
