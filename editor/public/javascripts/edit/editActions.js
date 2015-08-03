@@ -73,10 +73,11 @@ define(['config','layersControl','databank','tools'], function(config,layersCont
     edit.prototype.shwoEdit = function(layerName) {
         var self = this;
         var layer = self.getLayer(layerName);
+        var layerOpt = layer.getDrawOptions();
 
         var title;
-        if(layer){
-            title = '修改图层';
+        if(layerName){
+            title = '修改图层 ' + layerName;
         }else{
             title = '设置图层 (2/2)';
         }
@@ -97,6 +98,7 @@ define(['config','layersControl','databank','tools'], function(config,layersCont
         box.appendChild(edit);
         // show types
         var layers = config.drawOptions;
+
         var layHtml = [];
         for (var i in layers) {
             layHtml.push('<a href="#" class="E-type E-type-' + i + '" data-type="' + i + '">' + i + '</a>')
@@ -127,6 +129,16 @@ define(['config','layersControl','databank','tools'], function(config,layersCont
         }, false);
         // change graph type
         $('body').on('click', '.E-type', function() {
+
+            var isEditing = $('.E-button-addLayer').attr('type') === 'editing'; //E-button-addLayer
+            var opt = null;
+            if(isEditing){
+                var layerName = $('.E-button-addLayer').attr('name');
+                opt = self.getLayer(layerName).getDrawOptions();
+                typ = self.getLayer(layerName).getDrawType();
+            }
+
+
             $('.E-type').removeClass('E-type-active');
             $(this).addClass('E-type-active');
             var type = $(this).attr('data-type');
@@ -136,29 +148,31 @@ define(['config','layersControl','databank','tools'], function(config,layersCont
             if (typeConfig.editable) {
                 for (var i = 0, len = typeConfig.editable.length; i < len; i++) {
                     var key = typeConfig.editable[i];
+
                     if ((typeof(key) === 'string' || typeof(key) === 'json') && typeConfig[key]) {
+                        var editVal = typ === type ? opt ? opt[key] : null : null;
+
                         var tempHtml = '<div class="E-editBlock">';
                         tempHtml += '<div class="E-editTitle">' + key + '</div>';
-                        tempHtml += '<div class="E-editBlock"><input type="text" class="E-input" name="' + key + '" value="' + typeConfig[key] + '"></div>';
+                        tempHtml += '<div class="E-editBlock"><input type="text" class="E-input" name="' + key + '" value="' + (editVal || typeConfig[key]) + '"></div>';
                         tempHtml += '</div>';
                         configHtml.push(tempHtml);
                     } else {
                         if (key.type === 'check') {
+                            continue;
                             var tempHtml = '<div class="E-editBlock">';
                             tempHtml += '<div class="E-editTitle">' + key.name + '</div>';
                             tempHtml += '<div class="E-editBlock"><label class="E-label"><input name="' + key.name + '" type="checkbox"> ' + key.name + '</label></div>';
                             tempHtml += '</div>'
                             configHtml.push(tempHtml);
                         } else if (key.type === 'option') {
+                            var editVal = typ === type ? opt ? opt[key.name] : null : null;
                             var tempHtml = '<div class="E-editBlock">';
                             tempHtml += '<div class="E-editTitle">' + key.name + '</div>';
                             tempHtml += '<div class="E-editBlock">';
                             for (var j = 0, jLen = key.value.length; j < jLen; j++) {
-                                if (j === 0) {
-                                    tempHtml += '<button class="E-button E-button-active"  name="' + key.name + '" >' + key.value[j] + '</button>';
-                                } else {
-                                    tempHtml += '<button class="E-button" name="' + key.name + '" >' + key.value[j] + '</button>';
-                                }
+                                var isActive = editVal ? key.value[j]===editVal?'E-button-active':'' : j === 0?'E-button-active':'';
+                                tempHtml += '<button class="E-button '+ isActive +'" name="' + key.name + '" >' + key.value[j] + '</button>';
                             }
                             tempHtml += '</div></div>'
                             configHtml.push(tempHtml);
@@ -190,7 +204,6 @@ define(['config','layersControl','databank','tools'], function(config,layersCont
         // remove a layer
         $('body').on('click', '.E-button-removeLayer', function() {
             var name  = $(this).attr('name');
-            console.log(name)
             if(name){
                 $('.E-layers-layer[name="'+name+'"]').remove();
                 var project = tools.getSearch().project || 'default';
