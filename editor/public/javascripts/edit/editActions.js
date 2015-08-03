@@ -70,8 +70,10 @@ define(['config','layersControl','databank','tools'], function(config,layersCont
         box.appendChild(upload);
     };
     // show edit box
-    edit.prototype.shwoEdit = function(layer) {
-        console.log(layer)
+    edit.prototype.shwoEdit = function(layerName) {
+        var self = this;
+        var layer = self.getLayer(layerName);
+
         var title;
         if(layer){
             title = '修改图层';
@@ -89,6 +91,7 @@ define(['config','layersControl','databank','tools'], function(config,layersCont
             '<div class="E-editArea"></div>',
             '<div class="E-editBlock">',
             '<button class="E-button E-button-addLayer E-button-active">确定</button>',
+            '<button class="E-button E-button-removeLayer">删除</button>',
             '</div>', '</div>'
         ].join('');
         box.appendChild(edit);
@@ -101,8 +104,12 @@ define(['config','layersControl','databank','tools'], function(config,layersCont
         edit.querySelector('.E-typesArea').innerHTML = layHtml.join('');
 
         // if layer
+        if(layerName){
+            $(edit).find('.E-button-addLayer').attr('type','editing').attr('name',layerName);
+            $(edit).find('.E-button-removeLayer').attr('type','editing').attr('name',layerName);
+        };
+
         if(layer && layer.getDrawType()){
-            $(edit).find('.E-button-addLayer').attr('type','editing').attr('name',layer.getName());
             edit.querySelector('.E-type-' + layer.getDrawType()).click();
         }else{
             edit.querySelector('.E-type').click();
@@ -180,6 +187,22 @@ define(['config','layersControl','databank','tools'], function(config,layersCont
                 parent.removeClass('E-label-active')
             }
         });
+        // remove a layer
+        $('body').on('click', '.E-button-removeLayer', function() {
+            var name  = $(this).attr('name');
+            console.log(name)
+            if(name){
+                $('.E-layers-layer[name="'+name+'"]').remove();
+                var project = tools.getSearch().project || 'default';
+                var opt = databank.get('config');
+                delete opt[project].layers[name];
+                databank.uploadConfig(opt);
+                self.closeBox();
+            }else{
+                self.closeBox();
+            }
+        });
+
         // add or edit layer
         $('body').on('click', '.E-button-addLayer', function() {
             var config = {};
@@ -218,8 +241,7 @@ define(['config','layersControl','databank','tools'], function(config,layersCont
         //layer edit
         $('body').on('click','.E-layers-layer',function(){
             var name = $(this).attr('name');
-            var layer = self.getLayer(name);
-            self.shwoEdit(layer);
+            self.shwoEdit(name);
             return false;
         })
         // close the layer
