@@ -200,6 +200,8 @@ define(['config','layersControl'], function(config,layersControl) {
                 var name  = $(this).attr('name');
                 self.getLayer(name).setDrawType(config.type);
                 self.getLayer(name).setDrawOptions(config.option);
+                //set the icon
+                $('.E-layers-layer[name="'+name+'"]').html(config.type.substring(0,2).toUpperCase());
             }else{
                 console.log('layer Config',config)
                 self.done && self.done(config)

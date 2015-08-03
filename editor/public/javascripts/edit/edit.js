@@ -27,7 +27,7 @@ requirejs.config({
 });
 
 // main
-requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp','tools'], function (upCallback, edit, sort, login, git,tools) {
+requirejs(['uploadDate', 'editActions', 'sort', 'login', 'databank', 'gitOp', 'tools'], function (upCallback, edit, sort, login, databank, git, tools) {
 	// new app
 	app = edit;
 	// init sort action and login
@@ -56,9 +56,9 @@ requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp','tools'], funct
 		app.addLayer(layer);
 
 		// update and save info
-		var haveSession = !!login.getUser().session;
+		var haveSession = databank.get('user').session //!!databank.get('user').session;
 		var searchName = tools.getSearch().user;
-		var sessionName = login.getUser().username;
+		var sessionName = databank.get('user').username;
 		var isSelf = searchName && (searchName!==sessionName);
 		if(!haveSession || isSelf){
 			console.log('abandon update config');
@@ -80,21 +80,20 @@ requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp','tools'], funct
 		var dataPath = 'data/'+name;
 		// upload files
 		git.createFiles({
-			token: login.getUser().session,
-			user: login.getUser().username,
+			token: databank.get('user').session,
+			user: databank.get('user').username,
 			path: dataPath,
 			data: data,
 			success:function(data){
 				$('.E-layers-layer[name="'+name+'"]').removeClass('icon-uploading');
 				// update config
-				var config = login.config();
+				var config = databank.get('config');
 				options.layerName = name;
 				config[project] = config[project] || {};
 				config[project].layers[name] = {};
 				config[project].layers[name].options = options;
 				config[project].layers[name].data = 'data/'+name;
 				config[project].layers[name].sha = data.content.sha;
-				login.setConfig(config);
 				console.info('update config',config);
 				updateConfig(JSON.stringify(config));
 			}
@@ -108,8 +107,8 @@ requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp','tools'], funct
 				'content': git.utf8_to_b64(conf)
 			};
 			git.updateFiles({
-				token: login.getUser().session,
-				user: login.getUser().username,
+				token: databank.get('user').session,
+				user: databank.get('user').username,
 				path: 'mapv_config.json',
 				data: data,
 				success:function(){
