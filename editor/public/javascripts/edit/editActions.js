@@ -3,7 +3,7 @@
  * @author Mofei Zhu <zhuwenlong@baidu.com>
  */
 
-define(['config','layersControl'], function(config,layersControl) {
+define(['config','layersControl','databank','tools'], function(config,layersControl,databank,tools) {
     // edit
     function edit() {
         this.init();
@@ -202,6 +202,12 @@ define(['config','layersControl'], function(config,layersControl) {
                 self.getLayer(name).setDrawOptions(config.option);
                 //set the icon
                 $('.E-layers-layer[name="'+name+'"]').html(config.type.substring(0,2).toUpperCase());
+                var project = tools.getSearch().project || 'default';
+                var opt = databank.get('config');
+                var layerOpt = opt[project].layers[name].options;
+                layerOpt.option = config.option;
+                layerOpt.type = config.type;
+                databank.uploadConfig(opt);
             }else{
                 console.log('layer Config',config)
                 self.done && self.done(config)

@@ -95,28 +95,9 @@ requirejs(['uploadDate', 'editActions', 'sort', 'login', 'databank', 'gitOp', 't
 				config[project].layers[name].data = 'data/'+name;
 				config[project].layers[name].sha = data.content.sha;
 				console.info('update config',config);
-				updateConfig(JSON.stringify(config));
+				databank.uploadConfig(config);
 			}
 		});
-
-		// upload config
-		function updateConfig(conf){
-			$('.user-block-layers').append('<div class="user-block-layers-statue icon-uploading" style="position:absolute; width:20px; height:20px; right:0; bottom:0;"></div>');
-			var data = {
-				'message': 'update config',
-				'content': git.utf8_to_b64(conf)
-			};
-			git.updateFiles({
-				token: databank.get('user').session,
-				user: databank.get('user').username,
-				path: 'mapv_config.json',
-				data: data,
-				success:function(){
-					console.log('config updated');
-					$('.user-block-layers-statue').remove();
-				}
-			})
-		}
 	});
 
 });
