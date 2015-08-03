@@ -241,6 +241,10 @@ define(['config','layersControl','databank','tools'], function(config,layersCont
         });
         //layer edit
         $('body').on('click','.E-layers-layer',function(){
+            if($(this).hasClass('icon-downloading')){
+                self.closeBox();
+                return false;
+            }
             var name = $(this).attr('name');
             self.shwoEdit(name);
             return false;
