@@ -64,6 +64,7 @@ requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp','tools'], funct
 
 		// upload Date
 		console.info('start update layer for ',name);
+		$('.E-layers-layer[name="'+name+'"]').addClass('icon-uploading');
 		var pointStr = JSON.stringify(pointData);
 		var data = {
 			'message': 'add layer data for layer ' + name,
@@ -107,6 +108,7 @@ requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp','tools'], funct
 					config[project] = config[project] || {};
 					config[project].layers[name] = JSON.parse(conf)[project].layers[name];
 					login.setConfig(config);
+					$('.E-layers-layer[name="'+name+'"]').removeClass('icon-uploading');
 				}
 			})
 		}
