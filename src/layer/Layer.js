@@ -66,10 +66,6 @@ util.extend(Layer.prototype, {
             this.setAnimationCtx(this.animationLayer.getContainer().getContext("2d"));
         }
 
-        this.addEventListener('draw', function () {
-            this.draw();
-        });
-
     },
 
     draw: function (ctx) {
@@ -88,6 +84,8 @@ util.extend(Layer.prototype, {
             this.drawAnimation();
             this._animationFlag = true;
         }
+
+        this.dispatchEvent('draw');
 
     },
 
@@ -117,6 +115,7 @@ util.extend(Layer.prototype, {
     },
 
     mapv_changed: function () {
+
         if (!this.getMapv()) {
             this.canvasLayer && this.canvasLayer.hide();
             return;
@@ -125,6 +124,7 @@ util.extend(Layer.prototype, {
         }
 
         this.initialize();
+
         this.updateControl();
 
         this.draw();
@@ -222,9 +222,8 @@ util.extend(Layer.prototype, {
                 this._max = Math.max(this._max, data[i].count);
                 this._min = Math.min(this._min, data[i].count);
             }
+            this.draw();
         }
-
-        this.dispatchEvent('draw');
     },
     getDataRange: function () {
         return {

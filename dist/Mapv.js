@@ -580,6 +580,7 @@ util.extend(DataRange.prototype, {
             this.generalGradient(drawOptions.gradient || this.defaultGradient);
         }
 
+        this.get("layer").getDataRangeControl().show();
         if (this.get("layer").getDrawType() === 'bubble') {
             this.get("layer").getDataRangeControl().drawSizeSplit(this.splitList, this.get('drawOptions'));
         } else if (this.get("layer").getDrawType() === 'category') {
@@ -726,7 +727,6 @@ Mapv.prototype._initDrawScale = function () {
 
 Mapv.prototype.drawTypeControl_changed = function () {
     if (this.getDrawTypeControl()) {
-        console.log(this.getMap());
         if (!this.drawTypeControl) {
             this.drawTypeControl = new DrawTypeControl({
                 mapv: this
@@ -792,11 +792,15 @@ CanvasLayer.prototype.getContainer = function(){
 }
 
 CanvasLayer.prototype.show = function(){
-    this._map.addOverlay(this);
+    if (!this.canvas) {
+        this._map.addOverlay(this);
+    }
+    this.canvas.style.display = "block";
 }
 
 CanvasLayer.prototype.hide = function(){
-    this._map.removeOverlay(this);
+    this.canvas.style.display = "none";
+    //this._map.removeOverlay(this);
 }
 
 CanvasLayer.prototype.setZIndex = function(zIndex){
@@ -870,10 +874,6 @@ util.extend(Layer.prototype, {
             this.setAnimationCtx(this.animationLayer.getContainer().getContext("2d"));
         }
 
-        this.addEventListener('draw', function () {
-            this.draw();
-        });
-
     },
 
     draw: function (ctx) {
@@ -892,6 +892,8 @@ util.extend(Layer.prototype, {
             this.drawAnimation();
             this._animationFlag = true;
         }
+
+        this.dispatchEvent('draw');
 
     },
 
@@ -921,6 +923,7 @@ util.extend(Layer.prototype, {
     },
 
     mapv_changed: function () {
+
         if (!this.getMapv()) {
             this.canvasLayer && this.canvasLayer.hide();
             return;
@@ -929,6 +932,7 @@ util.extend(Layer.prototype, {
         }
 
         this.initialize();
+
         this.updateControl();
 
         this.draw();
@@ -1026,9 +1030,8 @@ util.extend(Layer.prototype, {
                 this._max = Math.max(this._max, data[i].count);
                 this._min = Math.min(this._min, data[i].count);
             }
+            this.draw();
         }
-
-        this.dispatchEvent('draw');
     },
     getDataRange: function () {
         return {
@@ -1306,6 +1309,10 @@ util.extend(DataRangeControl.prototype, {
 
     hide: function () {
         this.canvas.style.display = 'none';
+    },
+
+    show: function () {
+        this.canvas.style.display = 'block';
     }
 
 });
@@ -1609,10 +1616,11 @@ function drawTips(obj) {
 
 util.addCssByStyle(
     [
-        '#MapvDrawTypeControl { list-style:none; position:absolute; right:0px; top:0px; bottom:0px; padding:0; margin:0; }',
-        '#MapvDrawTypeControl li{ padding:0; margin:0; cursor:pointer; margin:1px 0;',
-        'color:#fff; padding:5px; background:rgba(0, 0, 0, 0.5); }',
-        '#MapvDrawTypeControl li.current{ background:rgba(0, 0, 255, 0.5); }'
+        '#MapvDrawTypeControl { list-style:none; position:absolute; right:0px; top:0px; bottom:0px; padding:0; margin:0;',
+        'border-radius: 5px; overflow: hidden; border: 1px solid rgb(153, 153, 153); box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 4px 2px;}',
+        '#MapvDrawTypeControl li{ padding:0; margin:0; cursor:pointer; ',
+        'color:#333; padding:5px; background:rgba(255, 255, 255, 1); border-bottom: 1px solid #aaa;}',
+        '#MapvDrawTypeControl li.current{ background:#999; color:#fff;}'
     ].join('\n')
 );
 
@@ -1631,8 +1639,8 @@ function DrawTypeControl(options) {
     // console.log('@@@@@@', options)
     this.mapv = options.mapv;
     // 默认停靠位置和偏移量
-    this.defaultAnchor = BMAP_ANCHOR_TOP_RIGHT;
-    this.defaultOffset = new BMap.Size(10, 10);
+    this.defaultAnchor = this.getDrawTypeControlOptions().anchor || BMAP_ANCHOR_TOP_RIGHT;
+    this.defaultOffset = this.getDrawTypeControlOptions().offset || new BMap.Size(10, 10);
 }
 
 util.inherits(DrawTypeControl, Class);
@@ -1656,6 +1664,9 @@ DrawTypeControl.prototype.initialize = function (map) {
             target.className = 'current';
 
             me.layer.setDrawType(drawType);
+            if (me.getDrawTypeControlOptions().drawOptions && me.getDrawTypeControlOptions().drawOptions[drawType]) {
+                me.layer.setDrawOptions(me.getDrawTypeControlOptions().drawOptions[drawType]);
+            }
 
         }
     });
@@ -1681,6 +1692,14 @@ DrawTypeControl.prototype.drawTypeControlOptions_changed = function () {
     }
 
     this.showLayer();
+    
+    if (this.getDrawTypeControlOptions().anchor !== undefined) {
+        this.setAnchor(this.getDrawTypeControlOptions().anchor);
+    }
+
+    if (this.getDrawTypeControlOptions().offset !== undefined) {
+        this.setOffset(this.getDrawTypeControlOptions().offset);
+    }
 
 }
 

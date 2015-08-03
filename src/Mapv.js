@@ -34,7 +34,6 @@ Mapv.prototype._initDrawScale = function () {
 
 Mapv.prototype.drawTypeControl_changed = function () {
     if (this.getDrawTypeControl()) {
-        console.log(this.getMap());
         if (!this.drawTypeControl) {
             this.drawTypeControl = new DrawTypeControl({
                 mapv: this

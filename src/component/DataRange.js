@@ -107,6 +107,7 @@ util.extend(DataRange.prototype, {
             this.generalGradient(drawOptions.gradient || this.defaultGradient);
         }
 
+        this.get("layer").getDataRangeControl().show();
         if (this.get("layer").getDrawType() === 'bubble') {
             this.get("layer").getDataRangeControl().drawSizeSplit(this.splitList, this.get('drawOptions'));
         } else if (this.get("layer").getDrawType() === 'category') {

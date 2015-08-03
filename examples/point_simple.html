@@ -26,7 +26,6 @@ bmap.centerAndZoom(new BMap.Point(105.403119, 38.028658), 5); // 初始化地图
 
 // 第一步创建mapv示例
 var mapv = new Mapv({
-    drawTypeControl: true,
     map: bmap  // 百度地图的map实例
 });
 
@@ -57,7 +56,7 @@ function getCityCenter(citys) {
 };
 
 var layer = new Mapv.Layer({
-    mapv: mapv, // 对应的mapv实例
+    //mapv: mapv, // 对应的mapv实例
     zIndex: 1, // 图层层级
     dataType: 'point', // 数据类型，点类型
     data: data, // 数据
@@ -70,6 +69,24 @@ var layer = new Mapv.Layer({
         shadowBlur: 35,  // 投影模糊级数
         globalCompositeOperation: 'lighter', // 颜色叠加方式
         size: 4 // 半径
+    }
+});
+
+layer.setMapv(mapv);
+
+mapv.setOptions({
+    drawTypeControl: true,
+    drawTypeControlOptions: {
+        layer: layer,
+        anchor: BMAP_ANCHOR_TOP_LEFT,
+        drawOptions: {
+            bubble: {
+                fillStyle: 'red'
+            },
+            density: {
+                size: 30
+            }
+        }
     }
 });
 

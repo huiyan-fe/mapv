@@ -7,10 +7,11 @@
 
 util.addCssByStyle(
     [
-        '#MapvDrawTypeControl { list-style:none; position:absolute; right:0px; top:0px; bottom:0px; padding:0; margin:0; }',
-        '#MapvDrawTypeControl li{ padding:0; margin:0; cursor:pointer; margin:1px 0;',
-        'color:#fff; padding:5px; background:rgba(0, 0, 0, 0.5); }',
-        '#MapvDrawTypeControl li.current{ background:rgba(0, 0, 255, 0.5); }'
+        '#MapvDrawTypeControl { list-style:none; position:absolute; right:0px; top:0px; bottom:0px; padding:0; margin:0;',
+        'border-radius: 5px; overflow: hidden; border: 1px solid rgb(153, 153, 153); box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 4px 2px;}',
+        '#MapvDrawTypeControl li{ padding:0; margin:0; cursor:pointer; ',
+        'color:#333; padding:5px; background:rgba(255, 255, 255, 1); border-bottom: 1px solid #aaa;}',
+        '#MapvDrawTypeControl li.current{ background:#999; color:#fff;}'
     ].join('\n')
 );
 
@@ -29,8 +30,8 @@ function DrawTypeControl(options) {
     // console.log('@@@@@@', options)
     this.mapv = options.mapv;
     // 默认停靠位置和偏移量
-    this.defaultAnchor = BMAP_ANCHOR_TOP_RIGHT;
-    this.defaultOffset = new BMap.Size(10, 10);
+    this.defaultAnchor = this.getDrawTypeControlOptions().anchor || BMAP_ANCHOR_TOP_RIGHT;
+    this.defaultOffset = this.getDrawTypeControlOptions().offset || new BMap.Size(10, 10);
 }
 
 util.inherits(DrawTypeControl, Class);
@@ -54,6 +55,9 @@ DrawTypeControl.prototype.initialize = function (map) {
             target.className = 'current';
 
             me.layer.setDrawType(drawType);
+            if (me.getDrawTypeControlOptions().drawOptions && me.getDrawTypeControlOptions().drawOptions[drawType]) {
+                me.layer.setDrawOptions(me.getDrawTypeControlOptions().drawOptions[drawType]);
+            }
 
         }
     });
@@ -79,6 +83,14 @@ DrawTypeControl.prototype.drawTypeControlOptions_changed = function () {
     }
 
     this.showLayer();
+    
+    if (this.getDrawTypeControlOptions().anchor !== undefined) {
+        this.setAnchor(this.getDrawTypeControlOptions().anchor);
+    }
+
+    if (this.getDrawTypeControlOptions().offset !== undefined) {
+        this.setOffset(this.getDrawTypeControlOptions().offset);
+    }
 
 }
 

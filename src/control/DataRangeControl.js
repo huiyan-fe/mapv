@@ -99,6 +99,10 @@ util.extend(DataRangeControl.prototype, {
 
     hide: function () {
         this.canvas.style.display = 'none';
+    },
+
+    show: function () {
+        this.canvas.style.display = 'block';
     }
 
 });
