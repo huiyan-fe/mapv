@@ -197,6 +197,7 @@ define(['config','layersControl','databank','tools'], function(config,layersCont
                 var opt = databank.get('config');
                 delete opt[project].layers[name];
                 databank.uploadConfig(opt);
+                self.getLayer(name).setMapv(null);
                 self.closeBox();
             }else{
                 self.closeBox();
