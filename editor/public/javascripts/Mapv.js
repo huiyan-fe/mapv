@@ -2027,10 +2027,15 @@ Drawer.prototype.getRadius = function () {
     var radius = drawOptions.size || 13;
     var unit = drawOptions.unit || 'px';
     if (unit === 'm') {
-        radius = parseInt(radius, 10) / zoomUnit;
+        radius = radius / zoomUnit;
     } else {
         radius = parseInt(radius, 10);
     }
+
+    if (drawOptions.minPxSize && radius < drawOptions.minPxSize) {
+        radius = drawOptions.minPxSize;
+    }
+
     return radius;
 }
 ;/* globals Drawer, util */
@@ -2050,10 +2055,6 @@ BubbleDrawer.prototype.drawMap = function () {
 
 
     var drawOptions = this.getDrawOptions();
-
-    ctx.fillStyle = drawOptions.fillStyle || 'rgba(50, 50, 200, 0.8)';
-    ctx.strokeStyle = drawOptions.strokeStyle;
-    ctx.lineWidth = drawOptions.lineWidth || 1;
 
     for (var i = 0, len = data.length; i < len; i++) {
         var item = data[i];
@@ -2170,7 +2171,6 @@ ClusterDrawer.prototype.drawMap = function () {
 
     // console.log(param.size)
     var size = param.size;
-    var fillColors = param.colors;
 
     var mercatorProjection = map.getMapType().getProjection();
 
@@ -2250,19 +2250,12 @@ ClusterDrawer.prototype.drawMap = function () {
         y = Number(sp[1]);
         var v = (grids[i] - min) / step;
         v = v < 0 ? 0 : v;
-        var color = fillColors[v | 0];
-
-
-        // if (grids[i] === 0) {
-        //     ctx.fillStyle = 'rgba(255,255,255,0.1)';
-        // } else {
-        //     ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',0.4)';
-        // }
 
         var cx = x + gridStep / 2;
         var cy = y + gridStep / 2;
-        ctx.fillStyle = '#fa8b2e';
-        // ctx.fillRect(x, y, 2, 2);
+
+        //ctx.fillStyle = '#fa8b2e';
+
         ctx.beginPath();
 
         ctx.arc(cx, cy, v * 5, 0, 2 * Math.PI);
@@ -2302,18 +2295,6 @@ ClusterDrawer.prototype.formatParam = function () {
     // console.log('AAA')
     var options = this.getDrawOptions();
     // console.log(options)
-    var fillColors = this.fillColors = [
-        [73, 174, 34],
-        [119, 191, 26],
-        [160, 205, 18],
-        [202, 221, 10],
-        [248, 237, 1],
-        [225, 222, 3],
-        [254, 182, 10],
-        [254, 126, 19],
-        [254, 84, 27],
-        [253, 54, 32]
-    ];
 
     var size = options.size || 60;
     // console.log(size, '@@@@@@')
@@ -2325,8 +2306,7 @@ ClusterDrawer.prototype.formatParam = function () {
     }
     // console.log(size, options.size)
     return {
-        size: size,
-        colors: fillColors
+        size: size
     };
 };
 ;/* globals Drawer mercatorProjection BMap util */
@@ -2836,8 +2816,13 @@ util.extend(HeatmapDrawer.prototype, {
         return this;
     },
 
-    radius: function (r, blur) {
-        blur = blur || 15;
+    radius: function (r) {
+
+        if (this.getDrawOptions().shadowBlur !== undefined) {
+            var blur = this.getDrawOptions().shadowBlur;
+        } else {
+            var blur = 15;
+        }
 
         // create a grayscale blurred circle image that we'll use for drawing points
         var circle = this._circle = document.createElement('canvas'),
@@ -2850,17 +2835,19 @@ util.extend(HeatmapDrawer.prototype, {
             circle.width = circle.height = r2 * 2;
         }
 
-        ctx.shadowOffsetX = ctx.shadowOffsetY = 200;
-        if (this.getDrawOptions().blur !== false) {
-            ctx.shadowBlur = blur;
-        }
+        var offsetDistance = 10000;
+
+        ctx.shadowOffsetX = ctx.shadowOffsetY = offsetDistance;
+
+        ctx.shadowBlur = blur;
+
         ctx.shadowColor = 'black';
 
         ctx.beginPath();
         if (this.getDrawOptions().type === 'rect') {
-            ctx.fillRect(-200, -200, circle.width, circle.height);
+            ctx.fillRect(-offsetDistance, -offsetDistance, circle.width, circle.height);
         } else {
-            ctx.arc(r2 - 200, r2 - 200, r, 0, Math.PI * 2, true);
+            ctx.arc(r2 - offsetDistance, r2 - offsetDistance, r, 0, Math.PI * 2, true);
         }
         ctx.closePath();
         ctx.fill();
@@ -2903,9 +2890,11 @@ util.extend(HeatmapDrawer.prototype, {
 
         } else {
 
+            var boundary = this.getDrawOptions().boundary || 50;
+
             for (var i = 0, len = this._data.length, p; i < len; i++) {
                 p = this._data[i];
-                if (p.px < 0 || p.py < 0 || p.px > ctx.canvas.width || p.py > ctx.canvas.height) {
+                if (p.px < -boundary || p.py < -boundary || p.px > ctx.canvas.width + boundary || p.py > ctx.canvas.height + boundary) {
                     continue;
                 }
                 // if (p.count < this.masker.min || p.count > this.masker.max) {

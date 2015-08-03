@@ -20,10 +20,6 @@ BubbleDrawer.prototype.drawMap = function () {
 
     var drawOptions = this.getDrawOptions();
 
-    ctx.fillStyle = drawOptions.fillStyle || 'rgba(50, 50, 200, 0.8)';
-    ctx.strokeStyle = drawOptions.strokeStyle;
-    ctx.lineWidth = drawOptions.lineWidth || 1;
-
     for (var i = 0, len = data.length; i < len; i++) {
         var item = data[i];
         var size = this.dataRange.getSize(item.count);

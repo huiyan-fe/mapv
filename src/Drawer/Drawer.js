@@ -120,9 +120,14 @@ Drawer.prototype.getRadius = function () {
     var radius = drawOptions.size || 13;
     var unit = drawOptions.unit || 'px';
     if (unit === 'm') {
-        radius = parseInt(radius, 10) / zoomUnit;
+        radius = radius / zoomUnit;
     } else {
         radius = parseInt(radius, 10);
     }
+
+    if (drawOptions.minPxSize && radius < drawOptions.minPxSize) {
+        radius = drawOptions.minPxSize;
+    }
+
     return radius;
 }
