@@ -73,7 +73,7 @@ define(['config','layersControl','databank','tools'], function(config,layersCont
     edit.prototype.shwoEdit = function(layerName) {
         var self = this;
         var layer = self.getLayer(layerName);
-        var layerOpt = layer.getDrawOptions();
+        var layerOpt = layer?layer.getDrawOptions():{};
 
         var title;
         if(layerName){
@@ -132,6 +132,7 @@ define(['config','layersControl','databank','tools'], function(config,layersCont
 
             var isEditing = $('.E-button-addLayer').attr('type') === 'editing'; //E-button-addLayer
             var opt = null;
+            var typ = null;
             if(isEditing){
                 var layerName = $('.E-button-addLayer').attr('name');
                 opt = self.getLayer(layerName).getDrawOptions();

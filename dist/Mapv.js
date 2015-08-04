@@ -2254,7 +2254,7 @@ ClusterDrawer.prototype.drawMap = function () {
         var cx = x + gridStep / 2;
         var cy = y + gridStep / 2;
 
-        //ctx.fillStyle = '#fa8b2e';
+        ctx.fillStyle = '#fa8b2e';
 
         ctx.beginPath();
 
