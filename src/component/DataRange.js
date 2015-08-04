@@ -14,7 +14,9 @@ function DataRange(layer) {
     this.set('layer', layer);
     this.bindTo('data', layer)
     this.bindTo('drawOptions', layer)
+    this.bindTo('drawType', layer)
 
+    var me = this;
 }
 
 util.inherits(DataRange, Class);
@@ -85,7 +87,15 @@ util.extend(DataRange.prototype, {
         }
     },
 
+    drawType_changed: function () {
+        this.update();
+    },
+
     drawOptions_changed: function () {
+        this.update();
+    },
+
+    update: function () {
 
         var drawOptions = this.get("drawOptions");
         if (drawOptions && drawOptions.splitList) {
@@ -107,15 +117,23 @@ util.extend(DataRange.prototype, {
             this.generalGradient(drawOptions.gradient || this.defaultGradient);
         }
 
-        this.get("layer").getDataRangeControl().show();
+        this.draw();
+    },
+
+    draw: function () {
+
+        if (this.get("layer").getDataRangeControl()) {
+            this.get("layer").dataRangeControl.show();
+        }
+
         if (this.get("layer").getDrawType() === 'bubble') {
-            this.get("layer").getDataRangeControl().drawSizeSplit(this.splitList, this.get('drawOptions'));
+            this.get("layer").dataRangeControl.drawSizeSplit(this.splitList, this.get('drawOptions'));
         } else if (this.get("layer").getDrawType() === 'category') {
-            this.get("layer").getDataRangeControl().drawCategorySplit(this.categorySplitList, this.get('drawOptions'));
+            this.get("layer").dataRangeControl.drawCategorySplit(this.categorySplitList, this.get('drawOptions'));
         } else if (this.get("layer").getDrawType() === 'choropleth') {
-            this.get("layer").getDataRangeControl().drawChoroplethSplit(this.splitList, this.get('drawOptions'));
+            this.get("layer").dataRangeControl.drawChoroplethSplit(this.splitList, this.get('drawOptions'));
         } else {
-            this.get("layer").getDataRangeControl().hide();
+            this.get("layer").dataRangeControl.hide();
         }
 
     },

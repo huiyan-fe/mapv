@@ -21,9 +21,11 @@ function Layer (options) {
         drawType: 'simple',
         animation: false,
         geometry: null,
-        dataRangeControl: new DataRangeControl(),
+        dataRangeControl: true,
         zIndex: 1
     }, options));
+
+    this.dataRangeControl = new DataRangeControl();
 
     this.notify('data');
     this.notify('mapv');
@@ -40,7 +42,7 @@ util.extend(Layer.prototype, {
 
         this.bindTo('map', this.getMapv());
 
-        this.getMap().addControl(this.getDataRangeControl());
+        this.getMap().addControl(this.dataRangeControl);
 
 
         var that = this;
@@ -69,6 +71,11 @@ util.extend(Layer.prototype, {
     },
 
     draw: function (ctx) {
+
+        if (!this.getMapv()) {
+            return;
+        }
+
         var ctx = this.getCtx();
 
         if (!ctx) {
@@ -141,16 +148,22 @@ util.extend(Layer.prototype, {
 
     updateControl: function () {
         var mapv = this.getMapv();
+
+        if (!mapv) {
+            return;
+        }
+
         var drawer = this._getDrawer();
         var map = this.getMap();
 
         // for drawer scale
-        if(drawer.scale) {
+        if(drawer.scale && this.getDataRangeControl()) {
             drawer.scale(mapv.Scale);
             mapv.Scale.show();
         } else {
-            mapv.Scale.hide();
+            mapv && mapv.Scale.hide();
         }
+
         // mapv._drawTypeControl.showLayer(this);
         this.getMapv().OptionalData && this.getMapv().OptionalData.initController(this, this.getDrawType());
     },
@@ -163,8 +176,10 @@ util.extend(Layer.prototype, {
             funcName += 'Drawer';
             var drawer = this._drawer[drawType] = eval('(new ' + funcName + '(this))');
             if (drawer.scale) {
-                drawer.scale(this.getMapv().Scale);
-                this.getMapv().Scale.show();
+                if (this.getMapv()) {
+                    drawer.scale(this.getMapv().Scale);
+                    this.getMapv().Scale.show();
+                }
             } else {
                 this.getMapv().Scale.hide();
             }
@@ -234,5 +249,10 @@ util.extend(Layer.prototype, {
     zIndex_changed: function () {
         var zIndex = this.getZIndex();
         this.canvasLayer.setZIndex(zIndex);
+    },
+
+    dataRangeControl_changed: function () {
+        this.updateControl();
+        this._getDrawer().notify('drawOptions');
     }
 });
