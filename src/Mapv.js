@@ -46,3 +46,4 @@ Mapv.prototype.drawTypeControl_changed = function () {
         }
     }
 }
+

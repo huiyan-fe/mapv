@@ -35,7 +35,8 @@
 .E-funBox-close {position: absolute; top:15px; right: 20px; color:#999; cursor: pointer;}
 .E-funBox-close:hover { color: #000; }
 
-.E-upload { margin:20px; border:4px dashed #ccc; padding: 40px 0; text-align: center; color:#999; font-size: 20px;}
+.E-upload { margin:20px; border:4px dashed #ccc; padding: 40px 0; text-align: center; color:#999; font-size: 20px; position: relative; overflow:hidden; }
+.E-upload-fild {position:absolute; top:0; left:0; opacity: 0;}
 
 .E-eidt { padding: 10px; max-height: 450px; overflow: auto; overflow-x: hidden;}
 .E-editTitle { color: #b3b3b3; font-size: 14px; }
@@ -82,7 +83,7 @@
 
 .icon-uploading { position: relative; }
 .icon-uploading::before { -webkit-animation:flashing 2s infinite; content: "\e601"; position: absolute; bottom:4px; right:4px; font-size: 20px; height:20px; width:20px; line-height: 20px; opacity: 0.8; text-shadow: 1px 1px 1px rgba(0,0,0,0.5);}
-.icon-downloading { position: relative; } 
+.icon-downloading { position: relative; }
 .icon-downloading::before { -webkit-animation:flashing 2s infinite; content: "\e600"; position: absolute; bottom:4px; right:4px; font-size: 20px; height:20px; width:20px; line-height: 20px; opacity: 0.8; text-shadow: 1px 1px 1px rgba(0,0,0,0.5);}
 
 @-webkit-keyframes flashing {

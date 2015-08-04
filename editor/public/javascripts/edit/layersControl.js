@@ -5,7 +5,7 @@
 define(function(){
     // the layers object
     function layer(){
-        this.layers={};
+        this.layers = window.layers={};
     }
 
     /**
@@ -19,7 +19,7 @@ define(function(){
 
     // TODO: remove layer form
     layer.prototype.removeLayer = function(layerName){
-
+        var self = this;
     }
 
     /**
