@@ -66,7 +66,11 @@ define(['config','layersControl','databank','tools'], function(config,layersCont
         // add upload content
         var upload = this.domUpload = document.createElement('div');
         upload.setAttribute('class', 'E-upload');
-        upload.textContent = '拖拽文件上传数据';
+        upload.textContent = '拖拽 或 选择 文件';
+        var input = document.createElement('input');
+        input.setAttribute('type','file');
+        input.setAttribute('class', 'E-upload-fild');
+        upload.appendChild(input)
         box.appendChild(upload);
     };
     // show edit box
@@ -266,7 +270,17 @@ define(['config','layersControl','databank','tools'], function(config,layersCont
         // close the layer
         $('body').on('click','.E-funBox-close',function(){
             self.closeBox();
-        })
+        });
+
+        $('body').on('mousemove','.E-upload',function(e){
+            // console.log()
+            if(e.target === this){
+                $('.E-upload-fild').css({
+                    top : e.offsetY - 10,
+                    left : e.offsetX - 10
+                })
+            }
+        });
     };
 
     return new edit();

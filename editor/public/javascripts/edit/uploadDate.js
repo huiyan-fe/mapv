@@ -78,6 +78,13 @@ define(function () {
 		return false;
 	});
 
+	$('body').on('change','.E-upload-fild',function(e){
+		var file = this.files[0];
+		reader.readAsText(file);
+		reader.fileName = file.name;
+		reader.fileSize = file.size;
+	})
+
 	function addCallback(fn){
 		callbackFn = fn;
 	}
