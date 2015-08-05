@@ -54,10 +54,10 @@ DrawTypeControl.prototype.initialize = function (map) {
             var drawType = target.getAttribute('drawType');
             target.className = 'current';
 
-            me.layer.setDrawType(drawType);
             if (me.getDrawTypeControlOptions().drawOptions && me.getDrawTypeControlOptions().drawOptions[drawType]) {
                 me.layer.setDrawOptions(me.getDrawTypeControlOptions().drawOptions[drawType]);
             }
+            me.layer.setDrawType(drawType);
 
         }
     });

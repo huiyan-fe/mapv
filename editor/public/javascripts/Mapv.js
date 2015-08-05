@@ -757,7 +757,6 @@ Mapv.prototype.drawTypeControl_changed = function () {
         }
     }
 }
-
 ;function CanvasLayer(options){
     this.options = options || {};
     this.paneName = this.options.paneName || 'labelPane';
@@ -1717,10 +1716,10 @@ DrawTypeControl.prototype.initialize = function (map) {
             var drawType = target.getAttribute('drawType');
             target.className = 'current';
 
-            me.layer.setDrawType(drawType);
             if (me.getDrawTypeControlOptions().drawOptions && me.getDrawTypeControlOptions().drawOptions[drawType]) {
                 me.layer.setDrawOptions(me.getDrawTypeControlOptions().drawOptions[drawType]);
             }
+            me.layer.setDrawType(drawType);
 
         }
     });
@@ -3116,6 +3115,8 @@ IntensityDrawer.prototype.drawMap = function () {
         max: self.getMax(),
         colors: this.getGradient()
     });
+
+    this.dataRange.setMax(self.getMax());
 
     this.endDrawMap();
 };

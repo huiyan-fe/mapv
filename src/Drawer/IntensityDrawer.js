@@ -107,6 +107,8 @@ IntensityDrawer.prototype.drawMap = function () {
         colors: this.getGradient()
     });
 
+    this.dataRange.setMax(self.getMax());
+
     this.endDrawMap();
 };
 
