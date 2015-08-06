@@ -43,6 +43,7 @@ define(function(){
         }).css({
             'position' : 'absolute'
         });
+        console.log(tar)
         tar.points.sort(function(a,b){
             return a-b;
         });
@@ -66,6 +67,7 @@ define(function(){
 
     // listen for the mouseup envet
     $('body').on('mouseup',function(e){
+        console.log('up',tar.dom)
         if(tar.dom){
             tar.dom = null;
             e.preventDefault();
@@ -90,6 +92,7 @@ define(function(){
             }
             //
             tarinit();
+            $('.E-layers-layer').removeAttr('style');
             return false;
         }
     });
@@ -162,7 +165,7 @@ define(function(){
         }
     }
 
-    // init 
+    // init
     function init(obj){
         app = obj;
     }
