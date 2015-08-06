@@ -3,7 +3,7 @@
  * @author Mofei Zhu <zhuwenlong@baidu.com>
  */
 
-define(['config','layersControl','databank','tools'], function(config,layersControl,databank,tools) {
+define(['config', 'layersControl', 'databank', 'tools', 'pickup'], function(config, layersControl, databank, tools, pickup) {
     // edit
     function edit() {
         this.init();
@@ -64,14 +64,15 @@ define(['config','layersControl','databank','tools'], function(config,layersCont
         // shwobox
         var box = this.showBox('上传文件 (1/2)');
         // add upload content
-        var upload = this.domUpload = document.createElement('div');
-        upload.setAttribute('class', 'E-upload');
-        upload.textContent = '拖拽 或 选择 文件';
-        var input = document.createElement('input');
-        input.setAttribute('type','file');
-        input.setAttribute('class', 'E-upload-fild');
-        upload.appendChild(input)
-        box.appendChild(upload);
+        var html=[
+            '<div class="E-upload">',
+                '拖拽 或 选择 文件',
+                '<input type="file" class="E-upload-fild">',
+            '</div>',
+            '<div class="E-upload-line">- 或 -</div>',
+            '<div class="E-makePoint E-button">手动选择坐标</div>'
+        ].join('');
+        box.innerHTML = html;
     };
     // show edit box
     edit.prototype.shwoEdit = function(layerName) {
@@ -123,7 +124,15 @@ define(['config','layersControl','databank','tools'], function(config,layersCont
     };
     // bind actions while the edit is done
     edit.prototype.done = function(fn){
-      this.done = fn;
+        this.done = fn;
+    }
+
+    edit.prototype.setData = function(data){
+        this.data = data;
+    }
+
+    edit.prototype.getData = function(){
+        return this.data || {};
     }
     // bind the events
     edit.prototype.actions = function() {
@@ -272,6 +281,7 @@ define(['config','layersControl','databank','tools'], function(config,layersCont
             self.closeBox();
         });
 
+        // upload input
         $('body').on('mousemove','.E-upload',function(e){
             // console.log()
             if(e.target === this){
@@ -281,6 +291,20 @@ define(['config','layersControl','databank','tools'], function(config,layersCont
                 })
             }
         });
+
+        // self point
+        $('body').on('click','.E-makePoint',function(){
+            self.closeBox();
+            var pick = new pickup({
+                callback:function(data){
+                    if(data.length > 0){
+                        self.setData(data);
+                        self.shwoEdit();
+                    }
+                }
+            });
+            pick.init();
+        })
     };
 
     return new edit();

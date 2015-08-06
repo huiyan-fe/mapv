@@ -2,7 +2,7 @@
  * @file this file is to control the update file
  * @author Mofei Zhu <zhuwenlong@baidu.com>
  */
-define(function () {
+define(['editActions'],function (editor) {
 	var callbackFn = null;
 	// new reader to get the file which user upload
 	var reader = new FileReader();
@@ -10,7 +10,9 @@ define(function () {
 		var text = reader.result;
 		var draw = formatRender(text);
 		if(draw && callbackFn){
-			callbackFn(draw)
+			editor.setData(draw);
+			// //
+			callbackFn(draw);
 		}
 	});
 

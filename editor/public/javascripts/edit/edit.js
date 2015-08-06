@@ -34,10 +34,10 @@ requirejs(['uploadDate', 'editActions', 'sort', 'login', 'databank', 'gitOp', 't
 	sort.init(app);
 	login.reg(app);
 	// listen to the uplodaData's callback;
-	var pointData,options;
+	var pointData, options;
 	upCallback(function(data){
-		pointData = data;
-		app.shwoEdit()
+		// pointData = data;
+		app.shwoEdit();
 	});
 	// console.log(tools.getSearch().user)
 	// the edit done event
@@ -47,7 +47,7 @@ requirejs(['uploadDate', 'editActions', 'sort', 'login', 'databank', 'gitOp', 't
 		var layerInfo = {
 			name: name,
 			mapv: mapv,
-			data: pointData,
+			data: app.getData(),
 			drawType: options.type,
 			drawOptions: options.option
 		}
@@ -72,12 +72,12 @@ requirejs(['uploadDate', 'editActions', 'sort', 'login', 'databank', 'gitOp', 't
 		// upload Date
 		console.info('start update layer for ',name);
 		$('.E-layers-layer[name="'+name+'"]').addClass('icon-uploading');
-		var pointStr = JSON.stringify(pointData);
+		var pointStr = JSON.stringify(app.getData());
 		var data = {
 			'message': 'add layer data for layer ' + name,
 			'content': git.utf8_to_b64(pointStr)
 		};
-		var dataPath = 'data/'+name;
+		var dataPath = 'data/' + name;
 		// upload files
 		git.createFiles({
 			token: databank.get('user').session,

@@ -46,7 +46,8 @@
 .E-type-active { background: #fb4f4f; }
 
 .E-input { border:1px solid #ccc; width: 375px ; padding: 0; height:30px; font-size: 14px; text-indent: 10px; color:#999; }
-.E-button { width: 80px; height: 30px; background: #FFCCCC; border:none; font-size: 14px; margin-right: 5px; color:#fff; cursor: pointer;}
+.E-button { width: 80px; height: 30px; line-height: 30px; text-align: center; background: #FFCCCC; border:none; font-size: 14px; margin-right: 5px; color:#fff; cursor: pointer;-webkit-transition: all 0.2s ease-in;}
+.E-button:hover { background: #fb4f4f;  }
 .E-button-active { background: #fb4f4f; }
 .E-label { background: #FFCCCC; height: 30px; display: inline-block; line-height: 30px; padding: 0 10px; color:#fff; font-size: 14px;}
 .E-label-active {background: #fb4f4f; }
@@ -91,3 +92,10 @@
     50% { opacity: 0.8; }
     100% { opacity: 0.4; }
 }
+
+.E-upload-line { color:#999; text-align: center; }
+.E-makePoint {height:40px; width:auto;  line-height: 40px; text-align: center; margin:10px 20px; color:#fff; }
+
+.E-pickerBtn-ok,.E-pickerBtn-cancel {position: absolute; top:10px;}
+.E-pickerBtn-ok {right:100px;}
+.E-pickerBtn-cancel {right:10px;}
