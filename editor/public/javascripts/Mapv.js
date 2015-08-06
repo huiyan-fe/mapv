@@ -487,7 +487,9 @@ Class.prototype.dispose = function () {
     this.set('layer', layer);
     this.bindTo('data', layer)
     this.bindTo('drawOptions', layer)
+    this.bindTo('drawType', layer)
 
+    var me = this;
 }
 
 util.inherits(DataRange, Class);
@@ -558,7 +560,15 @@ util.extend(DataRange.prototype, {
         }
     },
 
+    drawType_changed: function () {
+        this.update();
+    },
+
     drawOptions_changed: function () {
+        this.update();
+    },
+
+    update: function () {
 
         var drawOptions = this.get("drawOptions");
         if (drawOptions && drawOptions.splitList) {
@@ -580,14 +590,23 @@ util.extend(DataRange.prototype, {
             this.generalGradient(drawOptions.gradient || this.defaultGradient);
         }
 
+        this.draw();
+    },
+
+    draw: function () {
+
+        if (this.get("layer").getDataRangeControl()) {
+            this.get("layer").dataRangeControl.show();
+        }
+
         if (this.get("layer").getDrawType() === 'bubble') {
-            this.get("layer").getDataRangeControl().drawSizeSplit(this.splitList, this.get('drawOptions'));
+            this.get("layer").dataRangeControl.drawSizeSplit(this.splitList, this.get('drawOptions'));
         } else if (this.get("layer").getDrawType() === 'category') {
-            this.get("layer").getDataRangeControl().drawCategorySplit(this.categorySplitList, this.get('drawOptions'));
+            this.get("layer").dataRangeControl.drawCategorySplit(this.categorySplitList, this.get('drawOptions'));
         } else if (this.get("layer").getDrawType() === 'choropleth') {
-            this.get("layer").getDataRangeControl().drawChoroplethSplit(this.splitList, this.get('drawOptions'));
+            this.get("layer").dataRangeControl.drawChoroplethSplit(this.splitList, this.get('drawOptions'));
         } else {
-            this.get("layer").getDataRangeControl().hide();
+            this.get("layer").dataRangeControl.hide();
         }
 
     },
@@ -726,7 +745,6 @@ Mapv.prototype._initDrawScale = function () {
 
 Mapv.prototype.drawTypeControl_changed = function () {
     if (this.getDrawTypeControl()) {
-        console.log(this.getMap());
         if (!this.drawTypeControl) {
             this.drawTypeControl = new DrawTypeControl({
                 mapv: this
@@ -792,11 +810,15 @@ CanvasLayer.prototype.getContainer = function(){
 }
 
 CanvasLayer.prototype.show = function(){
-    this._map.addOverlay(this);
+    if (!this.canvas) {
+        this._map.addOverlay(this);
+    }
+    this.canvas.style.display = "block";
 }
 
 CanvasLayer.prototype.hide = function(){
-    this._map.removeOverlay(this);
+    this.canvas.style.display = "none";
+    //this._map.removeOverlay(this);
 }
 
 CanvasLayer.prototype.setZIndex = function(zIndex){
@@ -825,9 +847,11 @@ CanvasLayer.prototype.getZIndex = function(){
         drawType: 'simple',
         animation: false,
         geometry: null,
-        dataRangeControl: new DataRangeControl(),
+        dataRangeControl: true,
         zIndex: 1
     }, options));
+
+    this.dataRangeControl = new DataRangeControl();
 
     this.notify('data');
     this.notify('mapv');
@@ -844,7 +868,7 @@ util.extend(Layer.prototype, {
 
         this.bindTo('map', this.getMapv());
 
-        this.getMap().addControl(this.getDataRangeControl());
+        this.getMap().addControl(this.dataRangeControl);
 
 
         var that = this;
@@ -870,13 +894,14 @@ util.extend(Layer.prototype, {
             this.setAnimationCtx(this.animationLayer.getContainer().getContext("2d"));
         }
 
-        this.addEventListener('draw', function () {
-            this.draw();
-        });
-
     },
 
     draw: function (ctx) {
+
+        if (!this.getMapv()) {
+            return;
+        }
+
         var ctx = this.getCtx();
 
         if (!ctx) {
@@ -892,6 +917,8 @@ util.extend(Layer.prototype, {
             this.drawAnimation();
             this._animationFlag = true;
         }
+
+        this.dispatchEvent('draw');
 
     },
 
@@ -921,6 +948,7 @@ util.extend(Layer.prototype, {
     },
 
     mapv_changed: function () {
+
         if (!this.getMapv()) {
             this.canvasLayer && this.canvasLayer.hide();
             return;
@@ -929,6 +957,7 @@ util.extend(Layer.prototype, {
         }
 
         this.initialize();
+
         this.updateControl();
 
         this.draw();
@@ -945,16 +974,22 @@ util.extend(Layer.prototype, {
 
     updateControl: function () {
         var mapv = this.getMapv();
+
+        if (!mapv) {
+            return;
+        }
+
         var drawer = this._getDrawer();
         var map = this.getMap();
 
         // for drawer scale
-        if(drawer.scale) {
+        if(drawer.scale && this.getDataRangeControl()) {
             drawer.scale(mapv.Scale);
             mapv.Scale.show();
         } else {
-            mapv.Scale.hide();
+            mapv && mapv.Scale.hide();
         }
+
         // mapv._drawTypeControl.showLayer(this);
         this.getMapv().OptionalData && this.getMapv().OptionalData.initController(this, this.getDrawType());
     },
@@ -967,8 +1002,10 @@ util.extend(Layer.prototype, {
             funcName += 'Drawer';
             var drawer = this._drawer[drawType] = eval('(new ' + funcName + '(this))');
             if (drawer.scale) {
-                drawer.scale(this.getMapv().Scale);
-                this.getMapv().Scale.show();
+                if (this.getMapv()) {
+                    drawer.scale(this.getMapv().Scale);
+                    this.getMapv().Scale.show();
+                }
             } else {
                 this.getMapv().Scale.hide();
             }
@@ -1026,9 +1063,8 @@ util.extend(Layer.prototype, {
                 this._max = Math.max(this._max, data[i].count);
                 this._min = Math.min(this._min, data[i].count);
             }
+            this.draw();
         }
-
-        this.dispatchEvent('draw');
     },
     getDataRange: function () {
         return {
@@ -1039,6 +1075,11 @@ util.extend(Layer.prototype, {
     zIndex_changed: function () {
         var zIndex = this.getZIndex();
         this.canvasLayer.setZIndex(zIndex);
+    },
+
+    dataRangeControl_changed: function () {
+        this.updateControl();
+        this._getDrawer().notify('drawOptions');
     }
 });
 ;function DataControl(superObj) {
@@ -1247,10 +1288,17 @@ util.extend(DataRangeControl.prototype, {
 
         var height = 10;
 
+        var maxSize = 0;
+        for (var i = 0; i < splitList.length; i++) {
+            if (splitList[i].size > maxSize) {
+                maxSize = splitList[i].size;
+            }
+        }
+
         for (var i = 0; i < splitList.length; i++) {
             height += splitList[i].size;
             ctx.beginPath();
-            ctx.arc(20, height, splitList[i].size, 0, Math.PI * 2, false);
+            ctx.arc(maxSize + 5, height, splitList[i].size, 0, Math.PI * 2, false);
             var startText = splitList[i].start || '~';
             var endText = splitList[i].end || '~';
             var text =  startText + ' - ' + endText;
@@ -1258,8 +1306,12 @@ util.extend(DataRangeControl.prototype, {
             ctx.fillStyle = drawOptions.fillStyle || 'rgba(50, 50, 200, 0.8)';
             ctx.fill();
             ctx.fillStyle = 'rgba(30, 30, 30, 1)';
-            ctx.fillText(text, 50, height + 6);
-            height += splitList[i].size + 5;
+            ctx.fillText(text, maxSize * 2 + 10, height + 6);
+            var addHeight = splitList[i].size + 5;
+            if (addHeight < 15) {
+                addHeight = 15;
+            }
+            height += addHeight;
         }
     },
 
@@ -1294,7 +1346,7 @@ util.extend(DataRangeControl.prototype, {
 
         for (var i = 0; i < splitList.length; i++) {
             ctx.beginPath();
-            ctx.arc(15, i * 25 + 15, drawOptions.size, 0, Math.PI * 2, false);
+            ctx.arc(15, i * 25 + 15, 5, 0, Math.PI * 2, false);
             var text = (splitList[i].start || '~') + ' - ' + (splitList[i].end || '~');
             ctx.closePath();
             ctx.fillStyle = splitList[i].color;
@@ -1305,7 +1357,15 @@ util.extend(DataRangeControl.prototype, {
     },
 
     hide: function () {
-        this.canvas.style.display = 'none';
+        if (this.canvas) {
+            this.canvas.style.display = 'none';
+        }
+    },
+
+    show: function () {
+        if (this.canvas) {
+            this.canvas.style.display = 'block';
+        }
     }
 
 });
@@ -1609,10 +1669,11 @@ function drawTips(obj) {
 
 util.addCssByStyle(
     [
-        '#MapvDrawTypeControl { list-style:none; position:absolute; right:0px; top:0px; bottom:0px; padding:0; margin:0; }',
-        '#MapvDrawTypeControl li{ padding:0; margin:0; cursor:pointer; margin:1px 0;',
-        'color:#fff; padding:5px; background:rgba(0, 0, 0, 0.5); }',
-        '#MapvDrawTypeControl li.current{ background:rgba(0, 0, 255, 0.5); }'
+        '#MapvDrawTypeControl { list-style:none; position:absolute; right:0px; top:0px; bottom:0px; padding:0; margin:0;',
+        'border-radius: 5px; overflow: hidden; border: 1px solid rgb(153, 153, 153); box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 4px 2px;}',
+        '#MapvDrawTypeControl li{ padding:0; margin:0; cursor:pointer; ',
+        'color:#333; padding:5px; background:rgba(255, 255, 255, 1); border-bottom: 1px solid #aaa;}',
+        '#MapvDrawTypeControl li.current{ background:#999; color:#fff;}'
     ].join('\n')
 );
 
@@ -1631,8 +1692,8 @@ function DrawTypeControl(options) {
     // console.log('@@@@@@', options)
     this.mapv = options.mapv;
     // 默认停靠位置和偏移量
-    this.defaultAnchor = BMAP_ANCHOR_TOP_RIGHT;
-    this.defaultOffset = new BMap.Size(10, 10);
+    this.defaultAnchor = this.getDrawTypeControlOptions().anchor || BMAP_ANCHOR_TOP_RIGHT;
+    this.defaultOffset = this.getDrawTypeControlOptions().offset || new BMap.Size(10, 10);
 }
 
 util.inherits(DrawTypeControl, Class);
@@ -1655,6 +1716,9 @@ DrawTypeControl.prototype.initialize = function (map) {
             var drawType = target.getAttribute('drawType');
             target.className = 'current';
 
+            if (me.getDrawTypeControlOptions().drawOptions && me.getDrawTypeControlOptions().drawOptions[drawType]) {
+                me.layer.setDrawOptions(me.getDrawTypeControlOptions().drawOptions[drawType]);
+            }
             me.layer.setDrawType(drawType);
 
         }
@@ -1681,6 +1745,14 @@ DrawTypeControl.prototype.drawTypeControlOptions_changed = function () {
     }
 
     this.showLayer();
+    
+    if (this.getDrawTypeControlOptions().anchor !== undefined) {
+        this.setAnchor(this.getDrawTypeControlOptions().anchor);
+    }
+
+    if (this.getDrawTypeControlOptions().offset !== undefined) {
+        this.setOffset(this.getDrawTypeControlOptions().offset);
+    }
 
 }
 
@@ -1912,6 +1984,7 @@ OptionalData.prototype.bindEvent = function () {
 ;/* globals util */
 
 function Drawer(layer) {
+
     Class.call(this);
 
     this.mapv = layer._mapv;
@@ -1973,10 +2046,6 @@ Drawer.prototype.endDrawMap = function () {
     ctx.restore();
 }
 
-// we need defined drawDataRange so that in Mapv.js
-//      we can shwo or remove range cans by drawer.drawDataRange
-// Drawer.prototype.drawDataRange = function () {};
-
 Drawer.prototype.drawOptions_changed = function () {
 
     var drawOptions = this.getDrawOptions();
@@ -1985,8 +2054,6 @@ Drawer.prototype.drawOptions_changed = function () {
     } else {
         this.generalSplitList();
     }
-
-    this.drawDataRange && this.drawDataRange();
 
 };
 
@@ -3048,6 +3115,8 @@ IntensityDrawer.prototype.drawMap = function () {
         max: self.getMax(),
         colors: this.getGradient()
     });
+
+    this.dataRange.setMax(self.getMax());
 
     this.endDrawMap();
 };
