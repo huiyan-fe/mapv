@@ -70,7 +70,7 @@ util.extend(Layer.prototype, {
 
     },
 
-    draw: function (ctx) {
+    draw: function () {
 
         if (!this.getMapv()) {
             return;

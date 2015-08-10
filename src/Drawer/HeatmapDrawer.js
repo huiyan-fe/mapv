@@ -16,9 +16,17 @@ function HeatmapDrawer() {
 util.inherits(HeatmapDrawer, Drawer);
 
 HeatmapDrawer.prototype.drawMap = function () {
+    // console.log('---??? do ')
+    var self = this;
+
+    self.Scale && self.Scale.set({
+        min: 0,
+        max: self.getMax(),
+        colors: this.getGradient()
+    });
+
     this.beginDrawMap();
 
-    var self = this;
     var ctx = this.getCtx();
 
     this._width = ctx.canvas.width;
@@ -26,12 +34,6 @@ HeatmapDrawer.prototype.drawMap = function () {
     var data = this.getLayer().getData();
     this._data = data;
     this.drawHeatmap();
-    // console.log('---??? do ')
-    self.Scale && self.Scale.set({
-        min: 0,
-        max: self.getMax(),
-        colors: this.getGradient()
-    });
 
     this.endDrawMap();
 };

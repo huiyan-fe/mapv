@@ -57,6 +57,7 @@ DrawTypeControl.prototype.initialize = function (map) {
             if (me.getDrawTypeControlOptions().drawOptions && me.getDrawTypeControlOptions().drawOptions[drawType]) {
                 me.layer.setDrawOptions(me.getDrawTypeControlOptions().drawOptions[drawType]);
             }
+
             me.layer.setDrawType(drawType);
 
         }

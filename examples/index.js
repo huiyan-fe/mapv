@@ -144,6 +144,7 @@ var options = {
     drawTypeControl: true,
     map: bmap
 };
+
 var mapv = new Mapv(options);
 
 /*
@@ -252,7 +253,8 @@ $.ajax({
         
         mapv.setOptions({
             drawTypeControlOptions: {
-                layer: layer
+                layer: layer,
+                drawOptions: drawOptions,
             }
         });
     }
