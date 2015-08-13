@@ -837,6 +837,7 @@ CanvasLayer.prototype.getZIndex = function(){
         ctx: null,
         animationCtx: null,
         mapv: null,
+        paneName: 'labelPane',
         map: null,
         data: [],
         dataType: 'point',
@@ -876,6 +877,7 @@ util.extend(Layer.prototype, {
         this.canvasLayer = new CanvasLayer({
             map: this.getMap(),
             zIndex: this.getZIndex(),
+            paneName : this.getPaneName(),
             update: function () {
                 that.draw();
             },
