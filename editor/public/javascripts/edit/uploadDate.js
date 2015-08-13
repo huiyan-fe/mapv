@@ -2,7 +2,7 @@
  * @file this file is to control the update file
  * @author Mofei Zhu <zhuwenlong@baidu.com>
  */
-define(function () {
+define(['editActions'],function (editor) {
 	var callbackFn = null;
 	// new reader to get the file which user upload
 	var reader = new FileReader();
@@ -10,7 +10,9 @@ define(function () {
 		var text = reader.result;
 		var draw = formatRender(text);
 		if(draw && callbackFn){
-			callbackFn(draw)
+			editor.setData(draw);
+			// //
+			callbackFn(draw);
 		}
 	});
 
@@ -77,6 +79,13 @@ define(function () {
 		reader.fileSize = event.dataTransfer.files[0].size;
 		return false;
 	});
+
+	$('body').on('change','.E-upload-fild',function(e){
+		var file = this.files[0];
+		reader.readAsText(file);
+		reader.fileName = file.name;
+		reader.fileSize = file.size;
+	})
 
 	function addCallback(fn){
 		callbackFn = fn;

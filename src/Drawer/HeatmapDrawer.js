@@ -16,9 +16,17 @@ function HeatmapDrawer() {
 util.inherits(HeatmapDrawer, Drawer);
 
 HeatmapDrawer.prototype.drawMap = function () {
+    // console.log('---??? do ')
+    var self = this;
+
+    self.Scale && self.Scale.set({
+        min: 0,
+        max: self.getMax(),
+        colors: this.getGradient()
+    });
+
     this.beginDrawMap();
 
-    var self = this;
     var ctx = this.getCtx();
 
     this._width = ctx.canvas.width;
@@ -26,12 +34,6 @@ HeatmapDrawer.prototype.drawMap = function () {
     var data = this.getLayer().getData();
     this._data = data;
     this.drawHeatmap();
-    // console.log('---??? do ')
-    self.Scale && self.Scale.set({
-        min: 0,
-        max: self.getMax(),
-        colors: this.getGradient()
-    });
 
     this.endDrawMap();
 };
@@ -97,8 +99,13 @@ util.extend(HeatmapDrawer.prototype, {
         return this;
     },
 
-    radius: function (r, blur) {
-        blur = blur || 15;
+    radius: function (r) {
+
+        if (this.getDrawOptions().shadowBlur !== undefined) {
+            var blur = this.getDrawOptions().shadowBlur;
+        } else {
+            var blur = 15;
+        }
 
         // create a grayscale blurred circle image that we'll use for drawing points
         var circle = this._circle = document.createElement('canvas'),
@@ -111,17 +118,19 @@ util.extend(HeatmapDrawer.prototype, {
             circle.width = circle.height = r2 * 2;
         }
 
-        ctx.shadowOffsetX = ctx.shadowOffsetY = 200;
-        if (this.getDrawOptions().blur !== false) {
-            ctx.shadowBlur = blur;
-        }
+        var offsetDistance = 10000;
+
+        ctx.shadowOffsetX = ctx.shadowOffsetY = offsetDistance;
+
+        ctx.shadowBlur = blur;
+
         ctx.shadowColor = 'black';
 
         ctx.beginPath();
         if (this.getDrawOptions().type === 'rect') {
-            ctx.fillRect(-200, -200, circle.width, circle.height);
+            ctx.fillRect(-offsetDistance, -offsetDistance, circle.width, circle.height);
         } else {
-            ctx.arc(r2 - 200, r2 - 200, r, 0, Math.PI * 2, true);
+            ctx.arc(r2 - offsetDistance, r2 - offsetDistance, r, 0, Math.PI * 2, true);
         }
         ctx.closePath();
         ctx.fill();
@@ -164,9 +173,11 @@ util.extend(HeatmapDrawer.prototype, {
 
         } else {
 
+            var boundary = this.getDrawOptions().boundary || 50;
+
             for (var i = 0, len = this._data.length, p; i < len; i++) {
                 p = this._data[i];
-                if (p.px < 0 || p.py < 0 || p.px > ctx.canvas.width || p.py > ctx.canvas.height) {
+                if (p.px < -boundary || p.py < -boundary || p.px > ctx.canvas.width + boundary || p.py > ctx.canvas.height + boundary) {
                     continue;
                 }
                 // if (p.count < this.masker.min || p.count > this.masker.max) {

@@ -5,6 +5,7 @@
 /* globals util */
 
 function Drawer(layer) {
+
     Class.call(this);
 
     this.mapv = layer._mapv;
@@ -66,10 +67,6 @@ Drawer.prototype.endDrawMap = function () {
     ctx.restore();
 }
 
-// we need defined drawDataRange so that in Mapv.js
-//      we can shwo or remove range cans by drawer.drawDataRange
-// Drawer.prototype.drawDataRange = function () {};
-
 Drawer.prototype.drawOptions_changed = function () {
 
     var drawOptions = this.getDrawOptions();
@@ -78,8 +75,6 @@ Drawer.prototype.drawOptions_changed = function () {
     } else {
         this.generalSplitList();
     }
-
-    this.drawDataRange && this.drawDataRange();
 
 };
 
@@ -120,9 +115,14 @@ Drawer.prototype.getRadius = function () {
     var radius = drawOptions.size || 13;
     var unit = drawOptions.unit || 'px';
     if (unit === 'm') {
-        radius = parseInt(radius, 10) / zoomUnit;
+        radius = radius / zoomUnit;
     } else {
         radius = parseInt(radius, 10);
     }
+
+    if (drawOptions.minPxSize && radius < drawOptions.minPxSize) {
+        radius = drawOptions.minPxSize;
+    }
+
     return radius;
 }

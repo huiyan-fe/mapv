@@ -27,17 +27,17 @@ requirejs.config({
 });
 
 // main
-requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp','tools'], function (upCallback, edit, sort, login, git,tools) {
+requirejs(['uploadDate', 'editActions', 'sort', 'login', 'databank', 'gitOp', 'tools'], function (upCallback, edit, sort, login, databank, git, tools) {
 	// new app
 	app = edit;
 	// init sort action and login
 	sort.init(app);
 	login.reg(app);
 	// listen to the uplodaData's callback;
-	var pointData,options;
+	var pointData, options;
 	upCallback(function(data){
-		pointData = data;
-		app.shwoEdit()
+		// pointData = data;
+		app.shwoEdit();
 	});
 	// console.log(tools.getSearch().user)
 	// the edit done event
@@ -47,7 +47,7 @@ requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp','tools'], funct
 		var layerInfo = {
 			name: name,
 			mapv: mapv,
-			data: pointData,
+			data: app.getData(),
 			drawType: options.type,
 			drawOptions: options.option
 		}
@@ -56,7 +56,14 @@ requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp','tools'], funct
 		app.addLayer(layer);
 
 		// update and save info
-		if(!login.getUser().session || (tools.getSearch().user!==login.getUser().username)){
+		var haveSession = databank.get('user').session //!!databank.get('user').session;
+		var searchName = tools.getSearch().user;
+		var sessionName = databank.get('user').username;
+		var isSelf = searchName && (searchName!==sessionName);
+		if(!haveSession || isSelf){
+			console.log('abandon update config');
+			console.log('haveSession',haveSession)
+			console.log('search & session name:',searchName,sessionName)
 			return false;
 		}
 
@@ -64,20 +71,23 @@ requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp','tools'], funct
 
 		// upload Date
 		console.info('start update layer for ',name);
-		var pointStr = JSON.stringify(pointData);
+		$('.E-layers-layer[name="'+name+'"]').addClass('icon-uploading');
+		var pointStr = JSON.stringify(app.getData());
 		var data = {
 			'message': 'add layer data for layer ' + name,
 			'content': git.utf8_to_b64(pointStr)
 		};
-		var dataPath = 'data/'+name;
+		var dataPath = 'data/' + name;
 		// upload files
 		git.createFiles({
-			token: login.getUser().session,
-			user: login.getUser().username,
+			token: databank.get('user').session,
+			user: databank.get('user').username,
 			path: dataPath,
 			data: data,
 			success:function(data){
-				var config = login.config();
+				$('.E-layers-layer[name="'+name+'"]').removeClass('icon-uploading');
+				// update config
+				var config = databank.get('config');
 				options.layerName = name;
 				config[project] = config[project] || {};
 				config[project].layers[name] = {};
@@ -85,31 +95,9 @@ requirejs(['uploadDate', 'editActions', 'sort', 'login', 'gitOp','tools'], funct
 				config[project].layers[name].data = 'data/'+name;
 				config[project].layers[name].sha = data.content.sha;
 				console.info('update config',config);
-				updateConfig(JSON.stringify(config));
+				databank.uploadConfig(config);
 			}
 		});
-
-		// upload config
-		function updateConfig(conf){
-			console.warn(conf)
-			var data = {
-				'message': 'update config',
-				'content': git.utf8_to_b64(conf)
-			};
-			git.updateFiles({
-				token: login.getUser().session,
-				user: login.getUser().username,
-				path: 'mapv_config.json',
-				data: data,
-				success:function(){
-					console.log('config updated');
-					var config = login.config();
-					config[project] = config[project] || {};
-					config[project].layers[name] = JSON.parse(conf)[project].layers[name];
-					login.setConfig(config);
-				}
-			})
-		}
 	});
 
 });

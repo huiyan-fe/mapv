@@ -62,11 +62,15 @@ CanvasLayer.prototype.getContainer = function(){
 }
 
 CanvasLayer.prototype.show = function(){
-    this._map.addOverlay(this);
+    if (!this.canvas) {
+        this._map.addOverlay(this);
+    }
+    this.canvas.style.display = "block";
 }
 
 CanvasLayer.prototype.hide = function(){
-    this._map.removeOverlay(this);
+    this.canvas.style.display = "none";
+    //this._map.removeOverlay(this);
 }
 
 CanvasLayer.prototype.setZIndex = function(zIndex){

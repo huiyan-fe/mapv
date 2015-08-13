@@ -133,8 +133,10 @@ define(['cookie','gitOp','tools','projectControl','databank'],function(cookie,gi
         var type = tools.getSearch().project || 'default';
         obj[type] = obj[type] || {};
         project.init();
+        console.log(type)
         if(obj[type]){
             var layers = obj[type];
+            console.log(layers)
             for(var i in layers){
                 getLayerData(i,layers[i]);
             }
@@ -146,6 +148,7 @@ define(['cookie','gitOp','tools','projectControl','databank'],function(cookie,gi
      * @param  {Object} data the layers info
      */
     function getLayerData(layerName,data){
+        console.log(data)
         for(var i in data){
             (function(layerName,options){
                 git.getData({
@@ -157,7 +160,7 @@ define(['cookie','gitOp','tools','projectControl','databank'],function(cookie,gi
                     }
                 })
             })(i,data[i].options);
-            $('.E-layers').append('<div class="E-layers-block E-layers-layer E-layers-layer-loading" name="'+i+'">...</div>');
+            $('.E-layers').append('<div class="E-layers-block E-layers-layer icon-downloading" name="'+i+'">...</div>');
         }
     }
 
@@ -179,7 +182,7 @@ define(['cookie','gitOp','tools','projectControl','databank'],function(cookie,gi
 			drawOptions: options.option
 		}
 		var layer = new Mapv.Layer(layerInfo);
-        $('.E-layers-layer[name="'+layerName+'"]').html(options.type.substring(0,2).toUpperCase()).removeClass('E-layers-layer-loading');
+        $('.E-layers-layer[name="'+layerName+'"]').html(options.type.substring(0,2).toUpperCase()).removeClass('icon-downloading');
 		app.addLayer(layer);
     }
 

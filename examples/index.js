@@ -87,9 +87,10 @@ var drawOptions = {
     },
     heatmap: {
         size: 500,
+        minPxSize: 2.5,
         maxOpacity: 0.8,
         max: 100,
-        blur: true,
+        //shadowBlur: 0,
         type: 'arc',
         unit: 'm',
         fillStyle: 'rgba(55, 55, 255, 0.8)',
@@ -143,8 +144,10 @@ var options = {
     drawTypeControl: true,
     map: bmap
 };
+
 var mapv = new Mapv(options);
 
+/*
 var polygonLayer = new Mapv.Layer({
     zIndex: 3,
     mapv: mapv,
@@ -223,6 +226,7 @@ var pointLayer = new Mapv.Layer({
         size: 20
     }
 });
+*/
 
 $.ajax({
     url: 'data/beijing.json',
@@ -249,7 +253,8 @@ $.ajax({
         
         mapv.setOptions({
             drawTypeControlOptions: {
-                layer: layer
+                layer: layer,
+                drawOptions: drawOptions,
             }
         });
     }
@@ -259,6 +264,7 @@ $.ajax({
     url: 'data/drive.json',
     dataType: 'JSON',
     success: function (rs) {
+        return;
         console.log(1, rs);
         var data = [];
 

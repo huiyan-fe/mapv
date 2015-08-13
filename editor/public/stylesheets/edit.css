@@ -1,3 +1,31 @@
+@font-face {
+	font-family: 'icomoon';
+	src:url('/fonts/icomoon.eot?dckxe1');
+	src:url('/fonts/icomoon.eot?#iefixdckxe1') format('embedded-opentype'),
+		url('/fonts/icomoon.ttf?dckxe1') format('truetype'),
+		url('/fonts/icomoon.woff?dckxe1') format('woff'),
+		url('/fonts/icomoon.svg?dckxe1#icomoon') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+	font-family: 'icomoon';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+
+
+
 .E-layers { position: absolute; right: 10px; top:10px; overflow: hidden; width:50px; bottom: 0;}
 .E-layers-block { cursor: pointer; text-align: center; padding:5px; width: 40px; height: 40px; line-height: 35px; background: #fb4f4f; z-index: 10000;  color:#fff; font-size: 20px;  margin-bottom: 10px;}
 .E-add { text-align: center; font-size: 30px; cursor: pointer;}
@@ -7,7 +35,8 @@
 .E-funBox-close {position: absolute; top:15px; right: 20px; color:#999; cursor: pointer;}
 .E-funBox-close:hover { color: #000; }
 
-.E-upload { margin:20px; border:4px dashed #ccc; padding: 40px 0; text-align: center; color:#999; font-size: 20px;}
+.E-upload { margin:20px; border:4px dashed #ccc; padding: 40px 0; text-align: center; color:#999; font-size: 20px; position: relative; overflow:hidden; }
+.E-upload-fild {position:absolute; top:0; left:0; opacity: 0;}
 
 .E-eidt { padding: 10px; max-height: 450px; overflow: auto; overflow-x: hidden;}
 .E-editTitle { color: #b3b3b3; font-size: 14px; }
@@ -17,7 +46,8 @@
 .E-type-active { background: #fb4f4f; }
 
 .E-input { border:1px solid #ccc; width: 375px ; padding: 0; height:30px; font-size: 14px; text-indent: 10px; color:#999; }
-.E-button { width: 80px; height: 30px; background: #FFCCCC; border:none; font-size: 14px; margin-right: 5px; color:#fff; cursor: pointer;}
+.E-button { width: 80px; height: 30px; line-height: 30px; text-align: center; background: #FFCCCC; border:none; font-size: 14px; margin-right: 5px; color:#fff; cursor: pointer;-webkit-transition: all 0.2s ease-in;}
+.E-button:hover { background: #fb4f4f;  }
 .E-button-active { background: #fb4f4f; }
 .E-label { background: #FFCCCC; height: 30px; display: inline-block; line-height: 30px; padding: 0 10px; color:#fff; font-size: 14px;}
 .E-label-active {background: #fb4f4f; }
@@ -51,3 +81,21 @@
 .E-funBox-content table th:first-child,
 .E-funBox-content table td:first-child {text-align: left;}
 .E-funBox-content table tr { height: 30px; line-height: 30px; margin:0 10px; border-bottom: 1px solid #ccc; }
+
+.icon-uploading { position: relative; }
+.icon-uploading::before { -webkit-animation:flashing 2s infinite; content: "\e601"; position: absolute; bottom:4px; right:4px; font-size: 20px; height:20px; width:20px; line-height: 20px; opacity: 0.8; text-shadow: 1px 1px 1px rgba(0,0,0,0.5);}
+.icon-downloading { position: relative; }
+.icon-downloading::before { -webkit-animation:flashing 2s infinite; content: "\e600"; position: absolute; bottom:4px; right:4px; font-size: 20px; height:20px; width:20px; line-height: 20px; opacity: 0.8; text-shadow: 1px 1px 1px rgba(0,0,0,0.5);}
+
+@-webkit-keyframes flashing {
+    0% { opacity: 0.4; }
+    50% { opacity: 0.8; }
+    100% { opacity: 0.4; }
+}
+
+.E-upload-line { color:#999; text-align: center; }
+.E-makePoint {height:40px; width:auto;  line-height: 40px; text-align: center; margin:10px 20px; color:#fff; }
+
+.E-pickerBtn-ok,.E-pickerBtn-cancel {position: absolute; top:10px;}
+.E-pickerBtn-ok {right:100px;}
+.E-pickerBtn-cancel {right:10px;}
