@@ -112,6 +112,10 @@ var layer = new Mapv.Layer({
 });
 ```
 
+#### 谁在使用
+
+![百度慧眼](/doc/asset/img/user/huiyan.png)
+
 #### bubble类型
 ![bubble类型](/doc/asset/img/bubble.png)
 
