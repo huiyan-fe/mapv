@@ -114,4 +114,6 @@ var layer = new Mapv.Layer({
 
 ### 谁在使用
 
-[![百度慧眼](/doc/asset/img/user/huiyan.png)](huiyan.baidu.com)
+[![百度慧眼](/doc/asset/img/user/huiyan.png)](http://huiyan.baidu.com)
+
+![百度交通云](/doc/asset/img/user/jiaotong.png)
