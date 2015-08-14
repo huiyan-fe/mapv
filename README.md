@@ -112,21 +112,6 @@ var layer = new Mapv.Layer({
 });
 ```
 
-#### 谁在使用
+### 谁在使用
 
-![百度慧眼](/doc/asset/img/user/huiyan.png)
-
-#### bubble类型
-![bubble类型](/doc/asset/img/bubble.png)
-
-#### choropleth 类型
-![bubble类型](/doc/asset/img/choropleth.png)
-
-#### cluster 类型
-![bubble类型](/doc/asset/img/cluster.png)
-
-#### density 类型
-![bubble类型](/doc/asset/img/density.png)
-
-#### heatmap 类型
-![bubble类型](/doc/asset/img/heatmap.png)
+[![百度慧眼](/doc/asset/img/user/huiyan.png)](huiyan.baidu.com)
