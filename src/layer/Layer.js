@@ -13,6 +13,7 @@ function Layer (options) {
         mapv: null,
         paneName: 'labelPane',
         map: null,
+        context: '2d',
         data: [],
         dataType: 'point',
         animationOptions: {
@@ -58,7 +59,7 @@ util.extend(Layer.prototype, {
             elementTag: "canvas"
         });
 
-        this.setCtx(this.canvasLayer.getContainer().getContext("2d"));
+        this.setCtx(this.canvasLayer.getContainer().getContext(this.getContext()));
 
         if (this.getAnimation()) {
             this.animationLayer = new CanvasLayer({
@@ -67,7 +68,7 @@ util.extend(Layer.prototype, {
                 elementTag: "canvas"
             });
 
-            this.setAnimationCtx(this.animationLayer.getContainer().getContext("2d"));
+            this.setAnimationCtx(this.animationLayer.getContainer().getContext(this.getContext()));
         }
 
     },
@@ -84,7 +85,10 @@ util.extend(Layer.prototype, {
             return false;
         }
 
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        if (this.getContext == '2d') {
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        }
+
         this._calculatePixel();
 
         this._getDrawer().drawMap();

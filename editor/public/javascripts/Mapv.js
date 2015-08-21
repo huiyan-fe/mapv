@@ -839,6 +839,7 @@ CanvasLayer.prototype.getZIndex = function(){
         mapv: null,
         paneName: 'labelPane',
         map: null,
+        context: '2d',
         data: [],
         dataType: 'point',
         animationOptions: {
@@ -884,7 +885,7 @@ util.extend(Layer.prototype, {
             elementTag: "canvas"
         });
 
-        this.setCtx(this.canvasLayer.getContainer().getContext("2d"));
+        this.setCtx(this.canvasLayer.getContainer().getContext(this.getContext()));
 
         if (this.getAnimation()) {
             this.animationLayer = new CanvasLayer({
@@ -893,7 +894,7 @@ util.extend(Layer.prototype, {
                 elementTag: "canvas"
             });
 
-            this.setAnimationCtx(this.animationLayer.getContainer().getContext("2d"));
+            this.setAnimationCtx(this.animationLayer.getContainer().getContext(this.getContext()));
         }
 
     },
@@ -910,7 +911,10 @@ util.extend(Layer.prototype, {
             return false;
         }
 
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        if (this.getContext == '2d') {
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        }
+
         this._calculatePixel();
 
         this._getDrawer().drawMap();
@@ -2015,6 +2019,18 @@ function Drawer(layer) {
 util.inherits(Drawer, Class);
 
 Drawer.prototype.beginDrawMap = function () {
+    if (this.getLayer().getContext() == "2d") {
+        this.beginDrawCanvasMap();
+    }
+};
+
+Drawer.prototype.endDrawMap = function () {
+    if (this.getLayer().getContext() == "2d") {
+        this.endDrawCanvasMap();
+    }
+}
+
+Drawer.prototype.beginDrawCanvasMap = function () {
 
     var drawOptions = this.getDrawOptions();
     var ctx = this.getCtx();
@@ -2042,9 +2058,9 @@ Drawer.prototype.beginDrawMap = function () {
         }
     }
 
-};
+}
 
-Drawer.prototype.endDrawMap = function () {
+Drawer.prototype.endDrawCanvasMap = function () {
     var ctx = this.getCtx();
     ctx.restore();
 }
@@ -2099,7 +2115,7 @@ Drawer.prototype.getRadius = function () {
     if (unit === 'm') {
         radius = radius / zoomUnit;
     } else {
-        radius = parseInt(radius, 10);
+        radius = radius;
     }
 
     if (drawOptions.minPxSize && radius < drawOptions.minPxSize) {
@@ -3205,6 +3221,11 @@ function SimpleDrawer() {
 util.inherits(SimpleDrawer, Drawer);
 
 SimpleDrawer.prototype.drawMap = function () {
+    if (this.getLayer().getContext() === 'webgl') {
+        this.drawWebglMap();
+        return;
+    }
+
     this.beginDrawMap();
 
     var data = this.getLayer().getData();
@@ -3314,6 +3335,125 @@ SimpleDrawer.prototype.drawAnimation = function () {
             }
         }
     }
+}
+
+// 使用webgl来绘点，支持更大数据量的点
+SimpleDrawer.prototype.drawWebglMap = function () {
+
+    var data = this.getLayer().getData();
+
+    if (!data) {
+        return;
+    }
+
+    var gl = this.getCtx();
+
+    var vs, fs, vs_s, fs_s;
+
+    vs = gl.createShader(gl.VERTEX_SHADER);
+    fs = gl.createShader(gl.FRAGMENT_SHADER);
+
+    vs_s = [
+        'attribute vec4 a_Position;',
+        'attribute float a_PointSize;',
+        'void main() {',
+            'gl_Position = a_Position;',
+            'gl_PointSize = a_PointSize;',
+        '}'
+    ].join('');
+
+    fs_s = [
+        'precision mediump float;',
+        'uniform vec4 u_FragColor;',
+        'void main() {',
+            'gl_FragColor = u_FragColor;',
+        '}'
+    ].join('');
+
+    var program = gl.createProgram();
+    gl.shaderSource(vs, vs_s);
+    gl.compileShader(vs);
+    gl.shaderSource(fs, fs_s);
+    gl.compileShader(fs);
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    var a_Position = gl.getAttribLocation(program, 'a_Position');
+
+    var a_PointSize = gl.getAttribLocation(program, 'a_PointSize');
+
+    var uFragColor = gl.getUniformLocation(program, 'u_FragColor');
+
+    //gl.clearColor(0.0, 0.0, 1.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+        var count1 = 0;
+        var count2 = 0;
+        var count3 = 0;
+
+    var halfCanvasWidth = gl.canvas.width / 2;
+    var halfCanvasHeight = gl.canvas.height / 2;
+
+    var verticesData = [];
+    console.time('parseData');
+    var count = 0;
+    for (var i = 0; i < data.length; i++) {
+        var item = data[i];
+
+        var x = (item.px - halfCanvasWidth) / halfCanvasWidth;
+        var y = (halfCanvasHeight - item.py) / halfCanvasHeight;
+
+        if (x < -1 || x > 1 || y < -1 || y > 1 || item[1] <= -11704500 || item[1] >= 12475500) {
+            continue;
+        }
+        verticesData.push(x, y);
+        count++;
+    }
+    console.timeEnd('parseData');
+
+    var vertices = new Float32Array(verticesData);
+    var n = count; // The number of vertices
+
+    // Create a buffer object
+    var vertexBuffer = gl.createBuffer();
+    if (!vertexBuffer) {
+        console.log('Failed to create the buffer object');
+        return -1;
+    }
+
+    // Bind the buffer object to target
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    // Write date into the buffer object
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+    var a_Position = gl.getAttribLocation(program, 'a_Position');
+    if (a_Position < 0) {
+        console.log('Failed to get the storage location of a_Position');
+        return -1;
+    }
+    // Assign the buffer object to a_Position variable
+    gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+
+    // Enable the assignment to a_Position variable
+    gl.enableVertexAttribArray(a_Position);
+
+    gl.vertexAttrib1f(a_PointSize, this.getRadius());
+
+    var tmpCanvas = document.createElement('canvas');
+    var tmpCtx = tmpCanvas.getContext('2d');
+    tmpCanvas.width = 1;
+    tmpCanvas.height = 1;
+    tmpCtx.fillStyle = this.getDrawOptions().fillStyle;
+    tmpCtx.fillRect(0, 0, 1, 1);
+    var colored = tmpCtx.getImageData(0, 0, 1, 1).data;
+
+    gl.uniform4f(uFragColor,
+    colored[0] / 255,
+    colored[1] / 255,
+    colored[2] / 255,
+    colored[3] / 255);
+    gl.drawArrays(gl.POINTS, 0 , n);
 }
 ;    Mapv.Layer = Layer;
     this.Mapv = Mapv;
