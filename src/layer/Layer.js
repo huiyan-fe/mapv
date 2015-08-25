@@ -85,7 +85,7 @@ util.extend(Layer.prototype, {
             return false;
         }
 
-        if (this.getContext == '2d') {
+        if (this.getContext() == '2d') {
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         }
 
