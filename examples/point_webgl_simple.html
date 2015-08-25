@@ -26,7 +26,6 @@ bmap.centerAndZoom(new BMap.Point(105.403119, 38.028658), 5); // 初始化地图
 
 // 第一步创建mapv示例
 var mapv = new Mapv({
-    drawTypeControl: true,
     map: bmap  // 百度地图的map实例
 });
 
@@ -41,17 +40,21 @@ for (var i = 0; i < cityData.provinces.length; i++) {
     data = data.concat(getCityCenter(citys));
 }
 
+console.log(data.length);
+
 function getCityCenter(citys) {
     var data = [];
     for (var i = 0; i < citys.length; i++) {
         var city = citys[i];
         var center = city.g.split('|')[0];
         center = center.split(',');
-        data.push({
-            lng: center[0],
-            lat: center[1],
-            count: Math.random() * 10
-        });
+        for (var j = 0; j < 1000; j++) {
+            data.push({
+                lng: parseFloat(center[0]) + Math.random() * 10 - 5,
+                lat: parseFloat(center[1]) + Math.random() * 10 - 5,
+                count: Math.random() * 10
+            });
+        }
     }
     return data;
 };
@@ -59,21 +62,15 @@ function getCityCenter(citys) {
 var layer = new Mapv.Layer({
     mapv: mapv, // 对应的mapv实例
     zIndex: 1, // 图层层级
-    dataType: 'point', // 数据类型，点类型
-    dataRangeControl: false,
+    context: 'webgl',
     data: data, // 数据
-    drawType: 'intensity', // 展示形式
+    drawType: 'simple', // 展示形式
     drawOptions: { // 绘制参数
-        size: 5, // 点大小
-        gradient: { // 显示的颜色渐变范围
-            '0': 'blue',
-            '0.6': 'cyan',
-            '0.7': 'lime',
-            '0.8': 'yellow',
-            '1.0': 'red'
-        }
+        fillStyle: 'rgba(55, 55, 250, 0.7)', // 填充颜色
+        size: 0.9 // 半径
     }
 });
+
 
 </script>
 </body>

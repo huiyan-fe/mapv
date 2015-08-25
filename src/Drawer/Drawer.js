@@ -33,6 +33,18 @@ function Drawer(layer) {
 util.inherits(Drawer, Class);
 
 Drawer.prototype.beginDrawMap = function () {
+    if (this.getLayer().getContext() == "2d") {
+        this.beginDrawCanvasMap();
+    }
+};
+
+Drawer.prototype.endDrawMap = function () {
+    if (this.getLayer().getContext() == "2d") {
+        this.endDrawCanvasMap();
+    }
+}
+
+Drawer.prototype.beginDrawCanvasMap = function () {
 
     var drawOptions = this.getDrawOptions();
     var ctx = this.getCtx();
@@ -60,9 +72,9 @@ Drawer.prototype.beginDrawMap = function () {
         }
     }
 
-};
+}
 
-Drawer.prototype.endDrawMap = function () {
+Drawer.prototype.endDrawCanvasMap = function () {
     var ctx = this.getCtx();
     ctx.restore();
 }
@@ -117,7 +129,7 @@ Drawer.prototype.getRadius = function () {
     if (unit === 'm') {
         radius = radius / zoomUnit;
     } else {
-        radius = parseInt(radius, 10);
+        radius = radius;
     }
 
     if (drawOptions.minPxSize && radius < drawOptions.minPxSize) {
