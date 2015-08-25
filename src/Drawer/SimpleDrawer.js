@@ -178,15 +178,11 @@ SimpleDrawer.prototype.drawWebglMap = function () {
 
     //gl.clearColor(0.0, 0.0, 1.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
-        var count1 = 0;
-        var count2 = 0;
-        var count3 = 0;
 
     var halfCanvasWidth = gl.canvas.width / 2;
     var halfCanvasHeight = gl.canvas.height / 2;
 
     var verticesData = [];
-    console.time('parseData');
     var count = 0;
     for (var i = 0; i < data.length; i++) {
         var item = data[i];
@@ -194,13 +190,12 @@ SimpleDrawer.prototype.drawWebglMap = function () {
         var x = (item.px - halfCanvasWidth) / halfCanvasWidth;
         var y = (halfCanvasHeight - item.py) / halfCanvasHeight;
 
-        if (x < -1 || x > 1 || y < -1 || y > 1 || item[1] <= -11704500 || item[1] >= 12475500) {
+        if (x < -1 || x > 1 || y < -1 || y > 1) {
             continue;
         }
         verticesData.push(x, y);
         count++;
     }
-    console.timeEnd('parseData');
 
     var vertices = new Float32Array(verticesData);
     var n = count; // The number of vertices
@@ -229,6 +224,7 @@ SimpleDrawer.prototype.drawWebglMap = function () {
     gl.enableVertexAttribArray(a_Position);
 
     gl.vertexAttrib1f(a_PointSize, this.getRadius());
+    console.log(this.getRadius());
 
     var tmpCanvas = document.createElement('canvas');
     var tmpCtx = tmpCanvas.getContext('2d');

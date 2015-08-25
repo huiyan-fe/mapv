@@ -40,6 +40,8 @@ for (var i = 0; i < cityData.provinces.length; i++) {
     data = data.concat(getCityCenter(citys));
 }
 
+console.log(data.length);
+
 function getCityCenter(citys) {
     var data = [];
     for (var i = 0; i < citys.length; i++) {
@@ -64,8 +66,8 @@ var layer = new Mapv.Layer({
     data: data, // 数据
     drawType: 'simple', // 展示形式
     drawOptions: { // 绘制参数
-        fillStyle: 'rgba(255, 255, 50, 1)', // 填充颜色
-        size: 1 // 半径
+        fillStyle: 'rgba(55, 55, 250, 0.7)', // 填充颜色
+        size: 0.9 // 半径
     }
 });
 

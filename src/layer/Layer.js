@@ -195,6 +195,8 @@ util.extend(Layer.prototype, {
     _calculatePixel: function () {
         var map = this.getMapv().getMap();
         var mercatorProjection = map.getMapType().getProjection();
+
+        console.time('parseData');
         // 墨卡托坐标计算方法
         var zoom = map.getZoom();
         var zoomUnit = Math.pow(2, 18 - zoom);
@@ -204,10 +206,14 @@ util.extend(Layer.prototype, {
         var data = this.getData();
         var map = this.getMap();
         for (var j = 0; j < data.length; j++) {
-            if (data[j].lng && data[j].lat) {
-                var pixel = map.pointToPixel(new BMap.Point(data[j].lng, data[j].lat));
-                data[j].px = pixel.x;
-                data[j].py = pixel.y;
+            if (data[j].lng && data[j].lat && !data[j].x && !data[j].y) {
+
+                var pixel = mercatorProjection.lngLatToPoint(new BMap.Point(data[j].lng, data[j].lat));
+                data[j].x = pixel.x;
+                data[j].y = pixel.y;
+                //var pixel = map.pointToPixel(new BMap.Point(data[j].lng, data[j].lat));
+                //data[j].px = pixel.x;
+                //data[j].py = pixel.y;
             }
             if (data[j].x && data[j].y) {
                 data[j].px = (data[j].x - nwMc.x) / zoomUnit;
@@ -228,6 +234,7 @@ util.extend(Layer.prototype, {
                 data[j].pgeo = tmp;
             }
         }
+        console.timeEnd('parseData');
     },
     data_changed: function () {
         var data = this.getData();

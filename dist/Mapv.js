@@ -1021,6 +1021,8 @@ util.extend(Layer.prototype, {
     _calculatePixel: function () {
         var map = this.getMapv().getMap();
         var mercatorProjection = map.getMapType().getProjection();
+
+        console.time('parseData');
         // 墨卡托坐标计算方法
         var zoom = map.getZoom();
         var zoomUnit = Math.pow(2, 18 - zoom);
@@ -1030,10 +1032,14 @@ util.extend(Layer.prototype, {
         var data = this.getData();
         var map = this.getMap();
         for (var j = 0; j < data.length; j++) {
-            if (data[j].lng && data[j].lat) {
-                var pixel = map.pointToPixel(new BMap.Point(data[j].lng, data[j].lat));
-                data[j].px = pixel.x;
-                data[j].py = pixel.y;
+            if (data[j].lng && data[j].lat && !data[j].x && !data[j].y) {
+
+                var pixel = mercatorProjection.lngLatToPoint(new BMap.Point(data[j].lng, data[j].lat));
+                data[j].x = pixel.x;
+                data[j].y = pixel.y;
+                //var pixel = map.pointToPixel(new BMap.Point(data[j].lng, data[j].lat));
+                //data[j].px = pixel.x;
+                //data[j].py = pixel.y;
             }
             if (data[j].x && data[j].y) {
                 data[j].px = (data[j].x - nwMc.x) / zoomUnit;
@@ -1054,6 +1060,7 @@ util.extend(Layer.prototype, {
                 data[j].pgeo = tmp;
             }
         }
+        console.timeEnd('parseData');
     },
     data_changed: function () {
         var data = this.getData();
@@ -3388,15 +3395,11 @@ SimpleDrawer.prototype.drawWebglMap = function () {
 
     //gl.clearColor(0.0, 0.0, 1.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
-        var count1 = 0;
-        var count2 = 0;
-        var count3 = 0;
 
     var halfCanvasWidth = gl.canvas.width / 2;
     var halfCanvasHeight = gl.canvas.height / 2;
 
     var verticesData = [];
-    console.time('parseData');
     var count = 0;
     for (var i = 0; i < data.length; i++) {
         var item = data[i];
@@ -3404,13 +3407,12 @@ SimpleDrawer.prototype.drawWebglMap = function () {
         var x = (item.px - halfCanvasWidth) / halfCanvasWidth;
         var y = (halfCanvasHeight - item.py) / halfCanvasHeight;
 
-        if (x < -1 || x > 1 || y < -1 || y > 1 || item[1] <= -11704500 || item[1] >= 12475500) {
+        if (x < -1 || x > 1 || y < -1 || y > 1) {
             continue;
         }
         verticesData.push(x, y);
         count++;
     }
-    console.timeEnd('parseData');
 
     var vertices = new Float32Array(verticesData);
     var n = count; // The number of vertices
@@ -3439,6 +3441,7 @@ SimpleDrawer.prototype.drawWebglMap = function () {
     gl.enableVertexAttribArray(a_Position);
 
     gl.vertexAttrib1f(a_PointSize, this.getRadius());
+    console.log(this.getRadius());
 
     var tmpCanvas = document.createElement('canvas');
     var tmpCtx = tmpCanvas.getContext('2d');
