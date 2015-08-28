@@ -1,8 +1,7 @@
 /**
+ * @file 普通的绘制方式
  * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
  */
-
-/* globals Drawer, util */
 
 function SimpleDrawer() {
     Drawer.apply(this, arguments);

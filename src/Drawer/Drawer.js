@@ -2,8 +2,6 @@
  * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
  */
 
-/* globals util */
-
 function Drawer(layer) {
 
     Class.call(this);
