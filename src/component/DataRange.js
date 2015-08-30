@@ -23,7 +23,10 @@ util.inherits(DataRange, Class);
 
 util.extend(DataRange.prototype, {
     defaultGradient: {
-        '0.0': 'yellow',
+        '0.4': 'blue',
+        '0.6': 'cyan',
+        '0.7': 'lime',
+        '0.8': 'yellow',
         '1.0': 'red'
     },
     colors: [
