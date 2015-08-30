@@ -496,7 +496,10 @@ util.inherits(DataRange, Class);
 
 util.extend(DataRange.prototype, {
     defaultGradient: {
-        '0.0': 'yellow',
+        '0.4': 'blue',
+        '0.6': 'cyan',
+        '0.7': 'lime',
+        '0.8': 'yellow',
         '1.0': 'red'
     },
     colors: [
@@ -715,9 +718,8 @@ util.inherits(SizeDataRange, DataRange);
 util.extend(SizeDataRange.prototype, {
     
 }); // end extend
-;/* globals Layer GeoData DrawTypeControl OptionalData util DataControl DrawScale DataRangeControl*/
-
-/**
+;/**
+ * Mapv主类
  * @param {Object}
  */
 function Mapv(options) {
@@ -1995,9 +1997,7 @@ OptionalData.prototype.bindEvent = function () {
         // console.log('reset', self.options);
     };
 };
-;/* globals util */
-
-function Drawer(layer) {
+;function Drawer(layer) {
 
     Class.call(this);
 
@@ -3219,9 +3219,7 @@ IntensityDrawer.prototype.getMax = function () {
     }
     return max;
 };
-;/* globals Drawer, util */
-
-function SimpleDrawer() {
+;function SimpleDrawer() {
     Drawer.apply(this, arguments);
 }
 

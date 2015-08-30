@@ -4,9 +4,8 @@
  *
  */
 
-/* globals Layer GeoData DrawTypeControl OptionalData util DataControl DrawScale DataRangeControl*/
-
 /**
+ * Mapv主类
  * @param {Object}
  */
 function Mapv(options) {
