@@ -24,10 +24,21 @@ IntensityDrawer.prototype.defaultGradient = {
 };
 
 IntensityDrawer.prototype.drawMap = function () {
+    this.Scale && this.Scale.set({
+        min: 0,
+        max: this.getMax(),
+        colors: this.getGradient()
+    });
+
+    this.dataRange.setMax(this.getMax());
+
     this.beginDrawMap();
 
     var self = this;
     var ctx = this.getCtx();
+
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
 
     var data = this.getLayer().getData();
     var drawOptions = this.getDrawOptions();
@@ -53,7 +64,15 @@ IntensityDrawer.prototype.drawMap = function () {
     if (dataType === 'polygon') {
 
         for (var i = 0, len = data.length; i < len; i++) {
-            var geo = data[i].pgeo;
+            var item = data[i];
+            var geo = item.pgeo;
+
+            var isTooSmall = self.masker.min && (item.count < self.masker.min);
+            var isTooBig = self.masker.max && (item.count > self.masker.max);
+            if (isTooSmall || isTooBig) {
+                continue;
+            }
+
             ctx.beginPath();
             ctx.moveTo(geo[0][0], geo[0][1]);
             ctx.fillStyle = this.dataRange.getColorByGradient(data[i].count);
@@ -100,14 +119,6 @@ IntensityDrawer.prototype.drawMap = function () {
     if (drawOptions.strokeStyle) {
         ctx.stroke();
     }
-
-    this.Scale && this.Scale.set({
-        min: 0,
-        max: self.getMax(),
-        colors: this.getGradient()
-    });
-
-    this.dataRange.setMax(self.getMax());
 
     this.endDrawMap();
 };
