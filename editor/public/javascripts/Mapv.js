@@ -3032,6 +3032,7 @@ util.extend(HeatmapDrawer.prototype, {
 
             var boundary = this.getDrawOptions().boundary || 50;
 
+            console.time('drawImageData');
             for (var i = 0, len = this._data.length, p; i < len; i++) {
                 p = this._data[i];
                 if (p.px < -boundary || p.py < -boundary || p.px > ctx.canvas.width + boundary || p.py > ctx.canvas.height + boundary) {
@@ -3044,6 +3045,7 @@ util.extend(HeatmapDrawer.prototype, {
                 ctx.globalAlpha = Math.max(p.count / this.getMax(), minOpacity === undefined ? 0.05 : minOpacity);
                 ctx.drawImage(this._circle, p.px - this._r, p.py - this._r);
             }
+            console.timeEnd('drawImageData');
         }
 
         // colorize the heatmap, using opacity value of each pixel to get the right color from our gradient
