@@ -104,7 +104,7 @@ util.extend(HeatmapDrawer.prototype, {
     radius: function (r) {
 
         if (this.getDrawOptions().shadowBlur !== undefined) {
-            var blur = this.getDrawOptions().shadowBlur;
+            var blur = parseFloat(this.getDrawOptions().shadowBlur);
         } else {
             var blur = 15;
         }

@@ -2117,7 +2117,7 @@ Drawer.prototype.getRadius = function () {
     var zoomUnit = Math.pow(2, 18 - zoom);
 
     var drawOptions = this.getDrawOptions();
-    var radius = drawOptions.size || 13;
+    var radius = parseFloat(drawOptions.size) || 13;
     var unit = drawOptions.unit || 'px';
     if (unit === 'm') {
         radius = radius / zoomUnit;
@@ -2959,7 +2959,7 @@ util.extend(HeatmapDrawer.prototype, {
     radius: function (r) {
 
         if (this.getDrawOptions().shadowBlur !== undefined) {
-            var blur = this.getDrawOptions().shadowBlur;
+            var blur = parseFloat(this.getDrawOptions().shadowBlur);
         } else {
             var blur = 15;
         }
