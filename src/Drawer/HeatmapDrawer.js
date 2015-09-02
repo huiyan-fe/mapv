@@ -179,6 +179,7 @@ util.extend(HeatmapDrawer.prototype, {
 
             console.time('drawImageData');
             console.log('data', this._data.length, this._data);
+            var max = this.getMax();
             for (var i = 0, len = this._data.length, p; i < len; i++) {
                 p = this._data[i];
                 if (p.px < -boundary || p.py < -boundary || p.px > ctx.canvas.width + boundary || p.py > ctx.canvas.height + boundary) {
@@ -188,7 +189,7 @@ util.extend(HeatmapDrawer.prototype, {
                 //     continue;
                 // }
                 // console.log(p.count)
-                ctx.globalAlpha = Math.max(p.count / this.getMax(), minOpacity === undefined ? 0.05 : minOpacity);
+                ctx.globalAlpha = Math.max(p.count / max, minOpacity === undefined ? 0.05 : minOpacity);
                 ctx.drawImage(this._circle, p.px - this._r, p.py - this._r);
             }
             console.timeEnd('drawImageData');
