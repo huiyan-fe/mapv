@@ -67,7 +67,6 @@ define(function(){
 
     // listen for the mouseup envet
     $('body').on('mouseup',function(e){
-        console.log('up',tar.dom)
         if(tar.dom){
             tar.dom = null;
             e.preventDefault();
@@ -83,7 +82,6 @@ define(function(){
                 })
                 for(var i=0,len=doms.length;i<len;i++){
                     var name  = doms[i].dom.attr('name');
-                    console.log(app)
                     app.getLayer(name).setZIndex(i);
                     doms[i].dom.attr('style','');
                     $('.E-layers').append(doms[i].dom)
