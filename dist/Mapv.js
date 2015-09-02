@@ -2888,7 +2888,9 @@ HeatmapDrawer.prototype.drawMap = function () {
     this._height = ctx.canvas.height;
     var data = this.getLayer().getData();
     this._data = data;
+    console.time('drawHeatMap');
     this.drawHeatmap();
+    console.timeEnd('drawHeatMap');
 
     this.endDrawMap();
 };
@@ -3047,7 +3049,9 @@ util.extend(HeatmapDrawer.prototype, {
         // colorize the heatmap, using opacity value of each pixel to get the right color from our gradient
         // console.log( this._width, this._height)
         var colored = ctx.getImageData(0, 0, this._width, this._height);
+        console.time('colorize');
         this.colorize(colored.data, this.dataRange.getGradient());
+        console.timeEnd('colorize');
         ctx.putImageData(colored, 0, 0);
 
         ctx.restore();
@@ -3065,10 +3069,10 @@ util.extend(HeatmapDrawer.prototype, {
             jMax = this.masker.max / this.getMax() * 1024;
         }
 
+        var maxOpacity = this.getDrawOptions().maxOpacity || 0.8;
         for (var i = 3, len = pixels.length, j; i < len; i += 4) {
             j = pixels[i] * 4; // get gradient color from opacity value
 
-            var maxOpacity = this.getDrawOptions().maxOpacity || 0.8;
             if (pixels[i] / 256 > maxOpacity) {
                 pixels[i] = 256 * maxOpacity;
             }
