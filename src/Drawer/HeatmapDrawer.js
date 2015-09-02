@@ -178,6 +178,7 @@ util.extend(HeatmapDrawer.prototype, {
             var boundary = this.getDrawOptions().boundary || 50;
 
             console.time('drawImageData');
+            console.log('data', this._data.length, this._data);
             for (var i = 0, len = this._data.length, p; i < len; i++) {
                 p = this._data[i];
                 if (p.px < -boundary || p.py < -boundary || p.px > ctx.canvas.width + boundary || p.py > ctx.canvas.height + boundary) {
