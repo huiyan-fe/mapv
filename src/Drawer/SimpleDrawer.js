@@ -26,10 +26,6 @@ SimpleDrawer.prototype.drawMap = function () {
 
     ctx.beginPath();
 
-    if (drawOptions.globalCompositeOperation) {
-        ctx.globalCompositeOperation = drawOptions.globalCompositeOperation;
-    }
-
     var radius = this.getRadius();
 
     var dataType = this.getLayer().getDataType();
@@ -80,7 +76,11 @@ SimpleDrawer.prototype.drawMap = function () {
                     continue;
                 }
                 ctx.moveTo(item.px, item.py);
-                ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
+                if (radius < 2) {
+                    ctx.fillRect(item.px, item.py, radius * 2, radius * 2);
+                } else {
+                    ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
+                }
             }
 
             ctx.fill();
