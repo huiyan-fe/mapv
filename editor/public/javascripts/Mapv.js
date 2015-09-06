@@ -1389,7 +1389,6 @@ util.extend(DataRangeControl.prototype, {
     this._Event();
 }
 
-
 DrawScale.prototype.change = function (callback) {
     var self = this;
     self.changeFn = callback;
@@ -3261,10 +3260,6 @@ SimpleDrawer.prototype.drawMap = function () {
 
     ctx.beginPath();
 
-    if (drawOptions.globalCompositeOperation) {
-        ctx.globalCompositeOperation = drawOptions.globalCompositeOperation;
-    }
-
     var radius = this.getRadius();
 
     var dataType = this.getLayer().getDataType();
@@ -3315,7 +3310,11 @@ SimpleDrawer.prototype.drawMap = function () {
                     continue;
                 }
                 ctx.moveTo(item.px, item.py);
-                ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
+                if (radius < 2) {
+                    ctx.fillRect(item.px, item.py, radius * 2, radius * 2);
+                } else {
+                    ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
+                }
             }
 
             ctx.fill();
@@ -3458,7 +3457,6 @@ SimpleDrawer.prototype.drawWebglMap = function () {
     gl.enableVertexAttribArray(a_Position);
 
     gl.vertexAttrib1f(a_PointSize, this.getRadius());
-    console.log(this.getRadius());
 
     var tmpCanvas = document.createElement('canvas');
     var tmpCtx = tmpCanvas.getContext('2d');
