@@ -223,7 +223,6 @@ SimpleDrawer.prototype.drawWebglMap = function () {
     gl.enableVertexAttribArray(a_Position);
 
     gl.vertexAttrib1f(a_PointSize, this.getRadius());
-    console.log(this.getRadius());
 
     var tmpCanvas = document.createElement('canvas');
     var tmpCtx = tmpCanvas.getContext('2d');
