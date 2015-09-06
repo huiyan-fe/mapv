@@ -82,6 +82,10 @@ IntensityDrawer.prototype.drawMap = function () {
             ctx.closePath();
             ctx.fill();
 
+            if (drawOptions.strokeStyle) {
+                ctx.stroke();
+            }
+
             if (label && label.show && (!label.minZoom || label.minZoom && zoom >= label.minZoom)) {
                 if (label.fillStyle) {
                     ctx.fillStyle = label.fillStyle;
