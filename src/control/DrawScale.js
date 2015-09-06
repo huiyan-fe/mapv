@@ -9,7 +9,6 @@ function DrawScale() {
     this._Event();
 }
 
-
 DrawScale.prototype.change = function (callback) {
     var self = this;
     self.changeFn = callback;
