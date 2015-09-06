@@ -2304,7 +2304,7 @@ ClusterDrawer.prototype.drawMap = function () {
     var param = this.formatParam();
     // console.log(param)
 
-    // console.log(param.size)
+    console.log(param)
     var size = param.size;
 
     var mercatorProjection = map.getMapType().getProjection();
@@ -2389,14 +2389,14 @@ ClusterDrawer.prototype.drawMap = function () {
         var cx = x + gridStep / 2;
         var cy = y + gridStep / 2;
 
-        ctx.fillStyle = '#fa8b2e';
+        ctx.fillStyle = param.fillStyle || '#fa8b2e';
 
         ctx.beginPath();
 
         ctx.arc(cx, cy, v * 5, 0, 2 * Math.PI);
         ctx.fill();
         ctx.lineWidth = 8 * v / 10;
-        ctx.strokeStyle = '#fff';
+        ctx.strokeStyle = param.strokeStyle || '#fff';
         ctx.stroke();
 
         // if (this.drawOptions.showNum) {
@@ -2405,9 +2405,9 @@ ClusterDrawer.prototype.drawMap = function () {
         ctx.font = 30 * v / 10 + 'px serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        if (grids[i] !== 0) {
+        if (grids[i] !== 0 && param.label.show) {
 
-            ctx.fillStyle = '#fff';
+            ctx.fillStyle =  '#fff';
             ctx.fillText(grids[i], cx, cy);
             ctx.restore();
         }
@@ -2426,23 +2426,17 @@ ClusterDrawer.prototype.drawMap = function () {
  * @return {[type]} [description]
  */
 ClusterDrawer.prototype.formatParam = function () {
-
-    // console.log('AAA')
     var options = this.getDrawOptions();
-    // console.log(options)
 
     var size = options.size || 60;
-    // console.log(size, '@@@@@@')
     size = size + (options.unit || 'px');
     if (/px$/.test(size)) {
         size = parseInt(size, 10) * this.zoomUnit;
     } else {
         size = parseInt(size, 10);
     }
-    // console.log(size, options.size)
-    return {
-        size: size
-    };
+    options.size = size;
+    return options
 };
 ;/* globals Drawer mercatorProjection BMap util */
 
@@ -3168,6 +3162,10 @@ IntensityDrawer.prototype.drawMap = function () {
             }
             ctx.closePath();
             ctx.fill();
+
+            if (drawOptions.strokeStyle) {
+                ctx.stroke();
+            }
 
             if (label && label.show && (!label.minZoom || label.minZoom && zoom >= label.minZoom)) {
                 if (label.fillStyle) {
