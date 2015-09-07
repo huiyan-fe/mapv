@@ -3297,7 +3297,9 @@ SimpleDrawer.prototype.drawMap = function () {
                 ctx.moveTo(item.px, item.py);
                 ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
                 ctx.fill();
-                ctx.stroke();
+                if (drawOptions.strokeStyle) {
+                    ctx.stroke();
+                }
             }
 
         } else {
