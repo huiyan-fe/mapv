@@ -94,7 +94,7 @@ DensityDrawer.prototype.drawMap = function () {
     if (this.getDrawOptions().type === 'honeycomb') {
         drawHoneycomb.call(this,obj);
     } else {
-        drawRec(obj);
+        drawRec.call(this,obj);
     }
     window.console.timeEnd('drawMap');
 
@@ -194,6 +194,8 @@ function drawRec(obj) {
     var grids = obj.grids;
     var fillColors = obj.fillColors;
     var self = obj.sup;
+    var options = formatParam.call(this);
+
 
     var gridStep = size / zoomUnit;
     var step = (max - min + 1) / 10;
@@ -205,6 +207,14 @@ function drawRec(obj) {
         var v = (grids[i] - min) / step;
         //var color = fillColors[v | 0];
         var color = obj.dataRange.getColorByGradient(grids[i]);
+        try{
+            if(options.opacity){
+                var alpha = parseInt(color.match(/rgba\(.+?\,.+?\,.+?\,(.+?)\)/)[1] * options.opacity)/255;
+                color = color.replace(/(rgba\(.+?\,.+?\,.+?\,).+?(\))/,'$1'+ alpha +'$2');
+            }
+        }catch(e){
+
+        }
 
         var isTooSmall = self.masker.min && (grids[i] < self.masker.min);
         var isTooBig = self.masker.max && (grids[i] > self.masker.max);
@@ -318,7 +328,7 @@ function honeycombGrid(obj) {
 
 function drawHoneycomb(obj) {
     var options = formatParam.call(this);
-    console.log(options)
+    // console.log(options)
     // return false;
     var ctx = obj.ctx;
     var grids = obj.grids;
