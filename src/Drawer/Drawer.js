@@ -55,6 +55,7 @@ Drawer.prototype.beginDrawCanvasMap = function () {
         'shadowBlur',
         'shadowOffsetX',
         'shadowOffsetY',
+        'globalAlpha',
         'fillStyle',
         'strokeStyle',
         'lineWidth',

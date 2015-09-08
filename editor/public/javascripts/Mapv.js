@@ -2056,6 +2056,7 @@ Drawer.prototype.beginDrawCanvasMap = function () {
         'shadowBlur',
         'shadowOffsetX',
         'shadowOffsetY',
+        'globalAlpha',
         'fillStyle',
         'strokeStyle',
         'lineWidth',
@@ -2848,6 +2849,8 @@ function draw(x, y, gridStep, color, ctx) {
 function formatParam() {
 
     var options = this.getDrawOptions();
+    options = JSON.stringify(options);
+    options = JSON.parse(options);
     // console.log(options)
     var fillColors = this.fillColors = [
         [73, 174, 34],
