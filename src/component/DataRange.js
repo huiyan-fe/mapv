@@ -231,7 +231,7 @@ util.extend(DataRange.prototype, {
         index = parseInt(index, 10);
         index *= 4;
 
-        var color = 'rgba(' + this._grad[index] + ', ' + this._grad[index + 1] + ', ' + this._grad[index + 2] + ',0.8)';
+        var color = 'rgba(' + this._grad[index] + ', ' + this._grad[index + 1] + ', ' + this._grad[index + 2] + ',' + this._grad[index + 3] +')';
         return color;
     }
 
