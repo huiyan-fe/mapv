@@ -704,7 +704,7 @@ util.extend(DataRange.prototype, {
         index = parseInt(index, 10);
         index *= 4;
 
-        var color = 'rgba(' + this._grad[index] + ', ' + this._grad[index + 1] + ', ' + this._grad[index + 2] + ',0.8)';
+        var color = 'rgba(' + this._grad[index] + ', ' + this._grad[index + 1] + ', ' + this._grad[index + 2] + ',' + this._grad[index + 3] +')';
         return color;
     }
 
@@ -2509,7 +2509,7 @@ DensityDrawer.prototype.drawMap = function () {
     } else {
         gridsObj = recGrids(obj, map);
     }
-    console.log(gridsObj);
+    // console.log(gridsObj);
 
     var grids = gridsObj.grids;
     this.dataRange.setMax(gridsObj.max);
@@ -2534,9 +2534,9 @@ DensityDrawer.prototype.drawMap = function () {
 
     var gridsObj = {};
     if (this.getDrawOptions().type === 'honeycomb') {
-        drawHoneycomb(obj);
+        drawHoneycomb.call(this,obj);
     } else {
-        drawRec(obj);
+        drawRec.call(this,obj);
     }
     window.console.timeEnd('drawMap');
 
@@ -2636,6 +2636,8 @@ function drawRec(obj) {
     var grids = obj.grids;
     var fillColors = obj.fillColors;
     var self = obj.sup;
+    var options = formatParam.call(this);
+
 
     var gridStep = size / zoomUnit;
     var step = (max - min + 1) / 10;
@@ -2647,13 +2649,20 @@ function drawRec(obj) {
         var v = (grids[i] - min) / step;
         //var color = fillColors[v | 0];
         var color = obj.dataRange.getColorByGradient(grids[i]);
+        try{
+            if(options.opacity){
+                var alpha = parseInt(color.match(/rgba\(.+?\,.+?\,.+?\,(.+?)\)/)[1] * options.opacity)/255;
+                color = color.replace(/(rgba\(.+?\,.+?\,.+?\,).+?(\))/,'$1'+ alpha +'$2');
+            }
+        }catch(e){
+
+        }
 
         var isTooSmall = self.masker.min && (grids[i] < self.masker.min);
         var isTooBig = self.masker.max && (grids[i] > self.masker.max);
         if (grids[i] === 0 || isTooSmall || isTooBig) {
             ctx.fillStyle = 'rgba(255,255,255,0.1)';
         } else {
-            //ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',0.4)';
             ctx.fillStyle = color;
         }
         ctx.fillRect(x, y, gridStep - 1, gridStep - 1);
@@ -2662,7 +2671,6 @@ function drawRec(obj) {
         if (self.getDrawOptions().label && self.getDrawOptions().label.show) {
 
             ctx.save();
-            // ctx.fillStyle = 'black';
             ctx.textBaseline = 'top';
             if (grids[i] !== 0 && !isTooSmall && !isTooBig) {
                 ctx.fillStyle = 'rgba(0,0,0,0.8)';
@@ -2761,6 +2769,8 @@ function honeycombGrid(obj) {
 }
 
 function drawHoneycomb(obj) {
+    var options = formatParam.call(this);
+    // console.log(options)
     // return false;
     var ctx = obj.ctx;
     var grids = obj.grids;
@@ -2768,6 +2778,8 @@ function drawHoneycomb(obj) {
 
     var color = obj.fillColors;
     var step = (obj.max - obj.min - 1) / color.length;
+
+    var drowZero = false;
 
     // console.log()
     for (var i in grids) {
@@ -2777,24 +2789,37 @@ function drawHoneycomb(obj) {
         var level = count / step | 0;
         level = level >= color.length ? color.length - 1 : level;
         level = level < 0 ? 0 : level;
-        //var useColor = 'rgba(' + color[level].join(',') + ',0.6)';
         var useColor = obj.dataRange.getColorByGradient(count);
+        try{
+            if(options.opacity){
+                var alpha = parseInt(useColor.match(/rgba\(.+?\,.+?\,.+?\,(.+?)\)/)[1] * options.opacity)/255;
+                useColor = useColor.replace(/(rgba\(.+?\,.+?\,.+?\,).+?(\))/,'$1'+ alpha +'$2');
+            }
+        }catch(e){
 
+        }
+        
+        // console.log(useColor);
         var isTooSmall = obj.sup.masker.min && (obj.sup.masker.min > count);
         var isTooBig = obj.sup.masker.max && (obj.sup.masker.max < count);
         if (count > 0 && !isTooSmall && !isTooBig) {
             draw(x, y, gridsW - 1, useColor, ctx);
         } else {
-            draw(x, y, gridsW - 1, 'rgba(0,0,0,0.4)', ctx);
+            if(drowZero){
+                draw(x, y, gridsW - 1, 'rgba(0,0,0,0.4)', ctx);
+            }
         }
 
+        // draw text
         if (obj.sup.getDrawOptions().label &&  obj.sup.getDrawOptions().label.show && !isTooSmall && !isTooBig) {
-            ctx.save();
-            ctx.textBaseline = 'middle';
-            ctx.textAlign = 'center';
-            ctx.fillStyle = 'rgba(0,0,0,0.8)';
-            ctx.fillText(count, x, y);
-            ctx.restore();
+            if(!(count==0 && drowZero==false)){
+                ctx.save();
+                ctx.textBaseline = 'middle';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = 'rgba(0,0,0,0.8)';
+                ctx.fillText(count, x, y);
+                ctx.restore();
+            }
         }
     }
     // console.log(obj, step);
@@ -2804,14 +2829,6 @@ var r =0;g=0;b=0;
 function draw(x, y, gridStep, color, ctx) {
     ctx.beginPath();
     ctx.fillStyle = color;
-
-    // TODO: only for demo
-    // b++;
-    // if(b>=255){
-    //     b=0;
-    //     g++;
-    // }
-    // ctx.fillStyle = 'rgb('+r+','+g+','+b+')';
 
     ctx.moveTo(x, y - gridStep / 2);
     ctx.lineTo(x + gridStep / 2, y - gridStep / 4);
@@ -2852,11 +2869,9 @@ function formatParam() {
     } else {
         size = parseInt(size, 10);
     }
-    // console.log(size, options.size)
-    return {
-        size: size,
-        colors: fillColors
-    };
+    options.size = size;
+    options.colors = fillColors;
+    return options
 }
 ;/* globals Drawer, util drawOptions map*/
 
