@@ -1066,15 +1066,22 @@ util.extend(Layer.prototype, {
     },
     data_changed: function () {
         var data = this.getData();
-        if (data && data.length > 0) {
+        if (data) {
             if (this.getDataType() === "polyline" && this.getAnimation()) {
                 for (var i = 0; i < data.length; i++) {
                     data[i].index = parseInt(Math.random() * data[i].geo.length, 10);
                 }
             }
-            this._min = data[0].count;
-            this._max = data[0].count;
+
+            if (data.length > 0) {
+                this._min = data[0].count;
+                this._max = data[0].count;
+            }
+
             for (var i = 0; i < data.length; i++) {
+                if (data[i].count === undefined || data[i].count === null) {
+                    data[i].count = 1;
+                }
                 this._max = Math.max(this._max, data[i].count);
                 this._min = Math.min(this._min, data[i].count);
             }
