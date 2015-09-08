@@ -43,6 +43,7 @@ define(['editActions'],function (editor) {
 			try {
 				data = [];
 				var dataT = dataStr.split('\n');
+				console.log(dataT);
 				var keys = dataT[0].split(',');
 				for(var i = 1; i < dataT.length; i++) {
 					var values = dataT[i].split(',');
@@ -63,6 +64,7 @@ define(['editActions'],function (editor) {
 				wrongType = true;
 			}
 		}
+
 		return data;
 	}
 
