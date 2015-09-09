@@ -9,7 +9,7 @@ function SimpleDrawer() {
 
 util.inherits(SimpleDrawer, Drawer);
 
-SimpleDrawer.prototype.drawMap = function () {
+SimpleDrawer.prototype.drawMap = function (time) {
     if (this.getLayer().getContext() === 'webgl') {
         this.drawWebglMap();
         return;
@@ -22,7 +22,7 @@ SimpleDrawer.prototype.drawMap = function () {
     var ctx = this.getCtx();
 
     var drawOptions = this.getDrawOptions();
-    console.log('????',drawOptions)
+    //console.log('????',drawOptions)
 
     ctx.beginPath();
 
@@ -37,6 +37,9 @@ SimpleDrawer.prototype.drawMap = function () {
             ctx.beginPath();
             ctx.moveTo(geo[0][0], geo[0][1]);
             for (var j = 1; j < geo.length; j++) {
+                if (time && parseFloat(geo[j][2]) > time) {
+                    break;
+                }
                 ctx.lineTo(geo[j][0], geo[j][1]);
             }
 
@@ -97,32 +100,37 @@ SimpleDrawer.prototype.drawMap = function () {
  * 绘制动画
  */
 SimpleDrawer.prototype.drawAnimation = function () {
-    var data = this.getLayer().getData();
-    var dataType = this.getLayer().getDataType();
-    var animationOptions = this.getLayer().getAnimationOptions();
-    var ctx = this.getLayer().getAnimationCtx();
+    var layer = this.getLayer();
+    var data = layer.getData();
+    var dataType = layer.getDataType();
+    var animationOptions = layer.getAnimationOptions();
+    var animation = layer.getAnimation();
+    var ctx = layer.getAnimationCtx();
 
     if (dataType === 'polyline') {
-        for (var i = 0, len = data.length; i < len; i++) {
-            var index = data[i].index;
-            var pgeo = data[i].pgeo;
+        if (animation === 'time') {
+        } else {
+            for (var i = 0, len = data.length; i < len; i++) {
+                var index = data[i].index;
+                var pgeo = data[i].pgeo;
 
-            /* 设定渐变区域 */
-            var x = pgeo[index][0];
-            var y = pgeo[index][1];
-            var grad  = ctx.createRadialGradient(x, y, 0, x, y, animationOptions.size);
-            grad.addColorStop(0,'rgba(255, 255, 255, 1)');
-            grad.addColorStop(0.4,'rgba(255, 255, 255, 0.9)');
-            grad.addColorStop(1,'rgba(255, 255, 255, 0)');
-            ctx.fillStyle = grad;
+                /* 设定渐变区域 */
+                var x = pgeo[index][0];
+                var y = pgeo[index][1];
+                var grad  = ctx.createRadialGradient(x, y, 0, x, y, animationOptions.size);
+                grad.addColorStop(0,'rgba(255, 255, 255, 1)');
+                grad.addColorStop(0.4,'rgba(255, 255, 255, 0.9)');
+                grad.addColorStop(1,'rgba(255, 255, 255, 0)');
+                ctx.fillStyle = grad;
 
-            ctx.beginPath();
-            ctx.arc(x, y, animationOptions.size, 0, 2 * Math.PI, false);
-            ctx.closePath();
-            ctx.fill();
-            data[i].index++;
-            if (data[i].index >= data[i].pgeo.length) {
-                data[i].index = 0;
+                ctx.beginPath();
+                ctx.arc(x, y, animationOptions.size, 0, 2 * Math.PI, false);
+                ctx.closePath();
+                ctx.fill();
+                data[i].index++;
+                if (data[i].index >= data[i].pgeo.length) {
+                    data[i].index = 0;
+                }
             }
         }
     }

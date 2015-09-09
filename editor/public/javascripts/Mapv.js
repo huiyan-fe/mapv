@@ -709,6 +709,181 @@ util.extend(DataRange.prototype, {
     }
 
 }); // end extend
+;function Animation(opts) {
+    var defaultOptions = {
+        duration: 1000,  // 动画时长, 单位毫秒
+        fps: 30,         // 每秒帧数
+        delay: 0,        // 延迟执行时间，单位毫秒,如果delay为infinite则表示手动执行
+        transition: Transitions.linear,
+        onStop: function () {} // 调用stop停止时的回调函数
+    };
+    // 需要后续执行动画
+    this._anis = [];
+
+    if (opts) {
+        for (var i in opts) {
+            defaultOptions[i] = opts[i];
+        }
+    }
+    this._opts = defaultOptions;
+
+    if (isNumber(defaultOptions.delay)) {
+        var me = this;
+        setTimeout(function() {
+            me.start();
+        }, defaultOptions.delay);
+    } 
+    else if (defaultOptions.delay != Animation.INFINITE) {
+        this.start();
+    }
+}
+/**
+ * 常量，表示动画无限循环
+ */
+Animation.INFINITE = "INFINITE";
+/**
+ * 启动动画方法
+ */
+Animation.prototype.start = function() {
+    this._beginTime = getCurrentTime();
+    this._endTime = this._beginTime + this._opts.duration;
+    this._launch();
+}
+Animation.prototype.add = function(ani) {
+    this._anis.push(ani);
+}
+Animation.prototype._launch = function() {
+    var me = this;
+    var now = getCurrentTime();
+
+    if (now >= me._endTime) {        
+        if (me._opts.render) me._opts.render(me._opts.transition(1));
+        // finish()接口，时间线结束时对应的操作
+        if (me._opts.finish) me._opts.finish();
+        // 开始后续动画
+        if (me._anis.length > 0) {
+            var newAni = me._anis[0];
+            newAni._anis = [].concat(me._anis.slice(1));
+            newAni.start();
+        }
+        return;
+    }
+
+    me.schedule = me._opts.transition((now - me._beginTime) / me._opts.duration);
+    // render()接口，用来实现每个脉冲所要实现的效果
+    if (me._opts.render) me._opts.render(me.schedule);
+    // 执行下一个动作
+    if (!me.terminative) {
+        me._timer = setTimeout(function () {
+            me._launch()
+        }, 1000 / me._opts.fps);
+    }
+};
+
+
+/**
+ * 停止当前动画
+ * @type {Boolean 是否停止到动画的终止时刻}
+ */
+Animation.prototype.stop = function(gotoEnd) {
+    this.terminative = true;
+    for (var i = 0; i < this._anis.length; i ++) {
+        this._anis[i].stop();
+        this._anis[i] = null;
+    }
+    this._anis.length = 0;
+    if (this._timer) {
+        clearTimeout(this._timer);
+        this._timer = null;
+    }
+    this._opts.onStop(this.schedule);
+    if (gotoEnd) {
+        this._endTime = this._beginTime;
+        this._launch();
+    }
+};
+
+
+/**
+ * 取消动画
+ */
+Animation.prototype.cancel = function() {
+    if (this._timer) clearTimeout(this._timer);
+    this._endTime = this._beginTime;
+    this.schedule = 0;
+};
+/**
+ * 设置动画结束后的回调函数
+ * @param Function
+ */
+Animation.prototype.setFinishCallback = function(callback) {
+    if (this._anis.length > 0) {
+        this._anis[this._anis.length - 1]._opts.finish = callback;
+    }
+    else {
+        this._opts.finish = callback;
+    }
+}
+/**
+ * 变换效果函数库
+ */
+var Transitions = {
+    linear: function(t) {
+        return t;
+    },
+    reverse: function(t) {
+        return 1 - t;
+    },
+    easeInQuad: function(t) {
+        return t * t;
+    },
+    easeInCubic: function(t) {
+        return Math.pow(t, 3);
+    },
+    easeOutQuad: function(t) {
+        return -(t * (t - 2));
+    },
+    easeOutCubic: function(t) {
+        return Math.pow((t - 1), 3) + 1;
+    },
+    easeInOutQuad: function(t) {
+        if (t < 0.5) {
+            return t * t * 2;
+        } else {
+            return -2 * (t - 2) * t - 1;
+        }
+        return;
+    },
+    easeInOutCubic: function(t) {
+        if (t < 0.5) {
+            return Math.pow(t, 3) * 4;
+        } else {
+            return Math.pow(t - 1, 3) * 4 + 1;
+        }
+    },
+    easeInOutSine: function(t) {
+        return (1 - Math.cos(Math.PI * t)) / 2;
+    }
+};
+Transitions['ease-in'] = Transitions.easeInQuad;
+Transitions['ease-out'] = Transitions.easeOutQuad;
+
+/**
+ * 获取当前时间
+ * @returns {String} 当前时间
+ */
+function getCurrentTime() {
+    return (new Date).getTime();
+}
+
+/**
+ * 是否是数字
+ * @param {Mix}
+ * @returns {Boolean}
+ */
+function isNumber(number) {
+  return typeof number == "number";
+}
 ;function SizeDataRange() {
     DataRange.call(this);
 }
@@ -718,6 +893,17 @@ util.inherits(SizeDataRange, DataRange);
 util.extend(SizeDataRange.prototype, {
     
 }); // end extend
+;function TimeLine(options) {
+    Class.call(this);
+}
+
+util.inherits(TimeLine, Class);
+
+util.extend(TimeLine.prototype, {
+});
+
+var timeLine = new TimeLine({
+});
 ;/**
  * Mapv主类
  * @param {Object}
@@ -903,6 +1089,8 @@ util.extend(Layer.prototype, {
 
     draw: function () {
 
+        var me = this;
+
         if (!this.getMapv()) {
             return;
         }
@@ -923,7 +1111,33 @@ util.extend(Layer.prototype, {
 
         if (this.getDataType() === 'polyline' && this.getAnimation() && !this._animationFlag) {
             this.drawAnimation();
+
             this._animationFlag = true;
+        }
+
+        if (this.getDataType() === 'polyline' && this.getAnimation() && !this._animationTime) {
+            this._animationTime = true;
+            var timeline = new Animation({
+                duration: 10000,  // 动画时长, 单位毫秒
+                fps: 30,         // 每秒帧数
+                delay: Animation.INFINITE,        // 延迟执行时间，单位毫秒,如果delay为infinite则表示手动执行
+                transition: Transitions.linear,
+                onStop: function (e) { // 调用stop停止时的回调函数
+                    console.log('stop', e);
+                }, 
+                render: function(e) {
+                    if (me.getContext() == '2d') {
+                        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                    }
+                    me._getDrawer().drawMap(me._minTime + (me._maxTime - me._minTime) * e);
+                }
+            });
+
+            timeline.setFinishCallback(function(){
+                timeline.start();
+            });
+
+            timeline.start();
         }
 
         this.dispatchEvent('draw');
@@ -1052,11 +1266,11 @@ util.extend(Layer.prototype, {
                 if (this.getCoordType() === 'bd09ll') {
                     for (var i = 0; i < data[j].geo.length; i++) {
                         var pixel = map.pointToPixel(new BMap.Point(data[j].geo[i][0], data[j].geo[i][1]));
-                        tmp.push([pixel.x, pixel.y]);
+                        tmp.push([pixel.x, pixel.y, data[j].geo[i][2]]);
                     }
                 } else if (this.getCoordType() === 'bd09mc') {
                     for (var i = 0; i < data[j].geo.length; i++) {
-                        tmp.push([(data[j].geo[i][0] - nwMc.x) / zoomUnit, (nwMc.y - data[j].geo[i][1]) / zoomUnit]);
+                        tmp.push([(data[j].geo[i][0] - nwMc.x) / zoomUnit, (nwMc.y - data[j].geo[i][1]) / zoomUnit, data[j].geo[i][2]]);
                     }
                 }
                 data[j].pgeo = tmp;
@@ -1073,9 +1287,27 @@ util.extend(Layer.prototype, {
                 }
             }
 
+            if (this.getDataType() === "polyline" && this.getAnimation() === 'time') {
+                this._minTime = data[0] && data[0].geo[0][2];
+                this._maxTime = this._minTime;
+                for (var i = 0; i < data.length; i++) {
+                    var geo = data[i].geo;
+                    for (var j = 0; j < geo.length; j++) {
+                        var time = geo[j][2];
+                        if (time < this._minTime) {
+                            this._minTime = time;
+                        }
+                        if (time > this._maxTime) {
+                            this._maxTime = time;
+                        }
+                    }
+                }
+            }
+            console.log(this._minTime, this._maxTime);
+
             if (data.length > 0) {
                 this._min = data[0].count;
-                this._max = data[0].count;
+                this._max = this._max;
             }
 
             for (var i = 0; i < data.length; i++) {
@@ -1090,6 +1322,8 @@ util.extend(Layer.prototype, {
     },
     getDataRange: function () {
         return {
+            minTime: this._minTime,
+            maxTime: this._maxTime,
             min: this._min,
             max: this._max
         };
@@ -1104,6 +1338,7 @@ util.extend(Layer.prototype, {
         this._getDrawer().notify('drawOptions');
     }
 });
+
 ;function DataControl(superObj) {
     this.initDom();
     this.initEvent();
@@ -3266,7 +3501,7 @@ IntensityDrawer.prototype.getMax = function () {
 
 util.inherits(SimpleDrawer, Drawer);
 
-SimpleDrawer.prototype.drawMap = function () {
+SimpleDrawer.prototype.drawMap = function (time) {
     if (this.getLayer().getContext() === 'webgl') {
         this.drawWebglMap();
         return;
@@ -3279,7 +3514,7 @@ SimpleDrawer.prototype.drawMap = function () {
     var ctx = this.getCtx();
 
     var drawOptions = this.getDrawOptions();
-    console.log('????',drawOptions)
+    //console.log('????',drawOptions)
 
     ctx.beginPath();
 
@@ -3294,6 +3529,9 @@ SimpleDrawer.prototype.drawMap = function () {
             ctx.beginPath();
             ctx.moveTo(geo[0][0], geo[0][1]);
             for (var j = 1; j < geo.length; j++) {
+                if (time && parseFloat(geo[j][2]) > time) {
+                    break;
+                }
                 ctx.lineTo(geo[j][0], geo[j][1]);
             }
 
@@ -3354,32 +3592,37 @@ SimpleDrawer.prototype.drawMap = function () {
  * 绘制动画
  */
 SimpleDrawer.prototype.drawAnimation = function () {
-    var data = this.getLayer().getData();
-    var dataType = this.getLayer().getDataType();
-    var animationOptions = this.getLayer().getAnimationOptions();
-    var ctx = this.getLayer().getAnimationCtx();
+    var layer = this.getLayer();
+    var data = layer.getData();
+    var dataType = layer.getDataType();
+    var animationOptions = layer.getAnimationOptions();
+    var animation = layer.getAnimation();
+    var ctx = layer.getAnimationCtx();
 
     if (dataType === 'polyline') {
-        for (var i = 0, len = data.length; i < len; i++) {
-            var index = data[i].index;
-            var pgeo = data[i].pgeo;
+        if (animation === 'time') {
+        } else {
+            for (var i = 0, len = data.length; i < len; i++) {
+                var index = data[i].index;
+                var pgeo = data[i].pgeo;
 
-            /* 设定渐变区域 */
-            var x = pgeo[index][0];
-            var y = pgeo[index][1];
-            var grad  = ctx.createRadialGradient(x, y, 0, x, y, animationOptions.size);
-            grad.addColorStop(0,'rgba(255, 255, 255, 1)');
-            grad.addColorStop(0.4,'rgba(255, 255, 255, 0.9)');
-            grad.addColorStop(1,'rgba(255, 255, 255, 0)');
-            ctx.fillStyle = grad;
+                /* 设定渐变区域 */
+                var x = pgeo[index][0];
+                var y = pgeo[index][1];
+                var grad  = ctx.createRadialGradient(x, y, 0, x, y, animationOptions.size);
+                grad.addColorStop(0,'rgba(255, 255, 255, 1)');
+                grad.addColorStop(0.4,'rgba(255, 255, 255, 0.9)');
+                grad.addColorStop(1,'rgba(255, 255, 255, 0)');
+                ctx.fillStyle = grad;
 
-            ctx.beginPath();
-            ctx.arc(x, y, animationOptions.size, 0, 2 * Math.PI, false);
-            ctx.closePath();
-            ctx.fill();
-            data[i].index++;
-            if (data[i].index >= data[i].pgeo.length) {
-                data[i].index = 0;
+                ctx.beginPath();
+                ctx.arc(x, y, animationOptions.size, 0, 2 * Math.PI, false);
+                ctx.closePath();
+                ctx.fill();
+                data[i].index++;
+                if (data[i].index >= data[i].pgeo.length) {
+                    data[i].index = 0;
+                }
             }
         }
     }
