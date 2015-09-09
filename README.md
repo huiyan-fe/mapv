@@ -114,11 +114,11 @@ var layer = new Mapv.Layer({
 
 ### 编辑器
 
-通过编辑器，你可以方便的编辑，分享你的数据
+mavp 提供了可视化编辑器，通过编辑器，你可以方便的编辑，分享你的数据
 
-[编辑器地址](http://huiyan.baidu.com/mapv/);
-[编辑器使用wiki](https://github.com/huiyan-fe/mapv/wiki/%E7%BC%96%E8%BE%91%E5%99%A8)
-[分享demo](http://huiyan.baidu.com/mapv/?user=zmofei&project=icq0dfuu_8kcd89);
+* [编辑器地址](http://huiyan.baidu.com/mapv/);
+* [编辑器使用wiki](https://github.com/huiyan-fe/mapv/wiki/%E7%BC%96%E8%BE%91%E5%99%A8)
+* [编辑器分享demo](http://huiyan.baidu.com/mapv/?user=zmofei&project=icq0dfuu_8kcd89);
 
 ### 谁在使用
 
