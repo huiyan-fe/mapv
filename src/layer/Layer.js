@@ -75,6 +75,8 @@ util.extend(Layer.prototype, {
 
     draw: function () {
 
+        var me = this;
+
         if (!this.getMapv()) {
             return;
         }
@@ -95,7 +97,35 @@ util.extend(Layer.prototype, {
 
         if (this.getDataType() === 'polyline' && this.getAnimation() && !this._animationFlag) {
             this.drawAnimation();
+
             this._animationFlag = true;
+        }
+
+        if (this.getDataType() === 'polyline' && this.getAnimation() && !this._animationTime) {
+            this._animationTime = true;
+            var timeline = new Animation({
+                duration: 10000,  // 动画时长, 单位毫秒
+                fps: 30,         // 每秒帧数
+                delay: Animation.INFINITE,        // 延迟执行时间，单位毫秒,如果delay为infinite则表示手动执行
+                transition: Transitions.linear,
+                onStop: function (e) { // 调用stop停止时的回调函数
+                    console.log('stop', e);
+                }, 
+                render: function(e) {
+                    if (me.getContext() == '2d') {
+                        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                    }
+                    me._getDrawer().drawMap(parseFloat(me._minTime) + (me._maxTime - me._minTime) * e);
+                }
+            });
+
+            timeline.setFinishCallback(function(){
+                setTimeout(function(){
+                    timeline.start();
+                }, 3000);
+            });
+
+            timeline.start();
         }
 
         this.dispatchEvent('draw');
@@ -224,11 +254,11 @@ util.extend(Layer.prototype, {
                 if (this.getCoordType() === 'bd09ll') {
                     for (var i = 0; i < data[j].geo.length; i++) {
                         var pixel = map.pointToPixel(new BMap.Point(data[j].geo[i][0], data[j].geo[i][1]));
-                        tmp.push([pixel.x, pixel.y]);
+                        tmp.push([pixel.x, pixel.y, parseFloat(data[j].geo[i][2])]);
                     }
                 } else if (this.getCoordType() === 'bd09mc') {
                     for (var i = 0; i < data[j].geo.length; i++) {
-                        tmp.push([(data[j].geo[i][0] - nwMc.x) / zoomUnit, (nwMc.y - data[j].geo[i][1]) / zoomUnit]);
+                        tmp.push([(data[j].geo[i][0] - nwMc.x) / zoomUnit, (nwMc.y - data[j].geo[i][1]) / zoomUnit, parseFloat(data[j].geo[i][2])]);
                     }
                 }
                 data[j].pgeo = tmp;
@@ -245,9 +275,28 @@ util.extend(Layer.prototype, {
                 }
             }
 
+            if (this.getDataType() === "polyline" && this.getAnimation() === 'time') {
+                this._minTime = data[0] && data[0].geo[0][2];
+                this._maxTime = this._minTime;
+                for (var i = 0; i < data.length; i++) {
+                    var geo = data[i].geo;
+                    for (var j = 0; j < geo.length; j++) {
+                        var time = geo[j][2];
+                        if (time < this._minTime) {
+                            this._minTime = time;
+                        }
+                        if (time > this._maxTime) {
+                            this._maxTime = time;
+                        }
+                    }
+                }
+                this._minTime = 1439568000;
+                this._maxTime = 1439827200;
+            }
+
             if (data.length > 0) {
                 this._min = data[0].count;
-                this._max = data[0].count;
+                this._max = this._max;
             }
 
             for (var i = 0; i < data.length; i++) {
@@ -262,6 +311,8 @@ util.extend(Layer.prototype, {
     },
     getDataRange: function () {
         return {
+            minTime: this._minTime,
+            maxTime: this._maxTime,
             min: this._min,
             max: this._max
         };
@@ -276,3 +327,4 @@ util.extend(Layer.prototype, {
         this._getDrawer().notify('drawOptions');
     }
 });
+
