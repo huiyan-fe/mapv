@@ -18,7 +18,6 @@ SimpleDrawer.prototype.drawMap = function (time) {
     this.beginDrawMap();
 
     var data = this.getLayer().getData();
-
     var ctx = this.getCtx();
 
     var drawOptions = this.getDrawOptions();
@@ -32,12 +31,21 @@ SimpleDrawer.prototype.drawMap = function (time) {
 
     if (dataType === 'polyline' || dataType === 'polygon') { // 画线或面
 
+        var label = drawOptions.label;
+        var zoom = this.getMap().getZoom();
+        if (label) {
+            if (label.font) {
+                ctx.font = label.font;
+            }
+            var labelKey = label.key || 'count';
+        }
+
         for (var i = 0, len = data.length; i < len; i++) {
             var geo = data[i].pgeo;
             ctx.beginPath();
             ctx.moveTo(geo[0][0], geo[0][1]);
             for (var j = 1; j < geo.length; j++) {
-                if (time && parseFloat(geo[j][2]) > time) {
+                if (time !== undefined && parseFloat(geo[j][2]) > time) {
                     break;
                 }
                 ctx.lineTo(geo[j][0], geo[j][1]);
@@ -50,6 +58,16 @@ SimpleDrawer.prototype.drawMap = function (time) {
             if (dataType === 'polygon') {
                 ctx.closePath();
                 ctx.fill();
+            }
+
+            if (label && label.show && (!label.minZoom || label.minZoom && zoom >= label.minZoom)) {
+                ctx.save();
+                if (label.fillStyle) {
+                    ctx.fillStyle = label.fillStyle;
+                }
+                var center = util.getGeoCenter(geo);
+                ctx.fillText(data[i][labelKey], center[0], center[1]);
+                ctx.restore();
             }
 
         }

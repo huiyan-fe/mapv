@@ -1129,12 +1129,14 @@ util.extend(Layer.prototype, {
                     if (me.getContext() == '2d') {
                         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
                     }
-                    me._getDrawer().drawMap(me._minTime + (me._maxTime - me._minTime) * e);
+                    me._getDrawer().drawMap(parseFloat(me._minTime) + (me._maxTime - me._minTime) * e);
                 }
             });
 
             timeline.setFinishCallback(function(){
-                timeline.start();
+                setTimeout(function(){
+                    timeline.start();
+                }, 3000);
             });
 
             timeline.start();
@@ -1266,11 +1268,11 @@ util.extend(Layer.prototype, {
                 if (this.getCoordType() === 'bd09ll') {
                     for (var i = 0; i < data[j].geo.length; i++) {
                         var pixel = map.pointToPixel(new BMap.Point(data[j].geo[i][0], data[j].geo[i][1]));
-                        tmp.push([pixel.x, pixel.y, data[j].geo[i][2]]);
+                        tmp.push([pixel.x, pixel.y, parseFloat(data[j].geo[i][2])]);
                     }
                 } else if (this.getCoordType() === 'bd09mc') {
                     for (var i = 0; i < data[j].geo.length; i++) {
-                        tmp.push([(data[j].geo[i][0] - nwMc.x) / zoomUnit, (nwMc.y - data[j].geo[i][1]) / zoomUnit, data[j].geo[i][2]]);
+                        tmp.push([(data[j].geo[i][0] - nwMc.x) / zoomUnit, (nwMc.y - data[j].geo[i][1]) / zoomUnit, parseFloat(data[j].geo[i][2])]);
                     }
                 }
                 data[j].pgeo = tmp;
@@ -1302,8 +1304,9 @@ util.extend(Layer.prototype, {
                         }
                     }
                 }
+                this._minTime = 1439568000;
+                this._maxTime = 1439827200;
             }
-            console.log(this._minTime, this._maxTime);
 
             if (data.length > 0) {
                 this._min = data[0].count;
@@ -3510,7 +3513,6 @@ SimpleDrawer.prototype.drawMap = function (time) {
     this.beginDrawMap();
 
     var data = this.getLayer().getData();
-
     var ctx = this.getCtx();
 
     var drawOptions = this.getDrawOptions();
@@ -3524,12 +3526,21 @@ SimpleDrawer.prototype.drawMap = function (time) {
 
     if (dataType === 'polyline' || dataType === 'polygon') { // 画线或面
 
+        var label = drawOptions.label;
+        var zoom = this.getMap().getZoom();
+        if (label) {
+            if (label.font) {
+                ctx.font = label.font;
+            }
+            var labelKey = label.key || 'count';
+        }
+
         for (var i = 0, len = data.length; i < len; i++) {
             var geo = data[i].pgeo;
             ctx.beginPath();
             ctx.moveTo(geo[0][0], geo[0][1]);
             for (var j = 1; j < geo.length; j++) {
-                if (time && parseFloat(geo[j][2]) > time) {
+                if (time !== undefined && parseFloat(geo[j][2]) > time) {
                     break;
                 }
                 ctx.lineTo(geo[j][0], geo[j][1]);
@@ -3542,6 +3553,16 @@ SimpleDrawer.prototype.drawMap = function (time) {
             if (dataType === 'polygon') {
                 ctx.closePath();
                 ctx.fill();
+            }
+
+            if (label && label.show && (!label.minZoom || label.minZoom && zoom >= label.minZoom)) {
+                ctx.save();
+                if (label.fillStyle) {
+                    ctx.fillStyle = label.fillStyle;
+                }
+                var center = util.getGeoCenter(geo);
+                ctx.fillText(data[i][labelKey], center[0], center[1]);
+                ctx.restore();
             }
 
         }

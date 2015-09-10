@@ -115,12 +115,14 @@ util.extend(Layer.prototype, {
                     if (me.getContext() == '2d') {
                         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
                     }
-                    me._getDrawer().drawMap(me._minTime + (me._maxTime - me._minTime) * e);
+                    me._getDrawer().drawMap(parseFloat(me._minTime) + (me._maxTime - me._minTime) * e);
                 }
             });
 
             timeline.setFinishCallback(function(){
-                timeline.start();
+                setTimeout(function(){
+                    timeline.start();
+                }, 3000);
             });
 
             timeline.start();
@@ -252,11 +254,11 @@ util.extend(Layer.prototype, {
                 if (this.getCoordType() === 'bd09ll') {
                     for (var i = 0; i < data[j].geo.length; i++) {
                         var pixel = map.pointToPixel(new BMap.Point(data[j].geo[i][0], data[j].geo[i][1]));
-                        tmp.push([pixel.x, pixel.y, data[j].geo[i][2]]);
+                        tmp.push([pixel.x, pixel.y, parseFloat(data[j].geo[i][2])]);
                     }
                 } else if (this.getCoordType() === 'bd09mc') {
                     for (var i = 0; i < data[j].geo.length; i++) {
-                        tmp.push([(data[j].geo[i][0] - nwMc.x) / zoomUnit, (nwMc.y - data[j].geo[i][1]) / zoomUnit, data[j].geo[i][2]]);
+                        tmp.push([(data[j].geo[i][0] - nwMc.x) / zoomUnit, (nwMc.y - data[j].geo[i][1]) / zoomUnit, parseFloat(data[j].geo[i][2])]);
                     }
                 }
                 data[j].pgeo = tmp;
@@ -288,8 +290,9 @@ util.extend(Layer.prototype, {
                         }
                     }
                 }
+                this._minTime = 1439568000;
+                this._maxTime = 1439827200;
             }
-            console.log(this._minTime, this._maxTime);
 
             if (data.length > 0) {
                 this._min = data[0].count;
