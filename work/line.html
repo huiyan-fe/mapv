@@ -1,0 +1,97 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+    <title>点数据展示</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="../examples/style.css" />
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <style type="text/css">
+    #time{
+        position: absolute;
+        left: 10px;
+        top: 10px;
+        font-size: 50px;
+        color: #fff;
+    }
+    </style>
+</head>
+
+<body>
+
+<div id="map"></div>
+<div id="time">00:00</div>
+
+<script type="text/javascript" src="../dist/Mapv.js"></script>
+<script type="text/javascript" src="example.js"></script>
+<script type="text/javascript">
+
+/**
+ * @file 示例代码
+ */
+
+bmap.centerAndZoom(new BMap.Point(116.403119,39.927773), 11); // 初始化地图,设置中心点坐标和地图级别
+
+// 第一步创建mapv示例
+var mapv = new Mapv({
+    map: bmap  // 百度地图的map实例
+});
+
+
+$.ajax({
+	url: 'line.20150817.css',
+	success: function(rs) {
+
+		var data = []; // 取城市的点来做示例展示的点数据
+		rs = rs.split("\n");
+		var data = [];
+        var len = rs.length - 1;
+		for (var i = 0; i < len; i++) {
+			rs[i] = rs[i].split(";");
+			var geo = [];
+			for (var j = 0; j < rs[i].length; j++) {
+                var item = rs[i][j].split(','); 
+                for (var z = 0; z < item.length; z++) {
+                    item[z] = parseFloat(item[z]);
+                }
+				geo.push(item);
+			}
+			data.push({geo:geo});
+		}
+
+		var layer = new Mapv.Layer({
+			zIndex: 1,
+			mapv: mapv,
+			dataType: 'polyline',
+			coordType: 'bd09mc',
+			data: data,
+      animation: 'time',
+			animationOptions: {
+        duration: 30000, // 动画时长, 单位毫秒
+        fps: 30,         // 每秒帧数
+        transition: "linear",
+        render: function(time) {
+            var date = new Date(time * 1000);
+            var html = (date.getHours() < 10 ? "0" + date.getHours() : date.getHours()) + ":" + (date.getMinutes() < 10? "0" + date.getMinutes() : date.getMinutes());
+            $('#time').html(html);
+        },
+				size: 1
+			},
+			drawType: 'simple',
+			drawOptions: {
+				lineWidth: 0.5,
+				globalCompositeOperation: 'lighter',
+				strokeStyle: "rgba(55, 50, 250, 0.3)"
+			}
+		});
+
+	}
+});
+
+</script>
+</body>
+
+</html>
+
