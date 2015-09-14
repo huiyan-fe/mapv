@@ -87,13 +87,18 @@ util.extend(Layer.prototype, {
             return false;
         }
 
-        if (this.getContext() == '2d') {
-            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        }
-
         this._calculatePixel();
 
-        this._getDrawer().drawMap();
+        if (this.getAnimation() !== 'time') {
+
+            if (this.getContext() == '2d') {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            }
+
+            this._getDrawer().drawMap();
+
+        }
+
 
         if (this.getDataType() === 'polyline' && this.getAnimation() && !this._animationFlag) {
             this.drawAnimation();
@@ -101,28 +106,35 @@ util.extend(Layer.prototype, {
             this._animationFlag = true;
         }
 
+
+        var animationOptions = this.getAnimationOptions() || {};
         if (this.getDataType() === 'polyline' && this.getAnimation() && !this._animationTime) {
             this._animationTime = true;
-            var timeline = new Animation({
-                duration: 10000,  // 动画时长, 单位毫秒
-                fps: 30,         // 每秒帧数
-                delay: Animation.INFINITE,        // 延迟执行时间，单位毫秒,如果delay为infinite则表示手动执行
-                transition: Transitions.linear,
-                onStop: function (e) { // 调用stop停止时的回调函数
+            var timeline = this.timeline = new Animation({
+                duration: animationOptions.duration || 10000,  // 动画时长, 单位毫秒
+                fps: animationOptions.fps || 30,         // 每秒帧数
+                delay: animationOptions.delay || Animation.INFINITE,        // 延迟执行时间，单位毫秒,如果delay为infinite则表示手动执行
+                transition: Transitions[animationOptions.transition || "linear"],
+                onStop: animationOptions.onStop || function (e) { // 调用stop停止时的回调函数
                     console.log('stop', e);
                 }, 
                 render: function(e) {
+
                     if (me.getContext() == '2d') {
                         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
                     }
-                    me._getDrawer().drawMap(parseFloat(me._minTime) + (me._maxTime - me._minTime) * e);
+                    var time = parseInt(parseFloat(me._minTime) + (me._maxTime - me._minTime) * e);
+                    me._getDrawer().drawMap(time);
+
+                    animationOptions.render && animationOptions.render(time);
+
                 }
             });
 
             timeline.setFinishCallback(function(){
-                setTimeout(function(){
+                //setTimeout(function(){
                     timeline.start();
-                }, 3000);
+                //}, 3000);
             });
 
             timeline.start();
@@ -290,8 +302,8 @@ util.extend(Layer.prototype, {
                         }
                     }
                 }
-                this._minTime = 1439568000;
-                this._maxTime = 1439827200;
+                //this._minTime = 1439568000;
+                //this._maxTime = 1439827200;
             }
 
             if (data.length > 0) {

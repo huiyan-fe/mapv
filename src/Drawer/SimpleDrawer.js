@@ -42,12 +42,29 @@ SimpleDrawer.prototype.drawMap = function (time) {
 
         for (var i = 0, len = data.length; i < len; i++) {
             var geo = data[i].pgeo;
-            ctx.beginPath();
-            ctx.moveTo(geo[0][0], geo[0][1]);
-            for (var j = 1; j < geo.length; j++) {
-                if (time !== undefined && parseFloat(geo[j][2]) > time) {
-                    break;
+            var startIndex = 0, //开始的索引
+                endIndex = geo.length - 1; //结束的索引
+
+            if (time) { // 按时间动画展示
+                for (var j = 0; j < geo.length; j++) {
+                    if (parseFloat(geo[j][2]) < time - 60 * 60 * 3) {
+                        startIndex = j;
+                    }
+                    endIndex = j;
+                    if (parseFloat(geo[j][2]) > time) {
+                        break;
+                    }
                 }
+            }
+
+            if (startIndex >= endIndex) {
+                continue;
+            }
+
+            ctx.beginPath();
+            ctx.moveTo(geo[startIndex][0], geo[startIndex][1]);
+
+            for (var j = startIndex + 1; j <= endIndex; j++) {
                 ctx.lineTo(geo[j][0], geo[j][1]);
             }
 
