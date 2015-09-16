@@ -3277,7 +3277,7 @@ util.extend(HeatmapDrawer.prototype, {
         // draw a grayscale heatmap by putting a blurred circle at each data point
         var dataType = this.getLayer().getDataType();
         if (dataType === 'polyline') {
-            ctx.strokeStyle = this.getDrawOptions().strokeStyle || 'rgba(0, 0, 0, 0.05)';
+            ctx.strokeStyle = this.getDrawOptions().strokeStyle || 'rgba(0, 0, 0, 0.8)';
 
             /*
             ctx.shadowOffsetX = ctx.shadowOffsetY = 0;
@@ -3286,15 +3286,17 @@ util.extend(HeatmapDrawer.prototype, {
             */
 
             ctx.lineWidth = this.getDrawOptions().lineWidth || 1;
+            ctx.beginPath();
             for (var i = 0, len = this._data.length; i < len; i++) {
                 p = this._data[i];
                 var geo = p.pgeo;
+                ctx.beginPath();
                 ctx.moveTo(geo[0][0], geo[0][1]);
                 for (var j = 1; j < geo.length; j++) {
                     ctx.lineTo(geo[j][0], geo[j][1]);
                 }
+                ctx.stroke();
             }
-            ctx.stroke();
 
         } else {
 
