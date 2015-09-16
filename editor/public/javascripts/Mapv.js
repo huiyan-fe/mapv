@@ -3547,14 +3547,16 @@ SimpleDrawer.prototype.drawMap = function (time) {
             var labelKey = label.key || 'count';
         }
 
+        var animationOptions = this.getLayer().getAnimationOptions() || {};
         for (var i = 0, len = data.length; i < len; i++) {
             var geo = data[i].pgeo;
             var startIndex = 0, //开始的索引
                 endIndex = geo.length - 1; //结束的索引
 
             if (time) { // 按时间动画展示
+                var scope = animationOptions.scope || 60 * 60 * 3;
                 for (var j = 0; j < geo.length; j++) {
-                    if (parseFloat(geo[j][2]) < time - 60 * 60 * 3) {
+                    if (parseFloat(geo[j][2]) < time - scope) {
                         startIndex = j;
                     }
                     endIndex = j;
