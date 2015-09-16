@@ -1,0 +1,16 @@
+extends layout
+
+block content
+    .login-box
+        if !login
+            a(href='https://github.com/login/oauth/authorize?client_id=a0425960782d7a4a4f12&scope=public_repo') 登陆Github
+    #map
+block css
+    link(rel='stylesheet', href='stylesheets/style.css')
+    link(rel='stylesheet', href='stylesheets/edit.css')
+block js
+    script(type='text/javascript', src='http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js')
+    script(type='text/javascript', src='http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ')
+    script(type='text/javascript', src='javascripts/Mapv.js')
+    script(type='text/javascript', src='javascripts/edit/require.js')
+    script(type='text/javascript', src='javascripts/edit/edit.js')

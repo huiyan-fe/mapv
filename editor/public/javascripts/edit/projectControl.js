@@ -92,17 +92,18 @@ define(['editActions','databank','tools','gitOp'],function(edit,databank,tools,g
         box.innerHTML = '<div style="padding: 10px;">' + html + '</div>';
     }
 
+    var baseUrl = location.href.replace(/\?.*$/, '');
     // change project
     $('body').on('click','.E-button-changeproject',function(){
         var projectName = $(this).attr('name');
         var username = databank.get('user').username;
-        var url = location.protocol+'//'+location.host+'?user='+username+'&project='+projectName;
+        var url =  baseUrl  + '?user=' + username + '&project=' + projectName;
         location.href=url;
     });
 
     // change project
     $('body').on('click','.user-block-home',function(){
-        var url = location.protocol+'//'+location.host;
+        var url =  baseUrl;
         location.href=url;
     });
     //

@@ -19,7 +19,7 @@ router.get('/', function(req, res, next) {
         }),
         callback:function(data){
             if(data.indexOf('access_token')){
-                res.redirect(301, '/?loginError');
+                res.redirect(301, '?tips=loginError');
             }else{
                 var info = {};
                 var datas = data.split('&');
@@ -28,7 +28,7 @@ router.get('/', function(req, res, next) {
                     info[d[0]]=d[1]
                 }
                 res.cookie('mapv_session',info.access_token,{expires: new Date(Date.now() + 1000*3600*24*30)});
-                res.redirect(301, '/?loginSuccess');
+                res.redirect(301, '?tips=loginSuccess');
             }
         }
     });

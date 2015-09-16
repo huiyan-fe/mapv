@@ -21,7 +21,6 @@ SimpleDrawer.prototype.drawMap = function (time) {
     var ctx = this.getCtx();
 
     var drawOptions = this.getDrawOptions();
-    //console.log('????',drawOptions)
 
     ctx.beginPath();
 

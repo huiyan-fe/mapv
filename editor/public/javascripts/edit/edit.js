@@ -23,7 +23,7 @@ var app;
 
 // load config
 requirejs.config({
-	baseUrl: '/javascripts/edit',
+	baseUrl: 'javascripts/edit',
 });
 
 // main
