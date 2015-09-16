@@ -22,7 +22,7 @@
 for (var i = 0; i < driveData.length; i++) {
     var geo = driveData[i].geo;
     for (var j = 0; j < geo.length; j++) {
-        geo[j].push(new Date().getTime() + 1000 * 1000 * j);
+        geo[j].push(new Date().getTime() / 1000 + 10 * 60 * j);
     }
 }
 
@@ -48,14 +48,17 @@ var layer = new Mapv.Layer({
     data: driveData,
     drawType: 'simple',
     drawOptions: {
-        lineWidth: 5,
+        lineWidth: 2,
         shadowBlur: 20,
         shadowColor: "rgba(250, 255, 0, 1)",
-        strokeStyle: "rgba(250, 250, 0, 0.2)"
+        strokeStyle: "rgba(250, 250, 0, 2)"
     },
     animation: 'time',
     animationOptions: {
-        size: 5
+        size: 5,
+        duration: 10000, // 动画时长, 单位毫秒
+        fps: 30,         // 每秒帧数
+        transition: "linear",
     }
 });
 
