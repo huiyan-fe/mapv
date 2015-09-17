@@ -3512,13 +3512,35 @@ IntensityDrawer.prototype.getMax = function () {
     }
     return max;
 };
+;function LineDrawer() {
+    Drawer.apply(this, arguments);
+}
+
+util.inherits(LineDrawer, Drawer);
+
+LineDrawer.prototype.drawMap = function(time) {
+    this.beginDrawMap();
+    var data = this.getLayer().getData();
+    var ctx = this.getCtx();
+    var drawOptions = this.getDrawOptions();
+
+    ctx.beginPath();
+
+    var radius = this.getRadius();
+
+    var dataType = this.getLayer().getDataType();
+    ctx.fill();
+
+    this.endDrawMap();
+}
+
 ;function SimpleDrawer() {
     Drawer.apply(this, arguments);
 }
 
 util.inherits(SimpleDrawer, Drawer);
 
-SimpleDrawer.prototype.drawMap = function (time) {
+SimpleDrawer.prototype.drawMap = function(time) {
     if (this.getLayer().getContext() === 'webgl') {
         this.drawWebglMap();
         return;
@@ -3528,7 +3550,6 @@ SimpleDrawer.prototype.drawMap = function (time) {
 
     var data = this.getLayer().getData();
     var ctx = this.getCtx();
-
     var drawOptions = this.getDrawOptions();
 
     ctx.beginPath();
@@ -3644,7 +3665,7 @@ SimpleDrawer.prototype.drawMap = function (time) {
 /**
  * 绘制动画
  */
-SimpleDrawer.prototype.drawAnimation = function () {
+SimpleDrawer.prototype.drawAnimation = function() {
     var layer = this.getLayer();
     var data = layer.getData();
     var dataType = layer.getDataType();
@@ -3653,8 +3674,7 @@ SimpleDrawer.prototype.drawAnimation = function () {
     var ctx = layer.getAnimationCtx();
 
     if (dataType === 'polyline') {
-        if (animation === 'time') {
-        } else {
+        if (animation === 'time') {} else {
             for (var i = 0, len = data.length; i < len; i++) {
                 var index = data[i].index;
                 var pgeo = data[i].pgeo;
@@ -3662,10 +3682,10 @@ SimpleDrawer.prototype.drawAnimation = function () {
                 /* 设定渐变区域 */
                 var x = pgeo[index][0];
                 var y = pgeo[index][1];
-                var grad  = ctx.createRadialGradient(x, y, 0, x, y, animationOptions.size);
-                grad.addColorStop(0,'rgba(255, 255, 255, 1)');
-                grad.addColorStop(0.4,'rgba(255, 255, 255, 0.9)');
-                grad.addColorStop(1,'rgba(255, 255, 255, 0)');
+                var grad = ctx.createRadialGradient(x, y, 0, x, y, animationOptions.size);
+                grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+                grad.addColorStop(0.4, 'rgba(255, 255, 255, 0.9)');
+                grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
                 ctx.fillStyle = grad;
 
                 ctx.beginPath();
@@ -3682,7 +3702,7 @@ SimpleDrawer.prototype.drawAnimation = function () {
 }
 
 // 使用webgl来绘点，支持更大数据量的点
-SimpleDrawer.prototype.drawWebglMap = function () {
+SimpleDrawer.prototype.drawWebglMap = function() {
 
     var data = this.getLayer().getData();
 
@@ -3701,8 +3721,8 @@ SimpleDrawer.prototype.drawWebglMap = function () {
         'attribute vec4 a_Position;',
         'attribute float a_PointSize;',
         'void main() {',
-            'gl_Position = a_Position;',
-            'gl_PointSize = a_PointSize;',
+        'gl_Position = a_Position;',
+        'gl_PointSize = a_PointSize;',
         '}'
     ].join('');
 
@@ -3710,7 +3730,7 @@ SimpleDrawer.prototype.drawWebglMap = function () {
         'precision mediump float;',
         'uniform vec4 u_FragColor;',
         'void main() {',
-            'gl_FragColor = u_FragColor;',
+        'gl_FragColor = u_FragColor;',
         '}'
     ].join('');
 
@@ -3788,11 +3808,11 @@ SimpleDrawer.prototype.drawWebglMap = function () {
     var colored = tmpCtx.getImageData(0, 0, 1, 1).data;
 
     gl.uniform4f(uFragColor,
-    colored[0] / 255,
-    colored[1] / 255,
-    colored[2] / 255,
-    colored[3] / 255);
-    gl.drawArrays(gl.POINTS, 0 , n);
+        colored[0] / 255,
+        colored[1] / 255,
+        colored[2] / 255,
+        colored[3] / 255);
+    gl.drawArrays(gl.POINTS, 0, n);
 }
 ;    Mapv.Layer = Layer;
     this.Mapv = Mapv;
