@@ -1,7 +1,13 @@
 !function(){
     var Mapv;
 
-;var util = {
+
+/**
+ * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+ * 一些常用的方法库
+ */
+
+var util = {
     isPlainObject: function (obj) {
         var key;
         var class2type = {};
@@ -123,7 +129,12 @@
 
 
 }
-;var MVCObject;
+
+/**
+ * @file MVC架构
+ *
+ */
+var MVCObject;
 (function() {
 
     function Accessor(target, targetKey) {
@@ -406,7 +417,13 @@
 })();
 
 Mapv.MVCObject = MVCObject;
-;function Class () {
+
+/**
+ * base Class
+ *
+ */
+
+function Class () {
     this.__listeners = {}; // 存储自定义事件对象
 }
 
@@ -476,7 +493,13 @@ Class.prototype.dispatchEvent = function (type, options) {
 Class.prototype.dispose = function () {
 }
 
-;function DataRange(layer) {
+
+/**
+ * @file  控制值域的类
+ * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+ */
+
+function DataRange(layer) {
     Class.call(this);
 
     this.initOptions({
@@ -709,7 +732,11 @@ util.extend(DataRange.prototype, {
     }
 
 }); // end extend
-;function Animation(opts) {
+
+/**
+ * @file Animation.js
+ */
+function Animation(opts) {
     var defaultOptions = {
         duration: 1000,  // 动画时长, 单位毫秒
         fps: 30,         // 每秒帧数
@@ -884,7 +911,13 @@ function getCurrentTime() {
 function isNumber(number) {
   return typeof number == "number";
 }
-;function SizeDataRange() {
+
+/**
+ * @file  控制大小值域的类
+ * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+ */
+
+function SizeDataRange() {
     DataRange.call(this);
 }
 
@@ -893,7 +926,12 @@ util.inherits(SizeDataRange, DataRange);
 util.extend(SizeDataRange.prototype, {
     
 }); // end extend
-;function TimeLine(options) {
+
+/**
+ * TimeLine Component
+ */
+
+function TimeLine(options) {
     Class.call(this);
 }
 
@@ -904,7 +942,14 @@ util.extend(TimeLine.prototype, {
 
 var timeLine = new TimeLine({
 });
-;/**
+
+/**
+ * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+ * 地图可视化库，目前依赖与百度地图api，在百度地图api上展示点数据
+ *
+ */
+
+/**
  * Mapv主类
  * @param {Object}
  */
@@ -945,7 +990,19 @@ Mapv.prototype.drawTypeControl_changed = function () {
         }
     }
 }
-;function CanvasLayer(options){
+
+/**
+ * 一直覆盖在当前地图视野的Canvas对象
+ *
+ * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+ *
+ * @param 
+ * {
+ *     map 地图实例对象
+ * }
+ */ 
+    
+function CanvasLayer(options){
     this.options = options || {};
     this.paneName = this.options.paneName || 'labelPane';
     this.zIndex = this.options.zIndex || 0;
@@ -1016,7 +1073,12 @@ CanvasLayer.prototype.setZIndex = function(zIndex){
 CanvasLayer.prototype.getZIndex = function(){
     return this.zIndex;
 }
-;function Layer (options) {
+
+/**
+ * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+ */
+
+function Layer (options) {
     Class.call(this);
 
     this._drawer = {};
@@ -1354,7 +1416,13 @@ util.extend(Layer.prototype, {
     }
 });
 
-;function DataControl(superObj) {
+
+/**
+ * @file this file is to supprot customer data
+ * @author Mofei Zhu <zhuwenlong@baidu.ocm>
+ */
+
+function DataControl(superObj) {
     this.initDom();
     this.initEvent();
     this.super = superObj;
@@ -1523,7 +1591,13 @@ DataControl.prototype.initEvent = function () {
     }
 
 };
-;function DataRangeControl(){
+
+/**
+ * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+ * legend控件
+ */
+
+function DataRangeControl(){
 
     // 默认停靠位置和偏移量
     this.defaultAnchor = BMAP_ANCHOR_BOTTOM_RIGHT;
@@ -1641,7 +1715,14 @@ util.extend(DataRangeControl.prototype, {
     }
 
 });
-;function DrawScale() {
+
+/**
+ * @file drawScale
+ * @author Mofei Zhu (zhuwenlong@baidu.com)
+ */
+
+
+function DrawScale() {
     this.init();
     this._Event();
 }
@@ -1936,7 +2017,13 @@ function drawTips(obj) {
     ctx.fillText(obj.text, hdlMid + 8, hdlTop);
     ctx.restore();
 }
-;/* globals util BMap BMAP_ANCHOR_TOP_LEFT BMAP_ANCHOR_TOP_RIGHT*/
+
+/**
+ * @file 选址绘制类型控件
+ * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+ */
+
+/* globals util BMap BMAP_ANCHOR_TOP_LEFT BMAP_ANCHOR_TOP_RIGHT*/
 
 util.addCssByStyle(
     [
@@ -2048,7 +2135,12 @@ DrawTypeControl.prototype.showLayer = function () {
     }
 
 }
-;/* globals util */
+
+/**
+ * @file this object is to deal with the optional datas
+ * @author Mofei Zhu <zhuwenlong@baidu.com>
+ */
+/* globals util */
 
 function OptionalData(superObj) {
     // set params
@@ -2253,7 +2345,12 @@ OptionalData.prototype.bindEvent = function () {
         // console.log('reset', self.options);
     };
 };
-;function Drawer(layer) {
+
+/**
+ * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+ */
+
+function Drawer(layer) {
 
     Class.call(this);
 
@@ -2388,7 +2485,12 @@ Drawer.prototype.getRadius = function () {
 
     return radius;
 }
-;/* globals Drawer, util */
+
+/**
+ * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+ */
+
+/* globals Drawer, util */
 
 function BubbleDrawer() {
     Drawer.apply(this, arguments);
@@ -2420,7 +2522,13 @@ BubbleDrawer.prototype.drawMap = function () {
 
     this.endDrawMap();
 }
-;/* globals Drawer, util */
+
+/**
+ * @file 按颜色分类绘制方法
+ * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+ */
+
+/* globals Drawer, util */
 
 function CategoryDrawer() {
     Drawer.apply(this, arguments);
@@ -2453,7 +2561,12 @@ CategoryDrawer.prototype.drawMap = function () {
 
     this.endDrawMap();
 };
-;/* globals Drawer, util */
+
+/**
+ * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+ */
+
+/* globals Drawer, util */
 
 function ChoroplethDrawer() {
     Drawer.apply(this, arguments);
@@ -2530,7 +2643,13 @@ ChoroplethDrawer.prototype.drawMap = function () {
 
     this.endDrawMap();
 };
-;/* globals Drawer mercatorProjection BMap util */
+
+/**
+ * @file draw grad on the map
+ * @author Mofei Zhu <zhuwenlong@baidu.com>
+ */
+
+/* globals Drawer mercatorProjection BMap util */
 
 var min;
 var max;
@@ -2696,7 +2815,13 @@ ClusterDrawer.prototype.formatParam = function () {
     options.size = size;
     return options
 };
-;/* globals Drawer mercatorProjection BMap util */
+
+/**
+ * @file draw grad on the map
+ * @author Mofei Zhu <zhuwenlong@baidu.com>
+ */
+
+/* globals Drawer mercatorProjection BMap util */
 
 var min;
 var max;
@@ -3126,7 +3251,13 @@ function formatParam() {
     options.colors = fillColors;
     return options
 }
-;/* globals Drawer, util drawOptions map*/
+
+/**
+ * @file Heatmap Draw
+ * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+ */
+
+/* globals Drawer, util drawOptions map*/
 
 function HeatmapDrawer() {
     var self = this;
@@ -3361,7 +3492,13 @@ util.extend(HeatmapDrawer.prototype, {
         }
     }
 });
-;/* globals Drawer, util */
+
+/**
+ * @file 按渐变颜色分类绘制方法
+ * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+ */
+
+/* globals Drawer, util */
 
 function IntensityDrawer() {
     this.masker = {
@@ -3512,7 +3649,13 @@ IntensityDrawer.prototype.getMax = function () {
     }
     return max;
 };
-;function LineDrawer() {
+
+/**
+ * @file 普通的绘制方式
+ * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+ */
+
+function LineDrawer() {
     Drawer.apply(this, arguments);
 }
 
@@ -3534,7 +3677,13 @@ LineDrawer.prototype.drawMap = function(time) {
     this.endDrawMap();
 }
 
-;function SimpleDrawer() {
+
+/**
+ * @file 普通的绘制方式
+ * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+ */
+
+function SimpleDrawer() {
     Drawer.apply(this, arguments);
 }
 
@@ -3814,6 +3963,7 @@ SimpleDrawer.prototype.drawWebglMap = function() {
         colored[3] / 255);
     gl.drawArrays(gl.POINTS, 0, n);
 }
-;    Mapv.Layer = Layer;
+
+    Mapv.Layer = Layer;
     this.Mapv = Mapv;
 }();
