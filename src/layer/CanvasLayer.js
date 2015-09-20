@@ -50,11 +50,13 @@ CanvasLayer.prototype.draw = function(){
     var bounds = map.getBounds();
     var sw = bounds.getSouthWest();
     var ne = bounds.getNorthEast();
-    var pixel = map.pointToOverlayPixel(new BMap.Point(sw.lng, ne.lat));
-    this.canvas.style.left = pixel.x + "px";
-    this.canvas.style.top = pixel.y + "px";
-    this.dispatchEvent('draw');
-    this.options.update && this.options.update.call(this);
+    if(sw & ne){
+        var pixel = map.pointToOverlayPixel(new BMap.Point(sw.lng, ne.lat));
+        this.canvas.style.left = pixel.x + "px";
+        this.canvas.style.top = pixel.y + "px";
+        this.dispatchEvent('draw');
+        this.options.update && this.options.update.call(this);
+    }
 }
 
 CanvasLayer.prototype.getContainer = function(){
