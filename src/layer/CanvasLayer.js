@@ -47,13 +47,12 @@ CanvasLayer.prototype.adjustSize = function(){
 
 CanvasLayer.prototype.draw = function(){
     var map = this._map;
-    var bounds = map.getBounds();
-    var sw = bounds.getSouthWest();
-    var ne = bounds.getNorthEast();
-    if(sw & ne){
-        var pixel = map.pointToOverlayPixel(new BMap.Point(sw.lng, ne.lat));
-        this.canvas.style.left = pixel.x + "px";
-        this.canvas.style.top = pixel.y + "px";
+    var size = map.getSize();
+    var center = map.getCenter();
+    if (center) {
+        var pixel = map.pointToOverlayPixel(center);
+        this.canvas.style.left = pixel.x - size.width / 2 + 'px';
+        this.canvas.style.top = pixel.y - size.height / 2 + 'px';
         this.dispatchEvent('draw');
         this.options.update && this.options.update.call(this);
     }
