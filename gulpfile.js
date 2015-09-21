@@ -3,7 +3,7 @@ var concat = require('gulp-concat');
 var uglify = require("gulp-uglify");
 var rename = require("gulp-rename");
 var copy = require("gulp-copy");
-var watch = require("gulp-watch");
+var babel = require("gulp-babel");
 
 gulp.task('default', ['script', 'copy']);
 
@@ -38,7 +38,7 @@ gulp.task('copy', function() {
     }));
 });
 
-var watcher = watch('src/**/*.js', ['default']);
+var watcher = gulp.watch('src/**/*.js', ['default']);
 watcher.on('change', function(event) {
     console.log('File ' + event.path + ' was ' + event.type + ', running tasks...');
 });
