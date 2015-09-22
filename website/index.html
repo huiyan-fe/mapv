@@ -17,10 +17,6 @@
     <!-- Custom CSS -->
     <link href="css/landing-page.css" rel="stylesheet">
 
-    <!-- Custom Fonts -->
-    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-    <link href="http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
-
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -70,7 +66,7 @@
     <div class="intro-header">
         <div class="container">
 
-            <div class="row">
+            <div class="row" style="opacity:0;transition: all 1s;">
                 <div class="col-lg-12">
                     <div class="intro-message">
                         <h1>MapV</h1>
@@ -93,6 +89,8 @@
 
         </div>
         <!-- /.container -->
+
+        <canvas class="canvas" style="transition: all 1s;background:blue;position:absolute;left:0;top:0;width:100%;height:100%;"></canvas>
 
     </div>
     <!-- /.intro-header -->
@@ -233,6 +231,8 @@
 
     <!-- Bootstrap Core JavaScript -->
     <script src="js/bootstrap.min.js"></script>
+
+    <script src="js/shape-shifter.js"></script>
 
 </body>
 
