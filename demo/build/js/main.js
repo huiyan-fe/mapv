@@ -71,7 +71,7 @@
         $('.allexamples').hide();
         clear();
         effect.removeClass('effect-l');
-        var basUrl = '../js/ajax/';
+        var basUrl = 'js/ajax/';
         var url = basUrl + $(this).attr('class') + '.js';
         e.preventDefault();
         $.getScript(url,function(data,textStatus,jqxhr) {
@@ -87,8 +87,9 @@
         $('.allexamples').hide();
         clear();
         effect.removeClass('effect-l');
-        var basUrl = '../js/ajax/';
+        var basUrl = 'js/ajax/';
         var url = basUrl + $(this).prev().attr('alt') + '.js';
+        console.log(url);
         e.preventDefault();
         $.getScript(url,function(data,textStatus,jqxhr) {
             editor.setValue(data);

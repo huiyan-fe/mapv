@@ -10,7 +10,7 @@ gulp.task('watch', function() {
 gulp.task('ejs2htm', function() {
     return gulp.src('./dev/templates/*.ejs')
         .pipe(ejs())
-        .pipe(gulp.dest('./build/html'));
+        .pipe(gulp.dest('./build'));
 });
 gulp.task('less2css', function () {
     return gulp.src('./dev/less/index.less')
