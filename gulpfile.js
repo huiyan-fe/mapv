@@ -5,7 +5,7 @@ var rename = require("gulp-rename");
 var copy = require("gulp-copy");
 var babel = require("gulp-babel");
 
-gulp.task('default', ['script', 'copy']);
+gulp.task('default', ['script', 'copy', 'copydemo']);
 
 // 合并压缩文件
 gulp.task('script', function() {
@@ -34,6 +34,13 @@ gulp.task('script', function() {
 gulp.task('copy', function() {
     return gulp.src("dist/*.js")
     .pipe(copy('editor/public/javascripts/', {
+        prefix: 1
+    }));
+});
+
+gulp.task('copydemo', function() {
+    return gulp.src("dist/*.js")
+    .pipe(copy('demo/build/js/lib/', {
         prefix: 1
     }));
 });
