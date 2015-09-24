@@ -1,7 +1,5 @@
 # Mapv - 地图可视化工具库
 
-官网地址:[http://huiyan.baidu.com/mapv/](http://huiyan.baidu.com/mapv/)
-
 <img src='http://huiyan-fe.github.io/mapv/doc/asset/img/logo.png' width='130' align='left'/>
 Mapv 是一款基于百度地图的大数据可视化开源库，可以用来展示大量的点、线、面的数据，每种数据也有不同的展示类型，如直接打点、热力图、网格、聚合等方式展示数据。
 
