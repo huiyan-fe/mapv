@@ -17,10 +17,6 @@
     <!-- Custom CSS -->
     <link href="css/landing-page.css" rel="stylesheet">
 
-    <!-- Custom Fonts -->
-    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-    <link href="http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
-
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -43,7 +39,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand topnav" href="#">MapV</a>
+                <a class="topnav" href="#"><img src="img/logo.png" style="height:50px;"/></a>
             </div>
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -56,6 +52,9 @@
                     </li>
                     <li>
                         <a href="https://github.com/huiyan-fe/mapv/wiki/%E7%A4%BA%E4%BE%8B" target="_blank">Demo</a>
+                    </li>
+                    <li>
+                        <a href="http://huiyan.baidu.com/mapv/editor/" target="_blank">Editor</a>
                     </li>
                 </ul>
             </div>
@@ -70,7 +69,7 @@
     <div class="intro-header">
         <div class="container">
 
-            <div class="row">
+            <div class="row" style="opacity:0;transition: all 1s;">
                 <div class="col-lg-12">
                     <div class="intro-message">
                         <h1>MapV</h1>
@@ -94,6 +93,8 @@
         </div>
         <!-- /.container -->
 
+        <canvas class="canvas" style="transition: all 1s;background:rgb(20, 20, 255);position:absolute;left:0;top:0;width:100%;height:100%;"></canvas>
+
     </div>
     <!-- /.intro-header -->
 
@@ -107,8 +108,8 @@
                 <div class="col-lg-5 col-sm-6">
                     <hr class="section-heading-spacer">
                     <div class="clearfix"></div>
-                    <h2 class="section-heading">Death to the Stock Photo:<br>Special Thanks</h2>
-                    <p class="lead">A special thanks to <a target="_blank" href="http://join.deathtothestockphoto.com/">Death to the Stock Photo</a> for providing the photographs that you see in this template. Visit their website to become a member.</p>
+                    <h2 class="section-heading">展示大量点数据</h2>
+                    <p class="lead">展示大量的点数据，形式可以为热力图、网格、蜂窝状、点聚合、按颜色区间、按半径大小等。</p>
                 </div>
                 <div class="col-lg-5 col-lg-offset-2 col-sm-6">
                     <img class="img-responsive" src="img/ipad.png" alt="">
@@ -129,8 +130,8 @@
                 <div class="col-lg-5 col-lg-offset-1 col-sm-push-6  col-sm-6">
                     <hr class="section-heading-spacer">
                     <div class="clearfix"></div>
-                    <h2 class="section-heading">3D Device Mockups<br>by PSDCovers</h2>
-                    <p class="lead">Turn your 2D designs into high quality, 3D product shots in seconds using free Photoshop actions by <a target="_blank" href="http://www.psdcovers.com/">PSDCovers</a>! Visit their website to download some of their awesome, free photoshop actions!</p>
+                    <h2 class="section-heading">展示大量线数据</h2>
+                    <p class="lead">可展示大量的线数据，有各种展示方式，如普通画线、高亮叠加、热力线数据展示等方式，还有各种动画效果，适合用于呈现大量轨迹的场景。</p>
                 </div>
                 <div class="col-lg-5 col-sm-pull-6  col-sm-6">
                     <img class="img-responsive" src="img/dog.png" alt="">
@@ -151,8 +152,8 @@
                 <div class="col-lg-5 col-sm-6">
                     <hr class="section-heading-spacer">
                     <div class="clearfix"></div>
-                    <h2 class="section-heading">Google Web Fonts and<br>Font Awesome Icons</h2>
-                    <p class="lead">This template features the 'Lato' font, part of the <a target="_blank" href="http://www.google.com/fonts">Google Web Font library</a>, as well as <a target="_blank" href="http://fontawesome.io">icons from Font Awesome</a>.</p>
+                    <h2 class="section-heading">展示大量面数据</h2>
+                    <p class="lead">可展示大量的自定义面数据，也可按颜色区间来展示，行政区域也是其中一种应用场景，可直接使用。</p>
                 </div>
                 <div class="col-lg-5 col-lg-offset-2 col-sm-6">
                     <img class="img-responsive" src="img/phones.png" alt="">
@@ -172,19 +173,24 @@
 
             <div class="row">
                 <div class="col-lg-6">
-                    <h2>Connect to Start Bootstrap:</h2>
+                    <h2>Connect to Start Mapv:</h2>
                 </div>
                 <div class="col-lg-6">
                     <ul class="list-inline banner-social-buttons">
+                        <!--
                         <li>
                             <a href="https://twitter.com/SBootstrap" class="btn btn-default btn-lg"><i class="fa fa-twitter fa-fw"></i> <span class="network-name">Twitter</span></a>
                         </li>
+                        -->
+                        <li>QQ群号：321519841</li>
                         <li>
-                            <a href="https://github.com/IronSummitMedia/startbootstrap" class="btn btn-default btn-lg"><i class="fa fa-github fa-fw"></i> <span class="network-name">Github</span></a>
+                            <a href="https://github.com/huiyan-fe/mapv" class="btn btn-default btn-lg"><i class="fa fa-github fa-fw"></i> <span class="network-name">Github</span></a>
                         </li>
+                        <!--
                         <li>
                             <a href="#" class="btn btn-default btn-lg"><i class="fa fa-linkedin fa-fw"></i> <span class="network-name">Linkedin</span></a>
                         </li>
+                        -->
                     </ul>
                 </div>
             </div>
@@ -217,7 +223,7 @@
                             <a href="#contact">Contact</a>
                         </li>
                     </ul>
-                    <p class="copyright text-muted small">Copyright &copy; Your Company 2014. All Rights Reserved</p>
+                    <p class="copyright text-muted small">Copyright &copy; <a href="http://huiyan.baidu.com">huiyan</a> 2015. All Rights Reserved</p>
                 </div>
             </div>
         </div>
@@ -228,6 +234,8 @@
 
     <!-- Bootstrap Core JavaScript -->
     <script src="js/bootstrap.min.js"></script>
+
+    <script src="js/shape-shifter.js"></script>
 
 </body>
 
