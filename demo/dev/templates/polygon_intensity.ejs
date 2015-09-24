@@ -1,0 +1,26 @@
+<%- include head/header.ejs %>
+<div class="container">
+    <div class="btn btn-l">
+        <span class="lines line lines-arrow"></span>
+    </div>
+    <div class="oprbtns">
+        <div class="btn btn-r btn-src">源码</div>
+        <div class="btn btn-refresh">还原</div>
+    </div>
+    <%- include left/left.ejs %>
+    <!-- end of left -->
+    <div class="right r-trf">
+
+        <div class="code">
+            <textarea name="code" id="code"></textarea>
+        </div>
+
+        <div class="effect effect-r">
+            <iframe src="./iframes/polygon_intensity.html" frameborder="0" name="iframes" id="iframes"></iframe>
+        </div>
+
+    </div>
+    <!-- end of right -->
+</div>
+<!-- end of .container -->
+<%- include foot/footer.ejs %>
