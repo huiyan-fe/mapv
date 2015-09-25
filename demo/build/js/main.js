@@ -19,6 +19,7 @@
         $('.code').css('height',$(window).height() + 'px');
         $('.allexamples').css({'min-height': $(window).height() + 'px'});
         $('.all-inner').css('width',$(window).width() - 300 + 'px');
+        $('.right').css('width',$(window).width() - 300 + 'px');
     };
 
     function initEditor() {
@@ -73,7 +74,15 @@
         left.toggleClass("l-trf-r");
         right.toggleClass("r-trf-l");
         lines.toggleClass("lines-arrow");
+        if(isHide) {
+            setTimeout(function() {
+                $('.right').width($(window).width()-300);
+            },500)
+        }else {
+            $('.right').width($(window).width());
+        }
         changeInnerSize();
+
     });
 
     btnSrc.click(function() {
