@@ -1,6 +1,7 @@
 var gulp = require('gulp');
 var ejs  = require('gulp-ejs');
 var less = require('gulp-less');
+var replace = require('gulp-replace');
 var path = require('path');
 var clean = require('gulp-clean');
 var minifyCss = require('gulp-minify-css');
@@ -26,4 +27,11 @@ gulp.task('less2css', function () {
         .pipe(minifyCss())
         .pipe(gulp.dest('./build/css/'));
 });
+
+gulp.task('replace_url', function(){
+  gulp.src('./build/iframes/*.html')
+    .pipe(replace(/..\/(js|css)/g, 'http://huiyan.baidu.com/mapv/demo/$1'))
+    .pipe(gulp.dest('./build/iframes/'));
+});
+
 gulp.task('default', ['copyiframe','watch','ejs2htm','less2css']);
