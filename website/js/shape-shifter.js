@@ -19,7 +19,11 @@ var S = {
     if (i !== -1) {
       S.UI.simulate(decodeURI(action).substring(i + 3));
     } else {
-      S.UI.simulate('大数据|地图|可视化|start|#countdown 3||');
+      if (window.innerWidth < 500) {
+        S.UI.simulate('M|A|P|V|#countdown 3||');
+      } else {
+        S.UI.simulate('大数据|地图|可视化|start|#countdown 3||');
+      }
     }
 
     S.Drawing.loop(function () {

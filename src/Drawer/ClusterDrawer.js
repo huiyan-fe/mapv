@@ -158,6 +158,8 @@ ClusterDrawer.prototype.drawMap = function () {
  */
 ClusterDrawer.prototype.formatParam = function () {
     var options = this.getDrawOptions();
+    options = JSON.stringify(options);
+    options = JSON.parse(options);
 
     var size = options.size || 60;
     size = size + (options.unit || 'px');
