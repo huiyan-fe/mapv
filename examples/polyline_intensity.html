@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+    <title>折线</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="style.css" />
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<script type="text/javascript" src="../dist/Mapv.js"></script>
+<script type="text/javascript" src="example.js"></script>
+<script type="text/javascript" src="data/drive.js"></script>
+<script type="text/javascript">
+
+/**
+ * @file 示例代码
+ */
+
+// 添加时间戳
+for (var i = 0; i < driveData.length; i++) {
+    driveData[i].count = Math.random() * 10;
+}
+
+console.log(driveData);
+
+bmap.centerAndZoom(new BMap.Point(116.404, 40.055), 11); // 初始化地图,设置中心点坐标和地图级别
+
+// 第一步创建mapv示例
+var mapv = new Mapv({
+    drawTypeControl: true,
+    map: bmap  // 百度地图的map实例
+});
+
+var layer = new Mapv.Layer({
+    zIndex: 1,
+    mapv: mapv,
+    dataType: 'polyline',
+    coordType: 'bd09mc',
+    data: driveData,
+    drawType: 'intensity',
+    drawOptions: {
+        max: 10, // 设置显示的权重最大值
+        lineWidth: 5,
+        gradient: { // 显示的颜色渐变范围
+            '0': 'blue',
+            '0.6': 'cyan',
+            '0.7': 'lime',
+            '0.8': 'yellow',
+            '1.0': 'red'
+        }
+    }
+});
+
+</script>
+</body>
+
+</html>
