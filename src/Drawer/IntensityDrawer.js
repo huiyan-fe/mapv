@@ -61,7 +61,7 @@ IntensityDrawer.prototype.drawMap = function () {
         }
     }
 
-    if (dataType === 'polygon') {
+    if (dataType === 'polygon' || dataType === 'polyline') {
 
         for (var i = 0, len = data.length; i < len; i++) {
             var item = data[i];
@@ -79,10 +79,16 @@ IntensityDrawer.prototype.drawMap = function () {
             for (var j = 1; j < geo.length; j++) {
                 ctx.lineTo(geo[j][0], geo[j][1]);
             }
-            ctx.closePath();
-            ctx.fill();
 
-            if (drawOptions.strokeStyle) {
+            if (dataType == 'polygon') {
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            if (dataType == 'polyline') {
+                ctx.strokeStyle = this.dataRange.getColorByGradient(data[i].count);
+                ctx.stroke();
+            } else if (drawOptions.strokeStyle) {
                 ctx.stroke();
             }
 

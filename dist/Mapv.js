@@ -3410,6 +3410,7 @@ util.extend(HeatmapDrawer.prototype, {
         // console.log(this.masker)
         // draw a grayscale heatmap by putting a blurred circle at each data point
         var dataType = this.getLayer().getDataType();
+        var max = this.getMax();
         if (dataType === 'polyline') {
             ctx.strokeStyle = this.getDrawOptions().strokeStyle || 'rgba(0, 0, 0, 0.8)';
 
@@ -3429,6 +3430,7 @@ util.extend(HeatmapDrawer.prototype, {
                 for (var j = 1; j < geo.length; j++) {
                     ctx.lineTo(geo[j][0], geo[j][1]);
                 }
+                ctx.globalAlpha = Math.max(p.count / max, minOpacity === undefined ? 0.05 : minOpacity);
                 ctx.stroke();
             }
 
@@ -3438,7 +3440,6 @@ util.extend(HeatmapDrawer.prototype, {
 
             console.time('drawImageData');
             console.log('data', this._data.length, this._data);
-            var max = this.getMax();
             for (var i = 0, len = this._data.length, p; i < len; i++) {
                 p = this._data[i];
                 if (p.px < -boundary || p.py < -boundary || p.px > ctx.canvas.width + boundary || p.py > ctx.canvas.height + boundary) {
@@ -3559,7 +3560,7 @@ IntensityDrawer.prototype.drawMap = function () {
         }
     }
 
-    if (dataType === 'polygon') {
+    if (dataType === 'polygon' || dataType === 'polyline') {
 
         for (var i = 0, len = data.length; i < len; i++) {
             var item = data[i];
@@ -3577,10 +3578,16 @@ IntensityDrawer.prototype.drawMap = function () {
             for (var j = 1; j < geo.length; j++) {
                 ctx.lineTo(geo[j][0], geo[j][1]);
             }
-            ctx.closePath();
-            ctx.fill();
 
-            if (drawOptions.strokeStyle) {
+            if (dataType == 'polygon') {
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            if (dataType == 'polyline') {
+                ctx.strokeStyle = this.dataRange.getColorByGradient(data[i].count);
+                ctx.stroke();
+            } else if (drawOptions.strokeStyle) {
                 ctx.stroke();
             }
 
