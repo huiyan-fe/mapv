@@ -3457,11 +3457,13 @@ util.extend(HeatmapDrawer.prototype, {
 
         // colorize the heatmap, using opacity value of each pixel to get the right color from our gradient
         // console.log( this._width, this._height)
-        var colored = ctx.getImageData(0, 0, this._width, this._height);
-        console.time('colorize');
-        this.colorize(colored.data, this.dataRange.getGradient());
-        console.timeEnd('colorize');
-        ctx.putImageData(colored, 0, 0);
+        if (ctx.canvas.width > 0 && ctx.canvas.height.height > 0) {
+            var colored = ctx.getImageData(0, 0, this._width, this._height);
+            console.time('colorize');
+            this.colorize(colored.data, this.dataRange.getGradient());
+            console.timeEnd('colorize');
+            ctx.putImageData(colored, 0, 0);
+        }
 
         ctx.restore();
         return this;
