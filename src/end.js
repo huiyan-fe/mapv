@@ -1,3 +1,3 @@
     Mapv.Layer = Layer;
-    this.Mapv = Mapv;
-}();
+    window.Mapv = Mapv;
+//annotation}();

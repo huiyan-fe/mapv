@@ -23,9 +23,9 @@ CanvasLayer.prototype.initialize = function(map){
     this._map = map;
     var canvas = this.canvas = document.createElement("canvas");
     canvas.style.cssText = "position:absolute;"
-                            + "left:0;" 
-                            + "top:0;"
-                            + "z-index:" + this.zIndex + ";";
+                         + "left:0;" 
+                         + "top:0;"
+                         + "z-index:" + this.zIndex + ";";
     this.adjustSize();
     map.getPanes()[this.paneName].appendChild(canvas);
     var that = this;

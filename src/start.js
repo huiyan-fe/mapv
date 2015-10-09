@@ -1,3 +1,2 @@
-!function(){
+//annotation!function(){
     var Mapv;
-

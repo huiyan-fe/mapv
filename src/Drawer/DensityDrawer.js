@@ -383,7 +383,7 @@ function drawHoneycomb(obj) {
     // console.log(obj, step);
 }
 
-var r =0;g=0;b=0;
+var r =0, g=0, b=0;
 function draw(x, y, gridStep, color, ctx) {
     ctx.beginPath();
     ctx.fillStyle = color;
