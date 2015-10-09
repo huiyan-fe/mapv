@@ -31,11 +31,15 @@ HeatmapDrawer.prototype.drawMap = function () {
 
     this._width = ctx.canvas.width;
     this._height = ctx.canvas.height;
+
     var data = this.getLayer().getData();
     this._data = data;
-    console.time('drawHeatMap');
-    this.drawHeatmap();
-    console.timeEnd('drawHeatMap');
+
+    if (this._width > 0 && this._height > 0) {
+        console.time('drawHeatMap');
+        this.drawHeatmap();
+        console.timeEnd('drawHeatMap');
+    }
 
     this.endDrawMap();
 };
@@ -200,6 +204,7 @@ util.extend(HeatmapDrawer.prototype, {
 
         // colorize the heatmap, using opacity value of each pixel to get the right color from our gradient
         // console.log( this._width, this._height)
+
         var colored = ctx.getImageData(0, 0, this._width, this._height);
         console.time('colorize');
         this.colorize(colored.data, this.dataRange.getGradient());

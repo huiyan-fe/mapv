@@ -1,9 +1,11 @@
 var gulp = require('gulp');
 var concat = require('gulp-concat');
+var jshint = require('gulp-jshint');
 var uglify = require("gulp-uglify");
 var rename = require("gulp-rename");
 var copy = require("gulp-copy");
 var babel = require("gulp-babel");
+var replace = require('gulp-replace');
 
 gulp.task('default', ['script', 'copy', 'copydemo']);
 
@@ -24,7 +26,11 @@ gulp.task('script', function() {
         "src/Drawer/*.js",
         "src/end.js",
     ])
+    .pipe(jshint())
+    .pipe(jshint.reporter('default'))
+    .pipe(babel())
     .pipe(concat('Mapv.js'))
+    .pipe(replace(/\/\/annotation/g, ''))
     .pipe(gulp.dest('./dist/'))
     .pipe(rename('Mapv.min.js'))
     .pipe(uglify())
