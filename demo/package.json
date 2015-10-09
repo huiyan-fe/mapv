@@ -1,0 +1,23 @@
+{
+  "name": "mpv",
+  "version": "1.0.0",
+  "description": "mapv",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mapv"
+  ],
+  "author": "nani",
+  "license": "ISC",
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-clean": "^0.3.1",
+    "gulp-ejs": "^1.1.1",
+    "gulp-less": "^3.0.3",
+    "gulp-minify-css": "^1.2.0",
+    "gulp-replace": "^0.5.4",
+    "gulp-watch": "^4.3.4"
+  }
+}

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>点数据展示</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <link rel="stylesheet" href="../css/style.css" />
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+</head>
+<body>
+<div id="map"></div>
+<script type="text/javascript" src="../js/lib/Mapv.js"></script>
+<script type="text/javascript" src="../js/lib/example.js"></script>
+<script type="text/javascript" src="../js/lib/drive.js"></script>
+<script type="text/javascript">
+
+    // 添加时间戳
+    for (var i = 0; i < driveData.length; i++) {
+        var geo = driveData[i].geo;
+        for (var j = 0; j < geo.length; j++) {
+            geo[j].push(new Date().getTime() / 1000 + 10 * 60 * j);
+        }
+    }
+
+    console.log(driveData);
+
+    /**
+     * @file 示例代码
+     */
+
+    bmap.centerAndZoom(new BMap.Point(116.404, 40.055), 11); // 初始化地图,设置中心点坐标和地图级别
+
+    // 第一步创建mapv示例
+    var mapv = new Mapv({
+        drawTypeControl: true,
+        map: bmap  // 百度地图的map实例
+    });
+
+    var layer = new Mapv.Layer({
+        zIndex: 1,
+        mapv: mapv,
+        dataType: 'polyline',
+        coordType: 'bd09mc',
+        data: driveData,
+        drawType: 'simple',
+        drawOptions: {
+            lineWidth: 2,
+            shadowBlur: 20,
+            shadowColor: "rgba(250, 255, 0, 1)",
+            strokeStyle: "rgba(250, 250, 0, 2)"
+        },
+        animation: 'time',
+        animationOptions: {
+            //scope: 60 * 60 * 3,
+            size: 5,
+            duration: 10000, // 动画时长, 单位毫秒
+            fps: 30,         // 每秒帧数
+            transition: "linear",
+        }
+    });
+
+</script>
+</body>
+
+</html>
