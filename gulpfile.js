@@ -6,6 +6,7 @@ var rename = require("gulp-rename");
 var copy = require("gulp-copy");
 var babel = require("gulp-babel");
 var replace = require('gulp-replace');
+var browserify = require('gulp-browserify');
 
 gulp.task('default', ['script', 'copy', 'copydemo']);
 
@@ -38,14 +39,14 @@ gulp.task('script', function() {
 });
 
 gulp.task('copy', function() {
-    return gulp.src("dist/*.js")
+    return gulp.src("dist/Mapv*.js")
     .pipe(copy('editor/public/javascripts/', {
         prefix: 1
     }));
 });
 
 gulp.task('copydemo', function() {
-    return gulp.src("dist/*.js")
+    return gulp.src("dist/Mapv*.js")
     .pipe(copy('demo/build/js/lib/', {
         prefix: 1
     }));
