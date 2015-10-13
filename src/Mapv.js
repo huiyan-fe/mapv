@@ -20,7 +20,7 @@ function Mapv(options) {
     }, options));
 
     this._layers = [];
-    this._initDrawScale();
+    //this._initDrawScale();
     
     this.notify('drawTypeControl');
 }

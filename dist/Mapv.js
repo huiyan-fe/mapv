@@ -934,7 +934,7 @@ function Mapv(options) {
     }, options));
 
     this._layers = [];
-    this._initDrawScale();
+    //this._initDrawScale();
 
     this.notify('drawTypeControl');
 }
@@ -1073,6 +1073,7 @@ function Layer(options) {
     }, options));
 
     this.dataRangeControl = new DataRangeControl();
+    this.Scale = new DrawScale();
 
     this.notify('data');
     this.notify('mapv');
@@ -1082,6 +1083,7 @@ util.inherits(Layer, Class);
 
 util.extend(Layer.prototype, {
     initialize: function initialize() {
+
         if (this.canvasLayer) {
             return;
         }
@@ -1089,6 +1091,7 @@ util.extend(Layer.prototype, {
         this.bindTo('map', this.getMapv());
 
         this.getMap().addControl(this.dataRangeControl);
+        this.getMap().addControl(this.Scale);
 
         var that = this;
 
@@ -1244,10 +1247,10 @@ util.extend(Layer.prototype, {
 
         // for drawer scale
         if (drawer.scale && this.getDataRangeControl()) {
-            drawer.scale(mapv.Scale);
-            mapv.Scale.show();
+            drawer.scale(this.Scale);
+            this.Scale.show();
         } else {
-            mapv && mapv.Scale.hide();
+            this.Scale.hide();
         }
 
         // mapv._drawTypeControl.showLayer(this);
@@ -1263,11 +1266,11 @@ util.extend(Layer.prototype, {
             var drawer = this._drawer[drawType] = eval('(new ' + funcName + '(this))');
             if (drawer.scale) {
                 if (this.getMapv()) {
-                    drawer.scale(this.getMapv().Scale);
-                    this.getMapv().Scale.show();
+                    drawer.scale(this.Scale);
+                    this.Scale.show();
                 }
             } else {
-                this.getMapv().Scale.hide();
+                this.Scale.hide();
             }
         }
         return this._drawer[drawType];
@@ -1684,9 +1687,13 @@ util.extend(DataRangeControl.prototype, {
 'use strict';
 
 function DrawScale() {
-    this.init();
-    this._Event();
+
+    // 默认停靠位置和偏移量
+    this.defaultAnchor = BMAP_ANCHOR_BOTTOM_RIGHT;
+    this.defaultOffset = new BMap.Size(10, 10);
 }
+
+DrawScale.prototype = new BMap.Control();
 
 DrawScale.prototype.change = function (callback) {
     var self = this;
@@ -1700,7 +1707,9 @@ DrawScale.prototype.hide = function () {
 
 DrawScale.prototype.show = function () {
     var self = this;
-    self.box.style.display = 'block';
+    if (self.box) {
+        self.box.style.display = 'block';
+    }
 };
 
 DrawScale.prototype.set = function (obj) {
@@ -1715,7 +1724,7 @@ DrawScale.prototype.set = function (obj) {
 /**
  * init dom
  */
-DrawScale.prototype.init = function () {
+DrawScale.prototype.initialize = function (map) {
     var self = this;
 
     // prepare param
@@ -1763,19 +1772,23 @@ DrawScale.prototype.init = function () {
     box.style.borderRadius = '6px';
     box.style.background = 'white';
     box.style.position = 'absolute';
-    box.style.right = '10px';
-    box.style.bottom = '10px';
+    //box.style.right = '10px';
+    //box.style.bottom = '10px';
     box.style.width = self.width + 'px';
     box.style.height = self.height + 'px';
     box.style.zIndex = 10000;
     box.appendChild(canvas);
-    document.body.appendChild(box);
+    map.getContainer().appendChild(box);
 
     //
     self.ctx = canvas.getContext('2d');
 
     // draw it
     self._draw();
+
+    this._Event();
+
+    return box;
 };
 
 DrawScale.prototype._Event = function () {
@@ -1853,6 +1866,11 @@ DrawScale.prototype._Event = function () {
 DrawScale.prototype._draw = function () {
     var self = this;
     var ctx = self.ctx;
+
+    if (!ctx) {
+        return;
+    }
+
     // clear
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     self.hoveredHandle = null;

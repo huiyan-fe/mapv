@@ -28,6 +28,7 @@ function Layer (options) {
     }, options));
 
     this.dataRangeControl = new DataRangeControl();
+    this.Scale = new DrawScale();
 
     this.notify('data');
     this.notify('mapv');
@@ -38,6 +39,7 @@ util.inherits(Layer, Class);
 
 util.extend(Layer.prototype, {
     initialize: function () {
+
         if (this.canvasLayer) {
             return;
         }
@@ -45,7 +47,7 @@ util.extend(Layer.prototype, {
         this.bindTo('map', this.getMapv());
 
         this.getMap().addControl(this.dataRangeControl);
-
+        this.getMap().addControl(this.Scale);
 
         var that = this;
 
@@ -206,10 +208,10 @@ util.extend(Layer.prototype, {
 
         // for drawer scale
         if(drawer.scale && this.getDataRangeControl()) {
-            drawer.scale(mapv.Scale);
-            mapv.Scale.show();
+            drawer.scale(this.Scale);
+            this.Scale.show();
         } else {
-            mapv && mapv.Scale.hide();
+            this.Scale.hide();
         }
 
         // mapv._drawTypeControl.showLayer(this);
@@ -225,11 +227,11 @@ util.extend(Layer.prototype, {
             var drawer = this._drawer[drawType] = eval('(new ' + funcName + '(this))');
             if (drawer.scale) {
                 if (this.getMapv()) {
-                    drawer.scale(this.getMapv().Scale);
-                    this.getMapv().Scale.show();
+                    drawer.scale(this.Scale);
+                    this.Scale.show();
                 }
             } else {
-                this.getMapv().Scale.hide();
+                this.Scale.hide();
             }
         }
         return this._drawer[drawType];

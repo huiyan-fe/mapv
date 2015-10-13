@@ -5,9 +5,13 @@
 
 
 function DrawScale() {
-    this.init();
-    this._Event();
+
+    // 默认停靠位置和偏移量
+    this.defaultAnchor = BMAP_ANCHOR_BOTTOM_RIGHT;
+    this.defaultOffset = new BMap.Size(10, 10);
 }
+
+DrawScale.prototype = new BMap.Control();
 
 DrawScale.prototype.change = function (callback) {
     var self = this;
@@ -21,7 +25,9 @@ DrawScale.prototype.hide = function () {
 
 DrawScale.prototype.show = function () {
     var self = this;
-    self.box.style.display = 'block';
+    if (self.box) {
+        self.box.style.display = 'block';
+    }
 };
 
 DrawScale.prototype.set = function (obj) {
@@ -36,7 +42,7 @@ DrawScale.prototype.set = function (obj) {
 /**
  * init dom
  */
-DrawScale.prototype.init = function () {
+DrawScale.prototype.initialize = function (map) {
     var self = this;
 
     // prepare param
@@ -88,19 +94,23 @@ DrawScale.prototype.init = function () {
     box.style.borderRadius = '6px';
     box.style.background = 'white';
     box.style.position = 'absolute';
-    box.style.right = '10px';
-    box.style.bottom = '10px';
+    //box.style.right = '10px';
+    //box.style.bottom = '10px';
     box.style.width = self.width + 'px';
     box.style.height = self.height + 'px';
     box.style.zIndex = 10000;
     box.appendChild(canvas);
-    document.body.appendChild(box);
+    map.getContainer().appendChild(box);
 
     //
     self.ctx = canvas.getContext('2d');
 
     // draw it
     self._draw();
+
+    this._Event();
+
+    return box;
 };
 
 DrawScale.prototype._Event = function () {
@@ -178,6 +188,11 @@ DrawScale.prototype._Event = function () {
 DrawScale.prototype._draw = function () {
     var self = this;
     var ctx = self.ctx;
+
+    if (!ctx) {
+        return;
+    }
+
     // clear
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     self.hoveredHandle = null;
