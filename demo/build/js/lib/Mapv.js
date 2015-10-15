@@ -3281,16 +3281,19 @@ util.extend(HeatmapDrawer.prototype, {
 
     radius: function radius(r) {
 
-        if (this.getDrawOptions().shadowBlur !== undefined) {
-            var blur = parseFloat(this.getDrawOptions().shadowBlur);
-        } else {
-            var blur = 15;
-        }
-
         // create a grayscale blurred circle image that we'll use for drawing points
         var circle = this._circle = document.createElement('canvas'),
-            ctx = circle.getContext('2d'),
-            r2 = this._r = r + blur;
+            ctx = circle.getContext('2d');
+
+        var shadowBlur = 0;
+
+        if (this.getDrawOptions().shadowBlur !== undefined) {
+            shadowBlur = parseFloat(this.getDrawOptions().shadowBlur);
+        } else {
+            shadowBlur = 0;
+        }
+
+        var r2 = this._r = r + shadowBlur;
 
         if (this.getDrawOptions().type === 'rect') {
             circle.width = circle.height = r2;
@@ -3298,13 +3301,23 @@ util.extend(HeatmapDrawer.prototype, {
             circle.width = circle.height = r2 * 2;
         }
 
-        var offsetDistance = 10000;
+        var offsetDistance;
+
+        if (this.getDrawOptions().shadowBlur !== undefined) {
+            ctx.shadowBlur = shadowBlur;
+            ctx.shadowColor = 'black';
+            offsetDistance = 10000;
+        } else {
+            offsetDistance = 0;
+
+            var grad = ctx.createRadialGradient(r2 - offsetDistance, r2 - offsetDistance, 0, r2 - offsetDistance, r2 - offsetDistance, r);
+            /* 设定各个位置的颜色 */
+            grad.addColorStop(0, 'rgba(0, 0, 0, 1)');
+            grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = grad;
+        }
 
         ctx.shadowOffsetX = ctx.shadowOffsetY = offsetDistance;
-
-        ctx.shadowBlur = blur;
-
-        ctx.shadowColor = 'black';
 
         ctx.beginPath();
         if (this.getDrawOptions().type === 'rect') {
@@ -3356,15 +3369,15 @@ util.extend(HeatmapDrawer.prototype, {
             }
         } else {
 
-            var boundary = this.getDrawOptions().boundary || 50;
+            var boundary = this.getDrawOptions().boundary || this._circle.width + 50;
 
             console.time('drawImageData');
             console.log('data', this._data.length, this._data);
             for (var i = 0, len = this._data.length, p; i < len; i++) {
                 p = this._data[i];
-                if (p.px < -boundary || p.py < -boundary || p.px > ctx.canvas.width + boundary || p.py > ctx.canvas.height + boundary) {
-                    continue;
-                }
+                if (p.px < -boundary || p.py < -boundary || p.px > ctx.canvas.width + boundary || p.py > ctx.canvas.height + boundary) {}
+                //continue;
+
                 // if (p.count < this.masker.min || p.count > this.masker.max) {
                 //     continue;
                 // }
