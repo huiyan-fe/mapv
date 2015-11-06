@@ -3010,15 +3010,12 @@ function honeycombGrid(obj) {
     var startY = (nwMc.y - startYMc) / zoomUnit;
     startY = parseInt(startY, 10);
 
-    // var yIsOdd = !!(startYMc / sizeY % 2);
-
-    var sizeX = depthX * size;
-    var startXMc = parseInt(nwMc.x / sizeX, 10) * sizeX;
+    var startXMc = parseInt(nwMc.x / size, 10) * size;
     var startX = (startXMc - nwMc.x) / zoomUnit;
     startX = parseInt(startX, 10);
 
-    var endX = parseInt(ctx.canvas.width + sizeX / zoomUnit, 10);
-    var endY = parseInt(ctx.canvas.height + sizeY / zoomUnit, 10);
+    var endX = parseInt(ctx.canvas.width + depthX, 10);
+    var endY = parseInt(ctx.canvas.height + depthY, 10);
 
     var pointX = startX;
     var pointY = startY;
