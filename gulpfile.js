@@ -7,6 +7,7 @@ var copy = require("gulp-copy");
 var babel = require("gulp-babel");
 var replace = require('gulp-replace');
 var browserify = require('gulp-browserify');
+var stripDebug = require('gulp-strip-debug');
 
 gulp.task('default', ['script', 'copy', 'copydemo']);
 
@@ -34,6 +35,7 @@ gulp.task('script', function() {
     .pipe(replace(/\/\/annotation/g, ''))
     .pipe(gulp.dest('./dist/'))
     .pipe(rename('Mapv.min.js'))
+    .pipe(stripDebug())
     .pipe(uglify())
     .pipe(gulp.dest('./dist'));
 });

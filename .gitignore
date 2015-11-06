@@ -6,5 +6,5 @@ work
 .DS_STORE
 .DS_Store
 src/tags
-.*~
+*.*~
 build.sh
