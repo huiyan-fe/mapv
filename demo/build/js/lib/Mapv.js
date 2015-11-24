@@ -129,6 +129,13 @@ var util = {
             maxY = Math.max(maxY, geo[i][1]);
         }
         return [minX + (maxX - minX) / 2, minY + (maxY - minY) / 2];
+    },
+
+    // 获取Device的Pixel Ratio
+    getPixelRatio: function getPixelRatio(context) {
+        var backingStore = context.backingStorePixelRatio || context.webkitBackingStorePixelRatio || context.mozBackingStorePixelRatio || context.msBackingStorePixelRatio || context.oBackingStorePixelRatio || context.backingStorePixelRatio || 1;
+
+        return (window.devicePixelRatio || 1) / backingStore;
     }
 
 };
@@ -970,12 +977,13 @@ Mapv.prototype.drawTypeControl_changed = function () {
  * }
  */
 
-"use strict";
+'use strict';
 
 function CanvasLayer(options) {
     this.options = options || {};
     this.paneName = this.options.paneName || 'labelPane';
     this.zIndex = this.options.zIndex || 0;
+    this.context = this.options.context || '2d';
     this._map = options.map;
     this.show();
 }
@@ -999,10 +1007,22 @@ CanvasLayer.prototype.initialize = function (map) {
 CanvasLayer.prototype.adjustSize = function () {
     var size = this._map.getSize();
     var canvas = this.canvas;
-    canvas.width = size.width;
-    canvas.height = size.height;
-    canvas.style.width = canvas.width + "px";
-    canvas.style.height = canvas.height + "px";
+    var pixelRatio;
+
+    if (this.context == 'webgl') {
+        pixelRatio = 1;
+    } else {
+        pixelRatio = (function (context) {
+            var backingStore = context.backingStorePixelRatio || context.webkitBackingStorePixelRatio || context.mozBackingStorePixelRatio || context.msBackingStorePixelRatio || context.oBackingStorePixelRatio || context.backingStorePixelRatio || 1;
+
+            return (window.devicePixelRatio || 1) / backingStore;
+        })(canvas.getContext('2d'));
+    }
+
+    canvas.width = size.width * pixelRatio;
+    canvas.height = size.height * pixelRatio;
+    canvas.style.width = size.width + "px";
+    canvas.style.height = size.height + "px";
 };
 
 CanvasLayer.prototype.draw = function () {
@@ -1097,6 +1117,7 @@ util.extend(Layer.prototype, {
 
         this.canvasLayer = new CanvasLayer({
             map: this.getMap(),
+            context: this.getContext(),
             zIndex: this.getZIndex(),
             paneName: this.getPaneName(),
             update: function update() {
@@ -2350,8 +2371,11 @@ Drawer.prototype.beginDrawCanvasMap = function () {
 
     var drawOptions = this.getDrawOptions();
     var ctx = this.getCtx();
+    var pixelRatio = util.getPixelRatio(ctx);
 
     ctx.save();
+
+    ctx.scale(pixelRatio, pixelRatio);
 
     var property = ['globalCompositeOperation', 'shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY', 'globalAlpha', 'fillStyle', 'strokeStyle', 'lineWidth', 'lineCap', 'lineJoin', 'lineWidth', 'miterLimit'];
 
@@ -3953,7 +3977,11 @@ SimpleDrawer.prototype.drawIcon = function (ctx, item, icon) {
     var height = icon.height || 0;
     (function (item, sx, sy, swidth, sheight, width, height) {
         image.onload = function () {
+            var pixelRatio = util.getPixelRatio(ctx);
+            ctx.save();
+            ctx.scale(pixelRatio, pixelRatio);
             ctx.drawImage(image, sx, sy, swidth, sheight, item.px - width / 2 - px, item.py - height / 2 - py, width, height);
+            ctx.restore();
         };
     })(item, sx, sy, swidth, sheight, width, height);
     image.src = icon.url;
@@ -3976,6 +4004,10 @@ SimpleDrawer.prototype.drawAnimation = function () {
                 var index = data[i].index;
                 var pgeo = data[i].pgeo;
 
+                var pixelRatio = util.getPixelRatio(ctx);
+                ctx.save();
+                ctx.scale(pixelRatio, pixelRatio);
+
                 /* 设定渐变区域 */
                 var x = pgeo[index][0];
                 var y = pgeo[index][1];
@@ -3993,6 +4025,8 @@ SimpleDrawer.prototype.drawAnimation = function () {
                 if (data[i].index >= data[i].pgeo.length) {
                     data[i].index = 0;
                 }
+
+                ctx.restore();
             }
         }
     }

@@ -46,8 +46,11 @@ Drawer.prototype.beginDrawCanvasMap = function () {
 
     var drawOptions = this.getDrawOptions();
     var ctx = this.getCtx();
+    var pixelRatio = util.getPixelRatio(ctx);
 
     ctx.save();
+
+    ctx.scale(pixelRatio, pixelRatio);
 
     var property = [
         'globalCompositeOperation', 

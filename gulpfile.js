@@ -9,7 +9,7 @@ var replace = require('gulp-replace');
 var browserify = require('gulp-browserify');
 var stripDebug = require('gulp-strip-debug');
 
-gulp.task('default', ['script', 'copy', 'copydemo']);
+gulp.task('default', ['script', 'copy', 'copydemo', 'copygismap']);
 
 // 合并压缩文件
 gulp.task('script', function() {
@@ -40,16 +40,23 @@ gulp.task('script', function() {
     .pipe(gulp.dest('./dist'));
 });
 
-gulp.task('copy', function() {
+gulp.task('copy', ['script'], function() {
     return gulp.src("dist/Mapv*.js")
     .pipe(copy('editor/public/javascripts/', {
         prefix: 1
     }));
 });
 
-gulp.task('copydemo', function() {
+gulp.task('copydemo', ['script'], function() {
     return gulp.src("dist/Mapv*.js")
     .pipe(copy('demo/build/js/lib/', {
+        prefix: 1
+    }));
+});
+
+gulp.task('copygismap', ['script'], function() {
+    return gulp.src("dist/Mapv*.js")
+    .pipe(copy('/Users/tangshuyuan/Workspace/haizhi/bdp-vizlab/GISMapview/GISMapview/Mapv/', {
         prefix: 1
     }));
 });

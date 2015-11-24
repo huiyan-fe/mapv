@@ -158,7 +158,11 @@ SimpleDrawer.prototype.drawIcon = function(ctx, item, icon) {
     var height = icon.height || 0;
     (function (item, sx, sy, swidth, sheight, width, height){
     image.onload = function () {
+        var pixelRatio = util.getPixelRatio(ctx);
+        ctx.save();
+        ctx.scale(pixelRatio, pixelRatio);
         ctx.drawImage(image, sx, sy, swidth, sheight, item.px - width / 2 - px, item.py - height / 2 - py, width, height);
+        ctx.restore();
     }
     })(item, sx, sy, swidth, sheight, width, height);
     image.src = icon.url;
@@ -181,6 +185,10 @@ SimpleDrawer.prototype.drawAnimation = function() {
                 var index = data[i].index;
                 var pgeo = data[i].pgeo;
 
+                var pixelRatio = util.getPixelRatio(ctx);
+                ctx.save();
+                ctx.scale(pixelRatio, pixelRatio);
+
                 /* 设定渐变区域 */
                 var x = pgeo[index][0];
                 var y = pgeo[index][1];
@@ -198,6 +206,8 @@ SimpleDrawer.prototype.drawAnimation = function() {
                 if (data[i].index >= data[i].pgeo.length) {
                     data[i].index = 0;
                 }
+
+                ctx.restore();
             }
         }
     }
