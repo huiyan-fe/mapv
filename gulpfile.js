@@ -9,7 +9,7 @@ var replace = require('gulp-replace');
 var browserify = require('gulp-browserify');
 var stripDebug = require('gulp-strip-debug');
 
-gulp.task('default', ['script', 'copy', 'copydemo', 'copygismap']);
+gulp.task('default', ['script', 'copy', 'copydemo']);
 
 // 合并压缩文件
 gulp.task('script', function() {
@@ -50,13 +50,6 @@ gulp.task('copy', ['script'], function() {
 gulp.task('copydemo', ['script'], function() {
     return gulp.src("dist/Mapv*.js")
     .pipe(copy('demo/build/js/lib/', {
-        prefix: 1
-    }));
-});
-
-gulp.task('copygismap', ['script'], function() {
-    return gulp.src("dist/Mapv*.js")
-    .pipe(copy('/Users/tangshuyuan/Workspace/haizhi/bdp-vizlab/GISMapview/GISMapview/Mapv/', {
         prefix: 1
     }));
 });
