@@ -40,14 +40,14 @@ gulp.task('script', function() {
     .pipe(gulp.dest('./dist'));
 });
 
-gulp.task('copy', function() {
+gulp.task('copy', ['script'], function() {
     return gulp.src("dist/Mapv*.js")
     .pipe(copy('editor/public/javascripts/', {
         prefix: 1
     }));
 });
 
-gulp.task('copydemo', function() {
+gulp.task('copydemo', ['script'], function() {
     return gulp.src("dist/Mapv*.js")
     .pipe(copy('demo/build/js/lib/', {
         prefix: 1
