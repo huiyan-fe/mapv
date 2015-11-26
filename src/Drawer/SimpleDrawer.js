@@ -143,7 +143,7 @@ SimpleDrawer.prototype.drawMap = function(time) {
     }
 
     this.endDrawMap();
-}
+};
 
 // 绘制icon
 SimpleDrawer.prototype.drawIcon = function(ctx, item, icon) {
@@ -159,10 +159,10 @@ SimpleDrawer.prototype.drawIcon = function(ctx, item, icon) {
     (function (item, sx, sy, swidth, sheight, width, height){
     image.onload = function () {
         ctx.drawImage(image, sx, sy, swidth, sheight, item.px - width / 2 - px, item.py - height / 2 - py, width, height);
-    }
+    };
     })(item, sx, sy, swidth, sheight, width, height);
     image.src = icon.url;
-}
+};
 
 /**
  * 绘制动画
@@ -177,21 +177,23 @@ SimpleDrawer.prototype.drawAnimation = function() {
 
     if (dataType === 'polyline') {
         if (animation === 'time') {} else {
-            for (var i = 0, len = data.length; i < len; i++) {
+            var step = animationOptions.step || 1;
+            var size = animationOptions.size || 1;
+            for (var i = 0, len = data.length; i < len; i += step) {
                 var index = data[i].index;
                 var pgeo = data[i].pgeo;
 
                 /* 设定渐变区域 */
                 var x = pgeo[index][0];
                 var y = pgeo[index][1];
-                var grad = ctx.createRadialGradient(x, y, 0, x, y, animationOptions.size);
+                var grad = ctx.createRadialGradient(x, y, 0, x, y, size);
                 grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
                 grad.addColorStop(0.4, 'rgba(255, 255, 255, 0.9)');
                 grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
                 ctx.fillStyle = grad;
 
                 ctx.beginPath();
-                ctx.arc(x, y, animationOptions.size, 0, 2 * Math.PI, false);
+                ctx.arc(x, y, size, 0, 2 * Math.PI, false);
                 ctx.closePath();
                 ctx.fill();
                 data[i].index++;
@@ -201,7 +203,7 @@ SimpleDrawer.prototype.drawAnimation = function() {
             }
         }
     }
-}
+};
 
 // 使用webgl来绘点，支持更大数据量的点
 SimpleDrawer.prototype.drawWebglPoint = function() {
@@ -288,11 +290,6 @@ SimpleDrawer.prototype.drawWebglPoint = function() {
     // Write date into the buffer object
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
-    var a_Position = gl.getAttribLocation(program, 'a_Position');
-    if (a_Position < 0) {
-        console.log('Failed to get the storage location of a_Position');
-        return -1;
-    }
     // Assign the buffer object to a_Position variable
     gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
 
@@ -315,7 +312,7 @@ SimpleDrawer.prototype.drawWebglPoint = function() {
         colored[2] / 255,
         colored[3] / 255);
     gl.drawArrays(gl.POINTS, 0, n);
-}
+};
 
 // 使用webgl来绘线，支持更大数据量的线
 SimpleDrawer.prototype.drawWebglPolyline = function() {
@@ -414,4 +411,4 @@ SimpleDrawer.prototype.drawWebglPolyline = function() {
         gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
         gl.drawArrays(gl.LINE_STRIP, 0, geo.length);
     }
-}
+};
