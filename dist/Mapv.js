@@ -3010,15 +3010,12 @@ function honeycombGrid(obj) {
     var startY = (nwMc.y - startYMc) / zoomUnit;
     startY = parseInt(startY, 10);
 
-    // var yIsOdd = !!(startYMc / sizeY % 2);
-
-    var sizeX = depthX * size;
-    var startXMc = parseInt(nwMc.x / sizeX, 10) * sizeX;
+    var startXMc = parseInt(nwMc.x / size, 10) * size;
     var startX = (startXMc - nwMc.x) / zoomUnit;
     startX = parseInt(startX, 10);
 
-    var endX = parseInt(ctx.canvas.width + sizeX / zoomUnit, 10);
-    var endY = parseInt(ctx.canvas.height + sizeY / zoomUnit, 10);
+    var endX = parseInt(ctx.canvas.width + depthX, 10);
+    var endY = parseInt(ctx.canvas.height + depthY, 10);
 
     var pointX = startX;
     var pointY = startY;
@@ -3975,21 +3972,23 @@ SimpleDrawer.prototype.drawAnimation = function () {
 
     if (dataType === 'polyline') {
         if (animation === 'time') {} else {
-            for (var i = 0, len = data.length; i < len; i++) {
+            var step = animationOptions.step || 1;
+            var size = animationOptions.size || 1;
+            for (var i = 0, len = data.length; i < len; i += step) {
                 var index = data[i].index;
                 var pgeo = data[i].pgeo;
 
                 /* 设定渐变区域 */
                 var x = pgeo[index][0];
                 var y = pgeo[index][1];
-                var grad = ctx.createRadialGradient(x, y, 0, x, y, animationOptions.size);
+                var grad = ctx.createRadialGradient(x, y, 0, x, y, size);
                 grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
                 grad.addColorStop(0.4, 'rgba(255, 255, 255, 0.9)');
                 grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
                 ctx.fillStyle = grad;
 
                 ctx.beginPath();
-                ctx.arc(x, y, animationOptions.size, 0, 2 * Math.PI, false);
+                ctx.arc(x, y, size, 0, 2 * Math.PI, false);
                 ctx.closePath();
                 ctx.fill();
                 data[i].index++;
