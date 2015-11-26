@@ -53,6 +53,7 @@ util.extend(Layer.prototype, {
 
         this.canvasLayer = new CanvasLayer({
             map: this.getMap(),
+            context: this.getContext(),
             zIndex: this.getZIndex(),
             paneName : this.getPaneName(),
             update: function () {
