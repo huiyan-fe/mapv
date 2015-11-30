@@ -13,6 +13,7 @@ function CanvasLayer(options){
     this.options = options || {};
     this.paneName = this.options.paneName || 'labelPane';
     this.zIndex = this.options.zIndex || 0;
+    this.context = this.options.context || '2d';
     this._map = options.map;
     this.show();
 }
@@ -39,10 +40,28 @@ CanvasLayer.prototype.initialize = function(map){
 CanvasLayer.prototype.adjustSize = function(){
     var size = this._map.getSize();
     var canvas = this.canvas;
-    canvas.width = size.width;
-    canvas.height = size.height;
-    canvas.style.width = canvas.width + "px";
-    canvas.style.height = canvas.height + "px";
+    var pixelRatio;
+
+    if (this.context == 'webgl') {
+        pixelRatio = 1;
+
+    } else {
+        pixelRatio = (function(context) {
+                var backingStore = context.backingStorePixelRatio ||
+                            context.webkitBackingStorePixelRatio ||
+                            context.mozBackingStorePixelRatio ||
+                            context.msBackingStorePixelRatio ||
+                            context.oBackingStorePixelRatio ||
+                            context.backingStorePixelRatio || 1;
+
+                return (window.devicePixelRatio || 1) / backingStore;
+            })(canvas.getContext('2d'));
+    }
+
+    canvas.width = size.width * pixelRatio;
+    canvas.height = size.height * pixelRatio;
+    canvas.style.width = size.width + "px";
+    canvas.style.height = size.height + "px";
 }
 
 CanvasLayer.prototype.draw = function(){
