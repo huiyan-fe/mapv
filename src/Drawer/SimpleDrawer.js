@@ -198,7 +198,7 @@ SimpleDrawer.prototype.drawAnimation = function() {
                 grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
                 grad.addColorStop(0.4, 'rgba(255, 255, 255, 0.9)');
                 grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-                ctx.fillStyle = grad;
+                ctx.fillStyle = animationOptions.fillStyle || grad;
 
                 ctx.beginPath();
                 ctx.arc(x, y, size, 0, 2 * Math.PI, false);
