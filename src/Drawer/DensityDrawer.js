@@ -7,8 +7,7 @@
 
 var min;
 var max;
-
-var _this = {};
+var _this = {}
 
 function DensityDrawer() {
     this.Scale;
@@ -33,13 +32,16 @@ DensityDrawer.prototype.init = function(){
     function addEventFn(i){
         mapv.mapEvent.addEvent(i,function(e){
             var cache = null;
+            var point = null;
             for (var j in self.grids) {
                 var pos = j.split('_');
                 if (e.offsetX - pos[0] <= _this.gridStep  && e.offsetY - pos[1] <= _this.gridStep ){
-                    options.events[i](e, self.grids[j])
+                    point = self.grids[j];
+
                     break;
                 }
             }
+            options.events[i](e, point)
         })
     }
 }
@@ -280,7 +282,7 @@ function honeycombGrid(obj) {
 
     var grids = {};
 
-    var gridStep = _this.gridStep * size / zoomUnit;
+    var gridStep = _this.gridStep = size / zoomUnit;
 
     var depthX = gridStep;
     var depthY = gridStep * 3 / 4;
