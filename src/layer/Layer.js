@@ -3,6 +3,7 @@
  */
 
 function Layer (options) {
+
     Class.call(this);
 
     this._drawer = {};
@@ -32,7 +33,6 @@ function Layer (options) {
 
     this.notify('data');
     this.notify('mapv');
-
 }
 
 util.inherits(Layer, Class);
@@ -120,7 +120,7 @@ util.extend(Layer.prototype, {
                 transition: Transitions[animationOptions.transition || "linear"],
                 onStop: animationOptions.onStop || function (e) { // 调用stop停止时的回调函数
                     console.log('stop', e);
-                }, 
+                },
                 render: function(e) {
 
                     if (me.getContext() == '2d') {
@@ -342,4 +342,3 @@ util.extend(Layer.prototype, {
         this._getDrawer().notify('drawOptions');
     }
 });
-

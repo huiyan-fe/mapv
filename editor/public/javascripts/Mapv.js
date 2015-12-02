@@ -400,9 +400,7 @@ var MVCObject;
         };
 
         proto.initOptions = function (options) {
-
             for (var key in options) {
-
                 this[getGetterName(key)] = (function (key) {
                     return function () {
                         return this.get(key);
@@ -944,6 +942,7 @@ function Mapv(options) {
     //this._initDrawScale();
 
     this.notify('drawTypeControl');
+    this.mapEvent = new MapEvent(options.map);
 }
 
 util.inherits(Mapv, Class);
@@ -965,6 +964,40 @@ Mapv.prototype.drawTypeControl_changed = function () {
             this.getMap().removeControl(this.drawTypeControl);
         }
     }
+};
+/**
+ * @author Mofei Zhu <hello@zhuwenlong.com>
+ */
+
+'use strict';
+
+var MapEvent_id = 0;
+
+var MapEvent_events = {
+    mousemove: {},
+    click: {}
+};
+
+function MapEvent(map) {
+    map.addEventListener('mousemove', function (e) {
+        for (var i in MapEvent_events.mousemove) {
+            MapEvent_events.mousemove[i](e);
+        }
+    });
+
+    map.addEventListener('click', function (e) {
+        for (var i in MapEvent_events.click) {
+            MapEvent_events.click[i](e);
+        }
+    });
+}
+
+MapEvent.prototype.addEvent = function (type, callback) {
+    MapEvent_events[type][MapEvent_id++] = callback;
+};
+
+MapEvent.prototype.removeEvent = function (id) {
+    delete MapEvent_events[type][id];
 };
 /**
  * 一直覆盖在当前地图视野的Canvas对象
@@ -1068,6 +1101,7 @@ CanvasLayer.prototype.getZIndex = function () {
 'use strict';
 
 function Layer(options) {
+
     Class.call(this);
 
     this._drawer = {};
@@ -2787,11 +2821,41 @@ ClusterDrawer.prototype.formatParam = function () {
 var min;
 var max;
 
+var _this = {};
+
 function DensityDrawer() {
     this.Scale;
     this.masker = {};
     Drawer.apply(this, arguments);
+
+    // init
+    this.init();
 }
+
+DensityDrawer.prototype.init = function () {
+    var self = this;
+    var mapv = this.getMapv();
+    //init events
+    var options = this.getDrawOptions();
+    if (options.events) {
+        for (var i in options.events) {
+            addEventFn(i);
+        }
+    }
+
+    function addEventFn(i) {
+        mapv.mapEvent.addEvent(i, function (e) {
+            var cache = null;
+            for (var j in self.grids) {
+                var pos = j.split('_');
+                if (e.offsetX - pos[0] <= _this.gridStep && e.offsetY - pos[1] <= _this.gridStep) {
+                    options.events[i](e, self.grids[j]);
+                    break;
+                }
+            }
+        });
+    }
+};
 
 util.inherits(DensityDrawer, Drawer);
 
@@ -2848,7 +2912,7 @@ DensityDrawer.prototype.drawMap = function () {
     }
     // console.log(gridsObj);
 
-    var grids = gridsObj.grids;
+    var grids = this.grids = gridsObj.grids;
     this.dataRange.setMax(gridsObj.max);
     this.dataRange.setMin(gridsObj.min);
     var max = gridsObj.max;
@@ -2896,7 +2960,7 @@ function recGrids(obj, map) {
 
     var grids = {};
 
-    var gridStep = size / zoomUnit;
+    var gridStep = _this.gridStep = size / zoomUnit;
 
     var startXMc = parseInt(nwMc.x / size, 10) * size;
 
@@ -3001,11 +3065,10 @@ function drawRec(obj) {
         ctx.fillRect(x, y, gridStep - 1, gridStep - 1);
 
         if (self.getDrawOptions().label && self.getDrawOptions().label.show) {
-
             ctx.save();
             ctx.textBaseline = 'top';
             if (grids[i] !== 0 && !isTooSmall && !isTooBig) {
-                ctx.fillStyle = 'rgba(0,0,0,0.8)';
+                ctx.fillStyle = 'rgba(255,255,255,0.8)';
                 ctx.fillText(grids[i], x, y);
             }
             ctx.restore();
@@ -3024,7 +3087,7 @@ function honeycombGrid(obj) {
 
     var grids = {};
 
-    var gridStep = size / zoomUnit;
+    var gridStep = _this.gridStep * size / zoomUnit;
 
     var depthX = gridStep;
     var depthY = gridStep * 3 / 4;
