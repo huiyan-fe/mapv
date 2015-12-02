@@ -23,6 +23,7 @@ DensityDrawer.prototype.init = function(){
     var mapv = this.getMapv();
     //init events
     var options = this.getDrawOptions();
+    // console.log()
     if (options.events) {
         for(var i in options.events) {
             addEventFn(i);
@@ -33,15 +34,33 @@ DensityDrawer.prototype.init = function(){
         mapv.mapEvent.addEvent(i,function(e){
             var cache = null;
             var point = null;
-            for (var j in self.grids) {
-                var pos = j.split('_');
-                if (e.offsetX - pos[0] <= _this.gridStep  && e.offsetY - pos[1] <= _this.gridStep ){
-                    point = self.grids[j];
+            // console.log(self.grids)
+            if(options.type == 'honeycomb'){
+                // console.log(e.offsetX, e.offsetY)
+                // var count = data[i].count;
+                var pX = e.offsetX;
+                var pY = e.offsetY;
+                //
+                var fixYIndex = Math.round((pY - _this.startY) / _this.depthY);
+                var fixY = fixYIndex * _this.depthY + _this.startY;
+                var fixXIndex = Math.round((pX - _this.startX) / _this.depthX);
+                var fixX = fixXIndex * _this.depthX + _this.startX;
+                //
+                if (fixYIndex % 2) {
+                    fixX = fixX - _this.depthX / 2;
+                }
+                point = self.grids[fixX+'|'+fixY].len;
+            }else{
+                for (var j in self.grids) {
+                    var pos = j.split('_');
+                    if (e.offsetX - pos[0] <= _this.gridStep  && e.offsetY - pos[1] <= _this.gridStep ){
+                        point = self.grids[j];
 
-                    break;
+                        break;
+                    }
                 }
             }
-            options.events[i](e, point)
+            options.events[i](e, point);
         })
     }
 }
@@ -264,7 +283,10 @@ function drawRec(obj) {
             ctx.textBaseline = 'top';
             if (grids[i] !== 0 && !isTooSmall && !isTooBig) {
                 ctx.fillStyle = 'rgba(255,255,255,0.8)';
-                ctx.fillText(grids[i], x, y);
+                ctx.textAlign = 'center'
+                ctx.textBaseline = 'middle'
+                console.log(x + 10)
+                ctx.fillText(grids[i], parseInt(x) + gridStep/2 , parseInt(y) + gridStep/2);
             }
             ctx.restore();
         }
@@ -284,17 +306,17 @@ function honeycombGrid(obj) {
 
     var gridStep = _this.gridStep = size / zoomUnit;
 
-    var depthX = gridStep;
-    var depthY = gridStep * 3 / 4;
+    var depthX = _this.depthX =gridStep;
+    var depthY = _this.depthY = gridStep * 3 / 4;
 
     var sizeY = 2 * size * 3 / 4;
     var startYMc = parseInt(nwMc.y / sizeY + 1, 10) * sizeY;
     var startY = (nwMc.y - startYMc) / zoomUnit;
-    startY = parseInt(startY, 10);
+    startY = _this.startY = parseInt(startY, 10);
 
     var startXMc = parseInt(nwMc.x / size, 10) * size;
     var startX = (startXMc - nwMc.x) / zoomUnit;
-    startX = parseInt(startX, 10);
+    startX = _this.startX = parseInt(startX, 10);
 
     var endX = parseInt(ctx.canvas.width + depthX, 10);
     var endY = parseInt(ctx.canvas.height + depthY, 10);
@@ -403,7 +425,7 @@ function drawHoneycomb(obj) {
                 ctx.save();
                 ctx.textBaseline = 'middle';
                 ctx.textAlign = 'center';
-                ctx.fillStyle = 'rgba(0,0,0,0.8)';
+                ctx.fillStyle = 'rgba(255,255,255,0.8)';
                 ctx.fillText(count, x, y);
                 ctx.restore();
             }
