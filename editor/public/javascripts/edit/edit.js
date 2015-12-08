@@ -51,6 +51,7 @@ requirejs(['uploadDate', 'editActions', 'sort', 'login', 'databank', 'gitOp', 't
 			drawType: options.type,
 			drawOptions: options.option
 		}
+		console.log(layerInfo)
 		var layer = new Mapv.Layer(layerInfo);
 		$('.E-layers').append('<div class="E-layers-block E-layers-layer" name="'+name+'">'+options.type.substring(0,2).toUpperCase()+'</div>');
 		app.addLayer(layer);

@@ -3943,6 +3943,10 @@ SimpleDrawer.prototype.drawMap = function (time) {
 
         var label = drawOptions.label;
         var zoom = this.getMap().getZoom();
+        var zoomUnit = Math.pow(2, 18 - zoom);
+
+        var arrowWidth = (10 + this.getDrawOptions().lineWidth) / zoomUnit;
+
         if (label) {
             if (label.font) {
                 ctx.font = label.font;
@@ -3976,10 +3980,50 @@ SimpleDrawer.prototype.drawMap = function (time) {
             }
 
             ctx.beginPath();
+            ctx.lineWidth = this.getDrawOptions().lineWidth || 1;
             ctx.moveTo(geo[startIndex][0], geo[startIndex][1]);
-
             for (var j = startIndex + 1; j <= endIndex; j++) {
                 ctx.lineTo(geo[j][0], geo[j][1]);
+            }
+
+            if (drawOptions.strokeStyle || dataType === 'polyline') {
+                ctx.stroke();
+                ctx.closePath();
+            }
+
+            ctx.beginPath();
+            ctx.moveTo(geo[startIndex][0], geo[startIndex][1]);
+            var skip = parseInt(zoomUnit);
+            skip = Math.max(skip, 1);
+            ctx.lineWidth = 1;
+            for (var j = startIndex + 1; j <= endIndex; j += skip) {
+                if (drawOptions.arrow) {
+                    ctx.save();
+                    var vLine = [geo[j][0] - geo[j - 1][0], geo[j - 1][1] - geo[j][1]];
+                    var vLineDot = vLine[1];
+                    var vLineLen = Math.sqrt(vLine[0] * vLine[0] + vLine[1] * vLine[1], 2);
+                    var val = vLineDot / vLineLen;
+
+                    var rad = Math.acos(val);
+                    if (vLine[0] < 0) {
+                        rad = -rad;
+                    }
+                    if (!rad) {
+                        continue;
+                    }
+                    arrowWidth = Math.max(arrowWidth, 5);
+                    var center = [(geo[j][0] - geo[j - 1][0]) / 2, (geo[j][1] - geo[j - 1][1]) / 2];
+
+                    ctx.translate(geo[j][0], geo[j][1]);
+                    ctx.rotate(rad);
+                    ctx.moveTo(arrowWidth, arrowWidth);
+                    ctx.lineTo(0, 0);
+                    ctx.moveTo(-arrowWidth, arrowWidth);
+                    ctx.lineTo(0, 0);
+                    ctx.translate(-geo[j][0], -geo[j][1]);
+                    ctx.moveTo(geo[j][0], geo[j][1]);
+                    ctx.restore();
+                }
             }
 
             if (drawOptions.strokeStyle || dataType === 'polyline') {
@@ -4000,53 +4044,54 @@ SimpleDrawer.prototype.drawMap = function (time) {
                 ctx.fillText(data[i][labelKey], center[0], center[1]);
                 ctx.restore();
             }
+            // break;
         }
     } else {
-        // 画点
+            // 画点
 
-        var icon = drawOptions.icon;
+            var icon = drawOptions.icon;
 
-        if (drawOptions.strokeStyle || drawOptions.globalCompositeOperation) {
-            // 圆描边或设置颜色叠加方式需要一个个元素进行绘制
-            for (var i = 0, len = data.length; i < len; i++) {
-                var item = data[i];
-                if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {
-                    continue;
-                }
-                ctx.beginPath();
-                ctx.moveTo(item.px, item.py);
-                if (icon && icon.show && icon.url) {
-                    this.drawIcon(ctx, item, icon);
-                } else {
-                    ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
-                    ctx.fill();
-                }
-                if (drawOptions.strokeStyle) {
-                    ctx.stroke();
-                }
-            }
-        } else {
-            //普通填充可一起绘制路径，最后再统一填充，性能上会好点
-            for (var i = 0, len = data.length; i < len; i++) {
-                var item = data[i];
-                if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {
-                    continue;
-                }
-                ctx.moveTo(item.px, item.py);
-                if (icon && icon.show && icon.url) {
-                    this.drawIcon(ctx, item, icon);
-                } else {
-                    if (radius < 2) {
-                        ctx.fillRect(item.px, item.py, radius * 2, radius * 2);
+            if (drawOptions.strokeStyle || drawOptions.globalCompositeOperation) {
+                // 圆描边或设置颜色叠加方式需要一个个元素进行绘制
+                for (var i = 0, len = data.length; i < len; i++) {
+                    var item = data[i];
+                    if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {
+                        continue;
+                    }
+                    ctx.beginPath();
+                    ctx.moveTo(item.px, item.py);
+                    if (icon && icon.show && icon.url) {
+                        this.drawIcon(ctx, item, icon);
                     } else {
                         ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
+                        ctx.fill();
+                    }
+                    if (drawOptions.strokeStyle) {
+                        ctx.stroke();
                     }
                 }
-            }
+            } else {
+                //普通填充可一起绘制路径，最后再统一填充，性能上会好点
+                for (var i = 0, len = data.length; i < len; i++) {
+                    var item = data[i];
+                    if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {
+                        continue;
+                    }
+                    ctx.moveTo(item.px, item.py);
+                    if (icon && icon.show && icon.url) {
+                        this.drawIcon(ctx, item, icon);
+                    } else {
+                        if (radius < 2) {
+                            ctx.fillRect(item.px, item.py, radius * 2, radius * 2);
+                        } else {
+                            ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
+                        }
+                    }
+                }
 
-            ctx.fill();
+                ctx.fill();
+            }
         }
-    }
 
     this.endDrawMap();
 };
