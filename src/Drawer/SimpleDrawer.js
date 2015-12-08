@@ -95,25 +95,24 @@ SimpleDrawer.prototype.drawMap = function(time) {
                     var vLineDot = vLine[1];
                     var vLineLen = Math.sqrt(vLine[0] * vLine[0] + vLine[1] * vLine[1], 2);
                     var val = vLineDot / vLineLen;
-
+            // //
                     var rad = Math.acos(val);
                     if (vLine[0] < 0) {
                         rad = -rad;
                     }
-                    if (!rad) {
-                        continue
-                    }
-                    arrowWidth = Math.max(arrowWidth, 5);
-                    var center = [(geo[j][0] - geo[j - 1][0]) / 2, (geo[j][1] - geo[j - 1][1]) / 2];
+                    if (rad) {
+                        arrowWidth = Math.max(arrowWidth, 5);
+                        var center = [(geo[j][0] - geo[j - 1][0]) / 2, (geo[j][1] - geo[j - 1][1]) / 2];
 
-                    ctx.translate(geo[j][0], geo[j][1]);
-                    ctx.rotate(rad);
-                    ctx.moveTo(arrowWidth, arrowWidth);
-                    ctx.lineTo(0, 0);
-                    ctx.moveTo(-arrowWidth, arrowWidth);
-                    ctx.lineTo(0, 0);
-                    ctx.translate(-geo[j][0], -geo[j][1]);
-                    ctx.moveTo(geo[j][0], geo[j][1]);
+                        ctx.translate(geo[j][0], geo[j][1]);
+                        ctx.rotate(rad);
+                        ctx.moveTo(arrowWidth, arrowWidth);
+                        ctx.lineTo(0, 0);
+                        ctx.moveTo(-arrowWidth, arrowWidth);
+                        ctx.lineTo(0, 0);
+                        ctx.translate(-geo[j][0], -geo[j][1]);
+                        ctx.moveTo(geo[j][0], geo[j][1]);
+                    }
                     ctx.restore();
                 }
             }
