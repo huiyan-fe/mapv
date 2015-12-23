@@ -3,7 +3,6 @@
  */
 
 function Layer (options) {
-
     Class.call(this);
 
     this._drawer = {};

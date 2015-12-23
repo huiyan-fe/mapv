@@ -14,7 +14,7 @@ function ClusterDrawer() {
 
 util.inherits(ClusterDrawer, Drawer);
 
-ClusterDrawer.prototype.drawMap = function () {
+ClusterDrawer.prototype.drawMap = function() {
     this.beginDrawMap();
 
     // console.log('ClusterDrawer');
@@ -84,16 +84,15 @@ ClusterDrawer.prototype.drawMap = function () {
         var isSmallY = y < stockYA[0];
         var isBigX = x > (Number(stockXA[stockXA.length - 1]) + Number(gridStep));
         var isBigY = y > (Number(stockYA[stockYA.length - 1]) + Number(gridStep));
-        if (isSmallX || isSmallY || isBigX || isBigY) {
-            continue;
-        }
+        // if (isSmallX || isSmallY || isBigX || isBigY) {
+        //     continue;
+        // }
         for (var j = 0; j < stockXA.length; j++) {
             var dataX = Number(stockXA[j]);
             if ((x >= dataX) && (x < dataX + gridStep)) {
                 for (var k = 0; k < stockYA.length; k++) {
                     var dataY = Number(stockYA[k]);
                     if ((y >= dataY) && (y < dataY + gridStep)) {
-                        // grids[stockXA[j] + '_' + stockYA[k]] += 1;
                         grids[stockXA[j] + '_' + stockYA[k]] += val;
                         val = grids[stockXA[j] + '_' + stockYA[k]];
                     }
@@ -130,15 +129,12 @@ ClusterDrawer.prototype.drawMap = function () {
         ctx.strokeStyle = param.strokeStyle || '#fff';
         ctx.stroke();
 
-        // if (this.drawOptions.showNum) {
         ctx.save();
-        // ctx.fillStyle = 'black';
         ctx.font = 30 * v / 10 + 'px serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         if (grids[i] !== 0 && param.label.show) {
-
-            ctx.fillStyle =  '#fff';
+            ctx.fillStyle = '#fff';
             ctx.fillText(grids[i], cx, cy);
             ctx.restore();
         }
@@ -149,14 +145,11 @@ ClusterDrawer.prototype.drawMap = function () {
     this.endDrawMap();
 };
 
-// ClusterDrawer.prototype.drawDataRange = function (canvas, data, drawOptions) {
-// };
-
 /**
  * format param
  * @return {[type]} [description]
  */
-ClusterDrawer.prototype.formatParam = function () {
+ClusterDrawer.prototype.formatParam = function() {
     var options = this.getDrawOptions();
     options = JSON.stringify(options);
     options = JSON.parse(options);
