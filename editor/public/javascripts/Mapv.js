@@ -2717,12 +2717,12 @@ ClusterDrawer.prototype.drawMap = function () {
         var x = data[i].px;
         var y = data[i].py;
         var val = parseInt(data[i].count, 10);
-        var isSmallX = x < stockXA[0];
-        var isSmallY = y < stockYA[0];
-        var isBigX = x > Number(stockXA[stockXA.length - 1]) + Number(gridStep);
-        var isBigY = y > Number(stockYA[stockYA.length - 1]) + Number(gridStep);
+        var isSmallX = x * 2 < stockXA[0];
+        var isSmallY = y * 2 < stockYA[0];
+        var isBigX = x / 2 > Number(stockXA[stockXA.length - 1]) + Number(gridStep);
+        var isBigY = y / 2 > Number(stockYA[stockYA.length - 1]) + Number(gridStep);
         // if (isSmallX || isSmallY || isBigX || isBigY) {
-        //     continue;
+        // continue;
         // }
         for (var j = 0; j < stockXA.length; j++) {
             var dataX = Number(stockXA[j]);
@@ -2766,14 +2766,14 @@ ClusterDrawer.prototype.drawMap = function () {
         ctx.strokeStyle = param.strokeStyle || '#fff';
         ctx.stroke();
 
-        ctx.save();
+        // ctx.save();
         ctx.font = 30 * v / 10 + 'px serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        if (grids[i] !== 0 && param.label && param.label.show) {
+        if (grids[i] !== 0 && param.label.show) {
             ctx.fillStyle = '#fff';
             ctx.fillText(grids[i], cx, cy);
-            ctx.restore();
+            // ctx.restore();
         }
         // }
     }
