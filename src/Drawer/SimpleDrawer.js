@@ -31,8 +31,7 @@ SimpleDrawer.prototype.drawMap = function(time) {
     var radius = this.getRadius();
 
 
-    if (dataType === 'polyline' || dataType === 'polygon') { // 画线或面
-
+    if (dataType === 'polyline') { // 画线或面
 
         var label = drawOptions.label;
         var zoom = this.getMap().getZoom();
@@ -138,7 +137,20 @@ SimpleDrawer.prototype.drawMap = function(time) {
             // break;
         }
 
-
+    } else if (dataType === 'polygon') { // 画线或面
+        for (var i = 0, len = data.length; i < len; i++) {
+            var geo = data[i].pgeo;
+            ctx.beginPath();
+            ctx.moveTo(geo[0][0], geo[0][1]);
+            for (var j = 1; j < geo.length; j++) {
+                ctx.lineTo(geo[j][0], geo[j][1]);
+            }
+            ctx.closePath();
+            ctx.fill();
+            if (drawOptions.strokeStyle) {
+                ctx.stroke();
+            }
+        }
     } else { // 画点
 
         var icon = drawOptions.icon;
