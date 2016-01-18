@@ -61,7 +61,6 @@ Drawer.prototype.beginDrawCanvasMap = function () {
         'globalAlpha',
         'fillStyle',
         'strokeStyle',
-        'lineWidth',
         'lineCap',
         'lineJoin',
         'lineWidth',

@@ -120,11 +120,6 @@ SimpleDrawer.prototype.drawMap = function(time) {
                 ctx.stroke();
             }
 
-            if (dataType === 'polygon') {
-                ctx.closePath();
-                ctx.fill();
-            }
-
             if (label && label.show && (!label.minZoom || label.minZoom && zoom >= label.minZoom)) {
                 ctx.save();
                 if (label.fillStyle) {
@@ -140,6 +135,9 @@ SimpleDrawer.prototype.drawMap = function(time) {
     } else if (dataType === 'polygon') { // 画线或面
         for (var i = 0, len = data.length; i < len; i++) {
             var geo = data[i].pgeo;
+            if (geo.length <= 0) {
+                continue;
+            }
             ctx.beginPath();
             ctx.moveTo(geo[0][0], geo[0][1]);
             for (var j = 1; j < geo.length; j++) {
@@ -147,7 +145,7 @@ SimpleDrawer.prototype.drawMap = function(time) {
             }
             ctx.closePath();
             ctx.fill();
-            if (drawOptions.strokeStyle) {
+            if (drawOptions.strokeStyle || drawOptions.lineWidth) {
                 ctx.stroke();
             }
         }
@@ -163,7 +161,6 @@ SimpleDrawer.prototype.drawMap = function(time) {
                     continue;
                 }
                 ctx.beginPath();
-                ctx.moveTo(item.px, item.py);
                 if (icon && icon.show && icon.url) {
                     this.drawIcon(ctx, item, icon);
                 } else {

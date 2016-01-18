@@ -2410,7 +2410,7 @@ Drawer.prototype.beginDrawCanvasMap = function () {
 
     ctx.scale(pixelRatio, pixelRatio);
 
-    var property = ['globalCompositeOperation', 'shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY', 'globalAlpha', 'fillStyle', 'strokeStyle', 'lineWidth', 'lineCap', 'lineJoin', 'lineWidth', 'miterLimit'];
+    var property = ['globalCompositeOperation', 'shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY', 'globalAlpha', 'fillStyle', 'strokeStyle', 'lineCap', 'lineJoin', 'lineWidth', 'miterLimit'];
 
     for (var i = 0; i < property.length; i++) {
         if (drawOptions[property[i]]) {
@@ -2770,7 +2770,7 @@ ClusterDrawer.prototype.drawMap = function () {
         ctx.font = 30 * v / 10 + 'px serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        if (grids[i] !== 0 && param.label.show) {
+        if (grids[i] !== 0 && param.label && param.label.show) {
             ctx.fillStyle = '#fff';
             ctx.fillText(grids[i], cx, cy);
             // ctx.restore();
@@ -4021,11 +4021,6 @@ SimpleDrawer.prototype.drawMap = function (time) {
                 ctx.stroke();
             }
 
-            if (dataType === 'polygon') {
-                ctx.closePath();
-                ctx.fill();
-            }
-
             if (label && label.show && (!label.minZoom || label.minZoom && zoom >= label.minZoom)) {
                 ctx.save();
                 if (label.fillStyle) {
@@ -4041,6 +4036,9 @@ SimpleDrawer.prototype.drawMap = function (time) {
             // 画线或面
             for (var i = 0, len = data.length; i < len; i++) {
                 var geo = data[i].pgeo;
+                if (geo.length <= 0) {
+                    continue;
+                }
                 ctx.beginPath();
                 ctx.moveTo(geo[0][0], geo[0][1]);
                 for (var j = 1; j < geo.length; j++) {
@@ -4048,7 +4046,7 @@ SimpleDrawer.prototype.drawMap = function (time) {
                 }
                 ctx.closePath();
                 ctx.fill();
-                if (drawOptions.strokeStyle) {
+                if (drawOptions.strokeStyle || drawOptions.lineWidth) {
                     ctx.stroke();
                 }
             }
@@ -4065,7 +4063,6 @@ SimpleDrawer.prototype.drawMap = function (time) {
                         continue;
                     }
                     ctx.beginPath();
-                    ctx.moveTo(item.px, item.py);
                     if (icon && icon.show && icon.url) {
                         this.drawIcon(ctx, item, icon);
                     } else {

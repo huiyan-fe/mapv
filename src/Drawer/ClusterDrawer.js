@@ -133,7 +133,7 @@ ClusterDrawer.prototype.drawMap = function() {
         ctx.font = 30 * v / 10 + 'px serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        if (grids[i] !== 0 && param.label.show) {
+        if (grids[i] !== 0 && param.label && param.label.show) {
             ctx.fillStyle = '#fff';
             ctx.fillText(grids[i], cx, cy);
             // ctx.restore();
