@@ -136,6 +136,23 @@ var util = {
         var backingStore = context.backingStorePixelRatio || context.webkitBackingStorePixelRatio || context.mozBackingStorePixelRatio || context.msBackingStorePixelRatio || context.oBackingStorePixelRatio || context.backingStorePixelRatio || 1;
 
         return (window.devicePixelRatio || 1) / backingStore;
+    },
+
+    // algorithm from : http://blog.csdn.net/coolypf/article/details/8569813
+    // GCJ-02 -> BD-09
+    // gcj: {lng, lat}
+    transformGcjGeoToBd: function transformGcjGeoToBd(gcj) {
+        var x_pi = 3.14159265358979324 * 3000.0 / 180.0;
+        var x = gcj.lng,
+            y = gcj.lat;
+        var z = Math.sqrt(x * x + y * y) + 0.00002 * Math.sin(y * x_pi);
+        var theta = Math.atan2(y, x) + 0.000003 * Math.cos(x * x_pi);
+        var bd_lon = z * Math.cos(theta) + 0.0065;
+        var bd_lat = z * Math.sin(theta) + 0.006;
+        return {
+            lng: bd_lon,
+            lat: bd_lat
+        };
     }
 
 };
@@ -1412,6 +1429,15 @@ util.extend(Layer.prototype, {
     data_changed: function data_changed() {
         var data = this.getData();
         if (data) {
+            // 坐标系转换
+            if (this.getCoordType() == 'gcj02') {
+                for (var i = 0; i < data.length; i++) {
+                    var transformedGeo = util.transformGcjGeoToBd(data[i]);
+                    data[i].lng = transformedGeo.lng;
+                    data[i].lat = transformedGeo.lat;
+                }
+            }
+
             if (this.getDataType() === "polyline" && this.getAnimation()) {
                 for (var i = 0; i < data.length; i++) {
                     data[i].index = parseInt(Math.random() * data[i].geo.length, 10);

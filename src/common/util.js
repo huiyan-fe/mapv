@@ -133,6 +133,23 @@ var util = {
                             context.backingStorePixelRatio || 1;
 
         return (window.devicePixelRatio || 1) / backingStore;
+    },
+
+    // algorithm from : http://blog.csdn.net/coolypf/article/details/8569813
+    // GCJ-02 -> BD-09
+    // gcj: {lng, lat} 
+    transformGcjGeoToBd: function(gcj) {
+        var x_pi = 3.14159265358979324 * 3000.0 / 180.0;
+        var x = gcj.lng,
+            y = gcj.lat;
+        var z = Math.sqrt(x * x + y * y) + 0.00002 * Math.sin(y * x_pi);
+        var theta = Math.atan2(y, x) + 0.000003 * Math.cos(x * x_pi);
+        var bd_lon = z * Math.cos(theta) + 0.0065;
+        var bd_lat = z * Math.sin(theta) + 0.006;
+        return {
+            lng: bd_lon,
+            lat: bd_lat
+        };
     }
 
 };
