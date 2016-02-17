@@ -940,6 +940,7 @@ function Mapv(options) {
 
     this._layers = [];
     //this._initDrawScale();
+    this._fixPinchZoom();
 
     this.notify('drawTypeControl');
     this.mapEvent = new MapEvent(options.map);
@@ -964,6 +965,42 @@ Mapv.prototype.drawTypeControl_changed = function () {
             this.getMap().removeControl(this.drawTypeControl);
         }
     }
+};
+
+// 执行pinch手势操作后，将地图的中心点改为两个触摸点的中心点，
+// 使放大的区域能够显示在viewport的中心
+Mapv.prototype._fixPinchZoom = function () {
+    var bmap = this.getMap();
+    var _zoom = bmap.getZoom();
+    var _touchMidPoint;
+    var _offset = bmap.getContainer().getBoundingClientRect();
+
+    bmap.addEventListener('touchstart', function (e) {
+        if (e.targetTouches.length == 2) {
+            var touches = e.targetTouches;
+
+            var middlePoint = {
+                x: (touches[0].clientX + touches[1].clientX) / 2 - _offset.left,
+                y: (touches[0].clientY + touches[1].clientY) / 2 - _offset.top
+            };
+
+            _touchMidPoint = bmap.pixelToPoint(middlePoint);
+        }
+    });
+
+    bmap.addEventListener('touchcancel', function (e) {
+        _touchMidPoint = null;
+    });
+
+    bmap.addEventListener('zoomend', function (e) {
+        var newZoom = bmap.getZoom();
+        if (newZoom > _zoom && _touchMidPoint) {
+            // 放大时才修改中心点
+            bmap.panTo(_touchMidPoint);
+        }
+        _zoom = newZoom;
+        _touchMidPoint = null;
+    });
 };
 /**
  * @author Mofei Zhu <hello@zhuwenlong.com>
@@ -4063,8 +4100,13 @@ SimpleDrawer.prototype.drawMap = function (time) {
                         continue;
                     }
                     ctx.beginPath();
-                    if (icon && icon.show && icon.url) {
-                        this.drawIcon(ctx, item, icon);
+                    if (icon && icon.show) {
+                        if (icon.font) {
+                            this.drawIconWithFont(ctx, item, icon);
+                        }
+                        if (icon.url) {
+                            this.drawIcon(ctx, item, icon);
+                        }
                     } else {
                         ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
                         ctx.fill();
@@ -4081,8 +4123,13 @@ SimpleDrawer.prototype.drawMap = function (time) {
                         continue;
                     }
                     ctx.moveTo(item.px, item.py);
-                    if (icon && icon.show && icon.url) {
-                        this.drawIcon(ctx, item, icon);
+                    if (icon && icon.show) {
+                        if (icon.font) {
+                            this.drawIconWithFont(ctx, item, icon);
+                        }
+                        if (icon.url) {
+                            this.drawIcon(ctx, item, icon);
+                        }
                     } else {
                         if (radius < 2) {
                             ctx.fillRect(item.px, item.py, radius * 2, radius * 2);
@@ -4120,6 +4167,27 @@ SimpleDrawer.prototype.drawIcon = function (ctx, item, icon) {
         };
     })(item, sx, sy, swidth, sheight, width, height);
     image.src = icon.url;
+};
+
+SimpleDrawer.prototype.drawIconWithFont = function (ctx, item, icon) {
+
+    var drawOptions = this.getDrawOptions();
+
+    var size = icon.size || 16;
+
+    var width = size,
+        height = size;
+
+    var pixelRatio = util.getPixelRatio(ctx);
+
+    ctx.save();
+    ctx.font = size + "px " + icon.font;
+    // ctx.scale(pixelRatio, pixelRatio);
+
+    ctx.fillStyle = item.color || icon.color || drawOptions.fillStyle;
+    ctx.fillText(icon.text, item.px - width / 2, item.py + 0.1 * height);
+
+    ctx.restore();
 };
 
 /**

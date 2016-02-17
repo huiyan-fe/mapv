@@ -161,8 +161,13 @@ SimpleDrawer.prototype.drawMap = function(time) {
                     continue;
                 }
                 ctx.beginPath();
-                if (icon && icon.show && icon.url) {
-                    this.drawIcon(ctx, item, icon);
+                if (icon && icon.show) {
+                    if (icon.font) {
+                        this.drawIconWithFont(ctx, item, icon);
+                    }
+                    if (icon.url) {
+                        this.drawIcon(ctx, item, icon);
+                    }
                 } else {
                     ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
                     ctx.fill();
@@ -180,8 +185,13 @@ SimpleDrawer.prototype.drawMap = function(time) {
                     continue;
                 }
                 ctx.moveTo(item.px, item.py);
-                if (icon && icon.show && icon.url) {
-                    this.drawIcon(ctx, item, icon);
+                if (icon && icon.show) {
+                    if (icon.font) {
+                        this.drawIconWithFont(ctx, item, icon);
+                    }
+                    if (icon.url) {
+                        this.drawIcon(ctx, item, icon);
+                    }
                 } else {
                     if (radius < 2) {
                         ctx.fillRect(item.px, item.py, radius * 2, radius * 2);
@@ -221,6 +231,28 @@ SimpleDrawer.prototype.drawIcon = function(ctx, item, icon) {
     })(item, sx, sy, swidth, sheight, width, height);
     image.src = icon.url;
 };
+
+SimpleDrawer.prototype.drawIconWithFont = function (ctx, item, icon) {
+
+    var drawOptions = this.getDrawOptions();
+
+    var size = icon.size || 16;
+
+    var width = size, height = size;
+
+    var pixelRatio = util.getPixelRatio(ctx);
+
+    ctx.save();
+    ctx.font = size + "px " + icon.font;
+    // ctx.scale(pixelRatio, pixelRatio);
+
+    ctx.fillStyle = item.color || icon.color || drawOptions.fillStyle;
+    ctx.fillText(icon.text, item.px - width / 2, item.py + 0.1 * height);
+
+    ctx.restore();
+
+};
+
 
 /**
  * 绘制动画
