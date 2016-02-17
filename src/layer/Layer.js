@@ -283,6 +283,15 @@ util.extend(Layer.prototype, {
     data_changed: function () {
         var data = this.getData();
         if (data) {
+            // 坐标系转换
+            if (this.getCoordType() == 'gcj02') {
+                for (var i = 0; i < data.length; i++) {
+                    var transformedGeo = util.transformGcjGeoToBd(data[i]);
+                    data[i].lng = transformedGeo.lng;
+                    data[i].lat = transformedGeo.lat;
+                }
+            }
+
             if (this.getDataType() === "polyline" && this.getAnimation()) {
                 for (var i = 0; i < data.length; i++) {
                     data[i].index = parseInt(Math.random() * data[i].geo.length, 10);

@@ -136,6 +136,23 @@ var util = {
         var backingStore = context.backingStorePixelRatio || context.webkitBackingStorePixelRatio || context.mozBackingStorePixelRatio || context.msBackingStorePixelRatio || context.oBackingStorePixelRatio || context.backingStorePixelRatio || 1;
 
         return (window.devicePixelRatio || 1) / backingStore;
+    },
+
+    // algorithm from : http://blog.csdn.net/coolypf/article/details/8569813
+    // GCJ-02 -> BD-09
+    // gcj: {lng, lat}
+    transformGcjGeoToBd: function transformGcjGeoToBd(gcj) {
+        var x_pi = 3.14159265358979324 * 3000.0 / 180.0;
+        var x = gcj.lng,
+            y = gcj.lat;
+        var z = Math.sqrt(x * x + y * y) + 0.00002 * Math.sin(y * x_pi);
+        var theta = Math.atan2(y, x) + 0.000003 * Math.cos(x * x_pi);
+        var bd_lon = z * Math.cos(theta) + 0.0065;
+        var bd_lat = z * Math.sin(theta) + 0.006;
+        return {
+            lng: bd_lon,
+            lat: bd_lat
+        };
     }
 
 };
@@ -940,6 +957,7 @@ function Mapv(options) {
 
     this._layers = [];
     //this._initDrawScale();
+    this._fixPinchZoom();
 
     this.notify('drawTypeControl');
     this.mapEvent = new MapEvent(options.map);
@@ -964,6 +982,42 @@ Mapv.prototype.drawTypeControl_changed = function () {
             this.getMap().removeControl(this.drawTypeControl);
         }
     }
+};
+
+// 执行pinch手势操作后，将地图的中心点改为两个触摸点的中心点，
+// 使放大的区域能够显示在viewport的中心
+Mapv.prototype._fixPinchZoom = function () {
+    var bmap = this.getMap();
+    var _zoom = bmap.getZoom();
+    var _touchMidPoint;
+    var _offset = bmap.getContainer().getBoundingClientRect();
+
+    bmap.addEventListener('touchstart', function (e) {
+        if (e.targetTouches.length == 2) {
+            var touches = e.targetTouches;
+
+            var middlePoint = {
+                x: (touches[0].clientX + touches[1].clientX) / 2 - _offset.left,
+                y: (touches[0].clientY + touches[1].clientY) / 2 - _offset.top
+            };
+
+            _touchMidPoint = bmap.pixelToPoint(middlePoint);
+        }
+    });
+
+    bmap.addEventListener('touchcancel', function (e) {
+        _touchMidPoint = null;
+    });
+
+    bmap.addEventListener('zoomend', function (e) {
+        var newZoom = bmap.getZoom();
+        if (newZoom > _zoom && _touchMidPoint) {
+            // 放大时才修改中心点
+            bmap.panTo(_touchMidPoint);
+        }
+        _zoom = newZoom;
+        _touchMidPoint = null;
+    });
 };
 /**
  * @author Mofei Zhu <hello@zhuwenlong.com>
@@ -1375,6 +1429,15 @@ util.extend(Layer.prototype, {
     data_changed: function data_changed() {
         var data = this.getData();
         if (data) {
+            // 坐标系转换
+            if (this.getCoordType() == 'gcj02') {
+                for (var i = 0; i < data.length; i++) {
+                    var transformedGeo = util.transformGcjGeoToBd(data[i]);
+                    data[i].lng = transformedGeo.lng;
+                    data[i].lat = transformedGeo.lat;
+                }
+            }
+
             if (this.getDataType() === "polyline" && this.getAnimation()) {
                 for (var i = 0; i < data.length; i++) {
                     data[i].index = parseInt(Math.random() * data[i].geo.length, 10);
