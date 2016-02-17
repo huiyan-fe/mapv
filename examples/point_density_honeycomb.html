@@ -76,6 +76,14 @@ var layer = new Mapv.Layer({
             '0.7': 'lime',
             '0.8': 'yellow',
             '1.0': 'red'
+        },
+        events: {
+            click: function(e, data) {
+                console.log('click',e, data)
+            },
+            mousemove: function(e, data) {
+                console.log('move',e, data)
+            }
         }
     }
 });

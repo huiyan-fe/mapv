@@ -3,12 +3,12 @@
  *
  * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
  *
- * @param 
+ * @param
  * {
  *     map 地图实例对象
  * }
- */ 
-    
+ */
+
 function CanvasLayer(options){
     this.options = options || {};
     this.paneName = this.options.paneName || 'labelPane';
@@ -24,7 +24,7 @@ CanvasLayer.prototype.initialize = function(map){
     this._map = map;
     var canvas = this.canvas = document.createElement("canvas");
     canvas.style.cssText = "position:absolute;"
-                         + "left:0;" 
+                         + "left:0;"
                          + "top:0;"
                          + "z-index:" + this.zIndex + ";";
     this.adjustSize();
@@ -44,7 +44,6 @@ CanvasLayer.prototype.adjustSize = function(){
 
     if (this.context == 'webgl') {
         pixelRatio = 1;
-
     } else {
         pixelRatio = (function(context) {
                 var backingStore = context.backingStorePixelRatio ||

@@ -21,6 +21,7 @@ gulp.task('script', function() {
         "src/component/DataRange.js",
         "src/component/*.js",
         "src/Mapv.js",
+        "src/event/*.js",
         "src/layer/*.js",
         "src/data/*.js",
         "src/control/*.js",

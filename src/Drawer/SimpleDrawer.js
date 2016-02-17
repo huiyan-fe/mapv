@@ -31,10 +31,14 @@ SimpleDrawer.prototype.drawMap = function(time) {
     var radius = this.getRadius();
 
 
-    if (dataType === 'polyline' || dataType === 'polygon') { // 画线或面
+    if (dataType === 'polyline') { // 画线或面
 
         var label = drawOptions.label;
         var zoom = this.getMap().getZoom();
+        var zoomUnit =  Math.pow(2, 18 - zoom);
+
+        var arrowWidth = (10 + this.getDrawOptions().lineWidth) / zoomUnit;
+
         if (label) {
             if (label.font) {
                 ctx.font = label.font;
@@ -66,19 +70,54 @@ SimpleDrawer.prototype.drawMap = function(time) {
             }
 
             ctx.beginPath();
+            ctx.lineWidth = this.getDrawOptions().lineWidth || 1;
             ctx.moveTo(geo[startIndex][0], geo[startIndex][1]);
-
             for (var j = startIndex + 1; j <= endIndex; j++) {
                 ctx.lineTo(geo[j][0], geo[j][1]);
             }
 
             if (drawOptions.strokeStyle || dataType === 'polyline') {
                 ctx.stroke();
+                ctx.closePath();
             }
 
-            if (dataType === 'polygon') {
-                ctx.closePath();
-                ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(geo[startIndex][0], geo[startIndex][1]);
+            var skip = parseInt(zoomUnit);
+            skip = Math.max(skip,1)
+            ctx.lineWidth = 1;
+            for (var j = startIndex + 1; j <= endIndex; j+=skip) {
+                if (drawOptions.arrow) {
+                    ctx.save();
+                    var vLine = [geo[j][0] - geo[j - 1][0], geo[j - 1][1] - geo[j][1]];
+                    var vLineDot = vLine[1];
+                    var vLineLen = Math.sqrt(vLine[0] * vLine[0] + vLine[1] * vLine[1], 2);
+                    var val = vLineDot / vLineLen;
+            // //
+                    var rad = Math.acos(val);
+                    if (vLine[0] < 0) {
+                        rad = -rad;
+                    }
+                    if (rad) {
+                        arrowWidth = Math.max(arrowWidth, 5);
+                        var center = [(geo[j][0] - geo[j - 1][0]) / 2, (geo[j][1] - geo[j - 1][1]) / 2];
+
+                        ctx.translate(geo[j][0], geo[j][1]);
+                        ctx.rotate(rad);
+                        ctx.moveTo(arrowWidth, arrowWidth);
+                        ctx.lineTo(0, 0);
+                        ctx.moveTo(-arrowWidth, arrowWidth);
+                        ctx.lineTo(0, 0);
+                        ctx.translate(-geo[j][0], -geo[j][1]);
+                        ctx.moveTo(geo[j][0], geo[j][1]);
+                    }
+                    ctx.restore();
+                }
+            }
+
+            if (drawOptions.strokeStyle || dataType === 'polyline') {
+                ctx.stroke();
             }
 
             if (label && label.show && (!label.minZoom || label.minZoom && zoom >= label.minZoom)) {
@@ -90,10 +129,26 @@ SimpleDrawer.prototype.drawMap = function(time) {
                 ctx.fillText(data[i][labelKey], center[0], center[1]);
                 ctx.restore();
             }
-
+            // break;
         }
 
-
+    } else if (dataType === 'polygon') { // 画线或面
+        for (var i = 0, len = data.length; i < len; i++) {
+            var geo = data[i].pgeo;
+            if (geo.length <= 0) {
+                continue;
+            }
+            ctx.beginPath();
+            ctx.moveTo(geo[0][0], geo[0][1]);
+            for (var j = 1; j < geo.length; j++) {
+                ctx.lineTo(geo[j][0], geo[j][1]);
+            }
+            ctx.closePath();
+            ctx.fill();
+            if (drawOptions.strokeStyle || drawOptions.lineWidth) {
+                ctx.stroke();
+            }
+        }
     } else { // 画点
 
         var icon = drawOptions.icon;
@@ -106,7 +161,6 @@ SimpleDrawer.prototype.drawMap = function(time) {
                     continue;
                 }
                 ctx.beginPath();
-                ctx.moveTo(item.px, item.py);
                 if (icon && icon.show && icon.url) {
                     this.drawIcon(ctx, item, icon);
                 } else {
@@ -143,7 +197,7 @@ SimpleDrawer.prototype.drawMap = function(time) {
     }
 
     this.endDrawMap();
-}
+};
 
 // 绘制icon
 SimpleDrawer.prototype.drawIcon = function(ctx, item, icon) {
@@ -156,17 +210,17 @@ SimpleDrawer.prototype.drawIcon = function(ctx, item, icon) {
     var sheight = icon.sheight || 0;
     var width = icon.width || 0;
     var height = icon.height || 0;
-    (function (item, sx, sy, swidth, sheight, width, height){
-    image.onload = function () {
-        var pixelRatio = util.getPixelRatio(ctx);
-        ctx.save();
-        ctx.scale(pixelRatio, pixelRatio);
-        ctx.drawImage(image, sx, sy, swidth, sheight, item.px - width / 2 - px, item.py - height / 2 - py, width, height);
-        ctx.restore();
-    }
+    (function(item, sx, sy, swidth, sheight, width, height) {
+        image.onload = function() {
+            var pixelRatio = util.getPixelRatio(ctx);
+            ctx.save();
+            ctx.scale(pixelRatio, pixelRatio);
+            ctx.drawImage(image, sx, sy, swidth, sheight, item.px - width / 2 - px, item.py - height / 2 - py, width, height);
+            ctx.restore();
+        }
     })(item, sx, sy, swidth, sheight, width, height);
     image.src = icon.url;
-}
+};
 
 /**
  * 绘制动画
@@ -181,7 +235,9 @@ SimpleDrawer.prototype.drawAnimation = function() {
 
     if (dataType === 'polyline') {
         if (animation === 'time') {} else {
-            for (var i = 0, len = data.length; i < len; i++) {
+            var step = animationOptions.step || 1;
+            var size = animationOptions.size || 1;
+            for (var i = 0, len = data.length; i < len; i += step) {
                 var index = data[i].index;
                 var pgeo = data[i].pgeo;
 
@@ -192,14 +248,14 @@ SimpleDrawer.prototype.drawAnimation = function() {
                 /* 设定渐变区域 */
                 var x = pgeo[index][0];
                 var y = pgeo[index][1];
-                var grad = ctx.createRadialGradient(x, y, 0, x, y, animationOptions.size);
+                var grad = ctx.createRadialGradient(x, y, 0, x, y, size);
                 grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
                 grad.addColorStop(0.4, 'rgba(255, 255, 255, 0.9)');
                 grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-                ctx.fillStyle = grad;
+                ctx.fillStyle = animationOptions.fillStyle || grad;
 
                 ctx.beginPath();
-                ctx.arc(x, y, animationOptions.size, 0, 2 * Math.PI, false);
+                ctx.arc(x, y, size, 0, 2 * Math.PI, false);
                 ctx.closePath();
                 ctx.fill();
                 data[i].index++;
@@ -211,7 +267,7 @@ SimpleDrawer.prototype.drawAnimation = function() {
             }
         }
     }
-}
+};
 
 // 使用webgl来绘点，支持更大数据量的点
 SimpleDrawer.prototype.drawWebglPoint = function() {
@@ -298,11 +354,6 @@ SimpleDrawer.prototype.drawWebglPoint = function() {
     // Write date into the buffer object
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
-    var a_Position = gl.getAttribLocation(program, 'a_Position');
-    if (a_Position < 0) {
-        console.log('Failed to get the storage location of a_Position');
-        return -1;
-    }
     // Assign the buffer object to a_Position variable
     gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
 
@@ -325,7 +376,7 @@ SimpleDrawer.prototype.drawWebglPoint = function() {
         colored[2] / 255,
         colored[3] / 255);
     gl.drawArrays(gl.POINTS, 0, n);
-}
+};
 
 // 使用webgl来绘线，支持更大数据量的线
 SimpleDrawer.prototype.drawWebglPolyline = function() {
@@ -424,4 +475,4 @@ SimpleDrawer.prototype.drawWebglPolyline = function() {
         gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
         gl.drawArrays(gl.LINE_STRIP, 0, geo.length);
     }
-}
+};

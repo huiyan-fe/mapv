@@ -24,6 +24,7 @@ function Mapv(options) {
     this._fixPinchZoom();
     
     this.notify('drawTypeControl');
+    this.mapEvent = new MapEvent(options.map);
 }
 
 util.inherits(Mapv, Class);

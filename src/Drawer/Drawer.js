@@ -53,15 +53,14 @@ Drawer.prototype.beginDrawCanvasMap = function () {
     ctx.scale(pixelRatio, pixelRatio);
 
     var property = [
-        'globalCompositeOperation', 
-        'shadowColor', 
+        'globalCompositeOperation',
+        'shadowColor',
         'shadowBlur',
         'shadowOffsetX',
         'shadowOffsetY',
         'globalAlpha',
         'fillStyle',
         'strokeStyle',
-        'lineWidth',
         'lineCap',
         'lineJoin',
         'lineWidth',
