@@ -2474,6 +2474,329 @@ Drawer.prototype.getRadius = function () {
     return radius;
 };
 /**
+ * @file 笔刷工具
+ * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+ */
+"use strict";
+
+var brushes = {};
+"use strict";
+
+(function () {
+
+    /**
+     * @file basic
+     * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+     */
+    function basicBrush(ctx, geo, drawOptions) {
+        ctx.beginPath();
+        ctx.moveTo(geo[0][0], geo[0][1]);
+        for (var i = 1; i < geo.length; i++) {
+            ctx.lineTo(geo[i][0], geo[i][1]);
+        }
+        ctx.stroke();
+    }
+
+    brushes.basic = basicBrush;
+})();
+"use strict";
+
+(function () {
+
+    /**
+     * @file basic
+     * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+     */
+    function bezierBrush(ctx, geo, drawOptions) {
+        ctx.beginPath();
+        ctx.moveTo(geo[0][0], geo[0][1]);
+        var p1 = geo[0];
+        var p2 = geo[1];
+        for (var i = 1; i < geo.length; i++) {
+            var midPoint = midPointBtw(p1, p2);
+            ctx.quadraticCurveTo(p1[0], p1[1], midPoint.x, midPoint.y);
+            p1 = geo[i];
+            p2 = geo[i + 1];
+        }
+        ctx.stroke();
+    }
+
+    function midPointBtw(p1, p2) {
+        return {
+            x: p1[0] + (p2[0] - p1[0]) / 2,
+            y: p1[1] + (p2[1] - p1[1]) / 2
+        };
+    }
+
+    brushes.bezier = bezierBrush;
+})();
+'use strict';
+
+(function () {
+
+  /**
+   * @file basic
+   * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+   */
+  function coloredBrush(ctx, geo, drawOptions) {
+
+    ctx.beginPath();
+    for (var j = 0; j < geo.length; j++) {
+      drawPixels(ctx, geo[j][0], geo[j][1]);
+    }
+  }
+
+  function drawPixels(ctx, x, y) {
+    for (var i = -10; i < 10; i += 4) {
+      for (var j = -10; j < 10; j += 4) {
+        if (Math.random() > 0.5) {
+          ctx.fillStyle = ['red', 'orange', 'yellow', 'green', 'light-blue', 'blue', 'purple'][getRandomInt(0, 6)];
+          ctx.fillRect(x + i, y + j, 2, 4);
+        }
+      }
+    }
+  }
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  brushes.colored = coloredBrush;
+})();
+'use strict';
+
+(function () {
+
+    /**
+     * @file basic
+     * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+     */
+    function dotsPatternBrush(ctx, geo, drawOptions) {
+
+        ctx.beginPath();
+
+        var p1 = geo[0];
+        var p2 = geo[1];
+        ctx.moveTo(p1[0], p1[1]);
+
+        for (var i = 1; i < geo.length; i++) {
+            var midPoint = midPointBtw(p1, p2);
+            ctx.quadraticCurveTo(p1[0], p1[1], midPoint[0], midPoint[1]);
+            p1 = geo[i];
+            p2 = geo[i + 1];
+        }
+
+        var pattern = ctx.createPattern(getPattern(), 'repeat');
+        ctx.strokeStyle = pattern;
+        ctx.stroke();
+    }
+
+    function midPointBtw(p1, p2) {
+        return [p1[0] + (p2[0] - p1[0]) / 2, p1[1] + (p2[1] - p1[1]) / 2];
+    }
+
+    function getPattern() {
+        var patternCanvas = document.createElement('canvas'),
+            dotWidth = 10,
+            dotDistance = 5,
+            patternCtx = patternCanvas.getContext('2d');
+
+        patternCanvas.width = patternCanvas.height = dotWidth + dotDistance;
+
+        patternCtx.fillStyle = 'red';
+        patternCtx.beginPath();
+        patternCtx.arc(dotWidth / 2, dotWidth / 2, dotWidth / 2, 0, Math.PI * 2, false);
+        patternCtx.closePath();
+        patternCtx.fill();
+        return patternCanvas;
+    }
+
+    brushes.dotsPattern = dotsPatternBrush;
+})();
+'use strict';
+
+(function () {
+
+    /**
+     * @file basic
+     * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+     */
+    function furBrush(ctx, geo, drawOptions) {
+        ctx.beginPath();
+        var lastPoint = geo[0];
+
+        var img = new Image();
+        img.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAAB50RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNS4xqx9I6wAAABR0RVh0Q3JlYXRpb24gVGltZQAxLzQvMTJldbXMAAACIklEQVRYhbWX227bMBBEj25pLk2KImj+/w+LvjRxJVN5ICeebKmqsmUBC11AkYezQy3VAPfADfAF6IEZGIE/wKFcH7nS0QEPJZ6AbwbUFZhUzvM1AHryzB+B7wWgBd6AX5wUUaRrANyQFXgGXoCBLP3Pcq2Z/yanY1eIvsQtOQU/gK/knD8ZgMe0J0QPNOR8C+K53D8WgGQxA697QvSh845swgeyEj1ZDW8jiF2M2ZPzeiidvpYBB+CObEgB6KyB38hKXATRkVeBvgP3ZeA7ckq0HBtOq2AqcWQHFTo++0D3g4WM2hrE0SCkytkATXg2l2etDT6UtoI47gXRlbNm5SGQjs9qOMQU2m+G8M+tS+szUzup4UokLoTo7NoBxhLu8gghY0blNqXDAVwJQUgNKeG+kHljOjYVry7ce9HR4AJRSXaIuESjh1YhIkCEcE9ECKVEEA4g1VbTUQOoQXg6IoSipsRqOpYAHCSa0yVegqiZsgqxBrAG4f0o4jv/hPgfAO/Qzen1oOWkRsvfSnhJPwtAELVaIAgMpA3gi9+ILQAO4W53JZYgFlOxFcAhavUgkeVXDWnsnZiO+VwAB4m+8DyrojaV9h9KXALgndbKsyAUVYhLAdTpUlHSsQSQ9gBwiFgPXAlv92HevQAihG9ikz13pUZg2hPAIbyiuuQ++AiM/c4AgtBGxlfJgbytazgVt3QNAEH4niCRf/cH8tJMBWh6B2crbJFfpZtGAAAAAElFTkSuQmCC';
+        img.width = 10;
+
+        for (var i = 1; i < geo.length; i++) {
+            var currentPoint = geo[i];
+            var dist = distanceBetween(lastPoint, currentPoint);
+            var angle = angleBetween(lastPoint, currentPoint);
+
+            for (var j = 0; j < dist; j++) {
+                var x = lastPoint[0] + Math.sin(angle) * j;
+                var y = lastPoint[1] + Math.cos(angle) * j;
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.scale(0.3, 0.3);
+                ctx.rotate(Math.PI * 180 / getRandomInt(0, 180));
+                ctx.drawImage(img, 0, 0);
+                ctx.restore();
+            }
+
+            lastPoint = currentPoint;
+        }
+
+        var colored = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+        for (var i = 3, len = colored.data.length, j; i < len; i += 4) {
+            colored.data[i - 3] = 255;
+            colored.data[i - 2] = 50;
+            colored.data[i - 1] = 50;
+        }
+        ctx.putImageData(colored, 0, 0);
+    }
+
+    function colorize() {}
+
+    function distanceBetween(point1, point2) {
+        return Math.sqrt(Math.pow(point2[0] - point1[0], 2) + Math.pow(point2[1] - point1[1], 2));
+    }
+
+    function angleBetween(point1, point2) {
+        return Math.atan2(point2[0] - point1[0], point2[1] - point1[1]);
+    }
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    brushes.fur = furBrush;
+})();
+"use strict";
+
+(function () {
+
+    /**
+     * @file basic
+     * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+     */
+    function neighborBrush(ctx, geo, drawOptions) {
+        ctx.beginPath();
+        for (var i = 1; i < geo.length; i++) {
+            //ctx.lineTo(geo[i][0], geo[i][1]);
+            ctx.moveTo(geo[i - 1][0], geo[i - 1][1]);
+            ctx.lineTo(geo[i][0], geo[i][1]);
+
+            for (var j = 0, len = i; j < len; j++) {
+                var dx = geo[j][0] - geo[i][0];
+                var dy = geo[j][1] - geo[i][1];
+                var d = dx * dx + dy * dy;
+
+                if (d > 10 * 10 && d < 30 * 30) {
+                    ctx.moveTo(geo[i][0] + dx * 0.2, geo[i][1] + dy * 0.2);
+                    ctx.lineTo(geo[j][0] - dx * 0.2, geo[j][1] - dy * 0.2);
+                }
+            }
+        }
+        ctx.stroke();
+    }
+
+    brushes.neighbor = neighborBrush;
+})();
+"use strict";
+
+(function () {
+
+    /**
+     * @file basic
+     * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+     */
+    function pen2Brush(ctx, geo, drawOptions) {
+        ctx.beginPath();
+        var lastPoint = geo[0];
+
+        for (var i = 1; i < geo.length; i++) {
+            var currentPoint = geo[i];
+
+            ctx.moveTo(lastPoint[0] - getRandomInt(0, 2), lastPoint[1] - getRandomInt(0, 2));
+            ctx.lineTo(currentPoint[0] - getRandomInt(0, 2), currentPoint[1] - getRandomInt(0, 2));
+
+            ctx.moveTo(lastPoint[0], lastPoint[1]);
+            ctx.lineTo(currentPoint[0], currentPoint[1]);
+
+            ctx.moveTo(lastPoint[0] + getRandomInt(0, 2), lastPoint[1] + getRandomInt(0, 2));
+            ctx.lineTo(currentPoint[0] + getRandomInt(0, 2), currentPoint[1] + getRandomInt(0, 2));
+
+            lastPoint = currentPoint;
+        }
+
+        ctx.stroke();
+    }
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    brushes.pen2 = pen2Brush;
+})();
+"use strict";
+
+(function () {
+
+    /**
+     * @file basic
+     * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+     */
+    function penBrush(ctx, geo, drawOptions) {
+        ctx.beginPath();
+        for (var i = 1; i < geo.length; i++) {
+            ctx.beginPath();
+            ctx.moveTo(geo[i - 1][0], geo[i - 1][1]);
+            ctx.lineWidth = Math.floor(Math.random() * 3) + 3;
+            ctx.lineTo(geo[i][0], geo[i][1]);
+            ctx.stroke();
+        }
+    }
+
+    brushes.pen = penBrush;
+})();
+/**
+ * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+ */
+
+/* globals Drawer, util */
+
+'use strict';
+
+function BrushDrawer() {
+    Drawer.apply(this, arguments);
+}
+
+util.inherits(BrushDrawer, Drawer);
+
+BrushDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
+
+    var data = this.getLayer().getData();
+
+    var ctx = this.getCtx();
+
+    var drawOptions = this.getDrawOptions();
+
+    var brush = drawOptions.brush || 'basic';
+
+    for (var i = 0, len = data.length; i < len; i++) {
+        var geo = data[i].pgeo;
+        if (geo.length <= 0) {
+            continue;
+        }
+        brushes[brush](ctx, geo, drawOptions);
+    }
+
+    this.endDrawMap();
+};
+/**
  * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
  */
 
@@ -3592,6 +3915,7 @@ IntensityDrawer.prototype.drawMap = function () {
         if (label.font) {
             ctx.font = label.font;
         }
+        var labelKey = label.key || 'count';
     }
 
     if (dataType === 'polygon' || dataType === 'polyline') {
@@ -3630,7 +3954,7 @@ IntensityDrawer.prototype.drawMap = function () {
                     ctx.fillStyle = label.fillStyle;
                 }
                 var center = util.getGeoCenter(geo);
-                ctx.fillText(data[i].count, center[0], center[1]);
+                ctx.fillText(data[i][labelKey], center[0], center[1]);
             }
         }
     } else {

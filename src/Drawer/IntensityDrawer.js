@@ -59,6 +59,7 @@ IntensityDrawer.prototype.drawMap = function () {
         if (label.font) {
             ctx.font = label.font;
         }
+        var labelKey = label.key || 'count';
     }
 
     if (dataType === 'polygon' || dataType === 'polyline') {
@@ -97,7 +98,7 @@ IntensityDrawer.prototype.drawMap = function () {
                     ctx.fillStyle = label.fillStyle;
                 }
                 var center = util.getGeoCenter(geo);
-                ctx.fillText(data[i].count, center[0], center[1]);
+                ctx.fillText(data[i][labelKey], center[0], center[1]);
             }
         }
 

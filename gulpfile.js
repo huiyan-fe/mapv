@@ -26,6 +26,8 @@ gulp.task('script', function() {
         "src/data/*.js",
         "src/control/*.js",
         "src/Drawer/Drawer.js",
+        "src/Drawer/brushes/brushes.js",
+        "src/Drawer/brushes/*.js",
         "src/Drawer/*.js",
         "src/end.js",
     ])
