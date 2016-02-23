@@ -3386,7 +3386,7 @@ function drawRec(obj) {
         var color = obj.dataRange.getColorByGradient(grids[i]);
         try {
             if (options.opacity) {
-                var alpha = parseInt(color.match(/rgba\(.+?\,.+?\,.+?\,(.+?)\)/)[1] * options.opacity) / 255;
+                var alpha = color.match(/rgba\(.+?\,.+?\,.+?\,(.+?)\)/)[1] * options.opacity;
                 color = color.replace(/(rgba\(.+?\,.+?\,.+?\,).+?(\))/, '$1' + alpha + '$2');
             }
         } catch (e) {}
