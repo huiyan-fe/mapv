@@ -33,17 +33,29 @@ function furBrush(ctx, geo, drawOptions) {
 
     }
 
-    var colored = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
-    for (var i = 3, len = colored.data.length, j; i < len; i += 4) {
-        colored.data[i - 3] = 255;
-        colored.data[i - 2] = 50;
-        colored.data[i - 1] = 50;
-    }
-    ctx.putImageData(colored, 0, 0);
+    colorize(ctx);
 
 }
 
-function colorize() {
+function colorize(ctx) {
+    ctx.save();
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(1, 0);
+    ctx.stroke();
+    ctx.restore();
+    var color = ctx.getImageData(0, 0, 1, 1).data;
+    console.log(color);
+    ctx.clearRect(0, 0, 1, 1);
+
+    var colored = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+    for (var i = 3, len = colored.data.length, j; i < len; i += 4) {
+        colored.data[i - 3] = color[0];
+        colored.data[i - 2] = color[1];
+        colored.data[i - 1] = color[2];
+    }
+    ctx.putImageData(colored, 0, 0);
 }
 
 function distanceBetween(point1, point2) {
