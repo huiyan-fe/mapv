@@ -400,9 +400,7 @@ var MVCObject;
         };
 
         proto.initOptions = function (options) {
-
             for (var key in options) {
-
                 this[getGetterName(key)] = (function (key) {
                     return function () {
                         return this.get(key);
@@ -707,7 +705,7 @@ util.extend(DataRange.prototype, {
         index = parseInt(index, 10);
         index *= 4;
 
-        var color = 'rgba(' + this._grad[index] + ', ' + this._grad[index + 1] + ', ' + this._grad[index + 2] + ',' + this._grad[index + 3] + ')';
+        var color = 'rgba(' + this._grad[index] + ', ' + this._grad[index + 1] + ', ' + this._grad[index + 2] + ',' + this._grad[index + 3] / 255 + ')';
         return color;
     }
 
@@ -944,6 +942,7 @@ function Mapv(options) {
     //this._initDrawScale();
 
     this.notify('drawTypeControl');
+    this.mapEvent = new MapEvent(options.map);
 }
 
 util.inherits(Mapv, Class);
@@ -967,11 +966,45 @@ Mapv.prototype.drawTypeControl_changed = function () {
     }
 };
 /**
+ * @author Mofei Zhu <hello@zhuwenlong.com>
+ */
+
+'use strict';
+
+var MapEvent_id = 0;
+
+var MapEvent_events = {
+    mousemove: {},
+    click: {}
+};
+
+function MapEvent(map) {
+    map.addEventListener('mousemove', function (e) {
+        for (var i in MapEvent_events.mousemove) {
+            MapEvent_events.mousemove[i](e);
+        }
+    });
+
+    map.addEventListener('click', function (e) {
+        for (var i in MapEvent_events.click) {
+            MapEvent_events.click[i](e);
+        }
+    });
+}
+
+MapEvent.prototype.addEvent = function (type, callback) {
+    MapEvent_events[type][MapEvent_id++] = callback;
+};
+
+MapEvent.prototype.removeEvent = function (id) {
+    delete MapEvent_events[type][id];
+};
+/**
  * 一直覆盖在当前地图视野的Canvas对象
  *
  * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
  *
- * @param 
+ * @param
  * {
  *     map 地图实例对象
  * }
@@ -2377,7 +2410,7 @@ Drawer.prototype.beginDrawCanvasMap = function () {
 
     ctx.scale(pixelRatio, pixelRatio);
 
-    var property = ['globalCompositeOperation', 'shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY', 'globalAlpha', 'fillStyle', 'strokeStyle', 'lineWidth', 'lineCap', 'lineJoin', 'lineWidth', 'miterLimit'];
+    var property = ['globalCompositeOperation', 'shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY', 'globalAlpha', 'fillStyle', 'strokeStyle', 'lineCap', 'lineJoin', 'lineWidth', 'miterLimit'];
 
     for (var i = 0; i < property.length; i++) {
         if (drawOptions[property[i]]) {
@@ -2439,6 +2472,329 @@ Drawer.prototype.getRadius = function () {
     }
 
     return radius;
+};
+/**
+ * @file 笔刷工具
+ * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+ */
+"use strict";
+
+var brushes = {};
+"use strict";
+
+(function () {
+
+    /**
+     * @file basic
+     * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+     */
+    function basicBrush(ctx, geo, drawOptions) {
+        ctx.beginPath();
+        ctx.moveTo(geo[0][0], geo[0][1]);
+        for (var i = 1; i < geo.length; i++) {
+            ctx.lineTo(geo[i][0], geo[i][1]);
+        }
+        ctx.stroke();
+    }
+
+    brushes.basic = basicBrush;
+})();
+"use strict";
+
+(function () {
+
+    /**
+     * @file basic
+     * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+     */
+    function bezierBrush(ctx, geo, drawOptions) {
+        ctx.beginPath();
+        ctx.moveTo(geo[0][0], geo[0][1]);
+        var p1 = geo[0];
+        var p2 = geo[1];
+        for (var i = 1; i < geo.length; i++) {
+            var midPoint = midPointBtw(p1, p2);
+            ctx.quadraticCurveTo(p1[0], p1[1], midPoint.x, midPoint.y);
+            p1 = geo[i];
+            p2 = geo[i + 1];
+        }
+        ctx.stroke();
+    }
+
+    function midPointBtw(p1, p2) {
+        return {
+            x: p1[0] + (p2[0] - p1[0]) / 2,
+            y: p1[1] + (p2[1] - p1[1]) / 2
+        };
+    }
+
+    brushes.bezier = bezierBrush;
+})();
+'use strict';
+
+(function () {
+
+  /**
+   * @file basic
+   * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+   */
+  function coloredBrush(ctx, geo, drawOptions) {
+
+    ctx.beginPath();
+    for (var j = 0; j < geo.length; j++) {
+      drawPixels(ctx, geo[j][0], geo[j][1]);
+    }
+  }
+
+  function drawPixels(ctx, x, y) {
+    for (var i = -10; i < 10; i += 4) {
+      for (var j = -10; j < 10; j += 4) {
+        if (Math.random() > 0.5) {
+          ctx.fillStyle = ['red', 'orange', 'yellow', 'green', 'light-blue', 'blue', 'purple'][getRandomInt(0, 6)];
+          ctx.fillRect(x + i, y + j, 2, 4);
+        }
+      }
+    }
+  }
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  brushes.colored = coloredBrush;
+})();
+'use strict';
+
+(function () {
+
+    /**
+     * @file basic
+     * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+     */
+    function dotsPatternBrush(ctx, geo, drawOptions) {
+
+        ctx.beginPath();
+
+        var p1 = geo[0];
+        var p2 = geo[1];
+        ctx.moveTo(p1[0], p1[1]);
+
+        for (var i = 1; i < geo.length; i++) {
+            var midPoint = midPointBtw(p1, p2);
+            ctx.quadraticCurveTo(p1[0], p1[1], midPoint[0], midPoint[1]);
+            p1 = geo[i];
+            p2 = geo[i + 1];
+        }
+
+        var pattern = ctx.createPattern(getPattern(), 'repeat');
+        ctx.strokeStyle = pattern;
+        ctx.stroke();
+    }
+
+    function midPointBtw(p1, p2) {
+        return [p1[0] + (p2[0] - p1[0]) / 2, p1[1] + (p2[1] - p1[1]) / 2];
+    }
+
+    function getPattern() {
+        var patternCanvas = document.createElement('canvas'),
+            dotWidth = 10,
+            dotDistance = 5,
+            patternCtx = patternCanvas.getContext('2d');
+
+        patternCanvas.width = patternCanvas.height = dotWidth + dotDistance;
+
+        patternCtx.fillStyle = 'red';
+        patternCtx.beginPath();
+        patternCtx.arc(dotWidth / 2, dotWidth / 2, dotWidth / 2, 0, Math.PI * 2, false);
+        patternCtx.closePath();
+        patternCtx.fill();
+        return patternCanvas;
+    }
+
+    brushes.dotsPattern = dotsPatternBrush;
+})();
+'use strict';
+
+(function () {
+
+    /**
+     * @file basic
+     * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+     */
+    function furBrush(ctx, geo, drawOptions) {
+        ctx.beginPath();
+        var lastPoint = geo[0];
+
+        var img = new Image();
+        img.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAAB50RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNS4xqx9I6wAAABR0RVh0Q3JlYXRpb24gVGltZQAxLzQvMTJldbXMAAACIklEQVRYhbWX227bMBBEj25pLk2KImj+/w+LvjRxJVN5ICeebKmqsmUBC11AkYezQy3VAPfADfAF6IEZGIE/wKFcH7nS0QEPJZ6AbwbUFZhUzvM1AHryzB+B7wWgBd6AX5wUUaRrANyQFXgGXoCBLP3Pcq2Z/yanY1eIvsQtOQU/gK/knD8ZgMe0J0QPNOR8C+K53D8WgGQxA697QvSh845swgeyEj1ZDW8jiF2M2ZPzeiidvpYBB+CObEgB6KyB38hKXATRkVeBvgP3ZeA7ckq0HBtOq2AqcWQHFTo++0D3g4WM2hrE0SCkytkATXg2l2etDT6UtoI47gXRlbNm5SGQjs9qOMQU2m+G8M+tS+szUzup4UokLoTo7NoBxhLu8gghY0blNqXDAVwJQUgNKeG+kHljOjYVry7ce9HR4AJRSXaIuESjh1YhIkCEcE9ECKVEEA4g1VbTUQOoQXg6IoSipsRqOpYAHCSa0yVegqiZsgqxBrAG4f0o4jv/hPgfAO/Qzen1oOWkRsvfSnhJPwtAELVaIAgMpA3gi9+ILQAO4W53JZYgFlOxFcAhavUgkeVXDWnsnZiO+VwAB4m+8DyrojaV9h9KXALgndbKsyAUVYhLAdTpUlHSsQSQ9gBwiFgPXAlv92HevQAihG9ikz13pUZg2hPAIbyiuuQ++AiM/c4AgtBGxlfJgbytazgVt3QNAEH4niCRf/cH8tJMBWh6B2crbJFfpZtGAAAAAElFTkSuQmCC';
+        img.width = 10;
+
+        for (var i = 1; i < geo.length; i++) {
+            var currentPoint = geo[i];
+            var dist = distanceBetween(lastPoint, currentPoint);
+            var angle = angleBetween(lastPoint, currentPoint);
+
+            for (var j = 0; j < dist; j++) {
+                var x = lastPoint[0] + Math.sin(angle) * j;
+                var y = lastPoint[1] + Math.cos(angle) * j;
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.scale(0.3, 0.3);
+                ctx.rotate(Math.PI * 180 / getRandomInt(0, 180));
+                ctx.drawImage(img, 0, 0);
+                ctx.restore();
+            }
+
+            lastPoint = currentPoint;
+        }
+
+        var colored = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+        for (var i = 3, len = colored.data.length, j; i < len; i += 4) {
+            colored.data[i - 3] = 255;
+            colored.data[i - 2] = 50;
+            colored.data[i - 1] = 50;
+        }
+        ctx.putImageData(colored, 0, 0);
+    }
+
+    function colorize() {}
+
+    function distanceBetween(point1, point2) {
+        return Math.sqrt(Math.pow(point2[0] - point1[0], 2) + Math.pow(point2[1] - point1[1], 2));
+    }
+
+    function angleBetween(point1, point2) {
+        return Math.atan2(point2[0] - point1[0], point2[1] - point1[1]);
+    }
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    brushes.fur = furBrush;
+})();
+"use strict";
+
+(function () {
+
+    /**
+     * @file basic
+     * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+     */
+    function neighborBrush(ctx, geo, drawOptions) {
+        ctx.beginPath();
+        for (var i = 1; i < geo.length; i++) {
+            //ctx.lineTo(geo[i][0], geo[i][1]);
+            ctx.moveTo(geo[i - 1][0], geo[i - 1][1]);
+            ctx.lineTo(geo[i][0], geo[i][1]);
+
+            for (var j = 0, len = i; j < len; j++) {
+                var dx = geo[j][0] - geo[i][0];
+                var dy = geo[j][1] - geo[i][1];
+                var d = dx * dx + dy * dy;
+
+                if (d > 10 * 10 && d < 30 * 30) {
+                    ctx.moveTo(geo[i][0] + dx * 0.2, geo[i][1] + dy * 0.2);
+                    ctx.lineTo(geo[j][0] - dx * 0.2, geo[j][1] - dy * 0.2);
+                }
+            }
+        }
+        ctx.stroke();
+    }
+
+    brushes.neighbor = neighborBrush;
+})();
+"use strict";
+
+(function () {
+
+    /**
+     * @file basic
+     * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+     */
+    function pen2Brush(ctx, geo, drawOptions) {
+        ctx.beginPath();
+        var lastPoint = geo[0];
+
+        for (var i = 1; i < geo.length; i++) {
+            var currentPoint = geo[i];
+
+            ctx.moveTo(lastPoint[0] - getRandomInt(0, 2), lastPoint[1] - getRandomInt(0, 2));
+            ctx.lineTo(currentPoint[0] - getRandomInt(0, 2), currentPoint[1] - getRandomInt(0, 2));
+
+            ctx.moveTo(lastPoint[0], lastPoint[1]);
+            ctx.lineTo(currentPoint[0], currentPoint[1]);
+
+            ctx.moveTo(lastPoint[0] + getRandomInt(0, 2), lastPoint[1] + getRandomInt(0, 2));
+            ctx.lineTo(currentPoint[0] + getRandomInt(0, 2), currentPoint[1] + getRandomInt(0, 2));
+
+            lastPoint = currentPoint;
+        }
+
+        ctx.stroke();
+    }
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    brushes.pen2 = pen2Brush;
+})();
+"use strict";
+
+(function () {
+
+    /**
+     * @file basic
+     * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+     */
+    function penBrush(ctx, geo, drawOptions) {
+        ctx.beginPath();
+        for (var i = 1; i < geo.length; i++) {
+            ctx.beginPath();
+            ctx.moveTo(geo[i - 1][0], geo[i - 1][1]);
+            ctx.lineWidth = Math.floor(Math.random() * 3) + 3;
+            ctx.lineTo(geo[i][0], geo[i][1]);
+            ctx.stroke();
+        }
+    }
+
+    brushes.pen = penBrush;
+})();
+/**
+ * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+ */
+
+/* globals Drawer, util */
+
+'use strict';
+
+function BrushDrawer() {
+    Drawer.apply(this, arguments);
+}
+
+util.inherits(BrushDrawer, Drawer);
+
+BrushDrawer.prototype.drawMap = function () {
+    this.beginDrawMap();
+
+    var data = this.getLayer().getData();
+
+    var ctx = this.getCtx();
+
+    var drawOptions = this.getDrawOptions();
+
+    var brush = drawOptions.brush || 'basic';
+
+    for (var i = 0, len = data.length; i < len; i++) {
+        var geo = data[i].pgeo;
+        if (geo.length <= 0) {
+            continue;
+        }
+        brushes[brush](ctx, geo, drawOptions);
+    }
+
+    this.endDrawMap();
 };
 /**
  * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
@@ -2684,20 +3040,19 @@ ClusterDrawer.prototype.drawMap = function () {
         var x = data[i].px;
         var y = data[i].py;
         var val = parseInt(data[i].count, 10);
-        var isSmallX = x < stockXA[0];
-        var isSmallY = y < stockYA[0];
-        var isBigX = x > Number(stockXA[stockXA.length - 1]) + Number(gridStep);
-        var isBigY = y > Number(stockYA[stockYA.length - 1]) + Number(gridStep);
-        if (isSmallX || isSmallY || isBigX || isBigY) {
-            continue;
-        }
+        var isSmallX = x * 2 < stockXA[0];
+        var isSmallY = y * 2 < stockYA[0];
+        var isBigX = x / 2 > Number(stockXA[stockXA.length - 1]) + Number(gridStep);
+        var isBigY = y / 2 > Number(stockYA[stockYA.length - 1]) + Number(gridStep);
+        // if (isSmallX || isSmallY || isBigX || isBigY) {
+        // continue;
+        // }
         for (var j = 0; j < stockXA.length; j++) {
             var dataX = Number(stockXA[j]);
             if (x >= dataX && x < dataX + gridStep) {
                 for (var k = 0; k < stockYA.length; k++) {
                     var dataY = Number(stockYA[k]);
                     if (y >= dataY && y < dataY + gridStep) {
-                        // grids[stockXA[j] + '_' + stockYA[k]] += 1;
                         grids[stockXA[j] + '_' + stockYA[k]] += val;
                         val = grids[stockXA[j] + '_' + stockYA[k]];
                     }
@@ -2734,17 +3089,14 @@ ClusterDrawer.prototype.drawMap = function () {
         ctx.strokeStyle = param.strokeStyle || '#fff';
         ctx.stroke();
 
-        // if (this.drawOptions.showNum) {
-        ctx.save();
-        // ctx.fillStyle = 'black';
+        // ctx.save();
         ctx.font = 30 * v / 10 + 'px serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        if (grids[i] !== 0 && param.label.show) {
-
+        if (grids[i] !== 0 && param.label && param.label.show) {
             ctx.fillStyle = '#fff';
             ctx.fillText(grids[i], cx, cy);
-            ctx.restore();
+            // ctx.restore();
         }
         // }
     }
@@ -2752,9 +3104,6 @@ ClusterDrawer.prototype.drawMap = function () {
     window.console.timeEnd('drawMap');
     this.endDrawMap();
 };
-
-// ClusterDrawer.prototype.drawDataRange = function (canvas, data, drawOptions) {
-// };
 
 /**
  * format param
@@ -2786,12 +3135,63 @@ ClusterDrawer.prototype.formatParam = function () {
 
 var min;
 var max;
+var _this = {};
 
 function DensityDrawer() {
     this.Scale;
     this.masker = {};
     Drawer.apply(this, arguments);
+
+    // init
+    this.init();
 }
+
+DensityDrawer.prototype.init = function () {
+    var self = this;
+    var mapv = this.getMapv();
+    //init events
+    var options = this.getDrawOptions();
+    // console.log()
+    if (options.events) {
+        for (var i in options.events) {
+            addEventFn(i);
+        }
+    }
+
+    function addEventFn(i) {
+        mapv.mapEvent.addEvent(i, function (e) {
+            var cache = null;
+            var point = null;
+            // console.log(self.grids)
+            if (options.type == 'honeycomb') {
+                // console.log(e.offsetX, e.offsetY)
+                // var count = data[i].count;
+                var pX = e.offsetX;
+                var pY = e.offsetY;
+                //
+                var fixYIndex = Math.round((pY - _this.startY) / _this.depthY);
+                var fixY = fixYIndex * _this.depthY + _this.startY;
+                var fixXIndex = Math.round((pX - _this.startX) / _this.depthX);
+                var fixX = fixXIndex * _this.depthX + _this.startX;
+                //
+                if (fixYIndex % 2) {
+                    fixX = fixX - _this.depthX / 2;
+                }
+                point = self.grids[fixX + '|' + fixY].len;
+            } else {
+                for (var j in self.grids) {
+                    var pos = j.split('_');
+                    if (e.offsetX - pos[0] <= _this.gridStep && e.offsetY - pos[1] <= _this.gridStep) {
+                        point = self.grids[j];
+
+                        break;
+                    }
+                }
+            }
+            options.events[i](e, point);
+        });
+    }
+};
 
 util.inherits(DensityDrawer, Drawer);
 
@@ -2848,7 +3248,7 @@ DensityDrawer.prototype.drawMap = function () {
     }
     // console.log(gridsObj);
 
-    var grids = gridsObj.grids;
+    var grids = this.grids = gridsObj.grids;
     this.dataRange.setMax(gridsObj.max);
     this.dataRange.setMin(gridsObj.min);
     var max = gridsObj.max;
@@ -2896,7 +3296,7 @@ function recGrids(obj, map) {
 
     var grids = {};
 
-    var gridStep = size / zoomUnit;
+    var gridStep = _this.gridStep = size / zoomUnit;
 
     var startXMc = parseInt(nwMc.x / size, 10) * size;
 
@@ -2986,7 +3386,7 @@ function drawRec(obj) {
         var color = obj.dataRange.getColorByGradient(grids[i]);
         try {
             if (options.opacity) {
-                var alpha = parseInt(color.match(/rgba\(.+?\,.+?\,.+?\,(.+?)\)/)[1] * options.opacity) / 255;
+                var alpha = color.match(/rgba\(.+?\,.+?\,.+?\,(.+?)\)/)[1] * options.opacity;
                 color = color.replace(/(rgba\(.+?\,.+?\,.+?\,).+?(\))/, '$1' + alpha + '$2');
             }
         } catch (e) {}
@@ -3001,12 +3401,14 @@ function drawRec(obj) {
         ctx.fillRect(x, y, gridStep - 1, gridStep - 1);
 
         if (self.getDrawOptions().label && self.getDrawOptions().label.show) {
-
             ctx.save();
             ctx.textBaseline = 'top';
             if (grids[i] !== 0 && !isTooSmall && !isTooBig) {
-                ctx.fillStyle = 'rgba(0,0,0,0.8)';
-                ctx.fillText(grids[i], x, y);
+                ctx.fillStyle = 'rgba(255,255,255,0.8)';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                console.log(x + 10);
+                ctx.fillText(grids[i], parseInt(x) + gridStep / 2, parseInt(y) + gridStep / 2);
             }
             ctx.restore();
         }
@@ -3024,19 +3426,19 @@ function honeycombGrid(obj) {
 
     var grids = {};
 
-    var gridStep = size / zoomUnit;
+    var gridStep = _this.gridStep = size / zoomUnit;
 
-    var depthX = gridStep;
-    var depthY = gridStep * 3 / 4;
+    var depthX = _this.depthX = gridStep;
+    var depthY = _this.depthY = gridStep * 3 / 4;
 
     var sizeY = 2 * size * 3 / 4;
     var startYMc = parseInt(nwMc.y / sizeY + 1, 10) * sizeY;
     var startY = (nwMc.y - startYMc) / zoomUnit;
-    startY = parseInt(startY, 10);
+    startY = _this.startY = parseInt(startY, 10);
 
     var startXMc = parseInt(nwMc.x / size, 10) * size;
     var startX = (startXMc - nwMc.x) / zoomUnit;
-    startX = parseInt(startX, 10);
+    startX = _this.startX = parseInt(startX, 10);
 
     var endX = parseInt(ctx.canvas.width + depthX, 10);
     var endY = parseInt(ctx.canvas.height + depthY, 10);
@@ -3142,7 +3544,7 @@ function drawHoneycomb(obj) {
                 ctx.save();
                 ctx.textBaseline = 'middle';
                 ctx.textAlign = 'center';
-                ctx.fillStyle = 'rgba(0,0,0,0.8)';
+                ctx.fillStyle = 'rgba(255,255,255,0.8)';
                 ctx.fillText(count, x, y);
                 ctx.restore();
             }
@@ -3513,6 +3915,7 @@ IntensityDrawer.prototype.drawMap = function () {
         if (label.font) {
             ctx.font = label.font;
         }
+        var labelKey = label.key || 'count';
     }
 
     if (dataType === 'polygon' || dataType === 'polyline') {
@@ -3551,7 +3954,7 @@ IntensityDrawer.prototype.drawMap = function () {
                     ctx.fillStyle = label.fillStyle;
                 }
                 var center = util.getGeoCenter(geo);
-                ctx.fillText(data[i].count, center[0], center[1]);
+                ctx.fillText(data[i][labelKey], center[0], center[1]);
             }
         }
     } else {
@@ -3851,11 +4254,15 @@ SimpleDrawer.prototype.drawMap = function (time) {
 
     var radius = this.getRadius();
 
-    if (dataType === 'polyline' || dataType === 'polygon') {
+    if (dataType === 'polyline') {
         // 画线或面
 
         var label = drawOptions.label;
         var zoom = this.getMap().getZoom();
+        var zoomUnit = Math.pow(2, 18 - zoom);
+
+        var arrowWidth = (10 + this.getDrawOptions().lineWidth) / zoomUnit;
+
         if (label) {
             if (label.font) {
                 ctx.font = label.font;
@@ -3889,19 +4296,53 @@ SimpleDrawer.prototype.drawMap = function (time) {
             }
 
             ctx.beginPath();
+            ctx.lineWidth = this.getDrawOptions().lineWidth || 1;
             ctx.moveTo(geo[startIndex][0], geo[startIndex][1]);
-
             for (var j = startIndex + 1; j <= endIndex; j++) {
                 ctx.lineTo(geo[j][0], geo[j][1]);
             }
 
             if (drawOptions.strokeStyle || dataType === 'polyline') {
                 ctx.stroke();
+                ctx.closePath();
             }
 
-            if (dataType === 'polygon') {
-                ctx.closePath();
-                ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(geo[startIndex][0], geo[startIndex][1]);
+            var skip = parseInt(zoomUnit);
+            skip = Math.max(skip, 1);
+            ctx.lineWidth = 1;
+            for (var j = startIndex + 1; j <= endIndex; j += skip) {
+                if (drawOptions.arrow) {
+                    ctx.save();
+                    var vLine = [geo[j][0] - geo[j - 1][0], geo[j - 1][1] - geo[j][1]];
+                    var vLineDot = vLine[1];
+                    var vLineLen = Math.sqrt(vLine[0] * vLine[0] + vLine[1] * vLine[1], 2);
+                    var val = vLineDot / vLineLen;
+                    // //
+                    var rad = Math.acos(val);
+                    if (vLine[0] < 0) {
+                        rad = -rad;
+                    }
+                    if (rad) {
+                        arrowWidth = Math.max(arrowWidth, 5);
+                        var center = [(geo[j][0] - geo[j - 1][0]) / 2, (geo[j][1] - geo[j - 1][1]) / 2];
+
+                        ctx.translate(geo[j][0], geo[j][1]);
+                        ctx.rotate(rad);
+                        ctx.moveTo(arrowWidth, arrowWidth);
+                        ctx.lineTo(0, 0);
+                        ctx.moveTo(-arrowWidth, arrowWidth);
+                        ctx.lineTo(0, 0);
+                        ctx.translate(-geo[j][0], -geo[j][1]);
+                        ctx.moveTo(geo[j][0], geo[j][1]);
+                    }
+                    ctx.restore();
+                }
+            }
+
+            if (drawOptions.strokeStyle || dataType === 'polyline') {
+                ctx.stroke();
             }
 
             if (label && label.show && (!label.minZoom || label.minZoom && zoom >= label.minZoom)) {
@@ -3913,53 +4354,71 @@ SimpleDrawer.prototype.drawMap = function (time) {
                 ctx.fillText(data[i][labelKey], center[0], center[1]);
                 ctx.restore();
             }
+            // break;
         }
-    } else {
-        // 画点
-
-        var icon = drawOptions.icon;
-
-        if (drawOptions.strokeStyle || drawOptions.globalCompositeOperation) {
-            // 圆描边或设置颜色叠加方式需要一个个元素进行绘制
+    } else if (dataType === 'polygon') {
+            // 画线或面
             for (var i = 0, len = data.length; i < len; i++) {
-                var item = data[i];
-                if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {
+                var geo = data[i].pgeo;
+                if (geo.length <= 0) {
                     continue;
                 }
                 ctx.beginPath();
-                ctx.moveTo(item.px, item.py);
-                if (icon && icon.show && icon.url) {
-                    this.drawIcon(ctx, item, icon);
-                } else {
-                    ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
-                    ctx.fill();
+                ctx.moveTo(geo[0][0], geo[0][1]);
+                for (var j = 1; j < geo.length; j++) {
+                    ctx.lineTo(geo[j][0], geo[j][1]);
                 }
-                if (drawOptions.strokeStyle) {
+                ctx.closePath();
+                ctx.fill();
+                if (drawOptions.strokeStyle || drawOptions.lineWidth) {
                     ctx.stroke();
                 }
             }
         } else {
-            //普通填充可一起绘制路径，最后再统一填充，性能上会好点
-            for (var i = 0, len = data.length; i < len; i++) {
-                var item = data[i];
-                if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {
-                    continue;
-                }
-                ctx.moveTo(item.px, item.py);
-                if (icon && icon.show && icon.url) {
-                    this.drawIcon(ctx, item, icon);
-                } else {
-                    if (radius < 2) {
-                        ctx.fillRect(item.px, item.py, radius * 2, radius * 2);
+            // 画点
+
+            var icon = drawOptions.icon;
+
+            if (drawOptions.strokeStyle || drawOptions.globalCompositeOperation) {
+                // 圆描边或设置颜色叠加方式需要一个个元素进行绘制
+                for (var i = 0, len = data.length; i < len; i++) {
+                    var item = data[i];
+                    if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {
+                        continue;
+                    }
+                    ctx.beginPath();
+                    if (icon && icon.show && icon.url) {
+                        this.drawIcon(ctx, item, icon);
                     } else {
                         ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
+                        ctx.fill();
+                    }
+                    if (drawOptions.strokeStyle) {
+                        ctx.stroke();
                     }
                 }
-            }
+            } else {
+                //普通填充可一起绘制路径，最后再统一填充，性能上会好点
+                for (var i = 0, len = data.length; i < len; i++) {
+                    var item = data[i];
+                    if (item.px < 0 || item.px > ctx.canvas.width || item.py < 0 || item > ctx.canvas.height) {
+                        continue;
+                    }
+                    ctx.moveTo(item.px, item.py);
+                    if (icon && icon.show && icon.url) {
+                        this.drawIcon(ctx, item, icon);
+                    } else {
+                        if (radius < 2) {
+                            ctx.fillRect(item.px, item.py, radius * 2, radius * 2);
+                        } else {
+                            ctx.arc(item.px, item.py, radius, 0, 2 * Math.PI, false);
+                        }
+                    }
+                }
 
-            ctx.fill();
+                ctx.fill();
+            }
         }
-    }
 
     this.endDrawMap();
 };
@@ -4208,8 +4667,336 @@ SimpleDrawer.prototype.drawWebglPolyline = function () {
         gl.drawArrays(gl.LINE_STRIP, 0, geo.length);
     }
 };
+/**
+ * @file 普通的绘制方式
+ * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+ */
+
+'use strict';
+
+function TrafficDrawer() {
+    Drawer.apply(this, arguments);
+
+    this.init();
+}
+
+util.inherits(TrafficDrawer, Drawer);
+
+TrafficDrawer.prototype.init = function () {
+    var self = this;
+
+    // console.log(road)
+    this.roads = [];
+
+    // 12964452.6,4825152.43;12966219.7,4825295.53;
+    this.roads = [{
+        start: {
+            x: 12965318.12,
+            y: 4825216.47
+        },
+        end: {
+            x: 12964456.16,
+            y: 4825151.56
+        },
+        speed: Math.random() * 5000 + 1500
+    }, {
+        start: {
+            x: 12964456.16,
+            y: 4825131.47
+        },
+        end: {
+            x: 12965318.12,
+            y: 4825197.53
+        },
+        speed: Math.random() * 5000 + 1500
+    }, {
+        start: {
+            x: 12966199,
+            y: 4825292
+        },
+        end: {
+            x: 12965342.16,
+            y: 4825218.49
+        },
+        speed: Math.random() * 5000 + 1500
+    }, {
+        start: {
+            x: 12965342.2,
+            y: 4825202.55
+        },
+        end: {
+            x: 12966206.16,
+            y: 4825266.53
+        },
+        speed: Math.random() * 5000 + 1500
+    }, {
+        start: {
+            x: 12965318.2,
+            y: 4825196.55
+        },
+        end: {
+            x: 12965308.16,
+            y: 4824642.53
+        },
+        speed: Math.random() * 5000 + 1500
+    }, {
+        start: {
+            x: 12965331.2,
+            y: 4824648.55
+        },
+        end: {
+            x: 12965340.16,
+            y: 4825202.53
+        },
+        speed: Math.random() * 5000 + 1500
+    }, {
+        start: {
+            x: 12965341.2,
+            y: 4825219.55
+        },
+        end: {
+            x: 12965351.16,
+            y: 4825769.53
+        },
+        speed: Math.random() * 5000 + 1500
+    }, {
+        start: {
+            x: 12965323.2,
+            y: 4825769.55
+        },
+        end: {
+            x: 12965319.16,
+            y: 4825217.53
+        },
+        speed: Math.random() * 5000 + 1500
+    }, {
+        start: {
+            x: 12965355.2,
+            y: 4825769.55
+        },
+        end: {
+            x: 12966360.16,
+            y: 4825764.53
+        },
+        speed: Math.random() * 5000 + 1500
+    }, {
+        start: {
+            x: 12966358.2,
+            y: 4825796.55
+        },
+        end: {
+            x: 12965353.16,
+            y: 4825802.53
+        },
+        speed: Math.random() * 5000 + 1500
+    }, {
+        start: {
+            x: 12965320.2,
+            y: 4825798.55
+        },
+        end: {
+            x: 12964270.16,
+            y: 4825809.53
+        },
+        speed: Math.random() * 5000 + 1500
+    }, {
+        start: {
+            x: 12964265.2,
+            y: 4825789.55
+        },
+        end: {
+            x: 12965324.16,
+            y: 4825767.53
+        },
+        speed: Math.random() * 5000 + 1500
+    }];
+    //12964265.13,4825789.47;12965324.13,4825767.5
+    //12965320.12,4825798.43;12964270.14,4825809.42
+    //12966358.19,4825796.56;12965353.18,4825802.48
+    // 12965355.19,4825769.52;12966360.19,4825764.46
+    // for (var i in road) {
+    //     for (var j = 1; j < road[i].length; j++) {
+
+    //         this.roads.push({
+    //             start: {
+    //                 x: road[i][j - 1][0],
+    //                 y: road[i][j - 1][1]
+    //             },
+    //             end: {
+    //                 x: road[i][j][0],
+    //                 y: road[i][j][1]
+    //             },
+    //             speed: Math.random() * 2000 + 1000
+    //         })
+    //     }
+    // }
+
+    var canvas = window.canvas = this.getCtx().canvas;
+    var width = canvas.width;
+    var height = canvas.height;
+    var content = canvas.parentElement;
+
+    var scene = this.scene = new THREE.Scene();
+    var camera = new THREE.OrthographicCamera(width / -2, width / 2, height / 2, height / -2, 1, 1000);
+
+    var renderer = new THREE.WebGLRenderer({
+        canvas: canvas,
+        antialias: true
+    });
+    renderer.setSize(canvas.width, canvas.height);
+
+    camera.position.z = 150;
+
+    function render() {
+        moveRoad();
+        // console.log(self.roads)
+
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+    }
+
+    function moveRoad() {
+        for (var i in self.roads) {
+            var road = self.roads[i];
+            road.particles = road.particles || [];
+            for (var j in road.particles) {
+                road.particles[j].position.x = road.particles[j].position.x + road._speed.x;
+                road.particles[j].position.y = road.particles[j].position.y + road._speed.y;
+                var xOver = false;
+                var yOver = false;
+                if (road._speed.x >= 0) {
+                    if (road.particles[j].position.x >= road._end.x) {
+                        xOver = true;
+                    }
+                } else {
+                    if (road.particles[j].position.x <= road._end.x) {
+                        xOver = true;
+                    }
+                }
+                if (road._speed.y >= 0) {
+                    if (road.particles[j].position.y >= road._end.y) {
+                        yOver = true;
+                    }
+                } else {
+                    if (road.particles[j].position.y <= road._end.y) {
+                        yOver = true;
+                    }
+                }
+                if (xOver && yOver) {
+                    road.particles[j].position.x = road._start.x;
+                    road.particles[j].position.y = road._start.y;
+                }
+            }
+        }
+    }
+    render();
+    // setTimeout(function(){
+    //     moveRoad();
+    // },1000)
+};
+
+TrafficDrawer.prototype.drawMap = function (time) {
+    var dataType = this.getLayer().getDataType();
+    var data = this.getLayer().getData();
+    var ctx = this.getCtx();
+    var drawOptions = this.getDrawOptions();
+    var map = this._map;
+    var mercatorProjection = map.getMapType().getProjection();
+    var mcCenter = mercatorProjection.lngLatToPoint(map.getCenter());
+    var zoom = map.getZoom();
+    var zoomUnit = Math.pow(2, 18 - zoom);
+    // console.log(mcCenter, zoomUnit)
+    this.endDrawMap();
+
+    for (var i in this.roads) {
+        var road = this.roads[i];
+        if (road.particles.length < 1) {} else {
+            for (var j in road.particles) {
+                this.scene.remove(road.particles[j]);
+            }
+            road.particles = [];
+        }
+
+        var start = road._start = {
+            x: (road.start.x - mcCenter.x) / zoomUnit,
+            y: (road.start.y - mcCenter.y) / zoomUnit
+        };
+        var end = road._end = {
+            x: (road.end.x - mcCenter.x) / zoomUnit,
+            y: (road.end.y - mcCenter.y) / zoomUnit
+        };
+        //  =
+
+        var d = road.distance = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2), 2);
+        var dx = end.x - start.x;
+        var dy = end.y - start.y;
+        road._speed = {
+            x: (end.x - start.x) / (road.speed / 16),
+            y: (end.y - start.y) / (road.speed / 16)
+        };
+        //
+        // var material = new THREE.LineBasicMaterial({
+        //     color: 0x000000,
+        //     linewidth: 100,
+        //     // transparent: true,
+        //     opacity: 0.4,
+        // });
+        //
+        // var geometry = new THREE.Geometry();
+        // geometry.vertices.push(
+        //     new THREE.Vector3( start.x, start.y, -10 ),
+        //     new THREE.Vector3( end.x, end.y, -10 ),
+        // );
+        // var line = new THREE.Line( geometry, material );
+        // this.scene.add( line );
+        //
+        var material = new THREE.SpriteMaterial({
+            map: new THREE.CanvasTexture(generateSprite()),
+            transparent: true,
+            opacity: 1.0,
+            blending: THREE.NoBlending
+        });
+
+        for (var i = 0; i < 10; i++) {
+            var particle = new THREE.Sprite(material);
+            particle.position.set(start.x + i * dx / 10, start.y + i * dy / 10, 0);
+            particle.scale.x = particle.scale.y = 30;
+            // particle.scale.x = Math.abs(dx) / 10 < 10 ? 10 : Math.abs(dx) / 10;
+            // particle.scale.y = Math.abs(dy) / 10 < 10 ? 10 : Math.abs(dy) / 10;
+            this.scene.add(particle);
+            road.particles.push(particle);
+        }
+    }
+
+    // console.log(this.roads)
+};
+
+function generateSprite() {
+
+    var canvas = document.createElement('canvas');
+    canvas.width = 16;
+    canvas.height = 16;
+
+    var context = canvas.getContext('2d');
+    var gradient = context.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width / 2);
+    gradient.addColorStop(0.0, 'rgba(255,255,255,1)');
+    gradient.addColorStop(0.2, 'rgba(255,255,0,0.8)');
+    gradient.addColorStop(0.4, 'rgba(64,64,0,0.4)');
+    gradient.addColorStop(0.6, 'rgba(64,64,0,0.2)');
+    gradient.addColorStop(1.0, 'rgba(0,0,0,0)');
+
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    return canvas;
+}
 "use strict";
 
 Mapv.Layer = Layer;
 window.Mapv = Mapv;
+
+// add state
+var _image = new Image();
+_image.src = "http://api.map.baidu.com/images/blank.gif?product=jsapi&sub_product=jsapi&v=2.0&sub_product_v=2.0&t=18547002&code=mapv&da_src=mapv&t=" + new Date().getTime();
+
 }();

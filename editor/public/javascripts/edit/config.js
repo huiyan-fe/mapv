@@ -120,7 +120,12 @@ define(function () {
 			fillStyle: 'rgba(55, 55, 255, 0.8)',
 			editable: ['size', 'max']
 		},
-		cluster: {}
+		cluster: {},
+		polyline: {
+			lineWidth: 1,
+            strokeStyle: "rgba(255, 50, 50, 1)",
+			editable: ['lineWidth', 'strokeStyle']
+		}
 	};
 	return {
 		drawOptions: drawOptions

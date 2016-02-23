@@ -21,8 +21,9 @@ function Mapv(options) {
 
     this._layers = [];
     //this._initDrawScale();
-    
+
     this.notify('drawTypeControl');
+    this.mapEvent = new MapEvent(options.map);
 }
 
 util.inherits(Mapv, Class);
