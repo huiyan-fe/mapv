@@ -705,7 +705,7 @@ util.extend(DataRange.prototype, {
         index = parseInt(index, 10);
         index *= 4;
 
-        var color = 'rgba(' + this._grad[index] + ', ' + this._grad[index + 1] + ', ' + this._grad[index + 2] + ',' + this._grad[index + 3] + ')';
+        var color = 'rgba(' + this._grad[index] + ', ' + this._grad[index + 1] + ', ' + this._grad[index + 2] + ',' + this._grad[index + 3] / 255 + ')';
         return color;
     }
 
@@ -4994,4 +4994,9 @@ function generateSprite() {
 
 Mapv.Layer = Layer;
 window.Mapv = Mapv;
+
+// add state
+var _image = new Image();
+_image.src = "http://api.map.baidu.com/images/blank.gif?product=jsapi&sub_product=jsapi&v=2.0&sub_product_v=2.0&t=18547002&code=mapv&da_src=mapv&t=" + new Date().getTime();
+
 }();
