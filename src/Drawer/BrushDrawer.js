@@ -11,6 +11,9 @@ function BrushDrawer() {
 util.inherits(BrushDrawer, Drawer);
 
 BrushDrawer.prototype.drawMap = function () {
+
+    console.time('draw brush');
+
     this.beginDrawMap();
 
     var data = this.getLayer().getData();
@@ -23,12 +26,14 @@ BrushDrawer.prototype.drawMap = function () {
     var brush = drawOptions.brush || 'basic';
 
     for (var i = 0, len = data.length; i < len; i++) {
-            var geo = data[i].pgeo;
-            if (geo.length <= 0) {
-                continue;
-            }
-            brushes[brush](ctx, geo, drawOptions);
+        var geo = data[i].pgeo;
+        if (geo.length <= 0) {
+            continue;
         }
+        brushes[brush](ctx, geo, drawOptions);
+    }
 
     this.endDrawMap();
+
+    console.timeEnd('draw brush');
 }
