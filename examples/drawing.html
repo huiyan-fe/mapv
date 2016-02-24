@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+    <title>折线</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="style.css" />
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <style type="text/css">
+    #select{
+        position: absolute;
+        left: 5px;
+        top: 5px;
+    }
+    </style>
+</head>
+
+<body>
+
+<div id="map"></div>
+<select id="select" name="">
+    <option value="basic">basic</option>
+    <option value="colored">colored</option>
+    <option value="bezier">bezier</option>
+    <option value="pen">pen</option>
+    <option value="pen2">pen2</option>
+    <option value="dotsPattern">dotsPattern</option>
+    <option value="neighbor">neighbor</option>
+    <option value="fur">fur</option>
+    <option value="thick">thick</option>
+    <option value="spray">spray</option>
+    <option value="furNeighbor">furNeighbor</option>
+</select>
+
+<script type="text/javascript" src="../dist/Mapv.js"></script>
+<script type="text/javascript" src="data/drive.js"></script>
+<script type="text/javascript">
+
+/**
+ * @file 示例代码
+ */
+
+// 创建Map实例
+var bmap = new BMap.Map('map', {
+    enableMapClick: false,
+    minZoom: 4
+    //vectorMapLevel: 3
+});
+
+bmap.disableDragging();
+bmap.setDefaultCursor('default');
+
+bmap.enableScrollWheelZoom(); // 启用滚轮放大缩小
+
+bmap.getContainer().style.background = '#fff';
+
+var mapStyle={  
+    // style: 'normal',
+    styleJson : [
+          {
+                "featureType": "all",
+                "elementType": "all",
+                "stylers": {
+                      "lightness": 63,
+                      "saturation": -100
+                }
+          }
+    ]
+}  
+
+bmap.setMapStyle(mapStyle);
+
+bmap.centerAndZoom(new BMap.Point(116.404, 39.973), 13); // 初始化地图,设置中心点坐标和地图级别
+
+// 第一步创建mapv示例
+var mapv = new Mapv({
+    drawTypeControl: true,
+    map: bmap  // 百度地图的map实例
+});
+
+var drawOptions = {
+    lineWidth: 3,
+    brush: 'basic',
+    lineJoin: 'round',
+    lineCap: 'round',
+    shadowColor: 'rgba(55, 55, 50, 0.9)',
+    shadowBlur: 5,
+    //globalCompositeOperation: "lighter",
+    strokeStyle: "rgba(55, 55, 50, 0.9)"
+}
+
+data = [];
+
+
+var layer = new Mapv.Layer({
+    zIndex: 1,
+    mapv: mapv,
+    dataType: 'polyline',
+    coordType: 'bd09ll',
+    data: data,
+    drawType: 'brush',
+    drawOptions: drawOptions
+});
+
+$('#select').bind('mousedown', function (e) {
+    e.stopPropagation();
+});
+$('#select').bind('mousemove', function (e) {
+    e.stopPropagation();
+});
+$('#select').bind('mouseup', function (e) {
+    e.stopPropagation();
+});
+$('#select').bind('change', function () {
+    drawOptions.brush = $(this).val();
+    layer.setDrawOptions(drawOptions);
+});
+
+var drawing = false;
+bmap.addEventListener('mousedown', function (e) {
+    drawing = true;
+    data.push({
+        geo: [[e.point.lng, e.point.lat]]
+    });
+});
+
+bmap.addEventListener('mousemove', function (e) {
+    if (!drawing) {
+        return;
+    }
+    data[data.length - 1].geo.push([e.point.lng, e.point.lat]);
+    layer.setData(data);
+});
+
+bmap.addEventListener('mouseup', function (e) {
+    drawing = false;
+    data[data.length - 1].geo.push([e.point.lng, e.point.lat]);
+    layer.setData(data);
+});
+
+
+
+</script>
+</body>
+
+</html>
