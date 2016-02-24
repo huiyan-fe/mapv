@@ -10,6 +10,7 @@
     <style type="text/css">
     #select{
         position: absolute;
+        width: 200px;
         left: 5px;
         top: 5px;
     }
@@ -26,8 +27,11 @@
     <option value="pen">pen</option>
     <option value="pen2">pen2</option>
     <option value="dotsPattern">dotsPattern</option>
+    <option value="linesPattern">linesPattern</option>
     <option value="neighbor">neighbor</option>
     <option value="fur">fur</option>
+    <option value="thick">thick</option>
+    <option value="spray">spray</option>
     <option value="furNeighbor">furNeighbor</option>
 </select>
 
@@ -82,7 +86,8 @@ var drawOptions = {
     shadowColor: 'rgba(55, 55, 50, 0.9)',
     shadowBlur: 5,
     //globalCompositeOperation: "lighter",
-    strokeStyle: "rgba(55, 55, 50, 0.9)"
+    strokeStyle: "rgba(55, 55, 50, 0.9)",
+    fillStyle: "rgba(55, 55, 50, 0.9)"
 }
 
 var data = driveData;

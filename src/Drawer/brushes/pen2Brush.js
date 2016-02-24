@@ -7,6 +7,7 @@
 function pen2Brush(ctx, geo, drawOptions) {
     ctx.beginPath();
     var lastPoint = geo[0];
+    ctx.lineWidth = 1;
 
     for (var i = 1; i < geo.length; i++) {
         var currentPoint = geo[i];

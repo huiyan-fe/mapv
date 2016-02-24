@@ -4,7 +4,7 @@
  * @file basic
  * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
  */
-function furBrush(ctx, geo, drawOptions) {
+function thickBrush(ctx, geo, drawOptions) {
     ctx.beginPath();
     var lastPoint = geo[0];
 
@@ -13,13 +13,12 @@ function furBrush(ctx, geo, drawOptions) {
         var dist = distanceBetween(lastPoint, currentPoint);
         var angle = angleBetween(lastPoint, currentPoint);
           
-        for (var j = 0; j < dist; j++) {
+        for (var j = 0; j < dist; j += 2) {
             var x = lastPoint[0] + (Math.sin(angle) * j);
             var y = lastPoint[1] + (Math.cos(angle) * j);
             ctx.save();
             ctx.translate(x, y);
             ctx.scale(0.3, 0.3);
-            ctx.rotate(Math.PI * 180 / getRandomInt(0, 180));
             ctx.drawImage(img, 0, 0);
             ctx.restore();
         }
@@ -67,6 +66,6 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-brushes.fur = furBrush;
+brushes.thick = thickBrush;
 
 })();
