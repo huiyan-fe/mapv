@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+</head>
+
+<body>
+    <div id="map" style="position: absolute; top:0;left: 0;bottom:0;right: 0;"></div>
+    <script src="../src/tools/three.min.js"></script>
+    <script src="../build/mapv.js"></script>
+    <script type="text/javascript">
+    var mapv = new MAPV(document.getElementById('map'), {
+        center: {
+            lat: -34.397,
+            lng: 150.644
+        },
+        zoom: 8
+    });
+    console.log(mapv)
+    </script>
+</body>
+
+</html>
