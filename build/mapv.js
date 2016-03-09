@@ -1,71 +1,42 @@
-/******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
+(function (global, factory) {
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+    typeof define === 'function' && define.amd ? define(['exports'], factory) :
+    (factory((global.mapv = global.mapv || {})));
+}(this, function (exports) { 'use strict';
 
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
+    var version = "1.0.0";
 
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId])
-/******/ 			return installedModules[moduleId].exports;
+    function point() {
 
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			exports: {},
-/******/ 			id: moduleId,
-/******/ 			loaded: false
-/******/ 		};
+        function Point() {
+        }
 
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+        Point.prototype.draw = function(context, data, options) {
 
-/******/ 		// Flag the module as loaded
-/******/ 		module.loaded = true;
+            
+            context.save();
 
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
+            for (var key in options) {
+                context[key] = options[key];
+            }
 
+            data.forEach(function(item) {
+                context.fillRect(item.x, item.y, item.size, item.size);
+            });
 
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
+            context.restore();
 
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
+            return this;
 
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
+        };
 
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(0);
-/******/ })
-/************************************************************************/
-/******/ ([
-/* 0 */
-/***/ function(module, exports) {
+        var point = new Point();
 
-	/* WEBPACK VAR INJECTION */(function(global) {/**
-	 * @author mofei / http://zhuwenlong.com/
-	 */
+        return point;
 
-	'use strict';
+    }
 
-	// the version ruler [version.subversion.update]
-	var version = '2.0.1';
+    exports.version = version;
+    exports.canvasPoint = point;
 
-	//
-	var MAPV = function(dom, options) {
-	    // make sure use as CLASS
-	    if (!(this instanceof MAPV)) {
-	        throw Error('MAPV muse use as a CLASS, try to new it');
-	    }
-	    this.version = version;
-	}
-
-	//
-	global.MAPV = MAPV;
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-
-/***/ }
-/******/ ]);
+}));
