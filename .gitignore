@@ -1,8 +1,10 @@
 upload.py
 issue.info
 node_modules
+npm-debug.log
 work
 .svn
+.swp
 .DS_STORE
 .DS_Store
 src/tags
