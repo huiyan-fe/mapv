@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+    <style type="text/css">
+        #canvas {
+            border: 5px dotted red;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas" width=500 height=500></canvas>
+
+    <script type="text/javascript" src="../build/mapv.js"></script>
+
+    <script type="text/javascript">
+
+        var canvas = document.querySelector('#canvas');
+
+        var context = canvas.getContext('2d');
+
+        var data = [
+            {
+                x: 50,
+                y: 50,
+                size: 50
+            },
+            {
+                x: 200,
+                y: 180,
+                size: 40
+            }
+        ];
+
+        var options = {
+            fillStyle: 'blue'
+        }
+
+
+        mapv.canvasPoint(context).draw(context, data, options);
+
+    </script>
+	
+</body>
+</html>

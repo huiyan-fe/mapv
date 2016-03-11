@@ -6,6 +6,8 @@
 
     var version = "0.0.0";
 
+    var _3d = '3d';
+
     function point() {
 
         function Point() {
@@ -37,6 +39,7 @@
     }
 
     exports.version = version;
+    exports.X = _3d;
     exports.canvasPoint = point;
 
 }));
