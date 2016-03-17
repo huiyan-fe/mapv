@@ -1,30 +1,22 @@
+import drawPointSimple from "./draw/point/simple";
+import drawPointHeatmap from "./draw/point/heatmap";
 
-export default function() {
+export default {
+    draw: function (context, data, options) {
 
-    function Point() {
-    }
-
-    Point.prototype.draw = function(context, data, options) {
-
-        
         context.save();
 
         for (var key in options) {
             context[key] = options[key];
         }
 
-        data.forEach(function(item) {
-            context.fillRect(item.x, item.y, item.size, item.size);
-        });
+        if (options.draw == 'heatmap') {
+            drawPointHeatmap.draw(context, data);
+        } else {
+            drawPointSimple.draw(context, data);
+        }
 
         context.restore();
 
-        return this;
-
-    };
-
-    var point = new Point();
-
-    return point;
-
+    }
 }

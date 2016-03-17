@@ -1,2 +1,2 @@
-Mapv - 地图可视化工具库
+mapv - The library of geography visualization
 

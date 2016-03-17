@@ -5,14 +5,21 @@
 	<title></title>
 
     <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
         #canvas {
-            border: 5px dotted red;
         }
     </style>
 </head>
 <body>
 
-    <canvas id="canvas" width=500 height=500></canvas>
+    <canvas id="canvas"></canvas>
 
     <script type="text/javascript" src="../build/mapv.js"></script>
 
@@ -20,27 +27,40 @@
 
         var canvas = document.querySelector('#canvas');
 
-        var context = canvas.getContext('2d');
+        canvas.width = document.body.offsetWidth;
+        canvas.height = document.body.offsetHeight;
+
+        var ctx = canvas.getContext('2d');
 
         var data = [
             {
                 x: 50,
                 y: 50,
-                size: 50
+                size: 20
             },
             {
                 x: 200,
                 y: 180,
-                size: 40
+                size: 10
             }
         ];
 
-        var options = {
-            fillStyle: 'blue'
+        var randomCount = 1000;
+
+        while (randomCount--) {
+            data.push({
+                x: ctx.canvas.width * Math.random(),
+                y: ctx.canvas.height * Math.random(),
+                size: 30 * Math.random(),
+            });
         }
 
+        var options = {
+            fillStyle: 'rgba(255, 50, 50, 0.5)',
+            draw: 'simple'
+        }
 
-        mapv.canvasPoint(context).draw(context, data, options);
+        mapv.canvasPoint.draw(ctx, data, options);
 
     </script>
 	
