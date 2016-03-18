@@ -19,7 +19,27 @@
 
             });
 
+        }
+    }
 
+    var utilsColorPalette = {
+        getImageData: function(config) {
+            var gradientConfig = config.gradient || config.defaultGradient;
+            var paletteCanvas = document.createElement('canvas');
+            var paletteCtx = paletteCanvas.getContext('2d');
+
+            paletteCanvas.width = 256;
+            paletteCanvas.height = 1;
+
+            var gradient = paletteCtx.createLinearGradient(0, 0, 256, 1);
+            for (var key in gradientConfig) {
+              gradient.addColorStop(key, gradientConfig[key]);
+            }
+
+            paletteCtx.fillStyle = gradient;
+            paletteCtx.fillRect(0, 0, 256, 1);
+
+            return paletteCtx.getImageData(0, 0, 256, 1).data;
         }
     }
 
@@ -60,26 +80,7 @@
         }
     }
 
-    var getColorPalette = function(config) {
-        var gradientConfig = config.gradient || config.defaultGradient;
-        var paletteCanvas = document.createElement('canvas');
-        var paletteCtx = paletteCanvas.getContext('2d');
-
-        paletteCanvas.width = 256;
-        paletteCanvas.height = 1;
-
-        var gradient = paletteCtx.createLinearGradient(0, 0, 256, 1);
-        for (var key in gradientConfig) {
-          gradient.addColorStop(key, gradientConfig[key]);
-        }
-
-        paletteCtx.fillStyle = gradient;
-        paletteCtx.fillRect(0, 0, 256, 1);
-
-        return paletteCtx.getImageData(0, 0, 256, 1).data;
-    };
-
-    function draw(ctx, data) {
+    function draw(ctx, data, options) {
         var max = 30;
         var radius = 13;
         var circle = createCircle(radius);
@@ -93,7 +94,7 @@
 
 
         var colored = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
-        colorize(colored.data, getColorPalette({
+        colorize(colored.data, utilsColorPalette.getImageData({
             defaultGradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
         }));
         ctx.putImageData(colored, 0, 0);
@@ -126,5 +127,6 @@
     exports.version = version;
     exports.X = _3d;
     exports.canvasPoint = point;
+    exports.canvasDrawPointSimple = drawPointSimple;
 
 }));

@@ -1,4 +1,4 @@
-imports utilsColorPalette from "../../utils/colorPalette";
+import utilsColorPalette from "../../utils/colorPalette";
 
 function createCircle(radius) {
 
@@ -37,7 +37,7 @@ function colorize(pixels, gradient) {
     }
 }
 
-function draw(ctx, data) {
+function draw(ctx, data, options) {
     var max = 30;
     var radius = 13;
     var circle = createCircle(radius);

@@ -35,6 +35,18 @@
         map.centerAndZoom(new BMap.Point(116.404, 39.915), 11);  // 初始化地图,设置中心点坐标和地图级别
         map.enableScrollWheelZoom(true); //开启鼠标滚轮缩放
 
+        var randomCount = 1000;
+
+        var data = [];
+
+        while (randomCount--) {
+            data.push({
+                lng: 115.395862 + Math.random() * 2,
+                lat: 39.198842 + Math.random() * 2,
+                size: 30 * Math.random(),
+            });
+        }
+
         var canvasLayer = new CanvasLayer({
             map: map,
             update: update
@@ -51,21 +63,15 @@
 
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-            var randomCount = 1000;
-
-            var data = [];
-
-            while (randomCount--) {
-                data.push({
-                    x: ctx.canvas.width * Math.random(),
-                    y: ctx.canvas.height * Math.random(),
-                    size: 30 * Math.random(),
-                });
-            }
-
             var options = {
                 fillStyle: 'rgba(255, 50, 50, 0.5)',
                 draw: 'simple'
+            }
+
+            for (var i = 0; i < data.length; i++) {
+                var pixel = map.pointToPixel(new BMap.Point(data[i].lng, data[i].lat));
+                data[i].x = pixel.x;
+                data[i].y = pixel.y;
             }
 
             mapv.canvasPoint.draw(ctx, data, options);
