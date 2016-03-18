@@ -39,9 +39,7 @@
         var resolutionScale = window.devicePixelRatio || 1;
 
         var randomCount = 1000;
-
         var data = [];
-
         while (randomCount--) {
             data.push({
                 lng: -125.8 + Math.random() * 50,
@@ -57,6 +55,7 @@
             updateHandler: update,
             resolutionScale: resolutionScale
         };
+
         var canvasLayer = new CanvasLayer(canvasLayerOptions);
         var context = canvasLayer.canvas.getContext('2d');
 
