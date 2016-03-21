@@ -8,23 +8,49 @@
 
     var _3d = '3d';
 
+    /**
+     * @author kyle / http://nikai.us/
+     */
+
     var drawPointSimple = {
         draw: function (context, data) {
+            
+            context.save();
             
             for (var i = 0; i < data.length; i++) {
 
                 var item = data[i];
 
                 context.beginPath();
-                context.arc(item.x, item.y, item.size, 0, Math.PI * 2);
+                context.moveTo(item.x, item.y);
+                context.arc(item.x, item.y, item.count, 0, Math.PI * 2);
                 context.fill();
 
             };
 
+            context.restore();
+
         },
         isPointInPath: function (context, point, data) {
+
+            for (var i = 0; i < data.length; i++) {
+
+                context.beginPath();
+                context.arc(item.x, item.y, item.count, 0, Math.PI * 2);
+                if (context.isPointInPath(point.x, point.y)) {
+                    return data[i];
+                }
+
+            }
+
+            return false;
+
         }
     }
+
+    /**
+     * @author kyle / http://nikai.us/
+     */
 
     var utilsColorPalette = {
         getImageData: function(config) {
@@ -50,27 +76,27 @@
     function createCircle(radius) {
 
         var circle = document.createElement('canvas');
-        var ctx = circle.getContext('2d');
+        var context = circle.getContext('2d');
         var shadowBlur = 13;
         var r2 = radius + shadowBlur;
         var offsetDistance = 10000;
 
         circle.width = circle.height = r2 * 2;
 
-        ctx.shadowBlur = shadowBlur;
-        ctx.shadowColor = 'black';
-        ctx.shadowOffsetX = ctx.shadowOffsetY = offsetDistance;
+        context.shadowBlur = shadowBlur;
+        context.shadowColor = 'black';
+        context.shadowOffsetX = context.shadowOffsetY = offsetDistance;
 
-        ctx.beginPath();
-        ctx.arc(r2 - offsetDistance, r2 - offsetDistance, radius, 0, Math.PI * 2, true);
-        ctx.closePath();
-        ctx.fill();
+        context.beginPath();
+        context.arc(r2 - offsetDistance, r2 - offsetDistance, radius, 0, Math.PI * 2, true);
+        context.closePath();
+        context.fill();
         return circle;
     }
 
-    function colorize(pixels, gradient) {
+    function colorize(pixels, gradient, options) {
 
-        var maxOpacity = 0.8;
+        var maxOpacity = options.maxOpacity || 0.8;
         for (var i = 3, len = pixels.length, j; i < len; i += 4) {
             j = pixels[i] * 4; // get gradient color from opacity value
 
@@ -84,24 +110,32 @@
         }
     }
 
-    function draw(ctx, data, options) {
-        var max = 30;
-        var radius = 13;
+    function draw(context, data, options) {
+
+        options = options || {};
+
+        context.save();
+
+        var max = options.max || 100;
+        var radius = options.radius || 13;
         var circle = createCircle(radius);
 
         data.forEach(function(item) {
 
-            ctx.globalAlpha = item.size / max;
-            ctx.drawImage(circle, item.x - circle.width / 2, item.y - circle.height / 2);
+            context.globalAlpha = item.count / max;
+            context.drawImage(circle, item.x - circle.width / 2, item.y - circle.height / 2);
 
         });
 
-
-        var colored = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+        var colored = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
         colorize(colored.data, utilsColorPalette.getImageData({
-            defaultGradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
-        }));
-        ctx.putImageData(colored, 0, 0);
+            defaultGradient: options.gradient || { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
+        }), options);
+
+        context.putImageData(colored, 0, 0);
+
+        context.restore();
+
     }
 
     var drawPointHeatmap = {
@@ -118,9 +152,9 @@
             }
 
             if (options.draw == 'heatmap') {
-                drawPointHeatmap.draw(context, data);
+                drawPointHeatmap.draw(context, data, options);
             } else {
-                drawPointSimple.draw(context, data);
+                drawPointSimple.draw(context, data, options);
             }
 
             context.restore();
@@ -128,9 +162,18 @@
         }
     }
 
+    /**
+     * @author kyle / http://nikai.us/
+     */
+
+    function clear (context) {
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    }
+
     exports.version = version;
     exports.X = _3d;
     exports.canvasPoint = point;
     exports.canvasDrawPointSimple = drawPointSimple;
+    exports.canvasClear = clear;
 
 }));

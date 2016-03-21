@@ -1,3 +1,7 @@
+/**
+ * @author kyle / http://nikai.us/
+ */
+
 import drawPointSimple from "./draw/point/simple";
 import drawPointHeatmap from "./draw/point/heatmap";
 
@@ -11,9 +15,9 @@ export default {
         }
 
         if (options.draw == 'heatmap') {
-            drawPointHeatmap.draw(context, data);
+            drawPointHeatmap.draw(context, data, options);
         } else {
-            drawPointSimple.draw(context, data);
+            drawPointSimple.draw(context, data, options);
         }
 
         context.restore();

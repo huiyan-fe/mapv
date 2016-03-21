@@ -44,7 +44,7 @@
             data.push({
                 lng: 115.395862 + Math.random() * 2,
                 lat: 39.198842 + Math.random() * 2,
-                size: 30 * Math.random(),
+                count: 30 * Math.random(),
             });
         }
 
@@ -56,7 +56,7 @@
         function update() {
 
             var ctx = this.canvas.getContext("2d");
-            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            mapv.canvasClear(ctx);
 
             for (var i = 0; i < data.length; i++) {
                 var pixel = map.pointToPixel(new BMap.Point(data[i].lng, data[i].lat));
@@ -66,10 +66,20 @@
 
             var options = {
                 fillStyle: 'rgba(255, 50, 50, 0.5)',
-                draw: 'simple'
+                max: 30,
+                radius: 13,
+                draw: 'heatmap'
             }
 
             mapv.canvasPoint.draw(ctx, data, options);
+
+            /*
+            setTimeout(function(){
+                mapv.canvasClear(ctx);
+                options.draw = 'heatmap';
+                mapv.canvasPoint.draw(ctx, data, options);
+            }, 3000);
+            */
         }
 
     </script>

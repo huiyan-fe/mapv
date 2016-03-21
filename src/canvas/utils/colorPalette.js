@@ -1,3 +1,7 @@
+/**
+ * @author kyle / http://nikai.us/
+ */
+
 export default {
     getImageData: function(config) {
         var gradientConfig = config.gradient || config.defaultGradient;
