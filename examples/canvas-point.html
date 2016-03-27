@@ -51,12 +51,15 @@
             data.push({
                 x: ctx.canvas.width * Math.random(),
                 y: ctx.canvas.height * Math.random(),
-                count: 30 * Math.random(),
+                count: mapv.utilDataRangeSize.getSizeByPercent(100 * Math.random(), 100, 35)
             });
         }
 
         var options = {
-            fillStyle: 'rgba(255, 50, 50, 0.5)',
+            fillStyle: 'rgba(55, 50, 250, 0.3)',
+            shadowColor: 'rgba(55, 50, 250, 0.8)',
+            globalCompositeOperation: 'lighter',
+            shadowBlur: 10,
             draw: 'simple'
         }
 

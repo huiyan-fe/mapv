@@ -2,7 +2,7 @@
  * @author kyle / http://nikai.us/
  */
 
-import drawPolylineSimple from "./draw/polyline/simple";
+import drawPolygonSimple from "./draw/polygon/simple";
 
 export default {
     draw: function (context, data, options) {
@@ -13,7 +13,7 @@ export default {
             context[key] = options[key];
         }
 
-        drawPolylineSimple.draw(context, data, options);
+        drawPolygonSimple.draw(context, data, options);
 
         context.restore();
 
