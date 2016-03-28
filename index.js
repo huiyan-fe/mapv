@@ -12,3 +12,4 @@ export {default as canvasDrawPointSimple} from "./src/canvas/draw/point/simple";
 export {default as utilCityCenter} from "./src/util/cityCenter";
 export {default as utilDataRangeSize} from "./src/util/data-range/size";
 export {default as utilDataRangeGradient} from "./src/util/data-range/gradient";
+export {default as utilForceEdgeBundling} from "./src/util/forceEdgeBundling";

@@ -3,6 +3,7 @@
  */
 
 import drawPointSimple from "./draw/point/simple";
+import drawPointGrid from "./draw/point/grid";
 import drawPointHeatmap from "./draw/point/heatmap";
 
 export default {
@@ -16,6 +17,8 @@ export default {
 
         if (options.draw == 'heatmap') {
             drawPointHeatmap.draw(context, data, options);
+        } else if (options.draw == 'grid') {
+            drawPointGrid.draw(context, data, options);
         } else {
             drawPointSimple.draw(context, data, options);
         }

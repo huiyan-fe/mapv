@@ -150,8 +150,8 @@ var ForceEdgeBundling = function(){
             for(var i = 1; i < P+1; i++){ // exclude initial end points of the edge 0 and P+1
                 var resulting_force     = {'x' : 0, 'y' : 0};
                 
-                spring_force            = apply_spring_force(e_idx, i , kP);
-                electrostatic_force     = apply_electrostatic_force(e_idx, i, S);
+                var spring_force            = apply_spring_force(e_idx, i , kP);
+                var electrostatic_force     = apply_electrostatic_force(e_idx, i, S);
                 
                 resulting_force.x   = S*(spring_force.x + electrostatic_force.x);
                 resulting_force.y   = S*(spring_force.y + electrostatic_force.y);
@@ -257,8 +257,8 @@ var ForceEdgeBundling = function(){
 
         function compute_compatibility_lists()
         {
-            for(e = 0; e < data_edges.length - 1; e++){
-                for( oe = e + 1 ; oe < data_edges.length; oe++){ // don't want any duplicates
+            for(var e = 0; e < data_edges.length - 1; e++){
+                for( var oe = e + 1 ; oe < data_edges.length; oe++){ // don't want any duplicates
                     if(e == oe)
                         continue;
                     else{
@@ -417,23 +417,5 @@ var ForceEdgeBundling = function(){
     return forcebundle;
 }
 
+export default ForceEdgeBundling;
 
-
-/* test */
-
-var node_data = {
-    "0":{"x":922.24444, "y":347.29444},
-    "1":{"x":814.42222, "y":409.16111},
-    "2":{"x":738, "y":427.33333000000005},
-    "3":{"x":784.5, "y":381.33333},
-    "4":{"x":1066.09167, "y":350.40278},
-    "5":{"x":925.4861099999999, "y":313.275}
-}
-
-var edge_data = [{"source":"0", "target":"1"}, {"source":"4", "target":"2"}, {"source":"0", "target":"3"}, {"source":"0","target":"4"}, {"source":"2", "target":"5"}, {"source":"3", "target":"2"}, {"source":"3", "target":"4"}]
-
- var fbundling = ForceEdgeBundling()
-                .step_size(0.2)
-                .nodes(node_data)
-                .edges(edge_data);
- var results = fbundling();  
