@@ -25,7 +25,6 @@
     <canvas id="canvas"></canvas>
 
     <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
-    <script type="text/javascript" src="http://huiyan-fe.github.io/CanvasLayer/src/CanvasLayer.js"></script>
     <script type="text/javascript" src="../build/mapv.js"></script>
 
     <script type="text/javascript">
@@ -54,7 +53,7 @@
             });
         }
 
-        var canvasLayer = new CanvasLayer({
+        var canvasLayer = new mapv.baiduMapCanvasLayer({
             map: map,
             update: update
         });

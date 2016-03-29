@@ -2,41 +2,33 @@
  * @author kyle / http://nikai.us/
  */
 
+import gradient from "../../../utils/data-range/gradient";
+
 export default {
     draw: function (context, data) {
 
         context.save();
 
-        var gridWidth = 100;
-        
-        var column = context.canvas.width / gridWidth;
-        var rows = context.canvas.height / gridWidth;
+        var grids = {};
 
-        var origin = {
-            x: 0,
-            y: 0
-        }
+        var gridWidth = 50;
 
-        var gridOffset = {
-            x: origin.x % gridWidth,
-            y: gridWidth + origin.y % gridWidth
-        }
-
-        var startX = - (origin.x / gridWidth);
-        var startY = - (origin.y / gridWidth);
-
-        for (var i = startX; i < column; i++) {
-
-            for (var j = startY; j < rows; j++) {
-
-                context.beginPath();
-                context.rect(i * gridWidth, j * gridWidth, gridWidth, gridWidth);
-                context.stroke();
-                context.fill();
-
+        for (var i = 0; i < data.length; i++) {
+            var gridKey = Math.floor(data[i].x / gridWidth) + "," + Math.floor(data[i].y / gridWidth);
+            if (!grids[gridKey]) {
+                grids[gridKey] = 0;
             }
+            grids[gridKey] += ~~(data[i].count || 1);
+        }
 
-        };
+        for (var gridKey in grids) {
+            gridKey = gridKey.split(",");
+
+            context.beginPath();
+            context.rect(gridKey[0] * gridWidth + .5, gridKey[1] * gridWidth + .5, gridWidth - 1, gridWidth - 1);
+            context.fillStyle = gradient.getColor(grids[gridKey], 100);
+            context.fill();
+        }
 
         context.restore();
     }

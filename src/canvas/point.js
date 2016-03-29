@@ -3,6 +3,7 @@
  */
 
 import drawPointSimple from "./draw/point/simple";
+import drawPointBubble from "./draw/point/bubble";
 import drawPointGrid from "./draw/point/grid";
 import drawPointHeatmap from "./draw/point/heatmap";
 
@@ -15,12 +16,20 @@ export default {
             context[key] = options[key];
         }
 
-        if (options.draw == 'heatmap') {
-            drawPointHeatmap.draw(context, data, options);
-        } else if (options.draw == 'grid') {
-            drawPointGrid.draw(context, data, options);
-        } else {
-            drawPointSimple.draw(context, data, options);
+        switch (options.draw) {
+            case 'heatmap':
+                drawPointHeatmap.draw(context, data, options);
+                break;
+            case 'grid':
+                drawPointGrid.draw(context, data, options);
+                break;
+            case 'bubble':
+                drawPointBubble.draw(context, data, options);
+                break;
+            case 'simple':
+                drawPointSimple.draw(context, data, options);
+                break;
+                
         }
 
         context.restore();

@@ -45,32 +45,24 @@
             }
         ];
 
-        var randomCount = parseInt(canvas.width * canvas.height / 2000);
+        var randomCount = 1000;
 
         while (randomCount--) {
             data.push({
                 x: ctx.canvas.width * Math.random(),
                 y: ctx.canvas.height * Math.random(),
-                count: Math.random() * 30
+                count: mapv.utilDataRangeSize.getSizeByPercent(100 * Math.random(), 100, 35)
             });
         }
 
         var options = {
             fillStyle: 'rgba(55, 50, 250, 0.3)',
-            shadowColor: 'rgba(55, 50, 250, 0.3)',
+            shadowColor: 'rgba(55, 50, 250, 0.8)',
             globalCompositeOperation: 'lighter',
-            lineWidth: 0.5,
-            shadowBlur: 2,
-            draw: 'grid'
-        }
-
-        mapv.canvasPoint.draw(ctx, data, options);
-
-        var options = {
-            fillStyle: 'rgba(255, 250, 50, 0.9)',
-            lineWidth: 0.5,
+            shadowBlur: 10,
             draw: 'simple'
         }
+
         mapv.canvasPoint.draw(ctx, data, options);
 
     </script>

@@ -9,7 +9,9 @@ export {default as canvasPolygon} from "./src/canvas/polygon";
 
 export {default as canvasDrawPointSimple} from "./src/canvas/draw/point/simple";
 
-export {default as utilCityCenter} from "./src/util/cityCenter";
-export {default as utilDataRangeSize} from "./src/util/data-range/size";
-export {default as utilDataRangeGradient} from "./src/util/data-range/gradient";
-export {default as utilForceEdgeBundling} from "./src/util/forceEdgeBundling";
+export {default as utilCityCenter} from "./src/utils/cityCenter";
+export {default as utilDataRangeSize} from "./src/utils/data-range/size";
+export {default as utilDataRangeGradient} from "./src/utils/data-range/gradient";
+export {default as utilForceEdgeBundling} from "./src/utils/forceEdgeBundling";
+
+export {default as baiduMapCanvasLayer} from "./src/baidu-map/CanvasLayer";

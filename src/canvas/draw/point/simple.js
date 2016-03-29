@@ -3,9 +3,11 @@
  */
 
 export default {
-    draw: function (context, data) {
+    draw: function (context, data, options) {
         
         context.save();
+
+        var size = options.size || 5;
         
         for (var i = 0; i < data.length; i++) {
 
@@ -13,7 +15,7 @@ export default {
 
             context.beginPath();
             context.moveTo(item.x, item.y);
-            context.arc(item.x, item.y, item.count, 0, Math.PI * 2);
+            context.arc(item.x, item.y, size, 0, Math.PI * 2);
             context.fill();
 
         };

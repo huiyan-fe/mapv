@@ -21,9 +21,11 @@
    */
 
   var drawPointSimple = {
-      draw: function (context, data) {
+      draw: function (context, data, options) {
           
           context.save();
+
+          var size = options.size || 5;
           
           for (var i = 0; i < data.length; i++) {
 
@@ -31,7 +33,7 @@
 
               context.beginPath();
               context.moveTo(item.x, item.y);
-              context.arc(item.x, item.y, item.count, 0, Math.PI * 2);
+              context.arc(item.x, item.y, size, 0, Math.PI * 2);
               context.fill();
 
           };
@@ -60,41 +62,79 @@
    * @author kyle / http://nikai.us/
    */
 
+  var drawPointBubble = {
+      draw: function (context, data) {
+          
+          context.save();
+          
+          for (var i = 0; i < data.length; i++) {
+
+              var item = data[i];
+
+              context.beginPath();
+              context.moveTo(item.x, item.y);
+              context.arc(item.x, item.y, item.count, 0, Math.PI * 2);
+              context.fill();
+
+          };
+
+          context.restore();
+
+      }
+  }
+
+  var gradient = {
+      getColor: function (value, max, gradientOptions) {
+          if (value > max) {
+              value = max;
+          }
+          gradientOptions = gradientOptions || { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"};
+
+          var paletteCanvas = document.createElement('canvas');
+          paletteCanvas.width = 256;
+          paletteCanvas.height = 1;
+
+          var paletteCtx = paletteCanvas.getContext('2d');
+
+          var gradient = paletteCtx.createLinearGradient(0, 0, 256, 1);
+          for (var key in gradientOptions) {
+            gradient.addColorStop(key, gradientOptions[key]);
+          }
+
+          paletteCtx.fillStyle = gradient;
+          paletteCtx.fillRect(0, 0, 256, 1);
+
+          var index = Math.floor(value / max * (256 - 1)) * 4;
+          var imageData = paletteCtx.getImageData(0, 0, 256, 1).data;
+          return "rgba(" + imageData[index] + ", " + imageData[index + 1] + ", " + imageData[index + 2] + ", " + imageData[index + 3] + ")";
+      }
+  }
+
   var drawPointGrid = {
       draw: function (context, data) {
 
           context.save();
 
-          var gridWidth = 100;
-          
-          var column = context.canvas.width / gridWidth;
-          var rows = context.canvas.height / gridWidth;
+          var grids = {};
 
-          var origin = {
-              x: 0,
-              y: 0
-          }
+          var gridWidth = 50;
 
-          var gridOffset = {
-              x: origin.x % gridWidth,
-              y: gridWidth + origin.y % gridWidth
-          }
-
-          var startX = - (origin.x / gridWidth);
-          var startY = - (origin.y / gridWidth);
-
-          for (var i = startX; i < column; i++) {
-
-              for (var j = startY; j < rows; j++) {
-
-                  context.beginPath();
-                  context.rect(i * gridWidth, j * gridWidth, gridWidth, gridWidth);
-                  context.stroke();
-                  context.fill();
-
+          for (var i = 0; i < data.length; i++) {
+              var gridKey = Math.floor(data[i].x / gridWidth) + "," + Math.floor(data[i].y / gridWidth);
+              if (!grids[gridKey]) {
+                  grids[gridKey] = 0;
               }
+              grids[gridKey] += ~~(data[i].count || 1);
+          }
 
-          };
+          for (var gridKey in grids) {
+              gridKey = gridKey.split(",");
+
+              context.beginPath();
+              context.rect(gridKey[0] * gridWidth + .5, gridKey[1] * gridWidth + .5, gridWidth - 1, gridWidth - 1);
+              context.fillStyle = gradient.getColor(grids[gridKey], 100);
+              context.fill();
+          }
 
           context.restore();
       }
@@ -203,12 +243,20 @@
               context[key] = options[key];
           }
 
-          if (options.draw == 'heatmap') {
-              drawPointHeatmap.draw(context, data, options);
-          } else if (options.draw == 'grid') {
-              drawPointGrid.draw(context, data, options);
-          } else {
-              drawPointSimple.draw(context, data, options);
+          switch (options.draw) {
+              case 'heatmap':
+                  drawPointHeatmap.draw(context, data, options);
+                  break;
+              case 'grid':
+                  drawPointGrid.draw(context, data, options);
+                  break;
+              case 'bubble':
+                  drawPointBubble.draw(context, data, options);
+                  break;
+              case 'simple':
+                  drawPointSimple.draw(context, data, options);
+                  break;
+                  
           }
 
           context.restore();
@@ -361,28 +409,6 @@
           size = value / maxValue * maxSize;
 
           return size;
-      }
-  }
-
-  var gradient = {
-      getColor: function (value, max, gradientOptions) {
-          var paletteCanvas = document.createElement('canvas');
-          paletteCanvas.width = 256;
-          paletteCanvas.height = 1;
-
-          var paletteCtx = paletteCanvas.getContext('2d');
-
-          var gradient = paletteCtx.createLinearGradient(0, 0, 256, 1);
-          for (var key in gradientOptions) {
-            gradient.addColorStop(key, gradientOptions[key]);
-          }
-
-          paletteCtx.fillStyle = gradient;
-          paletteCtx.fillRect(0, 0, 256, 1);
-
-          var index = Math.floor(value / max * (256 - 1)) * 4;
-          var imageData = paletteCtx.getImageData(0, 0, 256, 1).data;
-          return "rgba(" + imageData[index] + ", " + imageData[index + 1] + ", " + imageData[index + 2] + ", " + imageData[index + 3] + ")";
       }
   }
 
@@ -805,6 +831,102 @@
       return forcebundle;
   }
 
+  /**
+   * 一直覆盖在当前地图视野的Canvas对象
+   *
+   * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+   *
+   * @param 
+   * {
+   *     map 地图实例对象
+   * }
+   */ 
+      
+  function CanvasLayer(options){
+      this.options = options || {};
+      this.paneName = this.options.paneName || 'labelPane';
+      this.zIndex = this.options.zIndex || 0;
+      this._map = options.map;
+      this._lastDrawTime = null;
+      this.show();
+  }
+
+  if (window.BMap) {
+
+      CanvasLayer.prototype = new BMap.Overlay();
+
+      CanvasLayer.prototype.initialize = function(map){
+          this._map = map;
+          var canvas = this.canvas = document.createElement("canvas");
+          canvas.style.cssText = "position:absolute;"
+                                  + "left:0;" 
+                                  + "top:0;"
+                                  + "z-index:" + this.zIndex + ";";
+          this.adjustSize();
+          map.getPanes()[this.paneName].appendChild(canvas);
+          var that = this;
+          map.addEventListener('resize', function () {
+              that.adjustSize();
+              that._draw();
+          });
+          return this.canvas;
+      }
+
+      CanvasLayer.prototype.adjustSize = function(){
+          var size = this._map.getSize();
+          var canvas = this.canvas;
+          canvas.width = size.width;
+          canvas.height = size.height;
+          canvas.style.width = canvas.width + "px";
+          canvas.style.height = canvas.height + "px";
+      }
+
+      CanvasLayer.prototype.draw = function(){
+          if (!this._lastDrawTime || new Date() - this._lastDrawTime > 10) {
+              this._draw();
+          }
+          this._lastDrawTime = new Date();
+      }
+
+      CanvasLayer.prototype._draw = function(){
+          var map = this._map;
+          var size = map.getSize();
+          var center = map.getCenter();
+          if (center) {
+              var pixel = map.pointToOverlayPixel(center);
+              this.canvas.style.left = pixel.x - size.width / 2 + 'px';
+              this.canvas.style.top = pixel.y - size.height / 2 + 'px';
+              this.dispatchEvent('draw');
+              this.options.update && this.options.update.call(this);
+          }
+      }
+
+      CanvasLayer.prototype.getContainer = function(){
+          return this.canvas;
+      }
+
+      CanvasLayer.prototype.show = function(){
+          if (!this.canvas) {
+              this._map.addOverlay(this);
+          }
+          this.canvas.style.display = "block";
+      }
+
+      CanvasLayer.prototype.hide = function(){
+          this.canvas.style.display = "none";
+          //this._map.removeOverlay(this);
+      }
+
+      CanvasLayer.prototype.setZIndex = function(zIndex){
+          this.canvas.style.zIndex = zIndex;
+      }
+
+      CanvasLayer.prototype.getZIndex = function(){
+          return this.zIndex;
+      }
+
+  }
+
   exports.version = version;
   exports.X = _3d;
   exports.canvasClear = clear;
@@ -816,5 +938,6 @@
   exports.utilDataRangeSize = size;
   exports.utilDataRangeGradient = gradient;
   exports.utilForceEdgeBundling = ForceEdgeBundling;
+  exports.baiduMapCanvasLayer = CanvasLayer;
 
 }));

@@ -6,6 +6,11 @@ var paletteCanvasCache = {};
 
 export default {
     getColor: function (value, max, gradientOptions) {
+        if (value > max) {
+            value = max;
+        }
+        gradientOptions = gradientOptions || { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"};
+
         var paletteCanvas = document.createElement('canvas');
         paletteCanvas.width = 256;
         paletteCanvas.height = 1;
