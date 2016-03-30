@@ -1,4 +1,6 @@
 export {version} from "./build/version"
+
+export {default as x} from "./src/3d/index"
 export {default as X} from "./src/3d/index"
 
 export {default as canvasClear} from "./src/canvas/clear";
