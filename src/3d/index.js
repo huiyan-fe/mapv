@@ -32,7 +32,6 @@ class X {
         camera.position.z = 50 * zoom;
         camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-
         function render() {
             requestAnimationFrame(render);
             renderer.render(scene, camera);
@@ -54,8 +53,7 @@ class X {
             min = Math.min(min, gradeData[x + '_' + y]);
         }
 
-
-        // color
+        // color~
         var color = getColor();
 
         var lines = new THREE.Object3D();
