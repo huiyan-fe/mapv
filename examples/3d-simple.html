@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+	<style type="text/css">
+		#canvas {
+			border: 5px dotted red;
+			width: 800px;
+			height: 800px;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="canvas"></div>
+	<!-- data -->
+	<script type="text/javascript" src="data/3d-simple.js"></script>
+	<!-- library -->
+	<script type="text/javascript" src="js/three.min.js"></script>
+	<script type="text/javascript" src="js/OrbitControls.js"></script>
+	<script type="text/javascript" src="../build/mapv.js"></script>
+	<script type="text/javascript">
+		var canvas = document.querySelector('#canvas');
+		var map = new mapv.x(canvas, {
+			center: {
+				lng: 105.403119,
+				lat: 38.028658
+			},
+			grid: {
+				size: 1,
+			}
+		});
+	</script>
+
+</body>
+
+</html>
