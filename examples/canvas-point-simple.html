@@ -32,28 +32,32 @@
 
         var ctx = canvas.getContext('2d');
 
-        var data = [
+        var dataSet = new mapv.DataSet([
             {
-                x: 50,
-                y: 50,
-                count: 20
+                geometry: {
+                    type: 'Point',
+                    coordinates: [ctx.canvas.width * Math.random(), ctx.canvas.height * Math.random()]
+                },
+                fillStyle: 'red',
+                size: 30
             },
             {
-                x: 200,
-                y: 180,
-                count: 10
+                geometry: {
+                    type: 'Point',
+                    coordinates: [ctx.canvas.width * Math.random(), ctx.canvas.height * Math.random()]
+                },
+                fillStyle: 'blue',
+                size: 20
+            },
+            {
+                geometry: {
+                    type: 'Point',
+                    coordinates: [ctx.canvas.width * Math.random(), ctx.canvas.height * Math.random()]
+                },
+                fillStyle: 'rgba(255, 255, 50, 0.5)',
+                size: 90
             }
-        ];
-
-        var randomCount = parseInt(canvas.width * canvas.height / 1000);
-
-        while (randomCount--) {
-            data.push({
-                x: ctx.canvas.width * Math.random(),
-                y: ctx.canvas.height * Math.random(),
-                count: mapv.utilDataRangeSize.getSizeByPercent(100 * Math.random(), 100, 35)
-            });
-        }
+        ]);
 
         var options = {
             fillStyle: 'rgba(55, 50, 250, 0.3)',
@@ -63,7 +67,7 @@
             draw: 'simple'
         }
 
-        mapv.canvasPoint.draw(ctx, data, options);
+        mapv.canvasDrawPointSimple.draw(ctx, dataSet, options);
 
     </script>
 	

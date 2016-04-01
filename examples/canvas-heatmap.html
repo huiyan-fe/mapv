@@ -32,28 +32,31 @@
 
         var ctx = canvas.getContext('2d');
 
-        var data = [
+        var dataSet = new mapv.DataSet([
             {
-                x: 50,
-                y: 50,
-                count: 20
+                geometry: {
+                    type: 'Point',
+                    coordinates: [ctx.canvas.width * Math.random(), ctx.canvas.height * Math.random()]
+                },
+                count: 30
             },
             {
-                x: 200,
-                y: 180,
-                count: 10
+                geometry: {
+                    type: 'Point',
+                    coordinates: [ctx.canvas.width * Math.random(), ctx.canvas.height * Math.random()]
+                },
+                count: 30
+            },
+            {
+                geometry: {
+                    type: 'Point',
+                    coordinates: [ctx.canvas.width * Math.random(), ctx.canvas.height * Math.random()]
+                },
+                count: 30
             }
-        ];
+        ]);
 
-        var randomCount = parseInt(canvas.width * canvas.height / 1000);
 
-        while (randomCount--) {
-            data.push({
-                x: ctx.canvas.width * Math.random(),
-                y: ctx.canvas.height * Math.random(),
-                count: 30 * Math.random()
-            });
-        }
 
         var options = {
             fillStyle: 'rgba(55, 50, 250, 0.3)',
@@ -61,12 +64,12 @@
             globalCompositeOperation: 'lighter',
             shadowBlur: 10,
             radius: 15,
-            max: 100,
+            max: 30,
             maxOpacity: 0.7,
             draw: 'heatmap'
         }
 
-        mapv.canvasPoint.draw(ctx, data, options);
+        mapv.canvasDrawPointHeatmap.draw(ctx, dataSet, options);
 
     </script>
 	

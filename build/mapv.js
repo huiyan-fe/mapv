@@ -110,7 +110,7 @@
    * @author kyle / http://nikai.us/
    */
 
-  function clear (context) {
+  function canvasClear (context) {
       context.clearRect(0, 0, context.canvas.width, context.canvas.height);
   }
 
@@ -119,39 +119,39 @@
    */
 
   var drawPointSimple = {
-      draw: function (context, data, options) {
+      draw: function (context, dataSet, options) {
+
+          var data = dataSet.get();
           
           context.save();
 
-          var size = options.size || 5;
-          
           for (var i = 0; i < data.length; i++) {
-
               var item = data[i];
+
+              context.save();
+
+              if (item.fillStyle) {
+                  context.fillStyle = item.fillStyle;
+              }
+
+              if (item.strokeStyle) {
+                  context.strokeStyle = item.strokeStyle;
+              }
+
+              var coordinates = item.geometry.coordinates;
 
               context.beginPath();
               context.moveTo(item.x, item.y);
-              context.arc(item.x, item.y, size, 0, Math.PI * 2);
+
+              var size = item.size || options.size || 5;
+              context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
               context.fill();
+
+              context.restore();
 
           };
 
           context.restore();
-
-      },
-      isPointInPath: function (context, point, data) {
-
-          for (var i = 0; i < data.length; i++) {
-
-              context.beginPath();
-              context.arc(item.x, item.y, item.count, 0, Math.PI * 2);
-              if (context.isPointInPath(point.x, point.y)) {
-                  return data[i];
-              }
-
-          }
-
-          return false;
 
       }
   }
@@ -160,52 +160,65 @@
    * @author kyle / http://nikai.us/
    */
 
-  var drawPointBubble = {
-      draw: function (context, data) {
-          
-          context.save();
-          
-          for (var i = 0; i < data.length; i++) {
-
-              var item = data[i];
-
-              context.beginPath();
-              context.moveTo(item.x, item.y);
-              context.arc(item.x, item.y, item.count, 0, Math.PI * 2);
-              context.fill();
-
-          };
-
-          context.restore();
-
-      }
+  /**
+   * Category
+   * @param {Object} [options]   Available options:
+   *                             {Object} gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"}
+   */
+  function Intensity(options) {
+      options = options || {};
+      this.gradient = options.gradient || { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"};
+      this.maxSize = options.maxSize || 35;
+      this.max = options.max || 100;
   }
 
-  var gradient = {
-      getColor: function (value, max, gradientOptions) {
-          if (value > max) {
-              value = max;
-          }
-          gradientOptions = gradientOptions || { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"};
+  Intensity.prototype.getColor = function (value) {
+      var max = this.max;
 
-          var paletteCanvas = document.createElement('canvas');
-          paletteCanvas.width = 256;
-          paletteCanvas.height = 1;
-
-          var paletteCtx = paletteCanvas.getContext('2d');
-
-          var gradient = paletteCtx.createLinearGradient(0, 0, 256, 1);
-          for (var key in gradientOptions) {
-            gradient.addColorStop(key, gradientOptions[key]);
-          }
-
-          paletteCtx.fillStyle = gradient;
-          paletteCtx.fillRect(0, 0, 256, 1);
-
-          var index = Math.floor(value / max * (256 - 1)) * 4;
-          var imageData = paletteCtx.getImageData(0, 0, 256, 1).data;
-          return "rgba(" + imageData[index] + ", " + imageData[index + 1] + ", " + imageData[index + 2] + ", " + imageData[index + 3] + ")";
+      if (value > max) {
+          value = max;
       }
+
+      var gradient = this.gradient;
+
+      var paletteCanvas = document.createElement('canvas');
+      paletteCanvas.width = 256;
+      paletteCanvas.height = 1;
+
+      var paletteCtx = paletteCanvas.getContext('2d');
+
+      var lineGradient = paletteCtx.createLinearGradient(0, 0, 256, 1);
+      for (var key in gradient) {
+          lineGradient.addColorStop(key, gradient[key]);
+      }
+
+      paletteCtx.fillStyle = lineGradient;
+      paletteCtx.fillRect(0, 0, 256, 1);
+
+      var index = Math.floor(value / max * (256 - 1)) * 4;
+      var imageData = paletteCtx.getImageData(0, 0, 256, 1).data;
+      return "rgba(" + imageData[index] + ", " + imageData[index + 1] + ", " + imageData[index + 2] + ", " + imageData[index + 3] + ")";
+  }
+
+  /**
+   * @param Number value 
+   * @param Number max of value
+   * @param Number max of size
+   * @param Object other options
+   */
+  Intensity.prototype.getSize = function (value) {
+
+      var size = 0;
+      var max = this.max;
+      var maxSize = this.maxSize;
+
+      if (value > max) {
+          value = max;
+      }
+
+      size = value / max * maxSize;
+
+      return size;
   }
 
   var drawPointGrid = {
@@ -228,9 +241,13 @@
           for (var gridKey in grids) {
               gridKey = gridKey.split(",");
 
+              var intensity = new Intensity({
+                  max: 100
+              });
+
               context.beginPath();
               context.rect(gridKey[0] * gridWidth + .5, gridKey[1] * gridWidth + .5, gridWidth - 1, gridWidth - 1);
-              context.fillStyle = gradient.getColor(grids[gridKey], 100);
+              context.fillStyle = intensity.getColor(grids[gridKey]);
               context.fill();
           }
 
@@ -300,7 +317,7 @@
       }
   }
 
-  function draw(context, data, options) {
+  function draw(context, dataSet, options) {
 
       options = options || {};
 
@@ -308,12 +325,17 @@
 
       var max = options.max || 100;
       var radius = options.radius || 13;
+
       var circle = createCircle(radius);
 
+      var data = dataSet.get();
+
       data.forEach(function(item) {
+          
+          var coordinates = item.geometry.coordinates;
 
           context.globalAlpha = item.count / max;
-          context.drawImage(circle, item.x - circle.width / 2, item.y - circle.height / 2);
+          context.drawImage(circle, coordinates[0] - circle.width / 2, coordinates[1] - circle.height / 2);
 
       });
 
@@ -347,9 +369,6 @@
                   break;
               case 'grid':
                   drawPointGrid.draw(context, data, options);
-                  break;
-              case 'bubble':
-                  drawPointBubble.draw(context, data, options);
                   break;
               case 'simple':
                   drawPointSimple.draw(context, data, options);
@@ -484,30 +503,6 @@
               }
           }
           return null;
-      }
-  }
-
-  /**
-   * @author kyle / http://nikai.us/
-   */
-
-  var size = {
-      /**
-       * @param Number value 
-       * @param Number max of value
-       * @param Number max of size
-       * @param Object other options
-       */
-      getSizeByPercent: function (value, maxValue, maxSize, options) {
-          var size = 0;
-
-          if (value > maxValue) {
-              value = maxValue;
-          }
-
-          size = value / maxValue * maxSize;
-
-          return size;
       }
   }
 
@@ -931,6 +926,90 @@
   }
 
   /**
+   * @author kyle / http://nikai.us/
+   */
+
+  /**
+   * Category
+   * @param {Object} splitList:
+   *   { 
+   *       other: 1,
+   *       1: 2,
+   *       2: 3,
+   *       3: 4,
+   *       4: 5,
+   *       5: 6,
+   *       6: 7
+   *   }
+   */
+  function Category(splitList) {
+      this.splitList = splitList;
+  }
+
+  Category.prototype.get = function (count) {
+
+      var splitList = this.splitList;
+      
+      var value = splitList['other'];
+
+      for (var i in splitList) {
+          if (count == i) {
+              value = splitList[i];
+              break;
+          }
+      }
+
+      return value;
+  }
+
+  /**
+   * @author kyle / http://nikai.us/
+   */
+
+  /**
+   * Choropleth
+   * @param {Object} splitList:
+   *       [
+   *           {
+   *               start: 0,
+   *               end: 2,
+   *               value: randomColor()
+   *           },{
+   *               start: 2,
+   *               end: 4,
+   *               value: randomColor()
+   *           },{
+   *               start: 4,
+   *               value: randomColor()
+   *           }
+   *       ];
+   *
+   */
+  function Choropleth(splitList) {
+      this.splitList = splitList;
+  }
+
+  Choropleth.prototype.get = function (count) {
+      var splitList = this.splitList;
+      
+      var value = false;
+
+      for (var i = 0; i < splitList.length; i++) {
+          if ((splitList[i].start === undefined
+          || splitList[i].start !== undefined
+          && count >= splitList[i].start)
+          && (splitList[i].end === undefined
+          || splitList[i].end !== undefined && count < splitList[i].end)) {
+              value = splitList[i].value;
+              break;
+          }
+      }
+
+      return value;
+
+  }
+
+  /**
    * 一直覆盖在当前地图视野的Canvas对象
    *
    * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
@@ -1026,18 +1105,179 @@
 
   }
 
+  /**
+   * @author kyle / http://nikai.us/
+   */
+
+  /**
+   * DataSet
+   *
+   * A data set can:
+   * - add/remove/update data
+   * - gives triggers upon changes in the data
+   * - can  import/export data in various data formats
+   * @param {Array} [data]    Optional array with initial data
+   * the field geometry is like geojson, it can be:
+   * {
+   *     "type": "Point",
+   *     "coordinates": [125.6, 10.1]
+   * }
+   * {
+   *     "type": "LineString",
+   *     "coordinates": [
+   *         [102.0, 0.0], [103.0, 1.0], [104.0, 0.0], [105.0, 1.0]
+   *     ]
+   * }
+   * {
+   *     "type": "Polygon",
+   *     "coordinates": [
+   *         [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],
+   *           [100.0, 1.0], [100.0, 0.0] ]
+   *     ]
+   * }
+   * @param {Object} [options]   Available options:
+   * 
+   */
+  function DataSet(data, options) {
+
+      this._options = options || {};
+      this._data = []; // map with data indexed by id
+
+      // add initial data when provided
+      if (data) {
+          this.add(data);
+      }
+
+  }
+
+  /**
+   * Add data.
+   */
+  DataSet.prototype.add = function (data, senderId) {
+      if (Array.isArray(data)) {
+          // Array
+          for (var i = 0, len = data.length; i < len; i++) {
+              this._data.push(data[i]);
+          }
+      } else if (data instanceof Object) {
+          // Single item
+          this._data.push(data);
+      } else {
+          throw new Error('Unknown dataType');
+      }
+  };
+
+  /**
+   * get data.
+   */
+  DataSet.prototype.get = function (args) {
+      return JSON.parse(JSON.stringify(this._data));
+  };
+
+  /**
+   * remove data.
+   */
+  DataSet.prototype.remove = function (args) {
+  };
+
+  /**
+   * update data.
+   */
+  DataSet.prototype.update = function (args) {
+  };
+
+  function Layer(map, dataSet, options) {
+      var intensity = new Intensity({
+          maxSize: options.maxSize,
+          gradient: options.gradient,
+          max: options.max
+      });
+
+      var category = new Category(options.splitList);
+
+      var choropleth = new Choropleth(options.splitList);
+
+      var canvasLayer = new mapv.baiduMapCanvasLayer({
+          map: map,
+          update: update
+      });
+
+      function update() {
+          var context = this.canvas.getContext("2d");
+          canvasClear(context);
+
+          for (var key in options) {
+              context[key] = options[key];
+          }
+
+          var data = dataSet.get();
+      
+          var pointCount = 0;
+          var lineCount = 0;
+          var polygonCount = 0;
+          for (var i = 0; i < data.length; i++) {
+              var item = data[i];
+              if (data[i].geometry) {
+                  if (data[i].geometry.type === 'Point') {
+                      var coordinates = data[i].geometry.coordinates;
+                      var pixel = map.pointToPixel(new BMap.Point(coordinates[0], coordinates[1]));
+                      data[i].geometry.coordinates = [pixel.x, pixel.y];
+                      if (options.draw == 'bubble') {
+                          data[i].size = intensity.getSize(item.count);
+                      } else if (options.draw == 'intensity') {
+                          data[i].fillStyle = intensity.getColor(item.count);
+                      } else if (options.draw == 'category') {
+                          data[i].fillStyle = category.get(item.count);
+                      } else if (options.draw == 'choropleth') {
+                          data[i].fillStyle = choropleth.get(item.count);
+                      }
+                      pointCount++;
+                  }
+                  if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'LineString') {
+                      var coordinates = data[i].geometry.coordinates;
+                      var newCoordinates = [];
+                      for (var i = 0; i < coordinates.length; i++) {
+                          var pixel = map.pointToPixel(new BMap.Point(coordinates[0], coordinates[1]));
+                          newCoordinates.push([~~pixel.x, ~~pixel.y]);
+                      }
+                      data[i].geometry.coordinates = newCoordinates;
+                      if (data[i].geometry.type === 'Polygon') {
+                          polygonCount++;
+                      } else {
+                          lineCount++;
+                      }
+                  }
+              }
+          }
+
+          if (options.draw == 'heatmap') {
+              drawPointHeatmap.draw(context, new DataSet(data), options);
+          } else {
+              drawPointSimple.draw(context, new DataSet(data), options);
+          }
+
+          
+
+      };
+
+  }
+
   exports.version = version;
   exports.x = X;
   exports.X = X;
-  exports.canvasClear = clear;
+  exports.canvasClear = canvasClear;
   exports.canvasPoint = point;
   exports.canvasPolyline = polyline;
   exports.canvasPolygon = polygon;
   exports.canvasDrawPointSimple = drawPointSimple;
+  exports.canvasDrawPointHeatmap = drawPointHeatmap;
   exports.utilCityCenter = cityCenter;
-  exports.utilDataRangeSize = size;
-  exports.utilDataRangeGradient = gradient;
   exports.utilForceEdgeBundling = ForceEdgeBundling;
+  exports.utilDataRangeIntensity = Intensity;
+  exports.utilDataRangeCategory = Category;
+  exports.utilDataRangeChoropleth = Choropleth;
   exports.baiduMapCanvasLayer = CanvasLayer;
+  exports.baiduMapLayer = Layer;
+  exports.DataSet = DataSet;
 
 }));

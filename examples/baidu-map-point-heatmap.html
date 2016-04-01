@@ -48,46 +48,24 @@
         while (randomCount--) {
             var cityCenter = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
             data.push({
-                lng: cityCenter.lng - 2 + Math.random() * 4,
-                lat: cityCenter.lat - 2 + Math.random() * 4,
+                geometry: {
+                    type: 'Point',
+                    coordinates: [cityCenter.lng - 2 + Math.random() * 4, cityCenter.lat - 2 + Math.random() * 4]
+                },
                 count: 30 * Math.random()
             });
         }
 
-        var canvasLayer = new mapv.baiduMapCanvasLayer({
-            map: map,
-            update: update
-        });
+        var dataSet = new mapv.DataSet(data);
 
-        function update() {
-
-            var ctx = this.canvas.getContext("2d");
-            mapv.canvasClear(ctx);
-
-            for (var i = 0; i < data.length; i++) {
-                var pixel = map.pointToPixel(new BMap.Point(data[i].lng, data[i].lat));
-                data[i].x = pixel.x;
-                data[i].y = pixel.y;
-            }
-
-            var options = {
-                fillStyle: 'rgba(255, 50, 50, 0.5)',
-                max: 30,
-                radius: 13,
-                draw: 'heatmap'
-            }
-
-            mapv.canvasPoint.draw(ctx, data, options);
-
-            /*
-            setTimeout(function(){
-                mapv.canvasClear(ctx);
-                options.draw = 'heatmap';
-                mapv.canvasPoint.draw(ctx, data, options);
-            }, 3000);
-            */
+        var options = {
+            radius: 19,
+            gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
+            max: 100,
+            draw: 'heatmap'
         }
 
+        var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
     </script>
 	
 </body>

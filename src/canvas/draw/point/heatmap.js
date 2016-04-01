@@ -41,7 +41,7 @@ function colorize(pixels, gradient, options) {
     }
 }
 
-function draw(context, data, options) {
+function draw(context, dataSet, options) {
 
     options = options || {};
 
@@ -49,12 +49,17 @@ function draw(context, data, options) {
 
     var max = options.max || 100;
     var radius = options.radius || 13;
+
     var circle = createCircle(radius);
 
+    var data = dataSet.get();
+
     data.forEach(function(item) {
+        
+        var coordinates = item.geometry.coordinates;
 
         context.globalAlpha = item.count / max;
-        context.drawImage(circle, item.x - circle.width / 2, item.y - circle.height / 2);
+        context.drawImage(circle, coordinates[0] - circle.width / 2, coordinates[1] - circle.height / 2);
 
     });
 

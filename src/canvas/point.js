@@ -3,7 +3,6 @@
  */
 
 import drawPointSimple from "./draw/point/simple";
-import drawPointBubble from "./draw/point/bubble";
 import drawPointGrid from "./draw/point/grid";
 import drawPointHeatmap from "./draw/point/heatmap";
 
@@ -22,9 +21,6 @@ export default {
                 break;
             case 'grid':
                 drawPointGrid.draw(context, data, options);
-                break;
-            case 'bubble':
-                drawPointBubble.draw(context, data, options);
                 break;
             case 'simple':
                 drawPointSimple.draw(context, data, options);

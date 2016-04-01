@@ -2,7 +2,7 @@
  * @author kyle / http://nikai.us/
  */
 
-import gradient from "../../../utils/data-range/gradient";
+import Intensity from "../../../utils/data-range/Intensity";
 
 export default {
     draw: function (context, data) {
@@ -24,9 +24,13 @@ export default {
         for (var gridKey in grids) {
             gridKey = gridKey.split(",");
 
+            var intensity = new Intensity({
+                max: 100
+            });
+
             context.beginPath();
             context.rect(gridKey[0] * gridWidth + .5, gridKey[1] * gridWidth + .5, gridWidth - 1, gridWidth - 1);
-            context.fillStyle = gradient.getColor(grids[gridKey], 100);
+            context.fillStyle = intensity.getColor(grids[gridKey]);
             context.fill();
         }
 
