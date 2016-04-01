@@ -14,6 +14,8 @@
       }
 
       init() {
+          var zoom = 1;
+
           var scene = new THREE.Scene();
           var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 10e7);
           var renderer = new THREE.WebGLRenderer();
@@ -26,7 +28,7 @@
           renderer.setSize(this.dom.clientWidth, this.dom.clientHeight);
           this.dom.appendChild(renderer.domElement);
 
-          var geometry = new THREE.PlaneGeometry(80, 50, 10 , 10);
+          var geometry = new THREE.PlaneGeometry(80 * zoom, 50 * zoom, 10, 10);
           var material = new THREE.MeshBasicMaterial({
               color: 0x585858,
               wireframe: true
@@ -34,8 +36,8 @@
           var cube = window.cube = new THREE.Mesh(geometry, material);
           cube.rotateX(-Math.PI / 2);
           scene.add(cube);
-          camera.position.y = 50;
-          camera.position.z = 50;
+          camera.position.y = 50 * zoom;
+          camera.position.z = 50 * zoom;
           camera.lookAt(new THREE.Vector3(0, 0, 0));
 
 
@@ -46,27 +48,27 @@
           }
           render();
 
-          var sizeZoom = 1 / this.opt.grid.size;
-          var geoZoom = 1;
+          var sizeZoom = this.opt.grid.size * zoom;
 
           var gradeData = {};
-          var min = 999999;
-          var max = 0;
+          var min = Infinity;
+          var max = -Infinity;
           for (var i in data) {
-              var x = parseInt(data[i].lng * sizeZoom);
-              var y = parseInt(data[i].lat * sizeZoom);
+              var x = parseInt(data[i].lng * zoom / sizeZoom) * sizeZoom;
+              var y = parseInt(data[i].lat * zoom / sizeZoom) * sizeZoom;
               gradeData[x + '_' + y] = gradeData[x + '_' + y] || 0;
               gradeData[x + '_' + y]++;
               max = Math.max(max, gradeData[x + '_' + y]);
               min = Math.min(min, gradeData[x + '_' + y]);
           }
 
+
           // color
           var color = getColor();
 
           var lines = new THREE.Object3D();
           for (var i in gradeData) {
-              var colorPersent = (gradeData[i] - min) / (max - min);
+              var colorPersent = max == min ? 0 : (gradeData[i] - min) / (max - min);
               var colorInedx = parseInt(colorPersent * (color.length / 4)) - 1;
               colorInedx = colorInedx < 0 ? 0 : colorInedx;
               var r = color[colorInedx * 4].toString(16);
@@ -76,21 +78,22 @@
               var b = color[colorInedx * 4 + 2].toString(16);
               b = b.length < 2 ? '0' + b : b;
 
-              var height = geoZoom * gradeData[i];
-              var geometry = new THREE.BoxGeometry(geoZoom * 0.8, height, geoZoom * 0.8);
+              var height = gradeData[i] * 1.5 ;
+              var geometry = new THREE.BoxGeometry(sizeZoom * 0.9, height, sizeZoom * 0.9);
               var material = new THREE.MeshBasicMaterial({
                   color: '#' + r + g + b
               });
               var cube = new THREE.Mesh(geometry, material);
               var pos = i.split('_');
-              cube.position.x = (pos[0] / sizeZoom - this.opt.center.lng) * geoZoom;
+              cube.position.x = (pos[0] - this.opt.center.lng * zoom);
               cube.position.y = height / 2;
-              cube.position.z = (this.opt.center.lat - pos[1] / sizeZoom) * geoZoom;
+              cube.position.z = (this.opt.center.lat * zoom - pos[1]);
               lines.add(cube);
           }
           scene.add(lines);
       }
   }
+
 
   function getColor() {
       var canvas = document.createElement('canvas');
