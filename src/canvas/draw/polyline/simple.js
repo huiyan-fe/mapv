@@ -3,20 +3,29 @@
  */
 
 export default {
-    draw: function (context, data) {
+    draw: function (context, dataSet, options) {
+
+        var data = dataSet.get();
+
+        context.save();
 
         for (var i = 0, len = data.length; i < len; i++) {
 
             var item = data[i];
-            var geo = item.geo;
+
+            var coordinates = item.geometry.coordinates;
+
             context.beginPath();
-            context.moveTo(geo[0][0], geo[0][1]);
-            for (var j = 1; j < geo.length; j++) {
-                context.lineTo(geo[j][0], geo[j][1]);
+            context.moveTo(coordinates[0][0], coordinates[0][1]);
+            for (var j = 1; j < coordinates.length; j++) {
+                context.lineTo(coordinates[j][0], coordinates[j][1]);
             }
 
             context.stroke();
 
         }
+
+        context.restore();
+
     }
 }

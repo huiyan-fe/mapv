@@ -4,6 +4,8 @@
 
 import canvasClear from "../canvas/clear";
 import drawPointSimple from "../canvas/draw/point/simple";
+import drawPolylineSimple from "../canvas/draw/polyline/simple";
+import drawPolygonSimple from "../canvas/draw/polygon/simple";
 import drawPointHeatmap from "../canvas/draw/point/heatmap";
 import DataSet from "../data/DataSet";
 import Intensity from "../utils/data-range/Intensity";
@@ -39,6 +41,7 @@ function Layer(map, dataSet, options) {
         var pointCount = 0;
         var lineCount = 0;
         var polygonCount = 0;
+
         for (var i = 0; i < data.length; i++) {
             var item = data[i];
             if (data[i].geometry) {
@@ -57,11 +60,12 @@ function Layer(map, dataSet, options) {
                     }
                     pointCount++;
                 }
+
                 if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'LineString') {
                     var coordinates = data[i].geometry.coordinates;
                     var newCoordinates = [];
-                    for (var i = 0; i < coordinates.length; i++) {
-                        var pixel = map.pointToPixel(new BMap.Point(coordinates[0], coordinates[1]));
+                    for (var j = 0; j < coordinates.length; j++) {
+                        var pixel = map.pointToPixel(new BMap.Point(coordinates[j][0], coordinates[j][1]));
                         newCoordinates.push([~~pixel.x, ~~pixel.y]);
                     }
                     data[i].geometry.coordinates = newCoordinates;
@@ -74,10 +78,18 @@ function Layer(map, dataSet, options) {
             }
         }
 
+        var maxCount = Math.max(Math.max(pointCount, lineCount), polygonCount);
+
         if (options.draw == 'heatmap') {
             drawPointHeatmap.draw(context, new DataSet(data), options);
         } else {
-            drawPointSimple.draw(context, new DataSet(data), options);
+            if (maxCount === pointCount) {
+                drawPointSimple.draw(context, new DataSet(data), options);
+            } else if (maxCount === lineCount) {
+                drawPolylineSimple.draw(context, new DataSet(data), options);
+            } else {
+                drawPolygonSimple.draw(context, new DataSet(data), options);
+            }
         }
 
         

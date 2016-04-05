@@ -72,12 +72,15 @@
 
         for (var i = 0; i < results.length; i++) {
             var line = results[i];
-            var geo = [];
+            var coordinates = [];
             for (var j = 0; j < line.length; j++) {
-                geo.push([line[j].x, line[j].y]);
+                coordinates.push([line[j].x, line[j].y]);
             }
             data.push({
-                geo: geo
+                geometry: {
+                    type: 'LineString',
+                    coordinates: coordinates
+                }
             });
         }
 
@@ -87,7 +90,9 @@
             draw: 'simple'
         }
 
-        mapv.canvasPolyline.draw(ctx, data, options);
+        var dataSet = new mapv.DataSet(data);
+
+        mapv.canvasPolyline.draw(ctx, dataSet, options);
 
     </script>
 	

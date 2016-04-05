@@ -31,6 +31,10 @@ export default {
             context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
             context.fill();
 
+            if (item.strokeStyle || options.strokeStyle) {
+                context.stroke();
+            }
+
             context.restore();
 
         };

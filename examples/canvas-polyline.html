@@ -32,20 +32,17 @@
 
         var ctx = canvas.getContext('2d');
 
-        var data = [
-            {
-                geo: [[12, 12],[23, 23]],
-            },
-            {
-                geo: [[52, 12],[323, 423]],
-            },
-        ];
+        var data = [];
 
         var randomCount = parseInt(canvas.width * canvas.height / 1000);
 
         while (randomCount--) {
             data.push({
-                geo: [[ctx.canvas.width * Math.random(), ctx.canvas.height * Math.random()], [ctx.canvas.width * Math.random(), ctx.canvas.height * Math.random()]]
+                geometry: {
+                    type: 'LineString',
+                    coordinates: [[ctx.canvas.width * Math.random(), ctx.canvas.height * Math.random()], [ctx.canvas.width * Math.random(), ctx.canvas.height * Math.random()]]
+                },
+                count: 30 * Math.random()
             });
         }
 
@@ -55,7 +52,9 @@
             draw: 'simple'
         }
 
-        mapv.canvasPolyline.draw(ctx, data, options);
+        var dataSet = new mapv.DataSet(data);
+
+        mapv.canvasPolyline.draw(ctx, dataSet, options);
 
     </script>
 	

@@ -50,43 +50,22 @@
             var cityCenter2 = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
             var cityCenter3 = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
             data.push({
-                geo: [[cityCenter1.lng - 1 + Math.random() * 1, cityCenter1.lat - 1 + Math.random() * 1], [cityCenter2.lng - 1 + Math.random() * 1, cityCenter2.lat - 1 + Math.random() * 1], [cityCenter3.lng - 1 + Math.random() * 1, cityCenter3.lat - 1 + Math.random() * 1]]
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [[cityCenter1.lng - 1 + Math.random() * 1, cityCenter1.lat - 1 + Math.random() * 1], [cityCenter2.lng - 1 + Math.random() * 1, cityCenter2.lat - 1 + Math.random() * 1], [cityCenter3.lng - 1 + Math.random() * 1, cityCenter3.lat - 1 + Math.random() * 1]]
+                },
+                count: 30 * Math.random()
             });
         }
 
-        var canvasLayer = new mapv.baiduMapCanvasLayer({
-            map: map,
-            update: update
-        });
+        var dataSet = new mapv.DataSet(data);
 
-        function update() {
-
-            var ctx = this.canvas.getContext("2d");
-            mapv.canvasClear(ctx);
-
-            var newData = [];
-
-            for (var i = 0; i < data.length; i++) {
-                var geo = data[i].geo;
-                var newGeo = {
-                    geo: []
-                };
-                for (var j = 0; j < geo.length; j++) {
-                    var pixel = map.pointToPixel(new BMap.Point(geo[j][0], geo[j][1]));
-                    newGeo.geo.push([~~pixel.x, ~~pixel.y]);
-                }
-                newData.push(newGeo);
-            }
-
-            var options = {
-                fillStyle: 'rgba(255, 250, 50, 0.1)',
-                draw: 'simple'
-            }
-
-            mapv.canvasPolygon.draw(ctx, newData, options);
-
+        var options = {
+            fillStyle: 'rgba(255, 250, 50, 0.1)',
+            draw: 'simple'
         }
 
+        var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
     </script>
 	
 </body>

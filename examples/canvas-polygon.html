@@ -32,24 +32,21 @@
 
         var ctx = canvas.getContext('2d');
 
-        var data = [
-            /*
-            {
-                geo: [[12, 12],[23, 23], [30, 90]],
-            },
-            {
-                geo: [[52, 12],[323, 423], [500, 200]],
-            },
-            */
-        ];
+        var data = [];
 
         var randomCount = parseInt(canvas.width * canvas.height / 2000);
 
         while (randomCount--) {
             data.push({
-                geo: [[ctx.canvas.width * Math.random(), ctx.canvas.height * Math.random()], [ctx.canvas.width * Math.random(), ctx.canvas.height * Math.random()], [ctx.canvas.width * Math.random(), ctx.canvas.height * Math.random()]]
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [[ctx.canvas.width * Math.random(), ctx.canvas.height * Math.random()], [ctx.canvas.width * Math.random(), ctx.canvas.height * Math.random()], [ctx.canvas.width * Math.random(), ctx.canvas.height * Math.random()]]
+                },
+                count: 30 * Math.random()
             });
         }
+
+        var dataSet = new mapv.DataSet(data);
 
         var options = {
             fillStyle: 'rgba(55, 55, 250, 0.1)',
@@ -57,7 +54,7 @@
             draw: 'simple'
         }
 
-        mapv.canvasPolygon.draw(ctx, data, options);
+        mapv.canvasPolygon.draw(ctx, dataSet, options);
 
     </script>
 	

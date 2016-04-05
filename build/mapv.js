@@ -150,6 +150,10 @@
               context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
               context.fill();
 
+              if (item.strokeStyle || options.strokeStyle) {
+                  context.stroke();
+              }
+
               context.restore();
 
           };
@@ -389,21 +393,30 @@
    */
 
   var drawPolylineSimple = {
-      draw: function (context, data) {
+      draw: function (context, dataSet, options) {
+
+          var data = dataSet.get();
+
+          context.save();
 
           for (var i = 0, len = data.length; i < len; i++) {
 
               var item = data[i];
-              var geo = item.geo;
+
+              var coordinates = item.geometry.coordinates;
+
               context.beginPath();
-              context.moveTo(geo[0][0], geo[0][1]);
-              for (var j = 1; j < geo.length; j++) {
-                  context.lineTo(geo[j][0], geo[j][1]);
+              context.moveTo(coordinates[0][0], coordinates[0][1]);
+              for (var j = 1; j < coordinates.length; j++) {
+                  context.lineTo(coordinates[j][0], coordinates[j][1]);
               }
 
               context.stroke();
 
           }
+
+          context.restore();
+
       }
   }
 
@@ -428,28 +441,38 @@
    */
 
   var drawPolygonSimple = {
-      draw: function (context, data, options) {
+      draw: function (context, dataSet, options) {
+
+          var data = dataSet.get();
+
+          context.save();
 
           for (var i = 0, len = data.length; i < len; i++) {
 
+              var item = data[i];
+
+              var coordinates = item.geometry.coordinates;
+
               context.beginPath();
 
-              var item = data[i];
-              var geo = item.geo;
-              context.moveTo(geo[0][0], geo[0][1]);
-              for (var j = 1; j < geo.length; j++) {
-                  context.lineTo(geo[j][0], geo[j][1]);
+              context.moveTo(coordinates[0][0], coordinates[0][1]);
+              for (var j = 1; j < coordinates.length; j++) {
+                  context.lineTo(coordinates[j][0], coordinates[j][1]);
               }
-              context.lineTo(geo[0][0], geo[0][1]);
+
+              context.closePath();
+
 
               if (options.strokeStyle) {
                   context.stroke();
               }
 
-              context.closePath();
               context.fill();
 
           }
+
+          context.restore();
+
       }
   }
 
@@ -1056,10 +1079,15 @@
       CanvasLayer.prototype.adjustSize = function(){
           var size = this._map.getSize();
           var canvas = this.canvas;
-          canvas.width = size.width;
-          canvas.height = size.height;
-          canvas.style.width = canvas.width + "px";
-          canvas.style.height = canvas.height + "px";
+
+          var devicePixelRatio = window.devicePixelRatio;
+
+          canvas.width = size.width * devicePixelRatio;
+          canvas.height = size.height * devicePixelRatio;
+          canvas.getContext('2d').scale(devicePixelRatio, devicePixelRatio);
+
+          canvas.style.width = size.width + "px";
+          canvas.style.height = size.height + "px";
       }
 
       CanvasLayer.prototype.draw = function(){
@@ -1218,6 +1246,7 @@
           var pointCount = 0;
           var lineCount = 0;
           var polygonCount = 0;
+
           for (var i = 0; i < data.length; i++) {
               var item = data[i];
               if (data[i].geometry) {
@@ -1236,11 +1265,12 @@
                       }
                       pointCount++;
                   }
+
                   if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'LineString') {
                       var coordinates = data[i].geometry.coordinates;
                       var newCoordinates = [];
-                      for (var i = 0; i < coordinates.length; i++) {
-                          var pixel = map.pointToPixel(new BMap.Point(coordinates[0], coordinates[1]));
+                      for (var j = 0; j < coordinates.length; j++) {
+                          var pixel = map.pointToPixel(new BMap.Point(coordinates[j][0], coordinates[j][1]));
                           newCoordinates.push([~~pixel.x, ~~pixel.y]);
                       }
                       data[i].geometry.coordinates = newCoordinates;
@@ -1253,10 +1283,18 @@
               }
           }
 
+          var maxCount = Math.max(Math.max(pointCount, lineCount), polygonCount);
+
           if (options.draw == 'heatmap') {
               drawPointHeatmap.draw(context, new DataSet(data), options);
           } else {
-              drawPointSimple.draw(context, new DataSet(data), options);
+              if (maxCount === pointCount) {
+                  drawPointSimple.draw(context, new DataSet(data), options);
+              } else if (maxCount === lineCount) {
+                  drawPolylineSimple.draw(context, new DataSet(data), options);
+              } else {
+                  drawPolygonSimple.draw(context, new DataSet(data), options);
+              }
           }
 
           

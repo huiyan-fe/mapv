@@ -42,10 +42,15 @@ if (window.BMap) {
     CanvasLayer.prototype.adjustSize = function(){
         var size = this._map.getSize();
         var canvas = this.canvas;
-        canvas.width = size.width;
-        canvas.height = size.height;
-        canvas.style.width = canvas.width + "px";
-        canvas.style.height = canvas.height + "px";
+
+        var devicePixelRatio = window.devicePixelRatio;
+
+        canvas.width = size.width * devicePixelRatio;
+        canvas.height = size.height * devicePixelRatio;
+        canvas.getContext('2d').scale(devicePixelRatio, devicePixelRatio);
+
+        canvas.style.width = size.width + "px";
+        canvas.style.height = size.height + "px";
     }
 
     CanvasLayer.prototype.draw = function(){
