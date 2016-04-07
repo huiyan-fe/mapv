@@ -5,12 +5,9 @@ export {default as X} from "./src/3d/index"
 
 export {default as canvasClear} from "./src/canvas/clear";
 
-export {default as canvasPoint} from "./src/canvas/point";
-export {default as canvasPolyline} from "./src/canvas/polyline";
-export {default as canvasPolygon} from "./src/canvas/polygon";
-
-export {default as canvasDrawPointSimple} from "./src/canvas/draw/point/simple";
-export {default as canvasDrawPointHeatmap} from "./src/canvas/draw/point/heatmap";
+export {default as canvasDrawSimple} from "./src/canvas/draw/simple";
+export {default as canvasDrawHeatmap} from "./src/canvas/draw/heatmap";
+export {default as canvasDrawGrid} from "./src/canvas/draw/grid";
 
 export {default as utilCityCenter} from "./src/utils/cityCenter";
 export {default as utilForceEdgeBundling} from "./src/utils/forceEdgeBundling";
@@ -21,6 +18,9 @@ export {default as utilDataRangeChoropleth} from "./src/utils/data-range/Choropl
 
 export {default as baiduMapCanvasLayer} from "./src/baidu-map/CanvasLayer";
 export {default as baiduMapLayer} from "./src/baidu-map/Layer";
+
+export {default as googleMapCanvasLayer} from "./src/google-map/CanvasLayer";
+export {default as googleMapLayer} from "./src/google-map/Layer";
 
 export {default as DataSet} from "./src/data/DataSet";
 

@@ -39,7 +39,7 @@ Intensity.prototype.getColor = function (value) {
 
     var index = Math.floor(value / max * (256 - 1)) * 4;
     var imageData = paletteCtx.getImageData(0, 0, 256, 1).data;
-    return "rgba(" + imageData[index] + ", " + imageData[index + 1] + ", " + imageData[index + 2] + ", " + imageData[index + 3] + ")";
+    return "rgba(" + imageData[index] + ", " + imageData[index + 1] + ", " + imageData[index + 2] + ", " + imageData[index + 3] / 256 + ")";
 }
 
 /**

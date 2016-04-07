@@ -2,7 +2,8 @@
  * @author kyle / http://nikai.us/
  */
 
-import utilsColorPalette from "../../utils/colorPalette";
+import utilsColorPalette from "../utils/colorPalette";
+import pathSimple from "../path/simple";
 
 function createCircle(radius) {
 
@@ -41,11 +42,7 @@ function colorize(pixels, gradient, options) {
     }
 }
 
-function draw(context, dataSet, options) {
-
-    options = options || {};
-
-    context.save();
+function drawGray(context, dataSet, options) {
 
     var max = options.max || 100;
     var radius = options.radius || 13;
@@ -54,14 +51,36 @@ function draw(context, dataSet, options) {
 
     var data = dataSet.get();
 
+    context.beginPath();
+
     data.forEach(function(item) {
         
         var coordinates = item.geometry.coordinates;
+        var type = item.geometry.type;
 
         context.globalAlpha = item.count / max;
-        context.drawImage(circle, coordinates[0] - circle.width / 2, coordinates[1] - circle.height / 2);
+
+        if (type === 'Point') {
+            context.drawImage(circle, coordinates[0] - circle.width / 2, coordinates[1] - circle.height / 2);
+        } else if (type === 'LineString') {
+            pathSimple.draw(context, item, options);
+        } else if (type === 'Polygon') {
+        }
 
     });
+
+    context.stroke();
+
+
+}
+
+function draw(context, dataSet, options) {
+
+    options = options || {};
+
+    context.save();
+
+    drawGray(context, dataSet, options);
 
     var colored = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
     colorize(colored.data, utilsColorPalette.getImageData({

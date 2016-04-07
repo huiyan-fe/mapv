@@ -2,14 +2,21 @@
  * @author kyle / http://nikai.us/
  */
 
+import pathSimple from "../path/simple";
+
 export default {
     draw: function (context, dataSet, options) {
+
+        for (var key in options) {
+            context[key] = options[key];
+        }
 
         var data = dataSet.get();
         
         context.save();
 
-        for (var i = 0; i < data.length; i++) {
+        for (var i = 0, len = data.length; i < len; i++) {
+
             var item = data[i];
 
             context.save();
@@ -22,16 +29,22 @@ export default {
                 context.strokeStyle = item.strokeStyle;
             }
 
-            var coordinates = item.geometry.coordinates;
+            var type = item.geometry.type;
 
             context.beginPath();
-            context.moveTo(item.x, item.y);
 
-            var size = item.size || options.size || 5;
-            context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
-            context.fill();
+            pathSimple.draw(context, item, options);
 
-            if (item.strokeStyle || options.strokeStyle) {
+            if (type == 'Point' || type == 'Polygon') {
+
+                context.fill();
+
+                if (item.strokeStyle || options.strokeStyle) {
+                    context.stroke();
+                }
+            }
+
+            if (type == 'LineString') {
                 context.stroke();
             }
 

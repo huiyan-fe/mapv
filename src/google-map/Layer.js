@@ -2,11 +2,11 @@
  * @author kyle / http://nikai.us/
  */
 
-import CanvasLayer from "./CanvasLayer";
 import canvasClear from "../canvas/clear";
 import drawHeatmap from "../canvas/draw/heatmap";
 import drawSimple from "../canvas/draw/simple";
 import DataSet from "../data/DataSet";
+import CanvasLayer from "./CanvasLayer";
 import Intensity from "../utils/data-range/Intensity";
 import Category from "../utils/data-range/Category";
 import Choropleth from "../utils/data-range/Choropleth";
@@ -22,13 +22,20 @@ function Layer(map, dataSet, options) {
 
     var choropleth = new Choropleth(options.splitList);
 
-    var canvasLayer = new CanvasLayer({
+    var resolutionScale = window.devicePixelRatio || 1;
+
+    // initialize the canvasLayer
+    var canvasLayerOptions = {
         map: map,
-        update: update
-    });
+        animate: false,
+        updateHandler: update,
+        resolutionScale: resolutionScale
+    };
+
+    var canvasLayer = new CanvasLayer(canvasLayerOptions);
+    var context = canvasLayer.canvas.getContext('2d');
 
     function update() {
-        var context = this.canvas.getContext("2d");
         canvasClear(context);
 
         for (var key in options) {
@@ -41,13 +48,33 @@ function Layer(map, dataSet, options) {
         var lineCount = 0;
         var polygonCount = 0;
 
+        /* We need to scale and translate the map for current view.
+         * see https://developers.google.com/maps/documentation/javascript/maptypes#MapCoordinates
+         */
+        var mapProjection = map.getProjection();
+
+        // scale is just 2^zoom
+        // If canvasLayer is scaled (with resolutionScale), we need to scale by
+        // the same amount to account for the larger canvas.
+        var scale = Math.pow(2, map.zoom) * resolutionScale;
+
+        var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
+
         for (var i = 0; i < data.length; i++) {
             var item = data[i];
             if (data[i].geometry) {
 
                 if (data[i].geometry.type === 'Point') {
                     var coordinates = data[i].geometry.coordinates;
-                    var pixel = map.pointToPixel(new BMap.Point(coordinates[0], coordinates[1]));
+
+                    var latLng = new google.maps.LatLng(coordinates[1], coordinates[0]);
+                    var worldPoint = mapProjection.fromLatLngToPoint(latLng);
+
+                    var pixel = {
+                        x: (worldPoint.x - offset.x) * scale,
+                        y: (worldPoint.y - offset.y) * scale,
+                    }
+
                     data[i].geometry.coordinates = [pixel.x, pixel.y];
                     pointCount++;
                 }

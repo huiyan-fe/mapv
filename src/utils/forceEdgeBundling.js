@@ -251,7 +251,7 @@ var ForceEdgeBundling = function(){
         }
 
         function are_compatible(P, Q){
-            //console.log('compatibility ' + P.source +' - '+ P.target + ' and ' + Q.source +' '+ Q.target);
+            // console.log('compatibility ' + P.source +' - '+ P.target + ' and ' + Q.source +' '+ Q.target);
             return (compatibility_score(P,Q) >= compatibility_threshold);
         }
 
@@ -302,9 +302,9 @@ var ForceEdgeBundling = function(){
                 I = I_rate * I;
                 
                 update_edge_divisions(P);
-                console.log('C' + cycle);
-                console.log('P' + P);
-                console.log('S' + S);
+                // console.log('C' + cycle);
+                // console.log('P' + P);
+                // console.log('S' + S);
             }
             return subdivision_points_for_edge;
         }

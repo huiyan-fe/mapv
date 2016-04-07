@@ -40,7 +40,6 @@
           camera.position.z = 50 * zoom;
           camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-
           function render() {
               requestAnimationFrame(render);
               renderer.render(scene, camera);
@@ -62,8 +61,7 @@
               min = Math.min(min, gradeData[x + '_' + y]);
           }
 
-
-          // color
+          // color~
           var color = getColor();
 
           var lines = new THREE.Object3D();
@@ -115,20 +113,64 @@
 
   function canvasClear (context) {
       context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+      //context.canvas.width = context.canvas.width;
+      //context.canvas.height = context.canvas.height;
   }
 
   /**
    * @author kyle / http://nikai.us/
    */
 
-  var drawPointSimple = {
+  var pathSimple = {
+      draw: function(context, data, options) {
+
+          var type = data.geometry.type;
+          var coordinates = data.geometry.coordinates;
+
+          if (type == 'Point') {
+
+              context.moveTo(data.x, data.y);
+
+              var size = data.size || options.size || 5;
+              context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
+
+          }
+
+          if (type == 'LineString') {
+
+              context.moveTo(coordinates[0][0], coordinates[0][1]);
+              for (var j = 1; j < coordinates.length; j++) {
+                  context.lineTo(coordinates[j][0], coordinates[j][1]);
+              }
+
+          }
+
+          if (type == 'Polygon') {
+
+              context.moveTo(coordinates[0][0], coordinates[0][1]);
+              for (var j = 1; j < coordinates.length; j++) {
+                  context.lineTo(coordinates[j][0], coordinates[j][1]);
+              }
+              context.closePath();
+
+          }
+      }
+
+  }
+
+  var drawSimple = {
       draw: function (context, dataSet, options) {
+
+          for (var key in options) {
+              context[key] = options[key];
+          }
 
           var data = dataSet.get();
           
           context.save();
 
-          for (var i = 0; i < data.length; i++) {
+          for (var i = 0, len = data.length; i < len; i++) {
+
               var item = data[i];
 
               context.save();
@@ -141,16 +183,22 @@
                   context.strokeStyle = item.strokeStyle;
               }
 
-              var coordinates = item.geometry.coordinates;
+              var type = item.geometry.type;
 
               context.beginPath();
-              context.moveTo(item.x, item.y);
 
-              var size = item.size || options.size || 5;
-              context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
-              context.fill();
+              pathSimple.draw(context, item, options);
 
-              if (item.strokeStyle || options.strokeStyle) {
+              if (type == 'Point' || type == 'Polygon') {
+
+                  context.fill();
+
+                  if (item.strokeStyle || options.strokeStyle) {
+                      context.stroke();
+                  }
+              }
+
+              if (type == 'LineString') {
                   context.stroke();
               }
 
@@ -160,105 +208,6 @@
 
           context.restore();
 
-      }
-  }
-
-  /**
-   * @author kyle / http://nikai.us/
-   */
-
-  /**
-   * Category
-   * @param {Object} [options]   Available options:
-   *                             {Object} gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"}
-   */
-  function Intensity(options) {
-      options = options || {};
-      this.gradient = options.gradient || { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"};
-      this.maxSize = options.maxSize || 35;
-      this.max = options.max || 100;
-  }
-
-  Intensity.prototype.getColor = function (value) {
-      var max = this.max;
-
-      if (value > max) {
-          value = max;
-      }
-
-      var gradient = this.gradient;
-
-      var paletteCanvas = document.createElement('canvas');
-      paletteCanvas.width = 256;
-      paletteCanvas.height = 1;
-
-      var paletteCtx = paletteCanvas.getContext('2d');
-
-      var lineGradient = paletteCtx.createLinearGradient(0, 0, 256, 1);
-      for (var key in gradient) {
-          lineGradient.addColorStop(key, gradient[key]);
-      }
-
-      paletteCtx.fillStyle = lineGradient;
-      paletteCtx.fillRect(0, 0, 256, 1);
-
-      var index = Math.floor(value / max * (256 - 1)) * 4;
-      var imageData = paletteCtx.getImageData(0, 0, 256, 1).data;
-      return "rgba(" + imageData[index] + ", " + imageData[index + 1] + ", " + imageData[index + 2] + ", " + imageData[index + 3] + ")";
-  }
-
-  /**
-   * @param Number value 
-   * @param Number max of value
-   * @param Number max of size
-   * @param Object other options
-   */
-  Intensity.prototype.getSize = function (value) {
-
-      var size = 0;
-      var max = this.max;
-      var maxSize = this.maxSize;
-
-      if (value > max) {
-          value = max;
-      }
-
-      size = value / max * maxSize;
-
-      return size;
-  }
-
-  var drawPointGrid = {
-      draw: function (context, data) {
-
-          context.save();
-
-          var grids = {};
-
-          var gridWidth = 50;
-
-          for (var i = 0; i < data.length; i++) {
-              var gridKey = Math.floor(data[i].x / gridWidth) + "," + Math.floor(data[i].y / gridWidth);
-              if (!grids[gridKey]) {
-                  grids[gridKey] = 0;
-              }
-              grids[gridKey] += ~~(data[i].count || 1);
-          }
-
-          for (var gridKey in grids) {
-              gridKey = gridKey.split(",");
-
-              var intensity = new Intensity({
-                  max: 100
-              });
-
-              context.beginPath();
-              context.rect(gridKey[0] * gridWidth + .5, gridKey[1] * gridWidth + .5, gridWidth - 1, gridWidth - 1);
-              context.fillStyle = intensity.getColor(grids[gridKey]);
-              context.fill();
-          }
-
-          context.restore();
       }
   }
 
@@ -324,11 +273,7 @@
       }
   }
 
-  function draw(context, dataSet, options) {
-
-      options = options || {};
-
-      context.save();
+  function drawGray(context, dataSet, options) {
 
       var max = options.max || 100;
       var radius = options.radius || 13;
@@ -337,14 +282,36 @@
 
       var data = dataSet.get();
 
+      context.beginPath();
+
       data.forEach(function(item) {
           
           var coordinates = item.geometry.coordinates;
+          var type = item.geometry.type;
 
           context.globalAlpha = item.count / max;
-          context.drawImage(circle, coordinates[0] - circle.width / 2, coordinates[1] - circle.height / 2);
+
+          if (type === 'Point') {
+              context.drawImage(circle, coordinates[0] - circle.width / 2, coordinates[1] - circle.height / 2);
+          } else if (type === 'LineString') {
+              pathSimple.draw(context, item, options);
+          } else if (type === 'Polygon') {
+          }
 
       });
+
+      context.stroke();
+
+
+  }
+
+  function draw(context, dataSet, options) {
+
+      options = options || {};
+
+      context.save();
+
+      drawGray(context, dataSet, options);
 
       var colored = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
       colorize(colored.data, utilsColorPalette.getImageData({
@@ -357,138 +324,106 @@
 
   }
 
-  var drawPointHeatmap = {
+  var drawHeatmap = {
       draw: draw
   }
 
-  var point = {
-      draw: function (context, data, options) {
-
-          context.save();
-
-          for (var key in options) {
-              context[key] = options[key];
-          }
-
-          switch (options.draw) {
-              case 'heatmap':
-                  drawPointHeatmap.draw(context, data, options);
-                  break;
-              case 'grid':
-                  drawPointGrid.draw(context, data, options);
-                  break;
-              case 'simple':
-                  drawPointSimple.draw(context, data, options);
-                  break;
-                  
-          }
-
-          context.restore();
-
-      }
-  }
-
   /**
    * @author kyle / http://nikai.us/
    */
 
-  var drawPolylineSimple = {
-      draw: function (context, dataSet, options) {
-
-          var data = dataSet.get();
-
-          context.save();
-
-          for (var i = 0, len = data.length; i < len; i++) {
-
-              var item = data[i];
-
-              var coordinates = item.geometry.coordinates;
-
-              context.beginPath();
-              context.moveTo(coordinates[0][0], coordinates[0][1]);
-              for (var j = 1; j < coordinates.length; j++) {
-                  context.lineTo(coordinates[j][0], coordinates[j][1]);
-              }
-
-              context.stroke();
-
-          }
-
-          context.restore();
-
-      }
+  /**
+   * Category
+   * @param {Object} [options]   Available options:
+   *                             {Object} gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"}
+   */
+  function Intensity(options) {
+      options = options || {};
+      this.gradient = options.gradient || { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"};
+      this.maxSize = options.maxSize || 35;
+      this.max = options.max || 100;
   }
 
-  var polyline = {
-      draw: function (context, data, options) {
+  Intensity.prototype.getColor = function (value) {
+      var max = this.max;
 
-          context.save();
-
-          for (var key in options) {
-              context[key] = options[key];
-          }
-
-          drawPolylineSimple.draw(context, data, options);
-
-          context.restore();
-
+      if (value > max) {
+          value = max;
       }
+
+      var gradient = this.gradient;
+
+      var paletteCanvas = document.createElement('canvas');
+      paletteCanvas.width = 256;
+      paletteCanvas.height = 1;
+
+      var paletteCtx = paletteCanvas.getContext('2d');
+
+      var lineGradient = paletteCtx.createLinearGradient(0, 0, 256, 1);
+      for (var key in gradient) {
+          lineGradient.addColorStop(key, gradient[key]);
+      }
+
+      paletteCtx.fillStyle = lineGradient;
+      paletteCtx.fillRect(0, 0, 256, 1);
+
+      var index = Math.floor(value / max * (256 - 1)) * 4;
+      var imageData = paletteCtx.getImageData(0, 0, 256, 1).data;
+      return "rgba(" + imageData[index] + ", " + imageData[index + 1] + ", " + imageData[index + 2] + ", " + imageData[index + 3] / 256 + ")";
   }
 
   /**
-   * @author kyle / http://nikai.us/
+   * @param Number value 
+   * @param Number max of value
+   * @param Number max of size
+   * @param Object other options
    */
+  Intensity.prototype.getSize = function (value) {
 
-  var drawPolygonSimple = {
-      draw: function (context, dataSet, options) {
+      var size = 0;
+      var max = this.max;
+      var maxSize = this.maxSize;
 
-          var data = dataSet.get();
+      if (value > max) {
+          value = max;
+      }
+
+      size = value / max * maxSize;
+
+      return size;
+  }
+
+  var grid = {
+      draw: function (context, data) {
 
           context.save();
 
-          for (var i = 0, len = data.length; i < len; i++) {
+          var grids = {};
 
-              var item = data[i];
+          var gridWidth = 50;
 
-              var coordinates = item.geometry.coordinates;
+          for (var i = 0; i < data.length; i++) {
+              var gridKey = Math.floor(data[i].x / gridWidth) + "," + Math.floor(data[i].y / gridWidth);
+              if (!grids[gridKey]) {
+                  grids[gridKey] = 0;
+              }
+              grids[gridKey] += ~~(data[i].count || 1);
+          }
+
+          for (var gridKey in grids) {
+              gridKey = gridKey.split(",");
+
+              var intensity = new Intensity({
+                  max: 100
+              });
 
               context.beginPath();
-
-              context.moveTo(coordinates[0][0], coordinates[0][1]);
-              for (var j = 1; j < coordinates.length; j++) {
-                  context.lineTo(coordinates[j][0], coordinates[j][1]);
-              }
-
-              context.closePath();
-
-
-              if (options.strokeStyle) {
-                  context.stroke();
-              }
-
+              context.rect(gridKey[0] * gridWidth + .5, gridKey[1] * gridWidth + .5, gridWidth - 1, gridWidth - 1);
+              context.fillStyle = intensity.getColor(grids[gridKey]);
               context.fill();
-
           }
 
           context.restore();
-
-      }
-  }
-
-  var polygon = {
-      draw: function (context, data, options) {
-
-          context.save();
-
-          for (var key in options) {
-              context[key] = options[key];
-          }
-
-          drawPolygonSimple.draw(context, data, options);
-
-          context.restore();
-
       }
   }
 
@@ -785,7 +720,7 @@
           }
 
           function are_compatible(P, Q){
-              //console.log('compatibility ' + P.source +' - '+ P.target + ' and ' + Q.source +' '+ Q.target);
+              // console.log('compatibility ' + P.source +' - '+ P.target + ' and ' + Q.source +' '+ Q.target);
               return (compatibility_score(P,Q) >= compatibility_threshold);
           }
 
@@ -836,9 +771,9 @@
                   I = I_rate * I;
                   
                   update_edge_divisions(P);
-                  console.log('C' + cycle);
-                  console.log('P' + P);
-                  console.log('S' + S);
+                  // console.log('C' + cycle);
+                  // console.log('P' + P);
+                  // console.log('S' + S);
               }
               return subdivision_points_for_edge;
           }
@@ -1228,7 +1163,7 @@
 
       var choropleth = new Choropleth(options.splitList);
 
-      var canvasLayer = new mapv.baiduMapCanvasLayer({
+      var canvasLayer = new CanvasLayer({
           map: map,
           update: update
       });
@@ -1250,19 +1185,11 @@
           for (var i = 0; i < data.length; i++) {
               var item = data[i];
               if (data[i].geometry) {
+
                   if (data[i].geometry.type === 'Point') {
                       var coordinates = data[i].geometry.coordinates;
                       var pixel = map.pointToPixel(new BMap.Point(coordinates[0], coordinates[1]));
                       data[i].geometry.coordinates = [pixel.x, pixel.y];
-                      if (options.draw == 'bubble') {
-                          data[i].size = intensity.getSize(item.count);
-                      } else if (options.draw == 'intensity') {
-                          data[i].fillStyle = intensity.getColor(item.count);
-                      } else if (options.draw == 'category') {
-                          data[i].fillStyle = category.get(item.count);
-                      } else if (options.draw == 'choropleth') {
-                          data[i].fillStyle = choropleth.get(item.count);
-                      }
                       pointCount++;
                   }
 
@@ -1280,24 +1207,693 @@
                           lineCount++;
                       }
                   }
+
+                  if (options.draw == 'bubble') {
+                      data[i].size = intensity.getSize(item.count);
+                  } else if (options.draw == 'intensity') {
+                      if (data[i].geometry.type === 'LineString') {
+                          data[i].strokeStyle = intensity.getColor(item.count);
+                      } else {
+                          data[i].fillStyle = intensity.getColor(item.count);
+                      }
+                  } else if (options.draw == 'category') {
+                      data[i].fillStyle = category.get(item.count);
+                  } else if (options.draw == 'choropleth') {
+                      data[i].fillStyle = choropleth.get(item.count);
+                  }
               }
           }
 
           var maxCount = Math.max(Math.max(pointCount, lineCount), polygonCount);
 
           if (options.draw == 'heatmap') {
-              drawPointHeatmap.draw(context, new DataSet(data), options);
+              drawHeatmap.draw(context, new DataSet(data), options);
           } else {
-              if (maxCount === pointCount) {
-                  drawPointSimple.draw(context, new DataSet(data), options);
-              } else if (maxCount === lineCount) {
-                  drawPolylineSimple.draw(context, new DataSet(data), options);
-              } else {
-                  drawPolygonSimple.draw(context, new DataSet(data), options);
+              drawSimple.draw(context, new DataSet(data), options);
+          }
+
+      };
+
+  }
+
+  /**
+   * Copyright 2012 Google Inc. All Rights Reserved.
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *     http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   */
+
+  /**
+   * @fileoverview Extends OverlayView to provide a canvas "Layer".
+   * @author Brendan Kenny
+   */
+
+  /**
+   * A map layer that provides a canvas over the slippy map and a callback
+   * system for efficient animation. Requires canvas and CSS 2D transform
+   * support.
+   * @constructor
+   * @extends google.maps.OverlayView
+   * @param {CanvasLayerOptions=} opt_options Options to set in this CanvasLayer.
+   */
+  function CanvasLayer$1(opt_options) {
+    /**
+     * If true, canvas is in a map pane and the OverlayView is fully functional.
+     * See google.maps.OverlayView.onAdd for more information.
+     * @type {boolean}
+     * @private
+     */
+    this.isAdded_ = false;
+
+    /**
+     * If true, each update will immediately schedule the next.
+     * @type {boolean}
+     * @private
+     */
+    this.isAnimated_ = false;
+
+    /**
+     * The name of the MapPane in which this layer will be displayed.
+     * @type {string}
+     * @private
+     */
+    this.paneName_ = CanvasLayer$1.DEFAULT_PANE_NAME_;
+
+    /**
+     * A user-supplied function called whenever an update is required. Null or
+     * undefined if a callback is not provided.
+     * @type {?function=}
+     * @private
+     */
+    this.updateHandler_ = null;
+
+    /**
+     * A user-supplied function called whenever an update is required and the
+     * map has been resized since the last update. Null or undefined if a
+     * callback is not provided.
+     * @type {?function}
+     * @private
+     */
+    this.resizeHandler_ = null;
+
+    /**
+     * The LatLng coordinate of the top left of the current view of the map. Will
+     * be null when this.isAdded_ is false.
+     * @type {google.maps.LatLng}
+     * @private
+     */
+    this.topLeft_ = null;
+
+    /**
+     * The map-pan event listener. Will be null when this.isAdded_ is false. Will
+     * be null when this.isAdded_ is false.
+     * @type {?function}
+     * @private
+     */
+    this.centerListener_ = null;
+
+    /**
+     * The map-resize event listener. Will be null when this.isAdded_ is false.
+     * @type {?function}
+     * @private
+     */
+    this.resizeListener_ = null;
+
+    /**
+     * If true, the map size has changed and this.resizeHandler_ must be called
+     * on the next update.
+     * @type {boolean}
+     * @private
+     */
+    this.needsResize_ = true;
+
+    /**
+     * A browser-defined id for the currently requested callback. Null when no
+     * callback is queued.
+     * @type {?number}
+     * @private
+     */
+    this.requestAnimationFrameId_ = null;
+
+    var canvas = document.createElement('canvas');
+    canvas.style.position = 'absolute';
+    canvas.style.top = 0;
+    canvas.style.left = 0;
+    canvas.style.pointerEvents = 'none';
+
+    /**
+     * The canvas element.
+     * @type {!HTMLCanvasElement}
+     */
+    this.canvas = canvas;
+
+    /**
+     * The CSS width of the canvas, which may be different than the width of the
+     * backing store.
+     * @private {number}
+     */
+    this.canvasCssWidth_ = 300;
+
+    /**
+     * The CSS height of the canvas, which may be different than the height of
+     * the backing store.
+     * @private {number}
+     */
+    this.canvasCssHeight_ = 150;
+
+    /**
+     * A value for scaling the CanvasLayer resolution relative to the CanvasLayer
+     * display size.
+     * @private {number}
+     */
+    this.resolutionScale_ = 1;
+
+    /**
+     * Simple bind for functions with no args for bind-less browsers (Safari).
+     * @param {Object} thisArg The this value used for the target function.
+     * @param {function} func The function to be bound.
+     */
+    function simpleBindShim(thisArg, func) {
+      return function() { func.apply(thisArg); };
+    }
+
+    /**
+     * A reference to this.repositionCanvas_ with this bound as its this value.
+     * @type {function}
+     * @private
+     */
+    this.repositionFunction_ = simpleBindShim(this, this.repositionCanvas_);
+
+    /**
+     * A reference to this.resize_ with this bound as its this value.
+     * @type {function}
+     * @private
+     */
+    this.resizeFunction_ = simpleBindShim(this, this.resize_);
+
+    /**
+     * A reference to this.update_ with this bound as its this value.
+     * @type {function}
+     * @private
+     */
+    this.requestUpdateFunction_ = simpleBindShim(this, this.update_);
+
+    // set provided options, if any
+    if (opt_options) {
+      this.setOptions(opt_options);
+    }
+  }
+
+  if (window.google && window.google.maps) {
+
+  CanvasLayer$1.prototype = new google.maps.OverlayView();
+
+  /**
+   * The default MapPane to contain the canvas.
+   * @type {string}
+   * @const
+   * @private
+   */
+  CanvasLayer$1.DEFAULT_PANE_NAME_ = 'overlayLayer';
+
+  /**
+   * Transform CSS property name, with vendor prefix if required. If browser
+   * does not support transforms, property will be ignored.
+   * @type {string}
+   * @const
+   * @private
+   */
+  CanvasLayer$1.CSS_TRANSFORM_ = (function() {
+    var div = document.createElement('div');
+    var transformProps = [
+      'transform',
+      'WebkitTransform',
+      'MozTransform',
+      'OTransform',
+      'msTransform'
+    ];
+    for (var i = 0; i < transformProps.length; i++) {
+      var prop = transformProps[i];
+      if (div.style[prop] !== undefined) {
+        return prop;
+      }
+    }
+
+    // return unprefixed version by default
+    return transformProps[0];
+  })();
+
+  /**
+   * The requestAnimationFrame function, with vendor-prefixed or setTimeout-based
+   * fallbacks. MUST be called with window as thisArg.
+   * @type {function}
+   * @param {function} callback The function to add to the frame request queue.
+   * @return {number} The browser-defined id for the requested callback.
+   * @private
+   */
+  CanvasLayer$1.prototype.requestAnimFrame_ =
+      window.requestAnimationFrame ||
+      window.webkitRequestAnimationFrame ||
+      window.mozRequestAnimationFrame ||
+      window.oRequestAnimationFrame ||
+      window.msRequestAnimationFrame ||
+      function(callback) {
+        return window.setTimeout(callback, 1000 / 60);
+      };
+
+  /**
+   * The cancelAnimationFrame function, with vendor-prefixed fallback. Does not
+   * fall back to clearTimeout as some platforms implement requestAnimationFrame
+   * but not cancelAnimationFrame, and the cost is an extra frame on onRemove.
+   * MUST be called with window as thisArg.
+   * @type {function}
+   * @param {number=} requestId The id of the frame request to cancel.
+   * @private
+   */
+  CanvasLayer$1.prototype.cancelAnimFrame_ =
+      window.cancelAnimationFrame ||
+      window.webkitCancelAnimationFrame ||
+      window.mozCancelAnimationFrame ||
+      window.oCancelAnimationFrame ||
+      window.msCancelAnimationFrame ||
+      function(requestId) {};
+
+  /**
+   * Sets any options provided. See CanvasLayerOptions for more information.
+   * @param {CanvasLayerOptions} options The options to set.
+   */
+  CanvasLayer$1.prototype.setOptions = function(options) {
+    if (options.animate !== undefined) {
+      this.setAnimate(options.animate);
+    }
+
+    if (options.paneName !== undefined) {
+      this.setPaneName(options.paneName);
+    }
+
+    if (options.updateHandler !== undefined) {
+      this.setUpdateHandler(options.updateHandler);
+    }
+
+    if (options.resizeHandler !== undefined) {
+      this.setResizeHandler(options.resizeHandler);
+    }
+
+    if (options.resolutionScale !== undefined) {
+      this.setResolutionScale(options.resolutionScale);
+    }
+
+    if (options.map !== undefined) {
+      this.setMap(options.map);
+    }
+  };
+
+  /**
+   * Set the animated state of the layer. If true, updateHandler will be called
+   * repeatedly, once per frame. If false, updateHandler will only be called when
+   * a map property changes that could require the canvas content to be redrawn.
+   * @param {boolean} animate Whether the canvas is animated.
+   */
+  CanvasLayer$1.prototype.setAnimate = function(animate) {
+    this.isAnimated_ = !!animate;
+
+    if (this.isAnimated_) {
+      this.scheduleUpdate();
+    }
+  };
+
+  /**
+   * @return {boolean} Whether the canvas is animated.
+   */
+  CanvasLayer$1.prototype.isAnimated = function() {
+    return this.isAnimated_;
+  };
+
+  /**
+   * Set the MapPane in which this layer will be displayed, by name. See
+   * {@code google.maps.MapPanes} for the panes available.
+   * @param {string} paneName The name of the desired MapPane.
+   */
+  CanvasLayer$1.prototype.setPaneName = function(paneName) {
+    this.paneName_ = paneName;
+
+    this.setPane_();
+  };
+
+  /**
+   * @return {string} The name of the current container pane.
+   */
+  CanvasLayer$1.prototype.getPaneName = function() {
+    return this.paneName_;
+  };
+
+  /**
+   * Adds the canvas to the specified container pane. Since this is guaranteed to
+   * execute only after onAdd is called, this is when paneName's existence is
+   * checked (and an error is thrown if it doesn't exist).
+   * @private
+   */
+  CanvasLayer$1.prototype.setPane_ = function() {
+    if (!this.isAdded_) {
+      return;
+    }
+
+    // onAdd has been called, so panes can be used
+    var panes = this.getPanes();
+    if (!panes[this.paneName_]) {
+      throw new Error('"' + this.paneName_ + '" is not a valid MapPane name.');
+    }
+
+    panes[this.paneName_].appendChild(this.canvas);
+  };
+
+  /**
+   * Set a function that will be called whenever the parent map and the overlay's
+   * canvas have been resized. If opt_resizeHandler is null or unspecified, any
+   * existing callback is removed.
+   * @param {?function=} opt_resizeHandler The resize callback function.
+   */
+  CanvasLayer$1.prototype.setResizeHandler = function(opt_resizeHandler) {
+    this.resizeHandler_ = opt_resizeHandler;
+  };
+
+  /**
+   * Sets a value for scaling the canvas resolution relative to the canvas
+   * display size. This can be used to save computation by scaling the backing
+   * buffer down, or to support high DPI devices by scaling it up (by e.g.
+   * window.devicePixelRatio).
+   * @param {number} scale
+   */
+  CanvasLayer$1.prototype.setResolutionScale = function(scale) {
+    if (typeof scale === 'number') {
+      this.resolutionScale_ = scale;
+      this.resize_();
+    }
+  };
+
+  /**
+   * Set a function that will be called when a repaint of the canvas is required.
+   * If opt_updateHandler is null or unspecified, any existing callback is
+   * removed.
+   * @param {?function=} opt_updateHandler The update callback function.
+   */
+  CanvasLayer$1.prototype.setUpdateHandler = function(opt_updateHandler) {
+    this.updateHandler_ = opt_updateHandler;
+  };
+
+  /**
+   * @inheritDoc
+   */
+  CanvasLayer$1.prototype.onAdd = function() {
+    if (this.isAdded_) {
+      return;
+    }
+
+    this.isAdded_ = true;
+    this.setPane_();
+
+    this.resizeListener_ = google.maps.event.addListener(this.getMap(),
+        'resize', this.resizeFunction_);
+    this.centerListener_ = google.maps.event.addListener(this.getMap(),
+        'center_changed', this.repositionFunction_);
+
+    this.resize_();
+    this.repositionCanvas_();
+  };
+
+  /**
+   * @inheritDoc
+   */
+  CanvasLayer$1.prototype.onRemove = function() {
+    if (!this.isAdded_) {
+      return;
+    }
+
+    this.isAdded_ = false;
+    this.topLeft_ = null;
+
+    // remove canvas and listeners for pan and resize from map
+    this.canvas.parentElement.removeChild(this.canvas);
+    if (this.centerListener_) {
+      google.maps.event.removeListener(this.centerListener_);
+      this.centerListener_ = null;
+    }
+    if (this.resizeListener_) {
+      google.maps.event.removeListener(this.resizeListener_);
+      this.resizeListener_ = null;
+    }
+
+    // cease canvas update callbacks
+    if (this.requestAnimationFrameId_) {
+      this.cancelAnimFrame_.call(window, this.requestAnimationFrameId_);
+      this.requestAnimationFrameId_ = null;
+    }
+  };
+
+  /**
+   * The internal callback for resize events that resizes the canvas to keep the
+   * map properly covered.
+   * @private
+   */
+  CanvasLayer$1.prototype.resize_ = function() {
+    if (!this.isAdded_) {
+      return;
+    }
+
+    var map = this.getMap();
+    var mapWidth = map.getDiv().offsetWidth;
+    var mapHeight = map.getDiv().offsetHeight;
+
+    var newWidth = mapWidth * this.resolutionScale_;
+    var newHeight = mapHeight * this.resolutionScale_;
+    var oldWidth = this.canvas.width;
+    var oldHeight = this.canvas.height;
+
+    // resizing may allocate a new back buffer, so do so conservatively
+    if (oldWidth !== newWidth || oldHeight !== newHeight) {
+      this.canvas.width = newWidth;
+      this.canvas.height = newHeight;
+
+      this.needsResize_ = true;
+      this.scheduleUpdate();
+    }
+
+    // reset styling if new sizes don't match; resize of data not needed
+    if (this.canvasCssWidth_ !== mapWidth ||
+        this.canvasCssHeight_ !== mapHeight) {
+      this.canvasCssWidth_ = mapWidth;
+      this.canvasCssHeight_ = mapHeight;
+      this.canvas.style.width = mapWidth + 'px';
+      this.canvas.style.height = mapHeight + 'px';
+    }
+  };
+
+  /**
+   * @inheritDoc
+   */
+  CanvasLayer$1.prototype.draw = function() {
+    this.repositionCanvas_();
+  };
+
+  /**
+   * Internal callback for map view changes. Since the Maps API moves the overlay
+   * along with the map, this function calculates the opposite translation to
+   * keep the canvas in place.
+   * @private
+   */
+  CanvasLayer$1.prototype.repositionCanvas_ = function() {
+    // TODO(bckenny): *should* only be executed on RAF, but in current browsers
+    //     this causes noticeable hitches in map and overlay relative
+    //     positioning.
+
+    var map = this.getMap();
+
+    // topLeft can't be calculated from map.getBounds(), because bounds are
+    // clamped to -180 and 180 when completely zoomed out. Instead, calculate
+    // left as an offset from the center, which is an unwrapped LatLng.
+    var top = map.getBounds().getNorthEast().lat();
+    var center = map.getCenter();
+    var scale = Math.pow(2, map.getZoom());
+    var left = center.lng() - (this.canvasCssWidth_ * 180) / (256 * scale);
+    this.topLeft_ = new google.maps.LatLng(top, left);
+
+    // Canvas position relative to draggable map's container depends on
+    // overlayView's projection, not the map's. Have to use the center of the
+    // map for this, not the top left, for the same reason as above.
+    var projection = this.getProjection();
+    var divCenter = projection.fromLatLngToDivPixel(center);
+    var offsetX = -Math.round(this.canvasCssWidth_ / 2 - divCenter.x);
+    var offsetY = -Math.round(this.canvasCssHeight_ / 2 - divCenter.y);
+    this.canvas.style[CanvasLayer$1.CSS_TRANSFORM_] = 'translate(' +
+        offsetX + 'px,' + offsetY + 'px)';
+
+    this.scheduleUpdate();
+  };
+
+  /**
+   * Internal callback that serves as main animation scheduler via
+   * requestAnimationFrame. Calls resize and update callbacks if set, and
+   * schedules the next frame if overlay is animated.
+   * @private
+   */
+  CanvasLayer$1.prototype.update_ = function() {
+    this.requestAnimationFrameId_ = null;
+
+    if (!this.isAdded_) {
+      return;
+    }
+
+    if (this.isAnimated_) {
+      this.scheduleUpdate();
+    }
+
+    if (this.needsResize_ && this.resizeHandler_) {
+      this.needsResize_ = false;
+      this.resizeHandler_();
+    }
+
+    if (this.updateHandler_) {
+      this.updateHandler_();
+    }
+  };
+
+  /**
+   * A convenience method to get the current LatLng coordinate of the top left of
+   * the current view of the map.
+   * @return {google.maps.LatLng} The top left coordinate.
+   */
+  CanvasLayer$1.prototype.getTopLeft = function() {
+    return this.topLeft_;
+  };
+
+  /**
+   * Schedule a requestAnimationFrame callback to updateHandler. If one is
+   * already scheduled, there is no effect.
+   */
+  CanvasLayer$1.prototype.scheduleUpdate = function() {
+    if (this.isAdded_ && !this.requestAnimationFrameId_) {
+      this.requestAnimationFrameId_ =
+          this.requestAnimFrame_.call(window, this.requestUpdateFunction_);
+    }
+  };
+
+  }
+
+  function Layer$1(map, dataSet, options) {
+      var intensity = new Intensity({
+          maxSize: options.maxSize,
+          gradient: options.gradient,
+          max: options.max
+      });
+
+      var category = new Category(options.splitList);
+
+      var choropleth = new Choropleth(options.splitList);
+
+      var resolutionScale = window.devicePixelRatio || 1;
+
+      // initialize the canvasLayer
+      var canvasLayerOptions = {
+          map: map,
+          animate: false,
+          updateHandler: update,
+          resolutionScale: resolutionScale
+      };
+
+      var canvasLayer = new CanvasLayer$1(canvasLayerOptions);
+      var context = canvasLayer.canvas.getContext('2d');
+
+      function update() {
+          canvasClear(context);
+
+          for (var key in options) {
+              context[key] = options[key];
+          }
+
+          var data = dataSet.get();
+      
+          var pointCount = 0;
+          var lineCount = 0;
+          var polygonCount = 0;
+
+          /* We need to scale and translate the map for current view.
+           * see https://developers.google.com/maps/documentation/javascript/maptypes#MapCoordinates
+           */
+          var mapProjection = map.getProjection();
+
+          // scale is just 2^zoom
+          // If canvasLayer is scaled (with resolutionScale), we need to scale by
+          // the same amount to account for the larger canvas.
+          var scale = Math.pow(2, map.zoom) * resolutionScale;
+
+          var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
+
+          for (var i = 0; i < data.length; i++) {
+              var item = data[i];
+              if (data[i].geometry) {
+
+                  if (data[i].geometry.type === 'Point') {
+                      var coordinates = data[i].geometry.coordinates;
+
+                      var latLng = new google.maps.LatLng(coordinates[1], coordinates[0]);
+                      var worldPoint = mapProjection.fromLatLngToPoint(latLng);
+
+                      var pixel = {
+                          x: (worldPoint.x - offset.x) * scale,
+                          y: (worldPoint.y - offset.y) * scale,
+                      }
+
+                      data[i].geometry.coordinates = [pixel.x, pixel.y];
+                      pointCount++;
+                  }
+
+                  if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'LineString') {
+                      var coordinates = data[i].geometry.coordinates;
+                      var newCoordinates = [];
+                      for (var j = 0; j < coordinates.length; j++) {
+                          var pixel = map.pointToPixel(new BMap.Point(coordinates[j][0], coordinates[j][1]));
+                          newCoordinates.push([~~pixel.x, ~~pixel.y]);
+                      }
+                      data[i].geometry.coordinates = newCoordinates;
+                      if (data[i].geometry.type === 'Polygon') {
+                          polygonCount++;
+                      } else {
+                          lineCount++;
+                      }
+                  }
+
+                  if (options.draw == 'bubble') {
+                      data[i].size = intensity.getSize(item.count);
+                  } else if (options.draw == 'intensity') {
+                      if (data[i].geometry.type === 'LineString') {
+                          data[i].strokeStyle = intensity.getColor(item.count);
+                      } else {
+                          data[i].fillStyle = intensity.getColor(item.count);
+                      }
+                  } else if (options.draw == 'category') {
+                      data[i].fillStyle = category.get(item.count);
+                  } else if (options.draw == 'choropleth') {
+                      data[i].fillStyle = choropleth.get(item.count);
+                  }
               }
           }
 
-          
+          var maxCount = Math.max(Math.max(pointCount, lineCount), polygonCount);
+
+          if (options.draw == 'heatmap') {
+              drawHeatmap.draw(context, new DataSet(data), options);
+          } else {
+              drawSimple.draw(context, new DataSet(data), options);
+          }
 
       };
 
@@ -1307,11 +1903,9 @@
   exports.x = X;
   exports.X = X;
   exports.canvasClear = canvasClear;
-  exports.canvasPoint = point;
-  exports.canvasPolyline = polyline;
-  exports.canvasPolygon = polygon;
-  exports.canvasDrawPointSimple = drawPointSimple;
-  exports.canvasDrawPointHeatmap = drawPointHeatmap;
+  exports.canvasDrawSimple = drawSimple;
+  exports.canvasDrawHeatmap = drawHeatmap;
+  exports.canvasDrawGrid = grid;
   exports.utilCityCenter = cityCenter;
   exports.utilForceEdgeBundling = ForceEdgeBundling;
   exports.utilDataRangeIntensity = Intensity;
@@ -1319,6 +1913,8 @@
   exports.utilDataRangeChoropleth = Choropleth;
   exports.baiduMapCanvasLayer = CanvasLayer;
   exports.baiduMapLayer = Layer;
+  exports.googleMapCanvasLayer = CanvasLayer$1;
+  exports.googleMapLayer = Layer$1;
   exports.DataSet = DataSet;
 
 }));

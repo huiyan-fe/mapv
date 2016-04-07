@@ -4,4 +4,6 @@
 
 export default function (context) {
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    //context.canvas.width = context.canvas.width;
+    //context.canvas.height = context.canvas.height;
 }

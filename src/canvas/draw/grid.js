@@ -2,7 +2,7 @@
  * @author kyle / http://nikai.us/
  */
 
-import Intensity from "../../../utils/data-range/Intensity";
+import Intensity from "../../utils/data-range/Intensity";
 
 export default {
     draw: function (context, data) {
