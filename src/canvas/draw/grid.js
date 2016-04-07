@@ -5,16 +5,24 @@
 import Intensity from "../../utils/data-range/Intensity";
 
 export default {
-    draw: function (context, data) {
+    draw: function (context, dataSet, options) {
 
         context.save();
 
+        var data = dataSet.get();
+
         var grids = {};
 
-        var gridWidth = 50;
+        var gridWidth = options.gridWidth || 50;
+
+        var offset = options.offset || {
+            x: 0,
+            y: 0
+        }
 
         for (var i = 0; i < data.length; i++) {
-            var gridKey = Math.floor(data[i].x / gridWidth) + "," + Math.floor(data[i].y / gridWidth);
+            var coordinates = data[i].geometry.coordinates;
+            var gridKey = Math.floor((coordinates[0] + offset.x)/ gridWidth) + "," + Math.floor((coordinates[1] + offset.y) / gridWidth);
             if (!grids[gridKey]) {
                 grids[gridKey] = 0;
             }
@@ -25,11 +33,12 @@ export default {
             gridKey = gridKey.split(",");
 
             var intensity = new Intensity({
-                max: 100
+                max: options.max || 100,
+                gradient: options.gradient
             });
 
             context.beginPath();
-            context.rect(gridKey[0] * gridWidth + .5, gridKey[1] * gridWidth + .5, gridWidth - 1, gridWidth - 1);
+            context.rect(gridKey[0] * gridWidth + .5 - offset.x, gridKey[1] * gridWidth + .5 - offset.y, gridWidth - 1, gridWidth - 1);
             context.fillStyle = intensity.getColor(grids[gridKey]);
             context.fill();
         }

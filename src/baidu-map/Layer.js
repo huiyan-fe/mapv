@@ -6,6 +6,7 @@ import CanvasLayer from "./CanvasLayer";
 import canvasClear from "../canvas/clear";
 import drawHeatmap from "../canvas/draw/heatmap";
 import drawSimple from "../canvas/draw/simple";
+import drawGrid from "../canvas/draw/grid";
 import DataSet from "../data/DataSet";
 import Intensity from "../utils/data-range/Intensity";
 import Category from "../utils/data-range/Category";
@@ -34,6 +35,9 @@ function Layer(map, dataSet, options) {
         for (var key in options) {
             context[key] = options[key];
         }
+
+        var zoomUnit = Math.pow(2, 18 - map.getZoom());
+        var projection = map.getMapType().getProjection();
 
         var data = dataSet.get();
     
@@ -87,6 +91,17 @@ function Layer(map, dataSet, options) {
 
         if (options.draw == 'heatmap') {
             drawHeatmap.draw(context, new DataSet(data), options);
+        } else if (options.draw == 'grid') {
+            var bounds = map.getBounds();
+            var sw = bounds.getSouthWest();
+            var ne = bounds.getNorthEast();
+            var pixel = projection.lngLatToPoint(new BMap.Point(sw.lng, ne.lat));
+            options.gridWidth = options.gridWidth || 50;
+            options.offset = {
+                x: pixel.x / zoomUnit % options.gridWidth,
+                y: options.gridWidth - pixel.y / zoomUnit % options.gridWidth
+            };
+            drawGrid.draw(context, new DataSet(data), options);
         } else {
             drawSimple.draw(context, new DataSet(data), options);
         }

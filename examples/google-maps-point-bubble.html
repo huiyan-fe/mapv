@@ -28,6 +28,29 @@
     <script type="text/javascript" src="../build/mapv.js"></script>
 
     <script type="text/javascript">
+        // Specify features and elements to define styles.
+        var styleArray = [
+            {
+              featureType: "all",
+              stylers: [
+               { saturation: -80 }
+              ]
+            },{
+              featureType: "road.arterial",
+              elementType: "geometry",
+              stylers: [
+                { hue: "#00ffee" },
+                { saturation: 50 }
+              ]
+            },{
+              featureType: "poi.business",
+              elementType: "labels",
+              stylers: [
+                { visibility: "off" }
+              ]
+            }
+        ];
+
 
         // Create a map object and specify the DOM element for display.
         var map = new google.maps.Map(document.getElementById('map'), {
@@ -55,6 +78,7 @@
         var options = {
             fillStyle: 'rgba(255, 50, 50, 0.5)',
             maxSize: 80,
+            styles: styleArray,
             draw: 'bubble'
         }
 

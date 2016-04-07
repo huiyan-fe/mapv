@@ -32,25 +32,16 @@
 
         var ctx = canvas.getContext('2d');
 
-        var data = [
-            {
-                x: 50,
-                y: 50,
-                count: 20
-            },
-            {
-                x: 200,
-                y: 180,
-                count: 10
-            }
-        ];
+        var data = [];
 
         var randomCount = parseInt(canvas.width * canvas.height / 2000);
 
         while (randomCount--) {
             data.push({
-                x: ctx.canvas.width * Math.random(),
-                y: ctx.canvas.height * Math.random(),
+                geometry: {
+                    type: 'Point',
+                    coordinates: [ctx.canvas.width * Math.random(), ctx.canvas.height * Math.random()]
+                },
                 count: Math.random() * 50
             });
         }
@@ -61,10 +52,30 @@
             globalCompositeOperation: 'lighter',
             lineWidth: 0.5,
             shadowBlur: 2,
+            max: 50,
+            gradient: {
+                0: 'yellow',
+                1: 'red'
+            },
+            offset: {
+                x: 20,
+                y: 20
+            },
             draw: 'grid'
         }
 
-        mapv.canvasDrawGrid.draw(ctx, data, options);
+        var dataSet = new mapv.DataSet(data);
+        mapv.canvasDrawGrid.draw(ctx, dataSet, options);
+
+        var options = {
+            fillStyle: 'rgba(55, 50, 250, 0.8)',
+            shadowColor: 'rgba(55, 50, 250, 0.8)',
+            shadowBlur: 10,
+            size: 2,
+            draw: 'simple'
+        }
+
+        mapv.canvasDrawSimple.draw(ctx, dataSet, options);
 
     </script>
 	

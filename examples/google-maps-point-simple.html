@@ -29,6 +29,28 @@
 
     <script type="text/javascript">
 
+        var customMapType = new google.maps.StyledMapType([
+            {
+                stylers: [
+                  {hue: '#890000'},
+                  {visibility: 'simplified'},
+                  {gamma: 0.5},
+                  {weight: 0.5}
+                ]
+            },
+            {
+                elementType: 'labels',
+                stylers: [{visibility: 'off'}]
+            },
+            {
+                featureType: 'water',
+                stylers: [{color: '#890000'}]
+            }
+        ], {
+            name: 'Custom Style'
+        });
+        var customMapTypeId = 'custom_style';
+
         // Create a map object and specify the DOM element for display.
         var map = new google.maps.Map(document.getElementById('map'), {
             center: new google.maps.LatLng(39.3, -95.8),
@@ -36,9 +58,12 @@
             zoom: 3
         });
 
+        map.mapTypes.set(customMapTypeId, customMapType);
+        map.setMapTypeId(customMapTypeId);
+
         var resolutionScale = window.devicePixelRatio || 1;
 
-        var randomCount = 300;
+        var randomCount = 500;
         var data = [];
         while (randomCount--) {
             data.push({
@@ -53,7 +78,9 @@
         var dataSet = new mapv.DataSet(data);
 
         var options = {
-            fillStyle: 'rgba(55, 50, 250, 0.8)',
+            fillStyle: 'rgba(255, 250, 50, 0.7)',
+            shadowColor: 'rgba(255, 255, 50, 1)',
+            shadowBlur: 10,
             size: 3,
             draw: 'simple'
         }
