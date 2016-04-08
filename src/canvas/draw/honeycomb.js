@@ -25,9 +25,6 @@ export default {
             y: 0
         }
 
-        var width = context.canvas.width + 100;
-        var height = context.canvas.height + 100;
-
         //The maximum radius the hexagons can have to still fit the screen
         var r = options.size || 40;
         var dx = r * 2 * Math.sin(Math.PI / 3);
@@ -59,16 +56,16 @@ export default {
                 bin.y = pj * dy;
             }
         }
+
+        var intensity = new Intensity({
+            max: options.max || 100,
+            gradient: options.gradient
+        });
          
-        console.log(binsById);
+
         for (var key in binsById) {
 
             var item = binsById[key];
-
-            var intensity = new Intensity({
-                max: options.max || 100,
-                gradient: options.gradient
-            });
 
             context.beginPath();
 
