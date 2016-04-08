@@ -8,6 +8,7 @@ export {default as canvasClear} from "./src/canvas/clear";
 export {default as canvasDrawSimple} from "./src/canvas/draw/simple";
 export {default as canvasDrawHeatmap} from "./src/canvas/draw/heatmap";
 export {default as canvasDrawGrid} from "./src/canvas/draw/grid";
+export {default as canvasDrawHoneycomb} from "./src/canvas/draw/honeycomb";
 
 export {default as utilCityCenter} from "./src/utils/cityCenter";
 export {default as utilForceEdgeBundling} from "./src/utils/forceEdgeBundling";
