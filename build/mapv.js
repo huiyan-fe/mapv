@@ -442,7 +442,7 @@
       return [center.x + size * Math.cos(angle_rad), center.y + size * Math.sin(angle_rad)];
   }
 
-  var honeycomb = {
+  var drawHoneycomb = {
       draw: function (context, dataSet, options) {
 
           context.save();
@@ -1330,6 +1330,8 @@
                   y: options.gridWidth - pixel.y / zoomUnit % options.gridWidth
               };
               drawGrid.draw(context, new DataSet(data), options);
+          } else if (options.draw == 'honeycomb') {
+              drawHoneycomb.draw(context, new DataSet(data), options);
           } else {
               drawSimple.draw(context, new DataSet(data), options);
           }
@@ -2008,7 +2010,7 @@
   exports.canvasDrawSimple = drawSimple;
   exports.canvasDrawHeatmap = drawHeatmap;
   exports.canvasDrawGrid = drawGrid;
-  exports.canvasDrawHoneycomb = honeycomb;
+  exports.canvasDrawHoneycomb = drawHoneycomb;
   exports.utilCityCenter = cityCenter;
   exports.utilForceEdgeBundling = ForceEdgeBundling;
   exports.utilDataRangeIntensity = Intensity;
