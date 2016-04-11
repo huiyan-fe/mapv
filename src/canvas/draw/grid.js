@@ -22,7 +22,7 @@ export default {
 
         for (var i = 0; i < data.length; i++) {
             var coordinates = data[i].geometry.coordinates;
-            var gridKey = Math.floor((coordinates[0] + offset.x)/ gridWidth) + "," + Math.floor((coordinates[1] + offset.y) / gridWidth);
+            var gridKey = Math.floor((coordinates[0] - offset.x)/ gridWidth) + "," + Math.floor((coordinates[1] - offset.y) / gridWidth);
             if (!grids[gridKey]) {
                 grids[gridKey] = 0;
             }
@@ -38,7 +38,7 @@ export default {
             });
 
             context.beginPath();
-            context.rect(gridKey[0] * gridWidth + .5 - offset.x, gridKey[1] * gridWidth + .5 - offset.y, gridWidth - 1, gridWidth - 1);
+            context.rect(gridKey[0] * gridWidth + .5 + offset.x, gridKey[1] * gridWidth + .5 + offset.y, gridWidth - 1, gridWidth - 1);
             context.fillStyle = intensity.getColor(grids[gridKey]);
             context.fill();
         }

@@ -6,6 +6,7 @@ import clear from "../canvas/clear";
 import drawHeatmap from "../canvas/draw/heatmap";
 import drawSimple from "../canvas/draw/simple";
 import drawHoneycomb from "../canvas/draw/honeycomb";
+import drawGrid from "../canvas/draw/grid";
 import DataSet from "../data/DataSet";
 import CanvasLayer from "./CanvasLayer";
 import Intensity from "../utils/data-range/Intensity";
@@ -115,8 +116,31 @@ function Layer(map, dataSet, options) {
 
         if (options.draw == 'heatmap') {
             drawHeatmap.draw(context, new DataSet(data), options);
-        } else if (options.draw == 'honeycomb') {
-            drawHoneycomb.draw(context, new DataSet(data), options);
+        } else if (options.draw == 'grid' || options.draw == 'honeycomb') {
+            var data1 = dataSet.get();
+            var minx = data1[0].geometry.coordinates[0];
+            var maxy = data1[0].geometry.coordinates[1];
+            for (var i = 1; i < data1.length; i++) {
+                if (data1[i].geometry.coordinates[0] < minx) {
+                    minx = data1[i].geometry.coordinates[0];
+                }
+                if (data1[i].geometry.coordinates[1] > maxy) {
+                    maxy = data1[i].geometry.coordinates[1];
+                }
+            }
+
+            var latLng = new google.maps.LatLng(minx, maxy);
+            var worldPoint = mapProjection.fromLatLngToPoint(latLng);
+
+            options.offset = {
+                x: (worldPoint.x - offset.x) * scale,
+                y: (worldPoint.y - offset.y) * scale 
+            };
+            if (options.draw == 'grid') {
+                drawGrid.draw(context, new DataSet(data), options);
+            } else {
+                drawHoneycomb.draw(context, new DataSet(data), options);
+            }
         } else {
             drawSimple.draw(context, new DataSet(data), options);
         }

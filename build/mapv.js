@@ -424,7 +424,7 @@
 
           for (var i = 0; i < data.length; i++) {
               var coordinates = data[i].geometry.coordinates;
-              var gridKey = Math.floor((coordinates[0] + offset.x)/ gridWidth) + "," + Math.floor((coordinates[1] + offset.y) / gridWidth);
+              var gridKey = Math.floor((coordinates[0] - offset.x)/ gridWidth) + "," + Math.floor((coordinates[1] - offset.y) / gridWidth);
               if (!grids[gridKey]) {
                   grids[gridKey] = 0;
               }
@@ -440,7 +440,7 @@
               });
 
               context.beginPath();
-              context.rect(gridKey[0] * gridWidth + .5 - offset.x, gridKey[1] * gridWidth + .5 - offset.y, gridWidth - 1, gridWidth - 1);
+              context.rect(gridKey[0] * gridWidth + .5 + offset.x, gridKey[1] * gridWidth + .5 + offset.y, gridWidth - 1, gridWidth - 1);
               context.fillStyle = intensity.getColor(grids[gridKey]);
               context.fill();
           }
@@ -1343,32 +1343,13 @@
 
           if (options.draw == 'heatmap') {
               drawHeatmap.draw(context, new DataSet(data), options);
-          } else if (options.draw == 'grid') {
-              var bounds = map.getBounds();
-              var sw = bounds.getSouthWest();
-              var ne = bounds.getNorthEast();
-              var pixel = projection.lngLatToPoint(new BMap.Point(sw.lng, ne.lat));
-              options.gridWidth = options.gridWidth || 50;
-              options.offset = {
-                  x: pixel.x / zoomUnit % options.gridWidth,
-                  y: options.gridWidth - pixel.y / zoomUnit % options.gridWidth
-              };
-              drawGrid.draw(context, new DataSet(data), options);
-          } else if (options.draw == 'honeycomb') {
+          } else if (options.draw == 'grid' || options.draw == 'honeycomb') {
               var data1 = dataSet.get();
               var minx = data1[0].geometry.coordinates[0];
-              var miny = data1[0].geometry.coordinates[1];
-              var maxx = data1[0].geometry.coordinates[0];
               var maxy = data1[0].geometry.coordinates[1];
               for (var i = 1; i < data1.length; i++) {
                   if (data1[i].geometry.coordinates[0] < minx) {
                       minx = data1[i].geometry.coordinates[0];
-                  }
-                  if (data1[i].geometry.coordinates[1] < miny) {
-                      miny = data1[i].geometry.coordinates[1];
-                  }
-                  if (data1[i].geometry.coordinates[0] > maxx) {
-                      maxx = data1[i].geometry.coordinates[0];
                   }
                   if (data1[i].geometry.coordinates[1] > maxy) {
                       maxy = data1[i].geometry.coordinates[1];
@@ -1379,7 +1360,11 @@
                   x: nwPixel.x,
                   y: nwPixel.y 
               };
-              drawHoneycomb.draw(context, new DataSet(data), options);
+              if (options.draw == 'grid') {
+                  drawGrid.draw(context, new DataSet(data), options);
+              } else {
+                  drawHoneycomb.draw(context, new DataSet(data), options);
+              }
           } else {
               drawSimple.draw(context, new DataSet(data), options);
           }
@@ -2043,8 +2028,31 @@
 
           if (options.draw == 'heatmap') {
               drawHeatmap.draw(context, new DataSet(data), options);
-          } else if (options.draw == 'honeycomb') {
-              drawHoneycomb.draw(context, new DataSet(data), options);
+          } else if (options.draw == 'grid' || options.draw == 'honeycomb') {
+              var data1 = dataSet.get();
+              var minx = data1[0].geometry.coordinates[0];
+              var maxy = data1[0].geometry.coordinates[1];
+              for (var i = 1; i < data1.length; i++) {
+                  if (data1[i].geometry.coordinates[0] < minx) {
+                      minx = data1[i].geometry.coordinates[0];
+                  }
+                  if (data1[i].geometry.coordinates[1] > maxy) {
+                      maxy = data1[i].geometry.coordinates[1];
+                  }
+              }
+
+              var latLng = new google.maps.LatLng(minx, maxy);
+              var worldPoint = mapProjection.fromLatLngToPoint(latLng);
+
+              options.offset = {
+                  x: (worldPoint.x - offset.x) * scale,
+                  y: (worldPoint.y - offset.y) * scale 
+              };
+              if (options.draw == 'grid') {
+                  drawGrid.draw(context, new DataSet(data), options);
+              } else {
+                  drawHoneycomb.draw(context, new DataSet(data), options);
+              }
           } else {
               drawSimple.draw(context, new DataSet(data), options);
           }

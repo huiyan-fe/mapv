@@ -92,32 +92,13 @@ function Layer(map, dataSet, options) {
 
         if (options.draw == 'heatmap') {
             drawHeatmap.draw(context, new DataSet(data), options);
-        } else if (options.draw == 'grid') {
-            var bounds = map.getBounds();
-            var sw = bounds.getSouthWest();
-            var ne = bounds.getNorthEast();
-            var pixel = projection.lngLatToPoint(new BMap.Point(sw.lng, ne.lat));
-            options.gridWidth = options.gridWidth || 50;
-            options.offset = {
-                x: pixel.x / zoomUnit % options.gridWidth,
-                y: options.gridWidth - pixel.y / zoomUnit % options.gridWidth
-            };
-            drawGrid.draw(context, new DataSet(data), options);
-        } else if (options.draw == 'honeycomb') {
+        } else if (options.draw == 'grid' || options.draw == 'honeycomb') {
             var data1 = dataSet.get();
             var minx = data1[0].geometry.coordinates[0];
-            var miny = data1[0].geometry.coordinates[1];
-            var maxx = data1[0].geometry.coordinates[0];
             var maxy = data1[0].geometry.coordinates[1];
             for (var i = 1; i < data1.length; i++) {
                 if (data1[i].geometry.coordinates[0] < minx) {
                     minx = data1[i].geometry.coordinates[0];
-                }
-                if (data1[i].geometry.coordinates[1] < miny) {
-                    miny = data1[i].geometry.coordinates[1];
-                }
-                if (data1[i].geometry.coordinates[0] > maxx) {
-                    maxx = data1[i].geometry.coordinates[0];
                 }
                 if (data1[i].geometry.coordinates[1] > maxy) {
                     maxy = data1[i].geometry.coordinates[1];
@@ -128,7 +109,11 @@ function Layer(map, dataSet, options) {
                 x: nwPixel.x,
                 y: nwPixel.y 
             };
-            drawHoneycomb.draw(context, new DataSet(data), options);
+            if (options.draw == 'grid') {
+                drawGrid.draw(context, new DataSet(data), options);
+            } else {
+                drawHoneycomb.draw(context, new DataSet(data), options);
+            }
         } else {
             drawSimple.draw(context, new DataSet(data), options);
         }
