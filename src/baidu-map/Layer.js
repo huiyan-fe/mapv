@@ -3,7 +3,7 @@
  */
 
 import CanvasLayer from "./CanvasLayer";
-import canvasClear from "../canvas/clear";
+import clear from "../canvas/clear";
 import drawHeatmap from "../canvas/draw/heatmap";
 import drawSimple from "../canvas/draw/simple";
 import drawGrid from "../canvas/draw/grid";
@@ -31,7 +31,7 @@ function Layer(map, dataSet, options) {
 
     function update() {
         var context = this.canvas.getContext("2d");
-        canvasClear(context);
+        clear(context);
 
         for (var key in options) {
             context[key] = options[key];
@@ -104,6 +104,30 @@ function Layer(map, dataSet, options) {
             };
             drawGrid.draw(context, new DataSet(data), options);
         } else if (options.draw == 'honeycomb') {
+            var data1 = dataSet.get();
+            var minx = data1[0].geometry.coordinates[0];
+            var miny = data1[0].geometry.coordinates[1];
+            var maxx = data1[0].geometry.coordinates[0];
+            var maxy = data1[0].geometry.coordinates[1];
+            for (var i = 1; i < data1.length; i++) {
+                if (data1[i].geometry.coordinates[0] < minx) {
+                    minx = data1[i].geometry.coordinates[0];
+                }
+                if (data1[i].geometry.coordinates[1] < miny) {
+                    miny = data1[i].geometry.coordinates[1];
+                }
+                if (data1[i].geometry.coordinates[0] > maxx) {
+                    maxx = data1[i].geometry.coordinates[0];
+                }
+                if (data1[i].geometry.coordinates[1] > maxy) {
+                    maxy = data1[i].geometry.coordinates[1];
+                }
+            }
+            var nwPixel = map.pointToPixel(new BMap.Point(minx, maxy));
+            options.offset = {
+                x: nwPixel.x,
+                y: nwPixel.y 
+            };
             drawHoneycomb.draw(context, new DataSet(data), options);
         } else {
             drawSimple.draw(context, new DataSet(data), options);

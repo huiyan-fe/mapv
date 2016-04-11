@@ -32,6 +32,8 @@
 
         var ctx = canvas.getContext('2d');
 
+        mapv.canvasResolutionScale(ctx);
+
         var data = [];
 
         var randomCount = parseInt(canvas.width * canvas.height / 2000);
@@ -47,11 +49,8 @@
         }
 
         var options = {
-            fillStyle: 'rgba(55, 50, 250, 0.3)',
-            shadowColor: 'rgba(55, 50, 250, 0.3)',
-            globalCompositeOperation: 'lighter',
-            lineWidth: 0.5,
-            shadowBlur: 2,
+            strokeStyle: 'rgba(55, 50, 250, 0.3)',
+            lineWidth: 1,
             max: 10,
             size: 30,
             gradient: {

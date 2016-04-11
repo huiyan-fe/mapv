@@ -4,6 +4,7 @@ export {default as x} from "./src/3d/index"
 export {default as X} from "./src/3d/index"
 
 export {default as canvasClear} from "./src/canvas/clear";
+export {default as canvasResolutionScale} from "./src/canvas/resolutionScale";
 
 export {default as canvasDrawSimple} from "./src/canvas/draw/simple";
 export {default as canvasDrawHeatmap} from "./src/canvas/draw/heatmap";

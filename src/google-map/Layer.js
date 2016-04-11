@@ -2,9 +2,10 @@
  * @author kyle / http://nikai.us/
  */
 
-import canvasClear from "../canvas/clear";
+import clear from "../canvas/clear";
 import drawHeatmap from "../canvas/draw/heatmap";
 import drawSimple from "../canvas/draw/simple";
+import drawHoneycomb from "../canvas/draw/honeycomb";
 import DataSet from "../data/DataSet";
 import CanvasLayer from "./CanvasLayer";
 import Intensity from "../utils/data-range/Intensity";
@@ -36,7 +37,7 @@ function Layer(map, dataSet, options) {
     var context = canvasLayer.canvas.getContext('2d');
 
     function update() {
-        canvasClear(context);
+        clear(context);
 
         for (var key in options) {
             context[key] = options[key];
@@ -114,6 +115,8 @@ function Layer(map, dataSet, options) {
 
         if (options.draw == 'heatmap') {
             drawHeatmap.draw(context, new DataSet(data), options);
+        } else if (options.draw == 'honeycomb') {
+            drawHoneycomb.draw(context, new DataSet(data), options);
         } else {
             drawSimple.draw(context, new DataSet(data), options);
         }
