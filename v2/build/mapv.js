@@ -111,10 +111,23 @@
    * @author kyle / http://nikai.us/
    */
 
-  function canvasClear (context) {
+  function clear (context) {
       context.clearRect(0, 0, context.canvas.width, context.canvas.height);
       //context.canvas.width = context.canvas.width;
       //context.canvas.height = context.canvas.height;
+  }
+
+  /**
+   * @author kyle / http://nikai.us/
+   */
+
+  function resolutionScale (context) {
+      var devicePixelRatio = window.devicePixelRatio;
+      context.canvas.width = context.canvas.width * devicePixelRatio;
+      context.canvas.height = context.canvas.height * devicePixelRatio;
+      context.canvas.style.width = context.canvas.width / devicePixelRatio + 'px';
+      context.canvas.style.height = context.canvas.height / devicePixelRatio  + 'px';
+      context.scale(devicePixelRatio, devicePixelRatio);
   }
 
   /**
@@ -161,14 +174,14 @@
   var drawSimple = {
       draw: function (context, dataSet, options) {
 
+          context.save();
+
           for (var key in options) {
               context[key] = options[key];
           }
 
           var data = dataSet.get();
           
-          context.save();
-
           for (var i = 0, len = data.length; i < len; i++) {
 
               var item = data[i];
@@ -411,7 +424,7 @@
 
           for (var i = 0; i < data.length; i++) {
               var coordinates = data[i].geometry.coordinates;
-              var gridKey = Math.floor((coordinates[0] + offset.x)/ gridWidth) + "," + Math.floor((coordinates[1] + offset.y) / gridWidth);
+              var gridKey = Math.floor((coordinates[0] - offset.x)/ gridWidth) + "," + Math.floor((coordinates[1] - offset.y) / gridWidth);
               if (!grids[gridKey]) {
                   grids[gridKey] = 0;
               }
@@ -427,7 +440,7 @@
               });
 
               context.beginPath();
-              context.rect(gridKey[0] * gridWidth + .5 - offset.x, gridKey[1] * gridWidth + .5 - offset.y, gridWidth - 1, gridWidth - 1);
+              context.rect(gridKey[0] * gridWidth + .5 + offset.x, gridKey[1] * gridWidth + .5 + offset.y, gridWidth - 1, gridWidth - 1);
               context.fillStyle = intensity.getColor(grids[gridKey]);
               context.fill();
           }
@@ -447,6 +460,12 @@
 
           context.save();
 
+          for (var key in options) {
+              context[key] = options[key];
+          }
+
+          var data = dataSet.get();
+
           var data = dataSet.get();
 
           var grids = {};
@@ -454,12 +473,13 @@
           var gridWidth = options.gridWidth || 1;
 
           var offset = options.offset || {
-              x: 0,
-              y: 0
+              x: 10,
+              y: 10 
           }
 
           //The maximum radius the hexagons can have to still fit the screen
           var r = options.size || 40;
+
           var dx = r * 2 * Math.sin(Math.PI / 3);
           var dy = r * 1.5;
 
@@ -467,8 +487,8 @@
 
           for (var i = 0; i < data.length; i++) {
               var coordinates = data[i].geometry.coordinates;
-              var py = coordinates[1]  / dy, pj = Math.round(py),
-                  px = coordinates[0] / dx - (pj & 1 ? .5 : 0), pi = Math.round(px),
+              var py = (coordinates[1] - offset.y)  / dy, pj = Math.round(py),
+                  px = (coordinates[0] - offset.x) / dx - (pj & 1 ? .5 : 0), pi = Math.round(px),
                   py1 = py - pj;
 
               if (Math.abs(py1) * 3 > 1) {
@@ -503,12 +523,16 @@
               context.beginPath();
 
               for (var j = 0; j < 6; j++) {
-                  var result = hex_corner({x: item.x, y: item.y}, r, j);
-                  context.lineTo(result[0], result[1], 5, 5);
+                  var result = hex_corner({x: item.x + offset.x, y: item.y + offset.y}, r, j);
+                  context.lineTo(result[0], result[1]);
               }
+              context.closePath();
 
               context.fillStyle = intensity.getColor(item.length);
               context.fill();
+              if (options.strokeStyle) {
+                  context.stroke();
+              }
           }
 
           context.restore();
@@ -1258,7 +1282,7 @@
 
       function update() {
           var context = this.canvas.getContext("2d");
-          canvasClear(context);
+          clear(context);
 
           for (var key in options) {
               context[key] = options[key];
@@ -1319,19 +1343,28 @@
 
           if (options.draw == 'heatmap') {
               drawHeatmap.draw(context, new DataSet(data), options);
-          } else if (options.draw == 'grid') {
-              var bounds = map.getBounds();
-              var sw = bounds.getSouthWest();
-              var ne = bounds.getNorthEast();
-              var pixel = projection.lngLatToPoint(new BMap.Point(sw.lng, ne.lat));
-              options.gridWidth = options.gridWidth || 50;
+          } else if (options.draw == 'grid' || options.draw == 'honeycomb') {
+              var data1 = dataSet.get();
+              var minx = data1[0].geometry.coordinates[0];
+              var maxy = data1[0].geometry.coordinates[1];
+              for (var i = 1; i < data1.length; i++) {
+                  if (data1[i].geometry.coordinates[0] < minx) {
+                      minx = data1[i].geometry.coordinates[0];
+                  }
+                  if (data1[i].geometry.coordinates[1] > maxy) {
+                      maxy = data1[i].geometry.coordinates[1];
+                  }
+              }
+              var nwPixel = map.pointToPixel(new BMap.Point(minx, maxy));
               options.offset = {
-                  x: pixel.x / zoomUnit % options.gridWidth,
-                  y: options.gridWidth - pixel.y / zoomUnit % options.gridWidth
+                  x: nwPixel.x,
+                  y: nwPixel.y 
               };
-              drawGrid.draw(context, new DataSet(data), options);
-          } else if (options.draw == 'honeycomb') {
-              drawHoneycomb.draw(context, new DataSet(data), options);
+              if (options.draw == 'grid') {
+                  drawGrid.draw(context, new DataSet(data), options);
+              } else {
+                  drawHoneycomb.draw(context, new DataSet(data), options);
+              }
           } else {
               drawSimple.draw(context, new DataSet(data), options);
           }
@@ -1917,7 +1950,7 @@
       var context = canvasLayer.canvas.getContext('2d');
 
       function update() {
-          canvasClear(context);
+          clear(context);
 
           for (var key in options) {
               context[key] = options[key];
@@ -1995,6 +2028,31 @@
 
           if (options.draw == 'heatmap') {
               drawHeatmap.draw(context, new DataSet(data), options);
+          } else if (options.draw == 'grid' || options.draw == 'honeycomb') {
+              var data1 = dataSet.get();
+              var minx = data1[0].geometry.coordinates[0];
+              var maxy = data1[0].geometry.coordinates[1];
+              for (var i = 1; i < data1.length; i++) {
+                  if (data1[i].geometry.coordinates[0] < minx) {
+                      minx = data1[i].geometry.coordinates[0];
+                  }
+                  if (data1[i].geometry.coordinates[1] > maxy) {
+                      maxy = data1[i].geometry.coordinates[1];
+                  }
+              }
+
+              var latLng = new google.maps.LatLng(minx, maxy);
+              var worldPoint = mapProjection.fromLatLngToPoint(latLng);
+
+              options.offset = {
+                  x: (worldPoint.x - offset.x) * scale,
+                  y: (worldPoint.y - offset.y) * scale 
+              };
+              if (options.draw == 'grid') {
+                  drawGrid.draw(context, new DataSet(data), options);
+              } else {
+                  drawHoneycomb.draw(context, new DataSet(data), options);
+              }
           } else {
               drawSimple.draw(context, new DataSet(data), options);
           }
@@ -2006,7 +2064,8 @@
   exports.version = version;
   exports.x = X;
   exports.X = X;
-  exports.canvasClear = canvasClear;
+  exports.canvasClear = clear;
+  exports.canvasResolutionScale = resolutionScale;
   exports.canvasDrawSimple = drawSimple;
   exports.canvasDrawHeatmap = drawHeatmap;
   exports.canvasDrawGrid = drawGrid;
