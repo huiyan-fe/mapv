@@ -512,9 +512,9 @@
 
           var intensity = new Intensity({
               max: options.max || 100,
+              maxSize: r,
               gradient: options.gradient
           });
-           
 
           for (var key in binsById) {
 
@@ -523,12 +523,22 @@
               context.beginPath();
 
               for (var j = 0; j < 6; j++) {
-                  var result = hex_corner({x: item.x + offset.x, y: item.y + offset.y}, r, j);
+
+                  var radius = r;
+
+                  //radius = intensity.getSize(count);
+
+                  var result = hex_corner({x: item.x + offset.x, y: item.y + offset.y}, radius, j);
                   context.lineTo(result[0], result[1]);
               }
               context.closePath();
 
-              context.fillStyle = intensity.getColor(item.length);
+              var count = 0;
+              for (var i = 0; i < item.length; i++) {
+                  count += item[i].count || 1;
+              }
+
+              context.fillStyle = intensity.getColor(count);
               context.fill();
               if (options.strokeStyle) {
                   context.stroke();
