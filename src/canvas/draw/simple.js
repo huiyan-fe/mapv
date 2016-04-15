@@ -35,16 +35,14 @@ export default {
 
             pathSimple.draw(context, item, options);
 
-            if (type == 'Point' || type == 'Polygon') {
+            if (type == 'Point' || type == 'Polygon' || type == 'MultiPolygon') {
 
                 context.fill();
 
                 if (item.strokeStyle || options.strokeStyle) {
                     context.stroke();
                 }
-            }
-
-            if (type == 'LineString') {
+            } else if (type == 'LineString') {
                 context.stroke();
             }
 

@@ -57,7 +57,30 @@ function Layer(map, dataSet, options) {
                     pointCount++;
                 }
 
-                if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'LineString') {
+                if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'MultiPolygon') {
+
+                    var coordinates = data[i].geometry.coordinates;
+
+                    if (data[i].geometry.type === 'Polygon') {
+
+                        var newCoordinates = getPolygon(coordinates);
+                        data[i].geometry.coordinates = newCoordinates;
+
+                    } else if (data[i].geometry.type === 'MultiPolygon') {
+                        var newCoordinates = [];
+                        for (var c = 0; c < coordinates.length; c++) {
+                            var polygon = coordinates[c];
+                            var polygon = getPolygon(polygon);
+                            newCoordinates.push(polygon);
+                        }
+
+                        data[i].geometry.coordinates = newCoordinates;
+                    }
+
+                    polygonCount++;
+                }
+
+                if (data[i].geometry.type === 'LineString') {
                     var coordinates = data[i].geometry.coordinates;
                     var newCoordinates = [];
                     for (var j = 0; j < coordinates.length; j++) {
@@ -65,11 +88,7 @@ function Layer(map, dataSet, options) {
                         newCoordinates.push([~~pixel.x, ~~pixel.y]);
                     }
                     data[i].geometry.coordinates = newCoordinates;
-                    if (data[i].geometry.type === 'Polygon') {
-                        polygonCount++;
-                    } else {
-                        lineCount++;
-                    }
+                    lineCount++;
                 }
 
                 if (options.draw == 'bubble') {
@@ -122,4 +141,19 @@ function Layer(map, dataSet, options) {
 
 }
 
+function getPolygon(coordinates) {
+    var newCoordinates = [];
+    for (var c = 0; c < coordinates.length; c++) {
+        var coordinate = coordinates[c];
+        var newcoordinate = [];
+        for (var j = 0; j < coordinate.length; j++) {
+            var pixel = map.pointToPixel(new BMap.Point(coordinate[j][0], coordinate[j][1]));
+            newcoordinate.push([~~pixel.x, ~~pixel.y]);
+        }
+        newCoordinates.push(newcoordinate);
+    }
+    return newCoordinates;
+}
+
 export default Layer;
+
