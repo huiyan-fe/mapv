@@ -147,26 +147,42 @@
               var size = data.size || options.size || 5;
               context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
 
-          }
-
-          if (type == 'LineString') {
+          } else if (type == 'LineString') {
 
               context.moveTo(coordinates[0][0], coordinates[0][1]);
               for (var j = 1; j < coordinates.length; j++) {
                   context.lineTo(coordinates[j][0], coordinates[j][1]);
               }
 
-          }
+          } else if (type == 'Polygon') {
 
-          if (type == 'Polygon') {
-
-              context.moveTo(coordinates[0][0], coordinates[0][1]);
-              for (var j = 1; j < coordinates.length; j++) {
-                  context.lineTo(coordinates[j][0], coordinates[j][1]);
-              }
+              this.drawPolygon(context, coordinates);
               context.closePath();
 
+          } else if (type == 'MultiPolygon') {
+              for (var i = 0; i < coordinates.length; i++) {
+                  var polygon = coordinates[i];
+                  this.drawPolygon(context, polygon);
+              }
+              context.closePath();
+          } else {
+              console.log('type' + type + 'is not support now!');
           }
+      },
+
+      drawPolygon: function (context, coordinates) {
+
+          for (var i = 0; i < coordinates.length; i++) {
+
+              var coordinate = coordinates[i];
+
+              context.moveTo(coordinate[0][0], coordinate[0][1]);
+              for (var j = 1; j < coordinate.length; j++) {
+                  context.lineTo(coordinate[j][0], coordinate[j][1]);
+              }
+              context.moveTo(coordinate[0][0], coordinate[0][1]);
+          }
+
       }
 
   }
@@ -202,16 +218,14 @@
 
               pathSimple.draw(context, item, options);
 
-              if (type == 'Point' || type == 'Polygon') {
+              if (type == 'Point' || type == 'Polygon' || type == 'MultiPolygon') {
 
                   context.fill();
 
                   if (item.strokeStyle || options.strokeStyle) {
                       context.stroke();
                   }
-              }
-
-              if (type == 'LineString') {
+              } else if (type == 'LineString') {
                   context.stroke();
               }
 
@@ -512,9 +526,9 @@
 
           var intensity = new Intensity({
               max: options.max || 100,
+              maxSize: r,
               gradient: options.gradient
           });
-           
 
           for (var key in binsById) {
 
@@ -523,12 +537,22 @@
               context.beginPath();
 
               for (var j = 0; j < 6; j++) {
-                  var result = hex_corner({x: item.x + offset.x, y: item.y + offset.y}, r, j);
+
+                  var radius = r;
+
+                  //radius = intensity.getSize(count);
+
+                  var result = hex_corner({x: item.x + offset.x, y: item.y + offset.y}, radius, j);
                   context.lineTo(result[0], result[1]);
               }
               context.closePath();
 
-              context.fillStyle = intensity.getColor(item.length);
+              var count = 0;
+              for (var i = 0; i < item.length; i++) {
+                  count += item[i].count || 1;
+              }
+
+              context.fillStyle = intensity.getColor(count);
               context.fill();
               if (options.strokeStyle) {
                   context.stroke();
@@ -1308,7 +1332,30 @@
                       pointCount++;
                   }
 
-                  if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'LineString') {
+                  if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'MultiPolygon') {
+
+                      var coordinates = data[i].geometry.coordinates;
+
+                      if (data[i].geometry.type === 'Polygon') {
+
+                          var newCoordinates = getPolygon(coordinates);
+                          data[i].geometry.coordinates = newCoordinates;
+
+                      } else if (data[i].geometry.type === 'MultiPolygon') {
+                          var newCoordinates = [];
+                          for (var c = 0; c < coordinates.length; c++) {
+                              var polygon = coordinates[c];
+                              var polygon = getPolygon(polygon);
+                              newCoordinates.push(polygon);
+                          }
+
+                          data[i].geometry.coordinates = newCoordinates;
+                      }
+
+                      polygonCount++;
+                  }
+
+                  if (data[i].geometry.type === 'LineString') {
                       var coordinates = data[i].geometry.coordinates;
                       var newCoordinates = [];
                       for (var j = 0; j < coordinates.length; j++) {
@@ -1316,11 +1363,7 @@
                           newCoordinates.push([~~pixel.x, ~~pixel.y]);
                       }
                       data[i].geometry.coordinates = newCoordinates;
-                      if (data[i].geometry.type === 'Polygon') {
-                          polygonCount++;
-                      } else {
-                          lineCount++;
-                      }
+                      lineCount++;
                   }
 
                   if (options.draw == 'bubble') {
@@ -1371,6 +1414,20 @@
 
       };
 
+  }
+
+  function getPolygon(coordinates) {
+      var newCoordinates = [];
+      for (var c = 0; c < coordinates.length; c++) {
+          var coordinate = coordinates[c];
+          var newcoordinate = [];
+          for (var j = 0; j < coordinate.length; j++) {
+              var pixel = map.pointToPixel(new BMap.Point(coordinate[j][0], coordinate[j][1]));
+              newcoordinate.push([~~pixel.x, ~~pixel.y]);
+          }
+          newCoordinates.push(newcoordinate);
+      }
+      return newCoordinates;
   }
 
   /**
@@ -2061,6 +2118,27 @@
 
   }
 
+  var geojson = {
+      getDataSet: function (geoJson) {
+
+          var data = [];
+          var features = geoJson.features;
+          for (var i = 0; i < features.length; i++) {
+              var feature = features[i];
+              var geometry = feature.geometry;
+              var properties = feature.properties;
+              var item = {};
+              for (var key in properties) {
+                  item[key] = properties[key];
+              }
+              item.geometry = geometry;
+              data.push(item);
+          }
+          return new DataSet(data);
+
+      }
+  }
+
   exports.version = version;
   exports.x = X;
   exports.X = X;
@@ -2080,5 +2158,6 @@
   exports.googleMapCanvasLayer = CanvasLayer$1;
   exports.googleMapLayer = Layer$1;
   exports.DataSet = DataSet;
+  exports.geojson = geojson;
 
 }));
