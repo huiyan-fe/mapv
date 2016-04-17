@@ -11,3 +11,4 @@ src/tags
 *.*~
 build.sh
 .vscode/*
+.sass-cache/*
