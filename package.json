@@ -4,9 +4,10 @@
   "description": "mapv online",
   "main": "index.js",
   "scripts": {
-    "prebuild": "echo I run before the build script",
-    "build": "echo Build",
-    "postbuild": "echo I run after the build script",
+    "build:sass": "node-sass dev/sass/ -o static/css/",
+    "build:sass:watch": "node-sass -w dev/sass/ -o static/css/",
+    "build": "npm run build:sass",
+    "build:watch": "npm run build:sass:watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,6 +21,11 @@
   },
   "homepage": "https://github.com/huiyan-fe/mapv#readme",
   "dependencies": {
-    "dufing": "^1.0.11"
+    "dufing": "^1.0.12"
+  },
+  "devDependencies": {
+    "node-sass": "^3.4.2",
+    "react": "^15.0.1",
+    "react-dom": "^15.0.1"
   }
 }
