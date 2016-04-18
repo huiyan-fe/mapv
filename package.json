@@ -1,0 +1,25 @@
+{
+  "name": "mapv",
+  "version": "1.0.0",
+  "description": "mapv online",
+  "main": "index.js",
+  "scripts": {
+    "prebuild": "echo I run before the build script",
+    "build": "echo Build",
+    "postbuild": "echo I run after the build script",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/huiyan-fe/mapv.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/huiyan-fe/mapv/issues"
+  },
+  "homepage": "https://github.com/huiyan-fe/mapv#readme",
+  "dependencies": {
+    "dufing": "^1.0.11"
+  }
+}
