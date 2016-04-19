@@ -2,7 +2,7 @@ var path = require('path');
 var webpack = require('webpack');
 
 module.exports = {
-	  entry: './dev/es6/index.jsx.js',
+	  entry: './dev/es6/index.js',
 	  output: { path: './static/js/', filename: 'index.js' },
 	  module: {
 		    loaders: [
