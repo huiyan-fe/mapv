@@ -102,7 +102,7 @@ export default {
             for (var j = 0; j < line.length; j++) {
                 var value = line[j];
                 if (header[j] == 'geometry') {
-                    value = eval('(' + value + ')');
+                    value = JSON.parse(value);
                 }
                 item[header[j]] = value;
             }
