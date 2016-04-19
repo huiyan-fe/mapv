@@ -1,3 +1,10 @@
+@font-face
+    font-family: 'icomoon'
+    src: url('/fonts/icomoon.eot?x206c3')
+    src: url('/fonts/icomoon.eot?x206c3#iefix') format('embedded-opentype'), url('/fonts/icomoon.ttf?x206c3') format('truetype'), url('/fonts/icomoon.woff?x206c3') format('woff'), url('/fonts/icomoon.svg?x206c3#icomoon') format('svg')
+    font-weight: normal 
+    font-style: normal
+
 .slide
     height: 100% 
     position: relative
@@ -28,17 +35,19 @@
     position: absolute
     top: 50%
     left: 0
-    margin-top: -200px 
+    margin-top: -250px 
     
 .slide-title-h1
     font-size: 60px
-    padding: 20px 0;
     
 .slide-title-h2
     font-size: 35px
-    border-bottom: 1px solid #fff
-    padding-bottom: 10px
     overflow: hidden
+    
+.slide-title-h3
+    font-size: 12px
+    padding: 20px
+    color: #ccc
     
 .slide-title-button
     margin-top: 40px
@@ -46,8 +55,21 @@
         display: inline-block
         margin: 0 30px
         padding: 0
-        border: 1px solid #fff
-        background: none
+        border: 1px solid rgba(255,255,255,0.1)
+        background: rgba(0,144,211,0.57)
         color: #fff
         padding: 10px 40px
         border-radius: 2px
+        cursor: pointer
+        &:hover
+            background: rgba(0,144,211,1)
+        
+.slide-next
+    font-family: "icomoon"
+    position: absolute
+    bottom: 20px
+    font-size: 40px
+    width: 100%
+    text-align: center
+    z-index: 10000
+    color: #fff
