@@ -42,7 +42,8 @@
         var circle = new BMap.Circle(point, 4325, {
             fillOpacity: 0.3,
             strokeOpacity: 0.5,
-            strokeWeight: 0.5,
+            strokeWeight: 1,
+            strokeStyle: 'dashed',
             strokeColor: 'blue'
         });
 
@@ -51,16 +52,27 @@
         map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
 
         map.setMapStyle({
-            style: 'light'
+            styleJson: [
+                {
+                    "featureType": "all",
+                    "elementType": "all",
+                    "stylers": {
+                        "lightness": 61,
+                        "saturation": -70
+                    }
+                }
+            ]
         });
+
+
 
         $.get('data/poi-yiheyuan-meishi.json', function(data) {
 
             var dataSet = new mapv.DataSet(data);
 
             var options = {
-                fillStyle: 'rgba(255, 50, 50, 0.6)',
-                size: 2,
+                fillStyle: 'rgba(180, 80, 80, 0.5)',
+                size: 3,
                 draw: 'simple'
             }
 

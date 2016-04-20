@@ -2050,19 +2050,47 @@
                       pointCount++;
                   }
 
-                  if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'LineString') {
+                  if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'MultiPolygon') {
+
+                      var coordinates = data[i].geometry.coordinates;
+
+                      if (data[i].geometry.type === 'Polygon') {
+
+                          var newCoordinates = getPolygon$1(coordinates, pixel);
+                          data[i].geometry.coordinates = newCoordinates;
+
+                      } else if (data[i].geometry.type === 'MultiPolygon') {
+                          var newCoordinates = [];
+                          for (var c = 0; c < coordinates.length; c++) {
+                              var polygon = coordinates[c];
+                              var polygon = getPolygon$1(polygon, pixel);
+                              newCoordinates.push(polygon);
+                          }
+
+                          data[i].geometry.coordinates = newCoordinates;
+                      }
+
+                      polygonCount++;
+                  }
+
+                  if (data[i].geometry.type === 'LineString') {
                       var coordinates = data[i].geometry.coordinates;
                       var newCoordinates = [];
                       for (var j = 0; j < coordinates.length; j++) {
-                          var pixel = map.pointToPixel(new BMap.Point(coordinates[j][0], coordinates[j][1]));
+             
+                          var latLng = new google.maps.LatLng(coordinates[j][1], coordinates[j][0]);
+                          var worldPoint = mapProjection.fromLatLngToPoint(latLng);
+
+                          var pixel = {
+                              x: (worldPoint.x - offset.x) * scale,
+                              y: (worldPoint.y - offset.y) * scale,
+                          }
+
                           newCoordinates.push([~~pixel.x, ~~pixel.y]);
                       }
                       data[i].geometry.coordinates = newCoordinates;
-                      if (data[i].geometry.type === 'Polygon') {
-                          polygonCount++;
-                      } else {
-                          lineCount++;
-                      }
+                      lineCount++;
+                      console.log(data);
                   }
 
                   if (options.draw == 'bubble') {
@@ -2116,6 +2144,28 @@
 
       };
 
+  }
+
+  function getPolygon$1(coordinates, offset) {
+      var newCoordinates = [];
+      for (var c = 0; c < coordinates.length; c++) {
+          var coordinate = coordinates[c];
+          var newcoordinate = [];
+          for (var j = 0; j < coordinate.length; j++) {
+             
+              var latLng = new google.maps.LatLng(coordinate[j][1], coordinate[j][0]);
+              var worldPoint = mapProjection.fromLatLngToPoint(latLng);
+
+              var pixel = {
+                  x: (worldPoint.x - offset.x) * scale,
+                  y: (worldPoint.y - offset.y) * scale,
+              }
+   
+              newcoordinate.push([~~pixel.x, ~~pixel.y]);
+          }
+          newCoordinates.push(newcoordinate);
+      }
+      return newCoordinates;
   }
 
   var geojson = {
