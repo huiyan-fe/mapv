@@ -1317,10 +1317,6 @@
 
           var data = dataSet.get();
       
-          var pointCount = 0;
-          var lineCount = 0;
-          var polygonCount = 0;
-
           for (var i = 0; i < data.length; i++) {
               var item = data[i];
               if (data[i].geometry) {
@@ -1329,7 +1325,6 @@
                       var coordinates = data[i].geometry.coordinates;
                       var pixel = map.pointToPixel(new BMap.Point(coordinates[0], coordinates[1]));
                       data[i].geometry.coordinates = [pixel.x, pixel.y];
-                      pointCount++;
                   }
 
                   if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'MultiPolygon') {
@@ -1352,7 +1347,6 @@
                           data[i].geometry.coordinates = newCoordinates;
                       }
 
-                      polygonCount++;
                   }
 
                   if (data[i].geometry.type === 'LineString') {
@@ -1363,7 +1357,6 @@
                           newCoordinates.push([~~pixel.x, ~~pixel.y]);
                       }
                       data[i].geometry.coordinates = newCoordinates;
-                      lineCount++;
                   }
 
                   if (options.draw == 'bubble') {
@@ -1381,8 +1374,6 @@
                   }
               }
           }
-
-          var maxCount = Math.max(Math.max(pointCount, lineCount), polygonCount);
 
           if (options.draw == 'heatmap') {
               drawHeatmap.draw(context, new DataSet(data), options);
@@ -1414,6 +1405,9 @@
 
       };
 
+  }
+
+  Layer.prototype.calcuteDataSet = function (dataSet) {
   }
 
   function getPolygon(coordinates) {

@@ -2,16 +2,16 @@
  * @author kyle / http://nikai.us/
  */
 
-import clear from "../canvas/clear";
-import drawHeatmap from "../canvas/draw/heatmap";
-import drawSimple from "../canvas/draw/simple";
-import drawHoneycomb from "../canvas/draw/honeycomb";
-import drawGrid from "../canvas/draw/grid";
-import DataSet from "../data/DataSet";
+import clear from "../../canvas/clear";
+import drawHeatmap from "../../canvas/draw/heatmap";
+import drawSimple from "../../canvas/draw/simple";
+import drawHoneycomb from "../../canvas/draw/honeycomb";
+import drawGrid from "../../canvas/draw/grid";
+import DataSet from "../../data/DataSet";
 import CanvasLayer from "./CanvasLayer";
-import Intensity from "../utils/data-range/Intensity";
-import Category from "../utils/data-range/Category";
-import Choropleth from "../utils/data-range/Choropleth";
+import Intensity from "../../utils/data-range/Intensity";
+import Category from "../../utils/data-range/Category";
+import Choropleth from "../../utils/data-range/Choropleth";
 
 function Layer(map, dataSet, options) {
     var intensity = new Intensity({

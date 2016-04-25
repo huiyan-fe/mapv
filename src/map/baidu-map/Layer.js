@@ -3,15 +3,15 @@
  */
 
 import CanvasLayer from "./CanvasLayer";
-import clear from "../canvas/clear";
-import drawHeatmap from "../canvas/draw/heatmap";
-import drawSimple from "../canvas/draw/simple";
-import drawGrid from "../canvas/draw/grid";
-import drawHoneycomb from "../canvas/draw/honeycomb";
-import DataSet from "../data/DataSet";
-import Intensity from "../utils/data-range/Intensity";
-import Category from "../utils/data-range/Category";
-import Choropleth from "../utils/data-range/Choropleth";
+import clear from "../../canvas/clear";
+import drawHeatmap from "../../canvas/draw/heatmap";
+import drawSimple from "../../canvas/draw/simple";
+import drawGrid from "../../canvas/draw/grid";
+import drawHoneycomb from "../../canvas/draw/honeycomb";
+import DataSet from "../../data/DataSet";
+import Intensity from "../../utils/data-range/Intensity";
+import Category from "../../utils/data-range/Category";
+import Choropleth from "../../utils/data-range/Choropleth";
 
 function Layer(map, dataSet, options) {
     var intensity = new Intensity({
@@ -42,10 +42,6 @@ function Layer(map, dataSet, options) {
 
         var data = dataSet.get();
     
-        var pointCount = 0;
-        var lineCount = 0;
-        var polygonCount = 0;
-
         for (var i = 0; i < data.length; i++) {
             var item = data[i];
             if (data[i].geometry) {
@@ -54,7 +50,6 @@ function Layer(map, dataSet, options) {
                     var coordinates = data[i].geometry.coordinates;
                     var pixel = map.pointToPixel(new BMap.Point(coordinates[0], coordinates[1]));
                     data[i].geometry.coordinates = [pixel.x, pixel.y];
-                    pointCount++;
                 }
 
                 if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'MultiPolygon') {
@@ -77,7 +72,6 @@ function Layer(map, dataSet, options) {
                         data[i].geometry.coordinates = newCoordinates;
                     }
 
-                    polygonCount++;
                 }
 
                 if (data[i].geometry.type === 'LineString') {
@@ -88,7 +82,6 @@ function Layer(map, dataSet, options) {
                         newCoordinates.push([~~pixel.x, ~~pixel.y]);
                     }
                     data[i].geometry.coordinates = newCoordinates;
-                    lineCount++;
                 }
 
                 if (options.draw == 'bubble') {
@@ -106,8 +99,6 @@ function Layer(map, dataSet, options) {
                 }
             }
         }
-
-        var maxCount = Math.max(Math.max(pointCount, lineCount), polygonCount);
 
         if (options.draw == 'heatmap') {
             drawHeatmap.draw(context, new DataSet(data), options);
@@ -139,6 +130,9 @@ function Layer(map, dataSet, options) {
 
     };
 
+}
+
+Layer.prototype.calcuteDataSet = function (dataSet) {
 }
 
 function getPolygon(coordinates) {

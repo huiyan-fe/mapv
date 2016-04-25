@@ -18,11 +18,11 @@ export {default as utilDataRangeIntensity} from "./src/utils/data-range/Intensit
 export {default as utilDataRangeCategory} from "./src/utils/data-range/Category";
 export {default as utilDataRangeChoropleth} from "./src/utils/data-range/Choropleth";
 
-export {default as baiduMapCanvasLayer} from "./src/baidu-map/CanvasLayer";
-export {default as baiduMapLayer} from "./src/baidu-map/Layer";
+export {default as baiduMapCanvasLayer} from "./src/map/baidu-map/CanvasLayer";
+export {default as baiduMapLayer} from "./src/map/baidu-map/Layer";
 
-export {default as googleMapCanvasLayer} from "./src/google-map/CanvasLayer";
-export {default as googleMapLayer} from "./src/google-map/Layer";
+export {default as googleMapCanvasLayer} from "./src/map/google-map/CanvasLayer";
+export {default as googleMapLayer} from "./src/map/google-map/Layer";
 
 export {default as DataSet} from "./src/data/DataSet";
 export {default as geojson} from "./src/data/geojson";
