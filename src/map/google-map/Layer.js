@@ -43,8 +43,6 @@ function Layer(map, dataSet, options) {
         for (var key in options) {
             context[key] = options[key];
         }
-
-        var data = dataSet.get();
     
         var pointCount = 0;
         var lineCount = 0;
@@ -62,81 +60,36 @@ function Layer(map, dataSet, options) {
 
         var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
 
+        var data = dataSet.get({
+            transferCoordinate: function (coordinate) {
+
+                var latLng = new google.maps.LatLng(coordinate[1], coordinate[0]);
+                var worldPoint = mapProjection.fromLatLngToPoint(latLng);
+
+                var pixel = {
+                    x: (worldPoint.x - offset.x) * scale,
+                    y: (worldPoint.y - offset.y) * scale,
+                }
+
+                return [pixel.x, pixel.y];
+
+            }
+        });
+
         for (var i = 0; i < data.length; i++) {
             var item = data[i];
-            if (data[i].geometry) {
-
-                if (data[i].geometry.type === 'Point') {
-                    var coordinates = data[i].geometry.coordinates;
-
-                    var latLng = new google.maps.LatLng(coordinates[1], coordinates[0]);
-                    var worldPoint = mapProjection.fromLatLngToPoint(latLng);
-
-                    var pixel = {
-                        x: (worldPoint.x - offset.x) * scale,
-                        y: (worldPoint.y - offset.y) * scale,
-                    }
-
-                    data[i].geometry.coordinates = [pixel.x, pixel.y];
-                    pointCount++;
-                }
-
-                if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'MultiPolygon') {
-
-                    var coordinates = data[i].geometry.coordinates;
-
-                    if (data[i].geometry.type === 'Polygon') {
-
-                        var newCoordinates = getPolygon(coordinates, pixel);
-                        data[i].geometry.coordinates = newCoordinates;
-
-                    } else if (data[i].geometry.type === 'MultiPolygon') {
-                        var newCoordinates = [];
-                        for (var c = 0; c < coordinates.length; c++) {
-                            var polygon = coordinates[c];
-                            var polygon = getPolygon(polygon, pixel);
-                            newCoordinates.push(polygon);
-                        }
-
-                        data[i].geometry.coordinates = newCoordinates;
-                    }
-
-                    polygonCount++;
-                }
-
+            if (options.draw == 'bubble') {
+                data[i].size = intensity.getSize(item.count);
+            } else if (options.draw == 'intensity') {
                 if (data[i].geometry.type === 'LineString') {
-                    var coordinates = data[i].geometry.coordinates;
-                    var newCoordinates = [];
-                    for (var j = 0; j < coordinates.length; j++) {
-           
-                        var latLng = new google.maps.LatLng(coordinates[j][1], coordinates[j][0]);
-                        var worldPoint = mapProjection.fromLatLngToPoint(latLng);
-
-                        var pixel = {
-                            x: (worldPoint.x - offset.x) * scale,
-                            y: (worldPoint.y - offset.y) * scale,
-                        }
-
-                        newCoordinates.push([~~pixel.x, ~~pixel.y]);
-                    }
-                    data[i].geometry.coordinates = newCoordinates;
-                    lineCount++;
-                    console.log(data);
+                    data[i].strokeStyle = intensity.getColor(item.count);
+                } else {
+                    data[i].fillStyle = intensity.getColor(item.count);
                 }
-
-                if (options.draw == 'bubble') {
-                    data[i].size = intensity.getSize(item.count);
-                } else if (options.draw == 'intensity') {
-                    if (data[i].geometry.type === 'LineString') {
-                        data[i].strokeStyle = intensity.getColor(item.count);
-                    } else {
-                        data[i].fillStyle = intensity.getColor(item.count);
-                    }
-                } else if (options.draw == 'category') {
-                    data[i].fillStyle = category.get(item.count);
-                } else if (options.draw == 'choropleth') {
-                    data[i].fillStyle = choropleth.get(item.count);
-                }
+            } else if (options.draw == 'category') {
+                data[i].fillStyle = category.get(item.count);
+            } else if (options.draw == 'choropleth') {
+                data[i].fillStyle = choropleth.get(item.count);
             }
         }
 
@@ -175,28 +128,6 @@ function Layer(map, dataSet, options) {
 
     };
 
-}
-
-function getPolygon(coordinates, offset) {
-    var newCoordinates = [];
-    for (var c = 0; c < coordinates.length; c++) {
-        var coordinate = coordinates[c];
-        var newcoordinate = [];
-        for (var j = 0; j < coordinate.length; j++) {
-           
-            var latLng = new google.maps.LatLng(coordinate[j][1], coordinate[j][0]);
-            var worldPoint = mapProjection.fromLatLngToPoint(latLng);
-
-            var pixel = {
-                x: (worldPoint.x - offset.x) * scale,
-                y: (worldPoint.y - offset.y) * scale,
-            }
- 
-            newcoordinate.push([~~pixel.x, ~~pixel.y]);
-        }
-        newCoordinates.push(newcoordinate);
-    }
-    return newCoordinates;
 }
 
 export default Layer;

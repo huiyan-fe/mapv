@@ -64,7 +64,17 @@ DataSet.prototype.add = function (data, senderId) {
  * get data.
  */
 DataSet.prototype.get = function (args) {
-    return JSON.parse(JSON.stringify(this._data));
+
+    args = args || {};
+
+    var data = JSON.parse(JSON.stringify(this._data));
+
+    if (args.transferCoordinate) {
+        data = this.transferCoordinate(args.transferCoordinate);
+    }
+
+    return data;
+
 };
 
 /**
@@ -77,6 +87,73 @@ DataSet.prototype.remove = function (args) {
  * update data.
  */
 DataSet.prototype.update = function (args) {
+};
+
+/**
+ * transfer coordinate.
+ */
+DataSet.prototype.transferCoordinate = function (transferFn) {
+    var data = this.get();
+
+    for (var i = 0; i < data.length; i++) {
+
+        var item = data[i];
+
+        if (data[i].geometry) {
+
+            if (data[i].geometry.type === 'Point') {
+                var coordinates = data[i].geometry.coordinates;
+                data[i].geometry.coordinates = transferFn(coordinates);
+            }
+
+            if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'MultiPolygon') {
+
+                var coordinates = data[i].geometry.coordinates;
+
+                if (data[i].geometry.type === 'Polygon') {
+
+                    var newCoordinates = getPolygon(coordinates);
+                    data[i].geometry.coordinates = newCoordinates;
+
+                } else if (data[i].geometry.type === 'MultiPolygon') {
+                    var newCoordinates = [];
+                    for (var c = 0; c < coordinates.length; c++) {
+                        var polygon = coordinates[c];
+                        var polygon = getPolygon(polygon);
+                        newCoordinates.push(polygon);
+                    }
+
+                    data[i].geometry.coordinates = newCoordinates;
+                }
+
+            }
+
+            if (data[i].geometry.type === 'LineString') {
+                var coordinates = data[i].geometry.coordinates;
+                var newCoordinates = [];
+                for (var j = 0; j < coordinates.length; j++) {
+                    newCoordinates.push(transferFn(coordinates[j]));
+                }
+                data[i].geometry.coordinates = newCoordinates;
+            }
+        }
+    }
+
+    function getPolygon(coordinates) {
+        var newCoordinates = [];
+        for (var c = 0; c < coordinates.length; c++) {
+            var coordinate = coordinates[c];
+            var newcoordinate = [];
+            for (var j = 0; j < coordinate.length; j++) {
+                var pixel = map.pointToPixel(new BMap.Point(coordinate[j][0], coordinate[j][1]));
+                newcoordinate.push(transferFn(coordinate[j]));
+            }
+            newCoordinates.push(newcoordinate);
+        }
+        return newCoordinates;
+    }
+
+    return data;
 };
 
 export default DataSet;

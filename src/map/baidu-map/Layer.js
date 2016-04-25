@@ -40,63 +40,27 @@ function Layer(map, dataSet, options) {
         var zoomUnit = Math.pow(2, 18 - map.getZoom());
         var projection = map.getMapType().getProjection();
 
-        var data = dataSet.get();
-    
+        var data = dataSet.get({
+            transferCoordinate: function (coordinate) {
+                var pixel = map.pointToPixel(new BMap.Point(coordinate[0], coordinate[1]));
+                return [pixel.x, pixel.y];
+            }
+        });
+
         for (var i = 0; i < data.length; i++) {
             var item = data[i];
-            if (data[i].geometry) {
-
-                if (data[i].geometry.type === 'Point') {
-                    var coordinates = data[i].geometry.coordinates;
-                    var pixel = map.pointToPixel(new BMap.Point(coordinates[0], coordinates[1]));
-                    data[i].geometry.coordinates = [pixel.x, pixel.y];
-                }
-
-                if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'MultiPolygon') {
-
-                    var coordinates = data[i].geometry.coordinates;
-
-                    if (data[i].geometry.type === 'Polygon') {
-
-                        var newCoordinates = getPolygon(coordinates);
-                        data[i].geometry.coordinates = newCoordinates;
-
-                    } else if (data[i].geometry.type === 'MultiPolygon') {
-                        var newCoordinates = [];
-                        for (var c = 0; c < coordinates.length; c++) {
-                            var polygon = coordinates[c];
-                            var polygon = getPolygon(polygon);
-                            newCoordinates.push(polygon);
-                        }
-
-                        data[i].geometry.coordinates = newCoordinates;
-                    }
-
-                }
-
+            if (options.draw == 'bubble') {
+                data[i].size = intensity.getSize(item.count);
+            } else if (options.draw == 'intensity') {
                 if (data[i].geometry.type === 'LineString') {
-                    var coordinates = data[i].geometry.coordinates;
-                    var newCoordinates = [];
-                    for (var j = 0; j < coordinates.length; j++) {
-                        var pixel = map.pointToPixel(new BMap.Point(coordinates[j][0], coordinates[j][1]));
-                        newCoordinates.push([~~pixel.x, ~~pixel.y]);
-                    }
-                    data[i].geometry.coordinates = newCoordinates;
+                    data[i].strokeStyle = intensity.getColor(item.count);
+                } else {
+                    data[i].fillStyle = intensity.getColor(item.count);
                 }
-
-                if (options.draw == 'bubble') {
-                    data[i].size = intensity.getSize(item.count);
-                } else if (options.draw == 'intensity') {
-                    if (data[i].geometry.type === 'LineString') {
-                        data[i].strokeStyle = intensity.getColor(item.count);
-                    } else {
-                        data[i].fillStyle = intensity.getColor(item.count);
-                    }
-                } else if (options.draw == 'category') {
-                    data[i].fillStyle = category.get(item.count);
-                } else if (options.draw == 'choropleth') {
-                    data[i].fillStyle = choropleth.get(item.count);
-                }
+            } else if (options.draw == 'category') {
+                data[i].fillStyle = category.get(item.count);
+            } else if (options.draw == 'choropleth') {
+                data[i].fillStyle = choropleth.get(item.count);
             }
         }
 
@@ -133,20 +97,6 @@ function Layer(map, dataSet, options) {
 }
 
 Layer.prototype.calcuteDataSet = function (dataSet) {
-}
-
-function getPolygon(coordinates) {
-    var newCoordinates = [];
-    for (var c = 0; c < coordinates.length; c++) {
-        var coordinate = coordinates[c];
-        var newcoordinate = [];
-        for (var j = 0; j < coordinate.length; j++) {
-            var pixel = map.pointToPixel(new BMap.Point(coordinate[j][0], coordinate[j][1]));
-            newcoordinate.push([~~pixel.x, ~~pixel.y]);
-        }
-        newCoordinates.push(newcoordinate);
-    }
-    return newCoordinates;
 }
 
 export default Layer;
