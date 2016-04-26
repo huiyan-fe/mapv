@@ -6,7 +6,7 @@
   "scripts": {
     "deal": "VERSION=`node -e 'console.log(require(\"./package.json\").version)'` && cp build/mapv.js build/mapv.v${VERSION}.js",
     "predeal": "npm run build && uglifyjs build/mapv.js -c -m -o build/mapv.min.js",
-    "build": "mkdir -p build && node -e 'process.stdout.write(\"export var version = \\\"\" + require(\"./package.json\").version + \"\\\";\\n\");' > build/version.js && rollup --format umd --name mapv -o build/mapv.js -- index.js ",
+    "build": "mkdir -p build && node -e 'process.stdout.write(\"export var version = \\\"\" + require(\"./package.json\").version + \"\\\";\\n\");' > build/version.js && rollup -c ",
     "watch": "npm-watch",
     "test": "npm run watch"
   },
@@ -31,10 +31,10 @@
   },
   "homepage": "https://github.com/huiyan-fe/mapv#readme",
   "devDependencies": {
+    "babel-preset-es2015-rollup": "^1.1.1",
+    "npm-watch": "^0.1.4",
     "rollup": "^0.25.4",
+    "rollup-plugin-babel": "^2.4.0",
     "uglify-js": "^2.6.2"
-  },
-  "dependencies": {
-    "npm-watch": "^0.1.1"
   }
 }
