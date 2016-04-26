@@ -5,3 +5,4 @@
    * [数据DataSet](DataSet.md)
 * [API](API/README.md)
    * [point-text](API/point-text.md)
+   * [point-icon](API/point-icon.md)
