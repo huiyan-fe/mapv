@@ -1211,6 +1211,24 @@
       };
   }
 
+  var drawText = {
+      draw: function draw(context, dataSet, options) {
+          var data = dataSet.get();
+          context.fillStyle = 'white';
+          context.textAlign = 'center';
+          context.textBaseline = 'middle';
+
+          // set from options
+          for (var key in options) {
+              context[key] = options[key];
+          }
+
+          for (var i = 0, len = data.length; i < len; i++) {
+              context.fillText(data[i].text, data[i].geometry.coordinates[0], data[i].geometry.coordinates[1]);
+          };
+      }
+  };
+
   /**
    * @author kyle / http://nikai.us/
    */
@@ -1390,6 +1408,7 @@
           var zoomUnit = Math.pow(2, 18 - map.getZoom());
           var projection = map.getMapType().getProjection();
 
+          // get data from data set
           var data = dataSet.get({
               transferCoordinate: function transferCoordinate(coordinate) {
                   var pixel = map.pointToPixel(new BMap.Point(coordinate[0], coordinate[1]));
@@ -1397,6 +1416,7 @@
               }
           });
 
+          // deal with data based on draw
           for (var i = 0; i < data.length; i++) {
               var item = data[i];
               if (options.draw == 'bubble') {
@@ -1414,6 +1434,7 @@
               }
           }
 
+          // draw
           if (options.draw == 'heatmap') {
               drawHeatmap.draw(context, new DataSet(data), options);
           } else if (options.draw == 'grid' || options.draw == 'honeycomb') {
@@ -1438,6 +1459,8 @@
               } else {
                   drawHoneycomb.draw(context, new DataSet(data), options);
               }
+          } else if (options.draw == 'text') {
+              drawText.draw(context, new DataSet(data), options);
           } else {
               drawSimple.draw(context, new DataSet(data), options);
           }

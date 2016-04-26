@@ -8,6 +8,7 @@ import drawHeatmap from "../../canvas/draw/heatmap";
 import drawSimple from "../../canvas/draw/simple";
 import drawGrid from "../../canvas/draw/grid";
 import drawHoneycomb from "../../canvas/draw/honeycomb";
+import drawText from "../../canvas/draw/text";
 import DataSet from "../../data/DataSet";
 import Intensity from "../../utils/data-range/Intensity";
 import Category from "../../utils/data-range/Category";
@@ -40,6 +41,7 @@ function Layer(map, dataSet, options) {
         var zoomUnit = Math.pow(2, 18 - map.getZoom());
         var projection = map.getMapType().getProjection();
 
+        // get data from data set
         var data = dataSet.get({
             transferCoordinate: function (coordinate) {
                 var pixel = map.pointToPixel(new BMap.Point(coordinate[0], coordinate[1]));
@@ -47,6 +49,7 @@ function Layer(map, dataSet, options) {
             }
         });
 
+        // deal with data based on draw
         for (var i = 0; i < data.length; i++) {
             var item = data[i];
             if (options.draw == 'bubble') {
@@ -64,6 +67,7 @@ function Layer(map, dataSet, options) {
             }
         }
 
+        // draw
         if (options.draw == 'heatmap') {
             drawHeatmap.draw(context, new DataSet(data), options);
         } else if (options.draw == 'grid' || options.draw == 'honeycomb') {
@@ -81,13 +85,15 @@ function Layer(map, dataSet, options) {
             var nwPixel = map.pointToPixel(new BMap.Point(minx, maxy));
             options.offset = {
                 x: nwPixel.x,
-                y: nwPixel.y 
+                y: nwPixel.y
             };
             if (options.draw == 'grid') {
                 drawGrid.draw(context, new DataSet(data), options);
             } else {
                 drawHoneycomb.draw(context, new DataSet(data), options);
             }
+        } else if (options.draw == 'text') {
+            drawText.draw(context, new DataSet(data), options);
         } else {
             drawSimple.draw(context, new DataSet(data), options);
         }
