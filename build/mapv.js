@@ -5,6 +5,11 @@
 }(this, function (exports) { 'use strict';
 
   var babelHelpers = {};
+  babelHelpers.typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+    return typeof obj;
+  } : function (obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+  };
 
   babelHelpers.classCallCheck = function (instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -1219,12 +1224,12 @@
           context.textBaseline = 'middle';
 
           // set from options
-          for (var key in options) {
-              context[key] = options[key];
-          }
-
+          // for (var key in options) {
+          //     context[key] = options[key];
+          // }
+          // console.log(options)
           for (var i = 0, len = data.length; i < len; i++) {
-              context.fillText(data[i].text, data[i].geometry.coordinates[0], data[i].geometry.coordinates[1]);
+              context.drawImage(data[i].icon, data[i].geometry.coordinates[0], data[i].geometry.coordinates[1]);
           };
       }
   };
@@ -1297,7 +1302,8 @@
 
       args = args || {};
 
-      var data = JSON.parse(JSON.stringify(this._data));
+      // var data = JSON.parse(JSON.stringify(this._data));
+      var data = deepCopy(this._data);
 
       if (args.transferCoordinate) {
           data = this.transferCoordinate(args.transferCoordinate);
@@ -1381,6 +1387,23 @@
       return data;
   };
 
+  function deepCopy(obj) {
+      var newObj;
+      if ((typeof obj === 'undefined' ? 'undefined' : babelHelpers.typeof(obj)) == 'object') {
+          newObj = obj instanceof Array ? [] : {};
+          for (var i in obj) {
+              if (babelHelpers.typeof(obj[i]) == 'object' && !obj[i] instanceof HTMLElement) {
+                  newObj[i] = deepCopy(obj[i]);
+              } else {
+                  newObj[i] = obj[i];
+              }
+          }
+      } else {
+          newObj = obj;
+      }
+      return newObj;
+  }
+
   function Layer(map, dataSet, options) {
       var intensity = new Intensity({
           maxSize: options.maxSize,
@@ -1460,6 +1483,8 @@
                   drawHoneycomb.draw(context, new DataSet(data), options);
               }
           } else if (options.draw == 'text') {
+              drawText.draw(context, new DataSet(data), options);
+          } else if (options.draw == 'icon') {
               drawText.draw(context, new DataSet(data), options);
           } else {
               drawSimple.draw(context, new DataSet(data), options);
