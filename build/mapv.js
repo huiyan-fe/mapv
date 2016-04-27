@@ -1120,6 +1120,52 @@
   };
 
   /**
+   * Timer
+   * @author kyle / http://nikai.us/
+   */
+
+  var Timer = function () {
+      function Timer(callback, options) {
+          babelHelpers.classCallCheck(this, Timer);
+
+          this._call = callback;
+          this._runing = false;
+          this.start();
+      }
+
+      babelHelpers.createClass(Timer, [{
+          key: "start",
+          value: function start() {
+              this._runing = true;
+              requestAnimationFrame(this._launch.bind(this));
+          }
+      }, {
+          key: "stop",
+          value: function stop() {
+              this._runing = false;
+          }
+      }, {
+          key: "_launch",
+          value: function _launch(timestamp) {
+              if (this._runing) {
+                  this._call && this._call(timestamp);
+                  requestAnimationFrame(this._launch.bind(this));
+              }
+          }
+      }]);
+      return Timer;
+  }();
+
+  /**
+   * Tween
+   * @author kyle / http://nikai.us/
+   */
+
+  var Tween = function Tween(callback, options) {
+    babelHelpers.classCallCheck(this, Tween);
+  };
+
+  /**
    * 一直覆盖在当前地图视野的Canvas对象
    *
    * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
@@ -2265,6 +2311,8 @@
   exports.utilDataRangeIntensity = Intensity;
   exports.utilDataRangeCategory = Category;
   exports.utilDataRangeChoropleth = Choropleth;
+  exports.Timer = Timer;
+  exports.Tween = Tween;
   exports.baiduMapCanvasLayer = CanvasLayer;
   exports.baiduMapLayer = Layer;
   exports.googleMapCanvasLayer = CanvasLayer$1;
