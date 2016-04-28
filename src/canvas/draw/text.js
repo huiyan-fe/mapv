@@ -16,7 +16,6 @@ export default {
         for (var key in options) {
             context[key] = options[key];
         }
-        
         for (var i = 0, len = data.length; i < len; i++) {
             context.fillText(data[i].text, data[i].geometry.coordinates[0], data[i].geometry.coordinates[1])
         };

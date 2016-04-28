@@ -1273,7 +1273,7 @@
           // for (var key in options) {
           //     context[key] = options[key];
           // }
-          // console.log(options)
+          // console.log(data)
           for (var i = 0, len = data.length; i < len; i++) {
               context.drawImage(data[i].icon, data[i].geometry.coordinates[0], data[i].geometry.coordinates[1]);
           };
@@ -1438,10 +1438,10 @@
       if ((typeof obj === 'undefined' ? 'undefined' : babelHelpers.typeof(obj)) == 'object') {
           newObj = obj instanceof Array ? [] : {};
           for (var i in obj) {
-              if (babelHelpers.typeof(obj[i]) == 'object' && !obj[i] instanceof HTMLElement) {
-                  newObj[i] = deepCopy(obj[i]);
-              } else {
+              if (obj[i] instanceof HTMLElement) {
                   newObj[i] = obj[i];
+              } else {
+                  newObj[i] = deepCopy(obj[i]);
               }
           }
       } else {
