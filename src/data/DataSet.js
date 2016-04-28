@@ -162,11 +162,7 @@ function deepCopy(obj) {
     if (typeof obj == 'object') {
         newObj = obj instanceof Array ? [] : {};
         for (var i in obj) {
-            if (typeof obj[i] == 'object' && (!obj[i] instanceof HTMLElement)) {
-                newObj[i] = deepCopy(obj[i]);
-            } else {
-                newObj[i] = obj[i];
-            }
+            newObj[i] = obj[i] instanceof HTMLElement ? obj[i] : deepCopy(obj[i]);
         }
     } else {
         newObj = obj

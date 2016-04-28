@@ -16,7 +16,7 @@ export default {
         // for (var key in options) {
         //     context[key] = options[key];
         // }
-        // console.log(options)
+        // console.log(data)
         for (var i = 0, len = data.length; i < len; i++) {
             context.drawImage(data[i].icon, data[i].geometry.coordinates[0], data[i].geometry.coordinates[1])
         };
