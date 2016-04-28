@@ -8,7 +8,7 @@ import drawHeatmap from "../../canvas/draw/heatmap";
 import drawSimple from "../../canvas/draw/simple";
 import drawGrid from "../../canvas/draw/grid";
 import drawHoneycomb from "../../canvas/draw/honeycomb";
-import drawText from "../../canvas/draw/text";
+import drawText from "../../canvas/draw/icon";
 import DataSet from "../../data/DataSet";
 import Intensity from "../../utils/data-range/Intensity";
 import Category from "../../utils/data-range/Category";
@@ -94,6 +94,8 @@ function Layer(map, dataSet, options) {
                 drawHoneycomb.draw(context, new DataSet(data), options);
             }
         } else if (options.draw == 'text') {
+            drawText.draw(context, new DataSet(data), options);
+        } else if (options.draw == 'icon') {
             drawText.draw(context, new DataSet(data), options);
         } else {
             drawSimple.draw(context, new DataSet(data), options);

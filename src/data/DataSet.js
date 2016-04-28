@@ -67,7 +67,8 @@ DataSet.prototype.get = function (args) {
 
     args = args || {};
 
-    var data = JSON.parse(JSON.stringify(this._data));
+    // var data = JSON.parse(JSON.stringify(this._data));
+    var data = deepCopy(this._data);
 
     if (args.transferCoordinate) {
         data = this.transferCoordinate(args.transferCoordinate);
@@ -155,5 +156,22 @@ DataSet.prototype.transferCoordinate = function (transferFn) {
 
     return data;
 };
+
+function deepCopy(obj) {
+    var newObj;
+    if (typeof obj == 'object') {
+        newObj = obj instanceof Array ? [] : {};
+        for (var i in obj) {
+            if (typeof obj[i] == 'object' && (!obj[i] instanceof HTMLElement)) {
+                newObj[i] = deepCopy(obj[i]);
+            } else {
+                newObj[i] = obj[i];
+            }
+        }
+    } else {
+        newObj = obj
+    }
+    return newObj;
+}
 
 export default DataSet;
