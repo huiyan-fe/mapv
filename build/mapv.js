@@ -1438,11 +1438,7 @@
       if ((typeof obj === 'undefined' ? 'undefined' : babelHelpers.typeof(obj)) == 'object') {
           newObj = obj instanceof Array ? [] : {};
           for (var i in obj) {
-              if (obj[i] instanceof HTMLElement) {
-                  newObj[i] = obj[i];
-              } else {
-                  newObj[i] = deepCopy(obj[i]);
-              }
+              newObj[i] = obj[i] instanceof HTMLElement ? obj[i] : deepCopy(obj[i]);
           }
       } else {
           newObj = obj;
