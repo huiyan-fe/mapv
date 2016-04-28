@@ -13,6 +13,7 @@ import DataSet from "../../data/DataSet";
 import Intensity from "../../utils/data-range/Intensity";
 import Category from "../../utils/data-range/Category";
 import Choropleth from "../../utils/data-range/Choropleth";
+import Animator from "../../utils/animation/Animator";
 
 function Layer(map, dataSet, options) {
     var intensity = new Intensity({

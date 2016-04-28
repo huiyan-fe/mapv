@@ -18,7 +18,7 @@ export {default as utilDataRangeIntensity} from "./src/utils/data-range/Intensit
 export {default as utilDataRangeCategory} from "./src/utils/data-range/Category";
 export {default as utilDataRangeChoropleth} from "./src/utils/data-range/Choropleth";
 export {default as Timer} from "./src/utils/animation/Timer";
-export {default as Tween} from "./src/utils/animation/Tween";
+export {default as Animator} from "./src/utils/animation/Animator";
 
 export {default as baiduMapCanvasLayer} from "./src/map/baidu-map/CanvasLayer";
 export {default as baiduMapLayer} from "./src/map/baidu-map/Layer";
