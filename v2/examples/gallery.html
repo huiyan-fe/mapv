@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style type="text/css">
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        
+        iframe {
+            width: 265px;
+            height: 265px;
+            float: left;
+        }
+    </style>
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+
+</head>
+
+<body>
+    <!-- an transparent bar, so that we can scroll the page -->
+    <div style="position: fixed; width: 10px; top:0; right:0; bottom:0; background: red; z-index: 10; opacity: 0"></div>
+
+    <iframe src="baidu-map-point-time.html" frameborder="0"></iframe>
+    <iframe src="beijing-village.html" frameborder="0"></iframe>
+    <iframe src="geojson-china.html" frameborder="0"></iframe>
+    <iframe src="geojson-world.html" frameborder="0"></iframe>
+    <iframe src="csv-car.html" frameborder="0"></iframe>
+    <iframe src="poi-yiheyuan-meishi.html" frameborder="0"></iframe>
+
+    <iframe src="baidu-map-point-simple.html" frameborder="0"></iframe>
+    <iframe src="baidu-map-point-heatmap.html" frameborder="0"></iframe>
+    <iframe src="baidu-map-point-bubble.html" frameborder="0"></iframe>
+    <iframe src="baidu-map-point-category.html" frameborder="0"></iframe>
+    <iframe src="baidu-map-point-intensity.html" frameborder="0"></iframe>
+    <iframe src="baidu-map-point-choropleth.html" frameborder="0"></iframe>
+    <iframe src="baidu-map-point-grid.html" frameborder="0"></iframe>
+    <iframe src="baidu-map-point-honeycomb.html" frameborder="0"></iframe>
+
+    <iframe src="baidu-map-polyline-simple.html" frameborder="0"></iframe>
+    <iframe src="baidu-map-polyline-intensity.html" frameborder="0"></iframe>
+    <iframe src="baidu-map-polyline-heatmap.html" frameborder="0"></iframe>
+
+    <iframe src="baidu-map-polygon-simple.html" frameborder="0"></iframe>
+    <iframe src="baidu-map-polygon-intensity.html" frameborder="0"></iframe>
+
+    <iframe src="google-maps-point-simple.html" frameborder="0"></iframe>
+    <iframe src="google-maps-point-bubble.html" frameborder="0"></iframe>
+    <iframe src="google-maps-point-grid.html" frameborder="0"></iframe>
+    <iframe src="google-maps-point-honeycomb.html" frameborder="0"></iframe>
+    <iframe src="google-maps-polyline-simple.html" frameborder="0"></iframe>
+
+    <iframe src="canvas-point-simple.html" frameborder="0"></iframe>
+    <iframe src="canvas-grid.html" frameborder="0"></iframe>
+    <iframe src="canvas-honeycomb.html" frameborder="0"></iframe>
+    <iframe src="canvas-heatmap.html" frameborder="0"></iframe>
+    <iframe src="canvas-polygon.html" frameborder="0"></iframe>
+    <iframe src="canvas-polyline.html" frameborder="0"></iframe>
+    <iframe src="canvas-forceEdgeBundling.html" frameborder="0"></iframe>
+
+    <script type="text/javascript">
+        var gridWidth = 256;
+        window.addEventListener('resize', resize);
+
+        function resize() {
+            var count = Math.floor($(window).width() / gridWidth);
+            var width = $(window).width() / count;
+            $('iframe').width(width);
+        }
+
+        resize();
+    </script>
+</body>
+
+</html>
