@@ -159,7 +159,7 @@
    * @author kyle / http://nikai.us/
    */
 
-  function resolutionScale$1 (context) {
+  function resolutionScale (context) {
       var devicePixelRatio = window.devicePixelRatio;
       context.canvas.width = context.canvas.width * devicePixelRatio;
       context.canvas.height = context.canvas.height * devicePixelRatio;
@@ -2334,103 +2334,104 @@
       var canvasLayerOptions = {
           map: map,
           animate: false,
-          updateHandler: this.update,
+          updateHandler: update,
           resolutionScale: resolutionScale
       };
 
       var canvasLayer = new CanvasLayer$1(canvasLayerOptions);
-      var context = canvasLayer.canvas.getContext('2d');
-  }
 
-  Layer$1.prototype.update = function () {
+      function update() {
 
-      clear(context);
+          var context = canvasLayer.canvas.getContext('2d');
 
-      for (var key in options) {
-          context[key] = options[key];
-      }
+          clear(context);
 
-      var pointCount = 0;
-      var lineCount = 0;
-      var polygonCount = 0;
+          for (var key in options) {
+              context[key] = options[key];
+          }
 
-      /* We need to scale and translate the map for current view.
-       * see https://developers.google.com/maps/documentation/javascript/maptypes#MapCoordinates
-       */
-      var mapProjection = map.getProjection();
+          var pointCount = 0;
+          var lineCount = 0;
+          var polygonCount = 0;
 
-      // scale is just 2^zoom
-      // If canvasLayer is scaled (with resolutionScale), we need to scale by
-      // the same amount to account for the larger canvas.
-      var scale = Math.pow(2, map.zoom) * resolutionScale;
+          /* We need to scale and translate the map for current view.
+           * see https://developers.google.com/maps/documentation/javascript/maptypes#MapCoordinates
+           */
+          var mapProjection = map.getProjection();
 
-      var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
+          // scale is just 2^zoom
+          // If canvasLayer is scaled (with resolutionScale), we need to scale by
+          // the same amount to account for the larger canvas.
+          var scale = Math.pow(2, map.zoom) * resolutionScale;
 
-      var data = dataSet.get({
-          transferCoordinate: function transferCoordinate(coordinate) {
+          var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
 
-              var latLng = new google.maps.LatLng(coordinate[1], coordinate[0]);
+          var data = dataSet.get({
+              transferCoordinate: function transferCoordinate(coordinate) {
+
+                  var latLng = new google.maps.LatLng(coordinate[1], coordinate[0]);
+                  var worldPoint = mapProjection.fromLatLngToPoint(latLng);
+
+                  var pixel = {
+                      x: (worldPoint.x - offset.x) * scale,
+                      y: (worldPoint.y - offset.y) * scale
+                  };
+
+                  return [pixel.x, pixel.y];
+              }
+          });
+
+          for (var i = 0; i < data.length; i++) {
+              var item = data[i];
+              if (options.draw == 'bubble') {
+                  data[i].size = intensity.getSize(item.count);
+              } else if (options.draw == 'intensity') {
+                  if (data[i].geometry.type === 'LineString') {
+                      data[i].strokeStyle = intensity.getColor(item.count);
+                  } else {
+                      data[i].fillStyle = intensity.getColor(item.count);
+                  }
+              } else if (options.draw == 'category') {
+                  data[i].fillStyle = category.get(item.count);
+              } else if (options.draw == 'choropleth') {
+                  data[i].fillStyle = choropleth.get(item.count);
+              }
+          }
+
+          var maxCount = Math.max(Math.max(pointCount, lineCount), polygonCount);
+
+          if (options.draw == 'heatmap') {
+              drawHeatmap.draw(context, new DataSet(data), options);
+          } else if (options.draw == 'grid' || options.draw == 'honeycomb') {
+              var data1 = dataSet.get();
+              var minx = data1[0].geometry.coordinates[0];
+              var maxy = data1[0].geometry.coordinates[1];
+              for (var i = 1; i < data1.length; i++) {
+                  if (data1[i].geometry.coordinates[0] < minx) {
+                      minx = data1[i].geometry.coordinates[0];
+                  }
+                  if (data1[i].geometry.coordinates[1] > maxy) {
+                      maxy = data1[i].geometry.coordinates[1];
+                  }
+              }
+
+              var latLng = new google.maps.LatLng(minx, maxy);
               var worldPoint = mapProjection.fromLatLngToPoint(latLng);
 
-              var pixel = {
+              options.offset = {
                   x: (worldPoint.x - offset.x) * scale,
                   y: (worldPoint.y - offset.y) * scale
               };
-
-              return [pixel.x, pixel.y];
-          }
-      });
-
-      for (var i = 0; i < data.length; i++) {
-          var item = data[i];
-          if (options.draw == 'bubble') {
-              data[i].size = intensity.getSize(item.count);
-          } else if (options.draw == 'intensity') {
-              if (data[i].geometry.type === 'LineString') {
-                  data[i].strokeStyle = intensity.getColor(item.count);
+              if (options.draw == 'grid') {
+                  drawGrid.draw(context, new DataSet(data), options);
               } else {
-                  data[i].fillStyle = intensity.getColor(item.count);
+                  drawHoneycomb.draw(context, new DataSet(data), options);
               }
-          } else if (options.draw == 'category') {
-              data[i].fillStyle = category.get(item.count);
-          } else if (options.draw == 'choropleth') {
-              data[i].fillStyle = choropleth.get(item.count);
-          }
-      }
-
-      var maxCount = Math.max(Math.max(pointCount, lineCount), polygonCount);
-
-      if (options.draw == 'heatmap') {
-          drawHeatmap.draw(context, new DataSet(data), options);
-      } else if (options.draw == 'grid' || options.draw == 'honeycomb') {
-          var data1 = dataSet.get();
-          var minx = data1[0].geometry.coordinates[0];
-          var maxy = data1[0].geometry.coordinates[1];
-          for (var i = 1; i < data1.length; i++) {
-              if (data1[i].geometry.coordinates[0] < minx) {
-                  minx = data1[i].geometry.coordinates[0];
-              }
-              if (data1[i].geometry.coordinates[1] > maxy) {
-                  maxy = data1[i].geometry.coordinates[1];
-              }
-          }
-
-          var latLng = new google.maps.LatLng(minx, maxy);
-          var worldPoint = mapProjection.fromLatLngToPoint(latLng);
-
-          options.offset = {
-              x: (worldPoint.x - offset.x) * scale,
-              y: (worldPoint.y - offset.y) * scale
-          };
-          if (options.draw == 'grid') {
-              drawGrid.draw(context, new DataSet(data), options);
           } else {
-              drawHoneycomb.draw(context, new DataSet(data), options);
+              drawSimple.draw(context, new DataSet(data), options);
           }
-      } else {
-          drawSimple.draw(context, new DataSet(data), options);
       }
-  };
+  }
 
   var geojson = {
       getDataSet: function getDataSet(geoJson) {
@@ -2549,7 +2550,7 @@
   exports.x = X;
   exports.X = X;
   exports.canvasClear = clear;
-  exports.canvasResolutionScale = resolutionScale$1;
+  exports.canvasResolutionScale = resolutionScale;
   exports.canvasDrawSimple = drawSimple;
   exports.canvasDrawHeatmap = drawHeatmap;
   exports.canvasDrawGrid = drawGrid;
