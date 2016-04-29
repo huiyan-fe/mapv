@@ -31,9 +31,40 @@ function Layer(map, dataSet, options) {
         update: update
     });
 
-    function update() {
+    if (options.draw == 'time') {
+        var animator = new Animator(function (time) {
+            update.call(canvasLayer, time);
+        }, {
+            steps: options.steps || 100,
+            animationDuration: options.duration || 10
+        });
+        animator.start();
+
+        map.addEventListener('movestart', function () {
+            animator.pause();
+        });
+
+        map.addEventListener('moveend', function () {
+            animator.start();
+        });
+    }
+
+    function update(time) {
+
         var context = this.canvas.getContext("2d");
-        clear(context);
+
+        if (options.draw == 'time') {
+            if (time === undefined) {
+                return;
+            }
+            context.save();
+            context.globalCompositeOperation = 'destination-out';
+            context.fillStyle = 'rgba(0, 0, 0, .08)';
+            context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+            context.restore();
+        } else {
+            clear(context);
+        }
 
         for (var key in options) {
             context[key] = options[key];
@@ -42,13 +73,26 @@ function Layer(map, dataSet, options) {
         var zoomUnit = Math.pow(2, 18 - map.getZoom());
         var projection = map.getMapType().getProjection();
 
-        // get data from data set
-        var data = dataSet.get({
+        var dataGetOptions = {
             transferCoordinate: function (coordinate) {
                 var pixel = map.pointToPixel(new BMap.Point(coordinate[0], coordinate[1]));
                 return [pixel.x, pixel.y];
             }
-        });
+        }
+
+        if (time !== undefined) {
+            dataGetOptions.filter = function(item) {
+                var trails = options.trails || 5;
+                if (time && item.time > (time - trails) && item.time < time) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        // get data from data set
+        var data = dataSet.get(dataGetOptions);
 
         // deal with data based on draw
         for (var i = 0; i < data.length; i++) {

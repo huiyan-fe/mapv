@@ -37,10 +37,10 @@
         map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
 
         map.setMapStyle({
-            style: 'light'
+            style: 'midnight'
         });
 
-        var randomCount = 300;
+        var randomCount = 1000;
 
         var data = [];
 
@@ -54,18 +54,23 @@
                     type: 'Point',
                     coordinates: [cityCenter.lng - 2 + Math.random() * 4, cityCenter.lat - 2 + Math.random() * 4]
                 },
-                count: 30 * Math.random()
+                count: 30 * Math.random(),
+                time: 100 * Math.random()
             });
         }
 
         var dataSet = new mapv.DataSet(data);
 
         var options = {
-            fillStyle: 'rgba(55, 50, 250, 0.6)',
-            shadowColor: 'rgba(55, 50, 250, 0.5)',
+            fillStyle: 'rgba(255, 250, 50, 0.5)',
+            shadowColor: 'rgba(255, 250, 50, 0.8)',
             shadowBlur: 10,
-            size: 5,
-            draw: 'simple'
+            globalCompositeOperation: "lighter",
+            steps: 100,
+            size: 8,
+            trails: 15,
+            duration: 5,
+            draw: 'time'
         }
 
         var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);

@@ -70,8 +70,17 @@ DataSet.prototype.get = function (args) {
     // var data = JSON.parse(JSON.stringify(this._data));
     var data = deepCopy(this._data);
 
+    if (args.filter) {
+        for (var i = 0; i < data.length; i++) {
+            if (!args.filter(data[i])) {
+                data.splice(i, 1);
+                i--;
+            }
+        }
+    }
+
     if (args.transferCoordinate) {
-        data = this.transferCoordinate(args.transferCoordinate);
+        data = this.transferCoordinate(data, args.transferCoordinate);
     }
 
     return data;
@@ -93,8 +102,7 @@ DataSet.prototype.update = function (args) {
 /**
  * transfer coordinate.
  */
-DataSet.prototype.transferCoordinate = function (transferFn) {
-    var data = this.get();
+DataSet.prototype.transferCoordinate = function (data, transferFn) {
 
     for (var i = 0; i < data.length; i++) {
 
