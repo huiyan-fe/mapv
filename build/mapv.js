@@ -1697,7 +1697,7 @@
               }
               context.save();
               context.globalCompositeOperation = 'destination-out';
-              context.fillStyle = 'rgba(0, 0, 0, .08)';
+              context.fillStyle = 'rgba(0, 0, 0, .1)';
               context.fillRect(0, 0, context.canvas.width, context.canvas.height);
               context.restore();
           } else {
