@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build:sass": "node-sass dev/sass/ -o static/css/",
-    "build:sass:watch": "node-sass -w dev/sass/ -o static/css/",
+    "build:sass:watch": "node-sass dev/sass/ -w -o static/css/" ,
     "build:bundle": "webpack",
     "build:bundle:watch": "webpack -w",
     "build": "npm run build:sass && npm run build:bundle",

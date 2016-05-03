@@ -1,0 +1,94 @@
+body {
+  background: #3e434d;
+  color: #d6dadb;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased; }
+
+@font-face {
+  font-family: 'icomoon';
+  src: url("/fonts/icomoon.eot?x206c3");
+  src: url("/fonts/icomoon.eot?x206c3#iefix") format("embedded-opentype"), url("/fonts/icomoon.ttf?x206c3") format("truetype"), url("/fonts/icomoon.woff?x206c3") format("woff"), url("/fonts/icomoon.svg?x206c3#icomoon") format("svg");
+  font-weight: normal;
+  font-style: normal; }
+
+.nav {
+  padding: 0 10px;
+  box-sizing: border-box;
+  background: none;
+  position: relative;
+  color: #B1AFAF; }
+  .nav a {
+    color: #B1AFAF; }
+
+.online {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 50;
+  color: #B1AFAF;
+  line-height: 1.6; }
+
+.online-side {
+  position: absolute;
+  width: 200;
+  left: 20;
+  bottom: 50;
+  top: 10;
+  font-size: 16px;
+  vertical-align: middle; }
+  .online-side span {
+    vertical-align: middle;
+    margin-right: 10px;
+    display: inline-block;
+    height: 40px;
+    line-height: 40px; }
+
+.online-side-icon {
+  font-size: 24;
+  font-weight: 200; }
+
+.online-side-block {
+  background: #575C67;
+  margin-bottom: 10; }
+
+.online-side-link {
+  font-family: 'icomoon';
+  display: block;
+  padding-left: 10;
+  cursor: pointer;
+  color: #999; }
+  .online-side-link.active, .online-side-link:hover {
+    color: #fff;
+    background: #FF2B55;
+    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2); }
+
+.online-body {
+  position: absolute;
+  left: 220;
+  right: 20;
+  bottom: 50;
+  top: 10; }
+
+.online-body-block {
+  display: inline-block;
+  width: 200px;
+  height: 280px;
+  background: #575C67;
+  margin: 0 20px 40px 20px;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+  transition: all 0.3s ease-in; }
+  .online-body-block:hover {
+    transition: all 0.3s ease-in;
+    box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5); }
+
+.copyright {
+  position: absolute;
+  color: #B1AFAF;
+  bottom: 0;
+  left: 0;
+  right: 0; }
+  .copyright .copyright-info {
+    padding: 5 0; }
