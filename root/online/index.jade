@@ -14,13 +14,10 @@ block content
                     span.online-side-icon &#xe80b; 
                     span Map Theme
         .online-body
-            .online-body-block.active
-                .online-body-title Demo项目
-            .online-body-block
-                .online-body-title Demo项目
-            .online-body-block
-                .online-body-title Demo项目
-            .online-body-block
-                .online-body-title Demo项目
+            - for(var i=0;i<10;i++)
+                a(href="/online/editor/3fd")
+                    .online-body-block
+                        .online-body-title Demo项目
+            
     .copyright
         .copyright-info Copyright (C) MapV. All Rights Reserved.

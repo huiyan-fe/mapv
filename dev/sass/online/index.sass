@@ -2,7 +2,7 @@ body
     background: #3e434d
     color: #d6dadb
     font-size: 14px
-    -webkit-font-smoothing: antialiased
+    // 
 
 @font-face
     font-family: 'icomoon'
@@ -12,9 +12,7 @@ body
     font-style: normal
 
 .nav
-    padding: 0 10px
     box-sizing: border-box
-    // margin: 0 10px
     background: none
     position: relative
     color: #B1AFAF
@@ -58,6 +56,7 @@ $space: 20
 
 .online-side-link
     font-family: 'icomoon'
+    -webkit-font-smoothing: antialiased
     display: block
     padding-left: 10
     cursor: pointer
@@ -75,13 +74,13 @@ $space: 20
     right: $space
     bottom: $space + 30
     top: 10
+    overflow: auto
     
 .online-body-block
     display: inline-block
     width: 200px
     height: 280px
     background: #575C67
-    // box-shadow:  2px 2px 0px rgba(31, 35, 43, 0.3) inset, -1px -2px 0px rgba(255, 255, 255, 0.18) inset
     margin: 0 20px 40px 20px
     color: #fff
     padding: 10px
@@ -99,3 +98,99 @@ $space: 20
     right: 0
     .copyright-info
         padding: 5 0
+        
+.online-editor 
+    position: absolute
+    top: 50px
+    left: 10px
+    right: 10px
+    bottom: 40px
+    border-radius: 6px
+    
+.online-pannel
+    color: #fff
+    position: absolute
+    right: 20px
+    bottom: 50px
+    background: #3E434D
+    border-radius: 4px
+    z-index: 10000
+    overflow: hidden
+    
+.online-pannel-icon 
+    font-family: 'icomoon'
+    -webkit-font-smoothing: antialiased
+    width: 30px
+    height: 30px
+    text-align: center
+    line-height: 30px
+    font-size: 25px
+    cursor: pointer
+    
+.online-info
+    padding: 10px
+    input
+        width: 100%
+        background: black
+        border: none
+        color: #fff
+        padding: 8px 10px
+        font-size: 14px
+        border-radius: 4px
+    ul
+        margin-bottom: 10px
+    li 
+        height: 30px
+        line-height: 30px
+        font-size: 14px
+        // padding: 3px 0
+        .icon
+            font-family: 'icomoon'
+            -webkit-font-smoothing: antialiased
+    label
+        padding: 5px 0
+        display: inline-block
+    
+.online-nav 
+    // margin-bottom: 5px
+    overflow: hidden
+    a 
+        border-bottom: 2px solid #FF2B55;
+        display: inline-block
+        float: left
+        width: 50%
+        color: #fff
+        text-align: center
+        height: 30px
+        line-height: 30px
+        text-decoration: none
+        &.active,
+        &:hover
+            background: #FF2B55
+
+.upload
+    cursor: pointer
+    border: 2px dashed #999
+    color: #999
+    text-align: center
+    padding: 10px 20px
+    line-height: 50px
+    font-size: 20px
+    margin-bottom: 10px
+    
+.online-info-btn
+    button
+        // border-radius: 2px
+        outline: none
+        cursor: pointer
+        display: block
+        border: 1px solid #ccc
+        background: none
+        padding: 5px
+        width: 100%
+        color: #fff
+        margin: 5px 0
+        font-size: 14px
+        &:hover
+            border: 1px solid #FF2B55
+            background: #FF2B55

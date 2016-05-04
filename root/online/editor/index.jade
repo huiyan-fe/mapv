@@ -1,0 +1,32 @@
+extend ../../../system/jade/layout.jade
+
+block css
+    link(href="/css/online/index.css" rel="stylesheet")
+block js
+    script(src="http://api.map.baidu.com/api?v=2.0&ak=xh205kKAd4n7lOUYw0j2CUX2BNGwcqyq")
+    script(src="/js/index.js")
+block content
+    include ../../../system/jade/nav.jade
+    .online-pannel
+        .online-pannel-icon &#xe8b8;
+        .online-nav
+            a(href="#").active 图层管理
+            a(href="#") 项目管理
+                
+        .online-info
+            ul
+                li 
+                    span.icon &#xe900; 
+                    span 图层一
+                li 
+                    span.icon &#xe900; 
+                    span 图层二
+            .upload(title="拖拽文件到窗口，或者点击这里选择上传的文件") 拖拽或选择文件
+            input(type="text" value="项目名称") 
+            .online-info-btn
+                button 保存
+                button 分享到云端
+            
+    .online-editor#map
+    .copyright
+        .copyright-info Copyright (C) MapV. All Rights Reserved.

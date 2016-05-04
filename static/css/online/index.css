@@ -1,8 +1,7 @@
 body {
   background: #3e434d;
   color: #d6dadb;
-  font-size: 14px;
-  -webkit-font-smoothing: antialiased; }
+  font-size: 14px; }
 
 @font-face {
   font-family: 'icomoon';
@@ -12,7 +11,6 @@ body {
   font-style: normal; }
 
 .nav {
-  padding: 0 10px;
   box-sizing: border-box;
   background: none;
   position: relative;
@@ -54,6 +52,7 @@ body {
 
 .online-side-link {
   font-family: 'icomoon';
+  -webkit-font-smoothing: antialiased;
   display: block;
   padding-left: 10;
   cursor: pointer;
@@ -68,7 +67,8 @@ body {
   left: 220;
   right: 20;
   bottom: 50;
-  top: 10; }
+  top: 10;
+  overflow: auto; }
 
 .online-body-block {
   display: inline-block;
@@ -92,3 +92,94 @@ body {
   right: 0; }
   .copyright .copyright-info {
     padding: 5 0; }
+
+.online-editor {
+  position: absolute;
+  top: 50px;
+  left: 10px;
+  right: 10px;
+  bottom: 40px;
+  border-radius: 6px; }
+
+.online-pannel {
+  color: #fff;
+  position: absolute;
+  right: 20px;
+  bottom: 50px;
+  background: #3E434D;
+  border-radius: 4px;
+  z-index: 10000;
+  overflow: hidden; }
+
+.online-pannel-icon {
+  font-family: 'icomoon';
+  -webkit-font-smoothing: antialiased;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+  font-size: 25px;
+  cursor: pointer; }
+
+.online-info {
+  padding: 10px; }
+  .online-info input {
+    width: 100%;
+    background: black;
+    border: none;
+    color: #fff;
+    padding: 8px 10px;
+    font-size: 14px;
+    border-radius: 4px; }
+  .online-info ul {
+    margin-bottom: 10px; }
+  .online-info li {
+    height: 30px;
+    line-height: 30px;
+    font-size: 14px; }
+    .online-info li .icon {
+      font-family: 'icomoon';
+      -webkit-font-smoothing: antialiased; }
+  .online-info label {
+    padding: 5px 0;
+    display: inline-block; }
+
+.online-nav {
+  overflow: hidden; }
+  .online-nav a {
+    border-bottom: 2px solid #FF2B55;
+    display: inline-block;
+    float: left;
+    width: 50%;
+    color: #fff;
+    text-align: center;
+    height: 30px;
+    line-height: 30px;
+    text-decoration: none; }
+    .online-nav a.active, .online-nav a:hover {
+      background: #FF2B55; }
+
+.upload {
+  cursor: pointer;
+  border: 2px dashed #999;
+  color: #999;
+  text-align: center;
+  padding: 10px 20px;
+  line-height: 50px;
+  font-size: 20px;
+  margin-bottom: 10px; }
+
+.online-info-btn button {
+  outline: none;
+  cursor: pointer;
+  display: block;
+  border: 1px solid #ccc;
+  background: none;
+  padding: 5px;
+  width: 100%;
+  color: #fff;
+  margin: 5px 0;
+  font-size: 14px; }
+  .online-info-btn button:hover {
+    border: 1px solid #FF2B55;
+    background: #FF2B55; }
