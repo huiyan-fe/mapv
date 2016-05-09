@@ -1479,9 +1479,72 @@
       }
   };
 
+  function Event() {
+    this._subscribers = {}; // event subscribers
+  }
+
   /**
-   * @author kyle / http://nikai.us/
+   * Subscribe to an event, add an event listener
+   * @param {String} event        Event name. Available events: 'put', 'update',
+   *                              'remove'
+   * @param {function} callback   Callback method. Called with three parameters:
+   *                                  {String} event
+   *                                  {Object | null} params
+   *                                  {String | Number} senderId
    */
+  Event.prototype.on = function (event, callback) {
+    var subscribers = this._subscribers[event];
+    if (!subscribers) {
+      subscribers = [];
+      this._subscribers[event] = subscribers;
+    }
+
+    subscribers.push({
+      callback: callback
+    });
+  };
+
+  /**
+   * Unsubscribe from an event, remove an event listener
+   * @param {String} event
+   * @param {function} callback
+   */
+  Event.prototype.off = function (event, callback) {
+    var subscribers = this._subscribers[event];
+    if (subscribers) {
+      this._subscribers[event] = subscribers.filter(function (listener) {
+        return listener.callback != callback;
+      });
+    }
+  };
+
+  /**
+   * Trigger an event
+   * @param {String} event
+   * @param {Object | null} params
+   * @param {String} [senderId]       Optional id of the sender.
+   * @private
+   */
+  Event.prototype._trigger = function (event, params, senderId) {
+    if (event == '*') {
+      throw new Error('Cannot trigger event *');
+    }
+
+    var subscribers = [];
+    if (event in this._subscribers) {
+      subscribers = subscribers.concat(this._subscribers[event]);
+    }
+    if ('*' in this._subscribers) {
+      subscribers = subscribers.concat(this._subscribers['*']);
+    }
+
+    for (var i = 0, len = subscribers.length; i < len; i++) {
+      var subscriber = subscribers[i];
+      if (subscriber.callback) {
+        subscriber.callback(event, params, senderId || null);
+      }
+    }
+  };
 
   /**
    * DataSet
@@ -1522,6 +1585,8 @@
           this.add(data);
       }
   }
+
+  DataSet.prototype = new Event();
 
   /**
    * Add data.
@@ -1564,6 +1629,22 @@
       }
 
       return data;
+  };
+
+  /**
+   * set data.
+   */
+  DataSet.prototype.set = function (data) {
+      this.clear();
+      this.add(data);
+      this._trigger('change');
+  };
+
+  /**
+   * clear data.
+   */
+  DataSet.prototype.clear = function (args) {
+      this._data = []; // map with data indexed by id
   };
 
   /**
@@ -1660,13 +1741,19 @@
           max: options.max
       });
 
+      this.map = map;
+
       var category = new Category(options.splitList);
 
       var choropleth = new Choropleth(options.splitList);
 
-      var canvasLayer = new CanvasLayer({
+      var canvasLayer = this.canvasLayer = new CanvasLayer({
           map: map,
           update: update
+      });
+
+      dataSet.on('change', function () {
+          canvasLayer.draw();
       });
 
       if (options.draw == 'time') {
@@ -1785,7 +1872,13 @@
       };
   }
 
-  Layer.prototype.calcuteDataSet = function (dataSet) {};
+  Layer.prototype.show = function () {
+      this.map.addOverlay(this.canvasLayer);
+  };
+
+  Layer.prototype.hide = function () {
+      this.map.removeOverlay(this.canvasLayer);
+  };
 
   /**
    * Copyright 2012 Google Inc. All Rights Reserved.

@@ -22,13 +22,19 @@ function Layer(map, dataSet, options) {
         max: options.max
     });
 
+    this.map = map;
+
     var category = new Category(options.splitList);
 
     var choropleth = new Choropleth(options.splitList);
 
-    var canvasLayer = new CanvasLayer({
+    var canvasLayer = this.canvasLayer = new CanvasLayer({
         map: map,
         update: update
+    });
+
+    dataSet.on('change', function() {
+        canvasLayer.draw();
     });
 
     if (options.draw == 'time') {
@@ -149,7 +155,12 @@ function Layer(map, dataSet, options) {
 
 }
 
-Layer.prototype.calcuteDataSet = function (dataSet) {
+Layer.prototype.show = function () {
+    this.map.addOverlay(this.canvasLayer);
+}
+
+Layer.prototype.hide = function () {
+    this.map.removeOverlay(this.canvasLayer);
 }
 
 export default Layer;

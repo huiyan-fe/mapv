@@ -2,6 +2,8 @@
  * @author kyle / http://nikai.us/
  */
 
+import Event from "../utils/Event";
+
 /**
  * DataSet
  *
@@ -42,6 +44,8 @@ function DataSet(data, options) {
     }
 
 }
+
+DataSet.prototype = new Event();
 
 /**
  * Add data.
@@ -86,6 +90,22 @@ DataSet.prototype.get = function (args) {
     return data;
 
 };
+
+/**
+ * set data.
+ */
+DataSet.prototype.set = function (data) {
+    this.clear();
+    this.add(data);
+    this._trigger('change');
+}
+
+/**
+ * clear data.
+ */
+DataSet.prototype.clear = function (args) {
+    this._data = []; // map with data indexed by id
+}
 
 /**
  * remove data.
