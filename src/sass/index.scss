@@ -3,5 +3,36 @@
     top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: 0; 
+    z-index: 0;
+}
+
+.map-nav {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 40px;
+    bottom: 0px;
+    background: #222222;
+    z-index: 10;
+}
+
+.map-layers {
+    position: absolute;
+    left: 40px;
+    top: 0;
+    width: 200px;
+    bottom: 0px;
+    background: #323232;
+    z-index: 10;
+}
+
+.map-style {
+    position: absolute;
+    left: 240px;
+    top: 0;
+    width: 320px;
+    bottom: 0px;
+    background: #404040;
+    z-index: 10;
 }
