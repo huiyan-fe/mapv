@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel src/js -d lib"
+    "build-rollup": "rollup src/js/app.js --output _tmp/bundle.js ",
+    "build-babel": "babel _tmp -d lib",
+    "build": "build-rollup && build-babel"
   },
   "repository": {
     "type": "git",
@@ -18,10 +20,18 @@
   },
   "homepage": "https://github.com/huiyan-fe/mapv#readme",
   "babel": {
-    "presets": ["es2015"]
+    "presets": [
+      "es2015"
+    ]
   },
   "devDependencies": {
     "babel-cli": "^6.10.1",
-    "babel-preset-es2015": "^6.9.0"
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-react": "^6.5.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-rollup": "^2.0.1",
+    "gulp-sass": "^2.3.2",
+    "rollup": "^0.32.0"
   }
 }
