@@ -6,3 +6,5 @@
 * [API](API/README.md)
    * [point-text](API/point-text.md)
    * [point-icon](API/point-icon.md)
+   * mapv.Map
+
