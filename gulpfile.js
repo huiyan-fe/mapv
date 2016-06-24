@@ -38,11 +38,16 @@ gulp.task('html', function() {
         .pipe(gulp.dest('./dist/page'))
 })
 
+gulp.task('static', function() {
+    gulp.src('./src/fonts/**/*.*')
+        .pipe(gulp.dest('./dist/fonts/'))
+})
 
 
-gulp.task('default', ['css', 'js', 'html'], function() {});
+gulp.task('default', ['css', 'js', 'html', 'static'], function() {});
 
 
 gulp.watch('./src/js/**/*.{js,jsx}', ['js']);
 gulp.watch('./src/sass/**/*.scss', ['css']);
 gulp.watch('./src/jade/**/*.jade', ['html']);
+gulp.watch('./src/**/*.*', ['static']);

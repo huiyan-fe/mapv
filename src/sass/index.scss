@@ -1,3 +1,18 @@
+body {
+    font-size: 12px;
+}
+
+@font-face {
+    font-family: 'icomoon';
+    src:    url('../fonts/icomoon.eot?b4nqh');
+    src:    url('../fonts/icomoon.eot?b4nqh#iefix') format('embedded-opentype'),
+        url('../fonts/icomoon.ttf?b4nqh') format('truetype'),
+        url('../fonts/icomoon.woff?b4nqh') format('woff'),
+        url('../fonts/icomoon.svg?b4nqh#icomoon') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
 #map {
     position: absolute;
     top: 0;
@@ -35,4 +50,132 @@
     bottom: 0px;
     background: #404040;
     z-index: 10;
+}
+
+.map-nav-block {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    font-size: 12px;
+    text-align: center;
+    color: #999;
+    font-family: 'icomoon';
+    span {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        left: 0;
+        right: 0;
+        cursor: pointer;
+        transition: all 0.2s ease-in;
+    }
+    &:hover {
+        .map-nav-icon {
+            left: -40;
+        }
+        .map-nav-text {
+            opacity: 1;
+        }    
+    }
+    &.active {
+        color: #dfdfe0;
+        background: #323232;
+    }
+    .map-nav-icon {
+        font-size: 20px;
+        left: 0;
+    }
+    .map-nav-text {
+        opacity: 0;
+    }
+}
+
+.map-logo {
+    height: 60px;
+}
+
+.map-layers-info {
+    height: 60px;
+    background: #404040;
+    .map-layers-info-title {
+        font-size: 12px;
+        color: #eee;
+        height: 28px;
+        line-height: 28px;
+        margin: 0 10px;
+        border-bottom: 1px solid #535353;
+    }
+
+    .map-layers-opt {
+        height: 30px;
+        line-height: 30px;
+        margin: 0 10px;
+        color: #999;
+    }
+
+    .map-layers-opt-new {
+        margin-right: 5px;
+        font-weight: 10;
+        font-family: 'icomoon';
+    }
+
+    
+}
+
+.map-layers-list,
+.map-layers-list li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    
+}
+.map-layers-list li {
+    height: 25px;
+    line-height: 25px;
+    padding: 0 10px;
+    margin: 10px 0;
+    border-left: 2px solid #666;
+    color: #999;
+    cursor: pointer;
+    &.active {
+        border-left: 2px solid #eee;
+        color: #eee;
+    }
+    .map-lists-show {
+        display: inline-block;
+        margin: 0 10px 0 0;
+        font-family: 'icomoon', sans-serif;
+    }
+}
+
+.map-style-info {
+    padding: 0 10px;
+    height: 60px;
+    background: #535353;
+    overflow: hidden;
+    .map-style-info-name {
+        height: 14px;
+        line-height: 14px;
+        padding: 8px 0;
+        color: #fff;
+        border-bottom: 1px solid #777;
+    }
+    .map-style-info-name-liststyle {
+        border-left: 2px solid #eee;
+        height: 14px;
+        margin-right: 10px;
+        float: left;
+    }
+    .map-style-info-fn{
+        height: 30px;
+        line-height: 30px;
+        // color: #fff;
+        color: #999;
+    }
+    .map-style-info-fn-icon {
+        font-family: "icomoon";
+        margin-right: 10px;
+        color: #999;
+    }
 }
