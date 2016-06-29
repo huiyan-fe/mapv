@@ -7,7 +7,7 @@ class Nav extends React.Component {
         super(props);
         this.state = {
             moduleShow: true,
-            type: 'edit' // edit | data
+            type: 'data' // edit | data
         }
     }
 
@@ -30,6 +30,7 @@ class Nav extends React.Component {
     }
 
     render() {
+        console.log(this.state.type)
         return (
             <div className="map-style" style={{ display: this.state.moduleShow ? 'block' : 'none' }}>
                 <div className="map-style-info">
@@ -38,7 +39,7 @@ class Nav extends React.Component {
                         <span className={"map-style-info-fn-btn " + (this.state.type == 'edit' ? 'active' : '') }
                             onClick={this.changeStyle.bind(this, 'edit') }>
                             <span className="map-style-info-fn-icon">&#xe90c; </span>
-                            <span>修改样式</span>
+                            <span>调整样式</span>
                         </span>
                         <span className={"map-style-info-fn-btn " + (this.state.type == 'data' ? 'active' : '') }
                             onClick={this.changeStyle.bind(this, 'data') }>
