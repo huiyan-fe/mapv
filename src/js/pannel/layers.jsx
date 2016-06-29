@@ -1,5 +1,6 @@
 import React from 'react';
 import Store from '../basic/mavStore';
+import Action from '../basic/mavAction';
 
 class Nav extends React.Component {
     constructor(props) {
@@ -14,12 +15,12 @@ class Nav extends React.Component {
     componentDidMount() {
         var self = this;
         Store.on(function (data) {
-            if (data == 'layers') {
+            if (data.type == 'changeNav' && data.data == 'layers') {
                 self.setState({
                     moduleShow: true
                 })
             }
-        })
+        });
     }
 
     addNewLayer() {
@@ -31,6 +32,13 @@ class Nav extends React.Component {
         this.setState({
             layers: layers,
             activeLayer: layers.length - 1
+        });
+
+        Action.emit({
+            data: {
+                // data: data,
+                type: 'newLayer'
+            }
         });
     }
 

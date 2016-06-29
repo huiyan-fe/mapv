@@ -205,3 +205,58 @@ body {
         }
     }
 }
+
+.map-style-datablock {
+    padding: 15px 15px 0px 15px;
+    color: #999;
+    line-height: 1.6em;   
+    p {
+        height: 20px;
+        line-height: 20px;
+    }
+}
+
+.map-style-datatitle {
+    padding: 5px 0;
+    border-bottom: 1px solid #666;
+    margin-bottom: 5px; 
+}
+
+.radio {
+    float: left;
+    width: 15px;
+    height: 15px;
+    background: #636363;
+    border-radius: 100px;
+    margin: 2px 8px 0 0;
+    vertical-align: middle;
+    &.active {
+        background: #2e8bce;
+        position: relative;
+        &:after{
+            content: '';
+            background: white;
+            width: 1px;
+            height: 8px;
+            left: 50%;
+            top: 50%;
+            margin: -4px 0 0 -1px;
+            position: absolute;
+            transform: rotate(45deg);
+            border-radius: 4px;
+        }
+
+        &:before{
+            content: '';
+            background: white;
+            width: 1px;
+            height: 8px;
+            left: 50%;
+            top: 50%;
+            margin: -4px 0 0 -1px;
+            position: absolute;
+            transform: rotate(-45deg);
+            border-radius: 4px;
+        }
+    }
+}

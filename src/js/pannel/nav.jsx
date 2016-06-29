@@ -18,7 +18,10 @@ class Nav extends React.Component {
             nav: nav
         }, function () {
             Action.emit({
-                data: nav
+                data: {
+                    type: 'changeNav',
+                    data: nav
+                }
             });
         })
     }
