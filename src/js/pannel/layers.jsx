@@ -25,19 +25,23 @@ class Nav extends React.Component {
 
     addNewLayer() {
         var layers = this.state.layers;
+        var layerID = layers.length;
+        var name = '图层-' + layerID;
         layers.push({
-            'name': '图层-' + layers.length,
-            'show': 'true'
+            id: layerID,
+            name: name,
+            show: true
         });
         this.setState({
             layers: layers,
-            activeLayer: layers.length - 1
+            activeLayer: layerID
         });
 
         Action.emit({
             data: {
-                // data: data,
-                type: 'newLayer'
+                type: 'newLayer',
+                name: name,
+                layerId: layerID
             }
         });
     }
@@ -46,6 +50,13 @@ class Nav extends React.Component {
         this.setState({
             activeLayer: index
         });
+
+        Action.emit({
+            data: {
+                type: 'changeLayer',
+                layerId: index
+            }
+        });
     }
 
     render() {
@@ -53,8 +64,8 @@ class Nav extends React.Component {
         var layers = this.state.layers.map((item, index) => {
             return (
                 <li key={"layers-" + index}
-                    className={index === self.state.activeLayer ? "active" : ""}
-                    onClick={this.changeActive.bind(this, index) }>
+                    className={item.id === self.state.activeLayer ? "active" : ""}
+                    onClick={this.changeActive.bind(this, item.id) }>
                     <span className="map-lists-show">&#xe9ce; </span><span>{item.name}</span>
                 </li>
             );

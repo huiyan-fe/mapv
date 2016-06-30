@@ -1,5 +1,7 @@
 import React from 'react';
 import Store from '../basic/mavStore';
+import Action from '../basic/mavAction';
+import Data from '../basic/data';
 
 class Nav extends React.Component {
 
@@ -9,16 +11,44 @@ class Nav extends React.Component {
             moduleShow: true,
             type: 'data' // edit | data
         }
+        this.layers = {}
     }
 
     componentDidMount() {
         var self = this;
         Store.on(function (data) {
             if (data.type == 'newLayer') {
+                var id = data.layerId;
                 self.setState({
                     moduleShow: true,
-                    type: 'data'
-                })
+                    type: 'data',
+                    layerName: data.name,
+                    activeId: id
+                });
+
+                self.layers[id] = {
+                    data: Data('point'),
+                    option: {
+                        fillStyle: 'rgba(151, 192, 247, 0.6)',
+                        shadowColor: 'rgba(151, 192, 247, 0.5)',
+                        shadowBlur: 10,
+                        size: 5,
+                        draw: 'simple'
+                    }
+                }
+
+                Action.emit({
+                    data: {
+                        type: 'layerChange',
+                        id: id,
+                        data: self.layers[id].data,
+                        option: self.layers[id].option
+                    }
+                });
+            } else if (data.type == 'changeLayer') {
+                self.setState({
+                    activeId: data.layerId
+                });
             }
         });
     }
@@ -29,12 +59,36 @@ class Nav extends React.Component {
         })
     }
 
+    changeValue() {
+
+    }
+
     render() {
-        console.log(this.state.type)
+        var names = {
+            'fillStyle': '填充颜色',
+            'shadowColor': '阴影颜色',
+            'shadowBlur': '阴影模糊',
+            'size': '大小',
+            'draw': '绘图类型',
+        }
+        // options
+        var options = [];
+        if (this.layers[this.state.activeId]) {
+            var _options = this.layers[this.state.activeId].option;
+            for (var i in _options) {
+                options.push(
+                    <div className="map-style-optiosblock"
+                        key={"options_" + i}>
+                        <span className="options-name">{names[i]}</span>
+                        <input value={_options[i]} onChange={this.changeValue}/>
+                    </div>);
+            }
+        };
+
         return (
             <div className="map-style" style={{ display: this.state.moduleShow ? 'block' : 'none' }}>
                 <div className="map-style-info">
-                    <div className="map-style-info-name"><span className="map-style-info-name-liststyle"></span>图层名称435</div>
+                    <div className="map-style-info-name"><span className="map-style-info-name-liststyle"></span>{this.state.layerName}</div>
                     <div className="map-style-info-fn">
                         <span className={"map-style-info-fn-btn " + (this.state.type == 'edit' ? 'active' : '') }
                             onClick={this.changeStyle.bind(this, 'edit') }>
@@ -47,6 +101,11 @@ class Nav extends React.Component {
                             <span>修改数据</span>
                         </span>
                     </div>
+                </div>
+                <div className="map-style-datablock">
+                    <div className="map-style-datatitle">图层类型</div>
+                    <div className="map-style-datatitle">调整参数</div>
+                    {options}
                 </div>
                 <div className="map-style-datablock">
                     <div className="map-style-datatitle">数据来源</div>

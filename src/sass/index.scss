@@ -261,3 +261,13 @@ body {
         }
     }
 }
+
+.map-style-optiosblock {
+    padding: 10px 0 0 0;
+    .options-name {
+        display: inline-block;
+        width: 70px;
+        text-align: right;
+        margin-right: 10px;
+    }
+}
