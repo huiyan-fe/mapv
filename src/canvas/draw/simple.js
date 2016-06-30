@@ -5,7 +5,7 @@
 import pathSimple from "../path/simple";
 
 export default {
-    draw: function (context, dataSet, options) {
+    draw: function(context, dataSet, options) {
 
         context.save();
 
@@ -14,7 +14,7 @@ export default {
         }
 
         var data = dataSet.get();
-        
+
         for (var i = 0, len = data.length; i < len; i++) {
 
             var item = data[i];

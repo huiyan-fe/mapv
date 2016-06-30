@@ -10,3 +10,4 @@ work
 src/tags
 *.*~
 build.sh
+.vscode
