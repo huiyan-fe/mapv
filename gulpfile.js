@@ -41,6 +41,8 @@ gulp.task('html', function() {
 gulp.task('static', function() {
     gulp.src('./src/fonts/**/*.*')
         .pipe(gulp.dest('./dist/fonts/'))
+    gulp.src('./src/js/tools/**/*.*')
+        .pipe(gulp.dest('./dist/js/tools/'))
 })
 
 

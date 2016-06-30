@@ -16,7 +16,7 @@ body {
 #map {
     position: absolute;
     top: 0;
-    left: 0;
+    left: 40px;
     right: 0;
     bottom: 0; 
     z-index: 0;
@@ -112,6 +112,7 @@ body {
         line-height: 30px;
         margin: 0 10px;
         color: #999;
+        cursor: pointer;
     }
 
     .map-layers-opt-new {
@@ -133,15 +134,28 @@ body {
 .map-layers-list li {
     height: 25px;
     line-height: 25px;
-    padding: 0 10px;
+    padding: 5px 10px;
     margin: 10px 0;
     border-left: 2px solid #666;
     color: #999;
     cursor: pointer;
+    &:hover {
+        background: #393939;
+    }
     &.active {
         border-left: 2px solid #eee;
         color: #eee;
+        background: #404040;
     }
+    &.nodate {
+        cursor: default;
+        border-left: none;
+        text-align: center;
+        &:hover {
+            background: none;
+        }
+    }
+
     .map-lists-show {
         display: inline-block;
         margin: 0 10px 0 0;
@@ -175,7 +189,85 @@ body {
     }
     .map-style-info-fn-icon {
         font-family: "icomoon";
-        margin-right: 10px;
+        margin-right: 5px;
         color: #999;
+    }
+    .map-style-info-fn-btn {
+        cursor: pointer;
+        display: inline-block;
+        // margin: 0 20px 0 0;
+        padding: 0 20px;
+        &:hover {
+            background: #393939;
+        }
+        &.active {
+            background: #404040;
+        }
+    }
+}
+
+.map-style-datablock {
+    padding: 15px 15px 0px 15px;
+    color: #999;
+    line-height: 1.6em;   
+    p {
+        height: 20px;
+        line-height: 20px;
+        cursor: pointer;
+    }
+}
+
+.map-style-datatitle {
+    padding: 5px 0;
+    border-bottom: 1px solid #666;
+    margin-bottom: 5px; 
+}
+
+.radio {
+    float: left;
+    width: 15px;
+    height: 15px;
+    background: #636363;
+    border-radius: 100px;
+    margin: 2px 8px 0 0;
+    vertical-align: middle;
+    &.active {
+        background: #2e8bce;
+        position: relative;
+        &:after{
+            content: '';
+            background: white;
+            width: 1px;
+            height: 8px;
+            left: 50%;
+            top: 50%;
+            margin: -4px 0 0 -1px;
+            position: absolute;
+            transform: rotate(45deg);
+            border-radius: 4px;
+        }
+
+        &:before{
+            content: '';
+            background: white;
+            width: 1px;
+            height: 8px;
+            left: 50%;
+            top: 50%;
+            margin: -4px 0 0 -1px;
+            position: absolute;
+            transform: rotate(-45deg);
+            border-radius: 4px;
+        }
+    }
+}
+
+.map-style-optiosblock {
+    padding: 10px 0 0 0;
+    .options-name {
+        display: inline-block;
+        width: 70px;
+        text-align: right;
+        margin-right: 10px;
     }
 }
