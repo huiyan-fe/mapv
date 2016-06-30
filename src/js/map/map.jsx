@@ -21,17 +21,27 @@ class Map extends React.Component {
         });
 
         Store.on(function (data) {
+            console.log(data.option)
             if (data.type == 'layerChange') {
                 if (self.layers[data.id]) {
-                    self.layers[data.id].mapvLayer.set({
-                        options: data.option
-                    });
+                    // console.log(data);
+                    // set data 
+                    if (data.data) {
+                        self.layers[data.id].dataSet.set(data.data);
+                    }
+                    // set option
+                    if (data.option) {
+                        self.layers[data.id].mapvLayer.set({
+                            options: data.option
+                        });
+                    }
                 } else {
                     if (data.data && data.option) {
                         var dataSet = new mapv.DataSet(data.data);
                         var mapvLayer = new mapv.baiduMapLayer(map, dataSet, data.option);
                         self.layers[data.id] = {
-                            mapvLayer: mapvLayer
+                            mapvLayer: mapvLayer,
+                            dataSet: dataSet
                         }
                     }
                 }

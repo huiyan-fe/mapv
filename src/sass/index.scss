@@ -68,7 +68,7 @@ body {
         left: 0;
         right: 0;
         cursor: pointer;
-        transition: all 0.2s ease-in;
+        transition: all 0.2s ease-out;
     }
     &:hover {
         .map-nav-icon {
@@ -210,11 +210,6 @@ body {
     padding: 15px 15px 0px 15px;
     color: #999;
     line-height: 1.6em;   
-    p {
-        height: 20px;
-        line-height: 20px;
-        cursor: pointer;
-    }
 }
 
 .map-style-datatitle {
@@ -223,18 +218,24 @@ body {
     margin-bottom: 5px; 
 }
 
-.radio {
-    float: left;
-    width: 15px;
-    height: 15px;
-    background: #636363;
-    border-radius: 100px;
-    margin: 2px 8px 0 0;
-    vertical-align: middle;
-    &.active {
-        background: #2e8bce;
+.radio-block {
+    cursor: pointer;
+    height: 30px;
+    line-height: 30px;
+    margin: 0;
+    .radio {
+        overflow: hidden;
+        transition: all 0.1s ease-out;
+        float: left;
+        width: 15px;
+        height: 15px;
+        background: #636363;
+        border-radius: 100px;
+        margin: 6px 8px 0 0;
+        vertical-align: middle;
         position: relative;
         &:after{
+            transition: all 0.1s ease-out;
             content: '';
             background: white;
             width: 1px;
@@ -243,11 +244,13 @@ body {
             top: 50%;
             margin: -4px 0 0 -1px;
             position: absolute;
-            transform: rotate(45deg);
+            transform: rotate(0deg);
             border-radius: 4px;
+            opacity: 0;
         }
 
         &:before{
+            transition: all 0.1s ease-out;
             content: '';
             background: white;
             width: 1px;
@@ -256,11 +259,37 @@ body {
             top: 50%;
             margin: -4px 0 0 -1px;
             position: absolute;
-            transform: rotate(-45deg);
+            transform: rotate(0deg);
             border-radius: 4px;
+            opacity: 0;
         }
     }
+    &:hover {
+        .radio {
+             background: #999;
+        }
+    }
+    &.active {
+        .radio {
+            background: #2e8bce;
+            &:after{
+                left: 50%;
+                top: 50%;
+                transform: rotate(45deg);
+                opacity: 1;
+            }
+
+            &:before{
+                left: 50%;
+                top: 50%;
+                transform: rotate(-45deg);
+                opacity: 1;
+            }
+        }
+    }
+    
 }
+
 
 .map-style-optiosblock {
     padding: 10px 0 0 0;
