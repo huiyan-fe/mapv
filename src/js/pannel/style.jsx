@@ -8,10 +8,10 @@ class Nav extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            moduleShow: true,
-            type: 'data' // edit | data
+            moduleShow: false,
+            type: 'data', // edit | data
+            layers: {}
         }
-        this.layers = {}
     }
 
     componentDidMount() {
@@ -19,14 +19,8 @@ class Nav extends React.Component {
         Store.on(function (data) {
             if (data.type == 'newLayer') {
                 var id = data.layerId;
-                self.setState({
-                    moduleShow: true,
-                    type: 'data',
-                    layerName: data.name,
-                    activeId: id
-                });
-
-                self.layers[id] = {
+                var layers = self.state.layers;
+                layers[id] = {
                     data: Data('point'),
                     option: {
                         fillStyle: 'rgba(151, 192, 247, 0.6)',
@@ -37,12 +31,21 @@ class Nav extends React.Component {
                     }
                 }
 
+                self.setState({
+                    moduleShow: true,
+                    type: 'data',
+                    layerName: data.name,
+                    activeId: id,
+                    layers: layers
+                });
+
+
                 Action.emit({
                     data: {
                         type: 'layerChange',
                         id: id,
-                        data: self.layers[id].data,
-                        option: self.layers[id].option
+                        data: layers[id].data,
+                        option: layers[id].option
                     }
                 });
             } else if (data.type == 'changeLayer') {
@@ -59,29 +62,121 @@ class Nav extends React.Component {
         })
     }
 
-    changeValue() {
+    changeValue(type) {
+        var activeId = this.state.activeId;
+        var option = this.state.layers[activeId].option;
+        option[type] = this.refs[type].value;
+        this.setState({
+            layers: this.state.layers
+        });
 
+        Action.emit({
+            data: {
+                type: 'layerChange',
+                id: activeId,
+                option: option
+            }
+        });
+    }
+
+    getControl(type, options) {
+        var names = {
+            'fillStyle': {
+                name: '填充颜色',
+                type: 'color',
+            },
+            'shadowColor': {
+                name: '阴影颜色',
+                type: 'color',
+            },
+            'shadowBlur': {
+                name: '阴影模糊',
+                type: 'range',
+            },
+            'size': {
+                name: '大小',
+                type: 'range'
+            },
+            'draw': {
+                name: '绘图类型',
+                type: 'select',
+                options: ['simple', 'bubble', 'intensity', 'category', 'choropleth', 'heatmap', 'grid', 'honeycomb', 'text', 'icon'],
+            },
+        }
+
+        var ipt;
+        switch (names[type].type) {
+            case 'color':
+                var color = options;
+                var testRGBA = color.match(/rgba\((.+?),(.+?),(.+?),(.+?)\)/);
+                if (testRGBA.length >= 4) {
+                    var R = Number(testRGBA[1]).toString(16);
+                    R = R.length <= 1 ? '0' + R : R;
+                    var G = Number(testRGBA[2]).toString(16);
+                    G = G.length <= 1 ? '0' + G : G;
+                    var B = Number(testRGBA[3]).toString(16);
+                    B = B.length <= 1 ? '0' + B : B;
+                    color = '#' + R + G + B;
+                }
+                ipt = <input value={color}
+                    type='color'
+                    onChange={this.changeValue.bind(this, type) }
+                    ref={type}/>;
+                break;
+            case 'range':
+                ipt = <input value={options}
+                    type='range'
+                    onChange={this.changeValue.bind(this, type) }
+                    ref={type}/>;
+                break;
+            case 'select':
+                var opts = names.draw.options.map(function (item, index) {
+                    return <option key={"select_item_" + index} value={item}>{item}</option>
+                });
+                ipt = (
+                    <select onChange={this.changeValue.bind(this, type) } ref={type}>{opts}</select>
+                );
+                break;
+        }
+
+        return (
+            <div className="map-style-optiosblock"
+                key={"options_" + type}>
+                <span className="options-name">{names[type].name}</span>
+                {ipt}
+            </div>);
     }
 
     render() {
         var names = {
-            'fillStyle': '填充颜色',
-            'shadowColor': '阴影颜色',
-            'shadowBlur': '阴影模糊',
-            'size': '大小',
-            'draw': '绘图类型',
+            'fillStyle': {
+                name: '填充颜色',
+                type: 'color',
+            },
+            'shadowColor': {
+                name: '阴影颜色',
+                type: 'color',
+            },
+            'shadowBlur': {
+                name: '阴影模糊',
+                type: 'range',
+            },
+            'size': {
+                name: '大小',
+                type: 'range'
+            },
+            'draw': {
+                name: '绘图类型',
+                type: 'select',
+                options: ['simple', 'bubble', 'intensity', 'category', 'choropleth', 'heatmap', 'grid', 'honeycomb', 'text', 'icon'],
+            },
         }
         // options
         var options = [];
-        if (this.layers[this.state.activeId]) {
-            var _options = this.layers[this.state.activeId].option;
+        if (this.state.layers[this.state.activeId]) {
+            var _options = this.state.layers[this.state.activeId].option;
             for (var i in _options) {
-                options.push(
-                    <div className="map-style-optiosblock"
-                        key={"options_" + i}>
-                        <span className="options-name">{names[i]}</span>
-                        <input value={_options[i]} onChange={this.changeValue}/>
-                    </div>);
+                options.push(this.getControl(i, _options[i]));
             }
         };
 
