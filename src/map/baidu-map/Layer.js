@@ -181,11 +181,13 @@ Layer.prototype.update = function(obj) {
         options[i] = _options[i];
     }
     self.init(options);
+    self.canvasLayer.draw();
 }
 
 Layer.prototype.set = function(obj) {
     var self = this;
     self.init(obj.options);
+    self.canvasLayer.draw();
 }
 
 export default Layer;
