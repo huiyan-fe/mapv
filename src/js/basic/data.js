@@ -34,7 +34,7 @@ function data(type) {
     }
 
     if (type == 'line') {
-        var randomCount = 1000;
+        var randomCount = 500;
 
         var data = [];
 

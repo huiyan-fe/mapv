@@ -21,10 +21,8 @@ class Map extends React.Component {
         });
 
         Store.on(function (data) {
-            console.log(data.option)
             if (data.type == 'layerChange') {
                 if (self.layers[data.id]) {
-                    // console.log(data);
                     // set data 
                     if (data.data) {
                         self.layers[data.id].dataSet.set(data.data);
