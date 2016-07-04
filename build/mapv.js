@@ -464,13 +464,13 @@
   }
 
   function hex_corner(center, size, i) {
-      var angle_deg = 60 * i   + 30;
+      var angle_deg = 60 * i + 30;
       var angle_rad = Math.PI / 180 * angle_deg;
       return [center.x + size * Math.cos(angle_rad), center.y + size * Math.sin(angle_rad)];
   }
 
   var drawHoneycomb = {
-      draw: function (context, dataSet, options) {
+      draw: function(context, dataSet, options) {
 
           context.save();
 
@@ -488,12 +488,12 @@
 
           var offset = options.offset || {
               x: 10,
-              y: 10 
+              y: 10
           }
 
-          //The maximum radius the hexagons can have to still fit the screen
-          var r = options.size || 40;
-
+          //
+          var r = options.gridWidth || 40;
+          r = r / 2 / Math.sin(Math.PI / 3);
           var dx = r * 2 * Math.sin(Math.PI / 3);
           var dy = r * 1.5;
 
@@ -501,8 +501,10 @@
 
           for (var i = 0; i < data.length; i++) {
               var coordinates = data[i].geometry.coordinates;
-              var py = (coordinates[1] - offset.y)  / dy, pj = Math.round(py),
-                  px = (coordinates[0] - offset.x) / dx - (pj & 1 ? .5 : 0), pi = Math.round(px),
+              var py = (coordinates[1] - offset.y) / dy,
+                  pj = Math.round(py),
+                  px = (coordinates[0] - offset.x) / dx - (pj & 1 ? .5 : 0),
+                  pi = Math.round(px),
                   py1 = py - pj;
 
               if (Math.abs(py1) * 3 > 1) {
@@ -514,8 +516,11 @@
                   if (px1 * px1 + py1 * py1 > px2 * px2 + py2 * py2) pi = pi2 + (pj & 1 ? 1 : -1) / 2, pj = pj2;
               }
 
-              var id = pi + "-" + pj, bin = binsById[id];
-              if (bin) bin.push(data[i]); else {
+              var id = pi + "-" + pj,
+                  bin = binsById[id];
+              if (bin) {
+                  bin.push(data[i])
+              } else {
                   bin = binsById[id] = [data[i]];
                   bin.i = pi;
                   bin.j = pj;
@@ -540,9 +545,10 @@
 
                   var radius = r;
 
-                  //radius = intensity.getSize(count);
-
-                  var result = hex_corner({x: item.x + offset.x, y: item.y + offset.y}, radius, j);
+                  var result = hex_corner({
+                      x: item.x + offset.x,
+                      y: item.y + offset.y
+                  }, radius, j);
                   context.lineTo(result[0], result[1]);
               }
               context.closePath();
@@ -1404,9 +1410,9 @@
    * {
    *     map 地图实例对象
    * }
-   */ 
-      
-  function CanvasLayer(options){
+   */
+
+  function CanvasLayer(options) {
       this.options = options || {};
       this.paneName = this.options.paneName || 'labelPane';
       this.zIndex = this.options.zIndex || 0;
@@ -1419,24 +1425,21 @@
 
       CanvasLayer.prototype = new BMap.Overlay();
 
-      CanvasLayer.prototype.initialize = function(map){
+      CanvasLayer.prototype.initialize = function(map) {
           this._map = map;
           var canvas = this.canvas = document.createElement("canvas");
-          canvas.style.cssText = "position:absolute;"
-                                  + "left:0;" 
-                                  + "top:0;"
-                                  + "z-index:" + this.zIndex + ";";
+          canvas.style.cssText = "position:absolute;" + "left:0;" + "top:0;" + "z-index:" + this.zIndex + ";";
           this.adjustSize();
           map.getPanes()[this.paneName].appendChild(canvas);
           var that = this;
-          map.addEventListener('resize', function () {
+          map.addEventListener('resize', function() {
               that.adjustSize();
               that._draw();
           });
           return this.canvas;
       }
 
-      CanvasLayer.prototype.adjustSize = function(){
+      CanvasLayer.prototype.adjustSize = function() {
           var size = this._map.getSize();
           var canvas = this.canvas;
 
@@ -1450,14 +1453,15 @@
           canvas.style.height = size.height + "px";
       }
 
-      CanvasLayer.prototype.draw = function(){
-          if (!this._lastDrawTime || new Date() - this._lastDrawTime > 10) {
-              this._draw();
-          }
-          this._lastDrawTime = new Date();
+      CanvasLayer.prototype.draw = function() {
+          var self = this;
+          clearTimeout(self.timeoutID);
+          self.timeoutID = setTimeout(function() {
+              self._draw();
+          }, 15);
       }
 
-      CanvasLayer.prototype._draw = function(){
+      CanvasLayer.prototype._draw = function() {
           var map = this._map;
           var size = map.getSize();
           var center = map.getCenter();
@@ -1470,27 +1474,27 @@
           }
       }
 
-      CanvasLayer.prototype.getContainer = function(){
+      CanvasLayer.prototype.getContainer = function() {
           return this.canvas;
       }
 
-      CanvasLayer.prototype.show = function(){
+      CanvasLayer.prototype.show = function() {
           if (!this.canvas) {
               this._map.addOverlay(this);
           }
           this.canvas.style.display = "block";
       }
 
-      CanvasLayer.prototype.hide = function(){
+      CanvasLayer.prototype.hide = function() {
           this.canvas.style.display = "none";
           //this._map.removeOverlay(this);
       }
 
-      CanvasLayer.prototype.setZIndex = function(zIndex){
+      CanvasLayer.prototype.setZIndex = function(zIndex) {
           this.canvas.style.zIndex = zIndex;
       }
 
-      CanvasLayer.prototype.getZIndex = function(){
+      CanvasLayer.prototype.getZIndex = function() {
           return this.zIndex;
       }
 
@@ -1851,7 +1855,7 @@
 
           // get data from data set
           var data = dataSet.get(dataGetOptions);
-
+          
           // deal with data based on draw
           for (var i = 0; i < data.length; i++) {
               var item = data[i];
@@ -1939,11 +1943,13 @@
           options[i] = _options[i];
       }
       self.init(options);
+      self.canvasLayer.draw();
   }
 
   Layer.prototype.set = function(obj) {
       var self = this;
       self.init(obj.options);
+      self.canvasLayer.draw();
   }
 
   /**

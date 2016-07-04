@@ -93,7 +93,7 @@ function Layer(map, dataSet, options) {
 
         // get data from data set
         var data = dataSet.get(dataGetOptions);
-
+        
         // deal with data based on draw
         for (var i = 0; i < data.length; i++) {
             var item = data[i];
@@ -181,11 +181,13 @@ Layer.prototype.update = function(obj) {
         options[i] = _options[i];
     }
     self.init(options);
+    self.canvasLayer.draw();
 }
 
 Layer.prototype.set = function(obj) {
     var self = this;
     self.init(obj.options);
+    self.canvasLayer.draw();
 }
 
 export default Layer;
