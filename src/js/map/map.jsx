@@ -6,7 +6,7 @@ class Map extends React.Component {
 
     constructor(props) {
         super(props);
-        this.layers = {}
+        this.layers = window.layers = {}
         this.state = {
             activeLayers: null
         }
@@ -23,14 +23,23 @@ class Map extends React.Component {
         Store.on(function (data) {
             if (data.type == 'layerChange') {
                 if (self.layers[data.id]) {
-                    //change 
-                    console.log('created', self.layers[data.layerId]);
+                    // set data 
+                    if (data.data) {
+                        self.layers[data.id].dataSet.set(data.data);
+                    }
+                    // set option
+                    if (data.option) {
+                        self.layers[data.id].mapvLayer.set({
+                            options: data.option
+                        });
+                    }
                 } else {
                     if (data.data && data.option) {
                         var dataSet = new mapv.DataSet(data.data);
                         var mapvLayer = new mapv.baiduMapLayer(map, dataSet, data.option);
-                        self.layers[data.layerId] = {
-                            mapvLayer: mapvLayer
+                        self.layers[data.id] = {
+                            mapvLayer: mapvLayer,
+                            dataSet: dataSet
                         }
                     }
                 }

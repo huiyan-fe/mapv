@@ -2,6 +2,7 @@ import React from 'react';
 import Store from '../basic/mavStore';
 import Action from '../basic/mavAction';
 
+
 class Nav extends React.Component {
     constructor(props) {
         super(props);
