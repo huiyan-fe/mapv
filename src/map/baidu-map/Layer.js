@@ -93,7 +93,7 @@ function Layer(map, dataSet, options) {
 
         // get data from data set
         var data = dataSet.get(dataGetOptions);
-
+        
         // deal with data based on draw
         for (var i = 0; i < data.length; i++) {
             var item = data[i];
