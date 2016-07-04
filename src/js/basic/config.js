@@ -117,10 +117,8 @@ var config = {
             useData: ['point'],
             config: {
                 point: {
-                    fillStyle: 'rgba(55, 50, 250, 0.8)',
                     shadowColor: 'rgba(255, 250, 50, 1)',
                     shadowBlur: 20,
-                    size: 8,
                     gridWidth: 30,
                     globalAlpha: 0.5,
                     gradient: {
@@ -136,10 +134,8 @@ var config = {
             useData: ['point'],
             config: {
                 point: {
-                    fillStyle: 'rgba(55, 50, 250, 0.8)',
                     shadowColor: 'rgba(255, 250, 50, 1)',
                     shadowBlur: 20,
-                    size: 30,
                     max: 100,
                     gridWidth: 30,
                     globalAlpha: 0.5,

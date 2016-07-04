@@ -464,13 +464,13 @@
   }
 
   function hex_corner(center, size, i) {
-      var angle_deg = 60 * i   + 30;
+      var angle_deg = 60 * i + 30;
       var angle_rad = Math.PI / 180 * angle_deg;
       return [center.x + size * Math.cos(angle_rad), center.y + size * Math.sin(angle_rad)];
   }
 
   var drawHoneycomb = {
-      draw: function (context, dataSet, options) {
+      draw: function(context, dataSet, options) {
 
           context.save();
 
@@ -488,12 +488,12 @@
 
           var offset = options.offset || {
               x: 10,
-              y: 10 
+              y: 10
           }
 
-          //The maximum radius the hexagons can have to still fit the screen
-          var r = options.size || 40;
-
+          //
+          var r = options.gridWidth || 40;
+          r = r / 2 / Math.sin(Math.PI / 3);
           var dx = r * 2 * Math.sin(Math.PI / 3);
           var dy = r * 1.5;
 
@@ -501,8 +501,10 @@
 
           for (var i = 0; i < data.length; i++) {
               var coordinates = data[i].geometry.coordinates;
-              var py = (coordinates[1] - offset.y)  / dy, pj = Math.round(py),
-                  px = (coordinates[0] - offset.x) / dx - (pj & 1 ? .5 : 0), pi = Math.round(px),
+              var py = (coordinates[1] - offset.y) / dy,
+                  pj = Math.round(py),
+                  px = (coordinates[0] - offset.x) / dx - (pj & 1 ? .5 : 0),
+                  pi = Math.round(px),
                   py1 = py - pj;
 
               if (Math.abs(py1) * 3 > 1) {
@@ -514,8 +516,11 @@
                   if (px1 * px1 + py1 * py1 > px2 * px2 + py2 * py2) pi = pi2 + (pj & 1 ? 1 : -1) / 2, pj = pj2;
               }
 
-              var id = pi + "-" + pj, bin = binsById[id];
-              if (bin) bin.push(data[i]); else {
+              var id = pi + "-" + pj,
+                  bin = binsById[id];
+              if (bin) {
+                  bin.push(data[i])
+              } else {
                   bin = binsById[id] = [data[i]];
                   bin.i = pi;
                   bin.j = pj;
@@ -540,9 +545,10 @@
 
                   var radius = r;
 
-                  //radius = intensity.getSize(count);
-
-                  var result = hex_corner({x: item.x + offset.x, y: item.y + offset.y}, radius, j);
+                  var result = hex_corner({
+                      x: item.x + offset.x,
+                      y: item.y + offset.y
+                  }, radius, j);
                   context.lineTo(result[0], result[1]);
               }
               context.closePath();
@@ -1849,7 +1855,7 @@
 
           // get data from data set
           var data = dataSet.get(dataGetOptions);
-
+          
           // deal with data based on draw
           for (var i = 0; i < data.length; i++) {
               var item = data[i];

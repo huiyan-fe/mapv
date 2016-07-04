@@ -98,6 +98,21 @@ class Nav extends React.Component {
             max: {
                 name: '最大阀值',
                 type: 'range'
+            },
+            radius: {
+                name: '半径',
+                type: 'range'
+            },
+            gridWidth: {
+                name: '网格宽度',
+                type: 'range'
+            },
+            globalAlpha: {
+                name: '全局透明度',
+                type: 'range',
+                min: 0.01,
+                max: 1,
+                step: 0.01,
             }
 
         }
@@ -125,7 +140,9 @@ class Nav extends React.Component {
                 case 'range':
                     ipt = <input value={options}
                         type='range'
-                        min="1"
+                        min={names[type].min}
+                        step={names[type].step}
+                        max={names[type].max}
                         onChange={this.changeValue.bind(this, type) }
                         ref={type}/>;
                     break;
