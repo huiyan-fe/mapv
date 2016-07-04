@@ -195,7 +195,6 @@ body {
     .map-style-info-fn-btn {
         cursor: pointer;
         display: inline-block;
-        // margin: 0 20px 0 0;
         padding: 0 20px;
         &:hover {
             background: #393939;
@@ -213,6 +212,7 @@ body {
 }
 
 .map-style-datatitle {
+    font-family: 'icomoon';
     padding: 5px 0;
     border-bottom: 1px solid #666;
     margin-bottom: 5px; 
@@ -298,5 +298,30 @@ body {
         width: 70px;
         text-align: right;
         margin-right: 10px;
+    }
+}
+
+.map-style-dataTypes {
+    padding: 10px 0;
+    .map-style-dataTypes-block {
+        transition: all 0.2s ease-out;
+        padding: 10px;
+        border-radius: 4px;
+        display: inline-block;
+        padding: 3px 10px;
+        background: #484646;
+        margin: 0 10px 5px 0 ;
+        width: 100px;
+        cursor: pointer;
+        width: 70px;
+        &:nth-child(3n+3) {
+            margin-right: 0;
+        }
+        &:hover {
+            background: #535353;
+        }
+        &.active {
+            background: #535353;
+        }
     }
 }

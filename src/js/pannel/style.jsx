@@ -2,16 +2,20 @@ import React from 'react';
 import Store from '../basic/mavStore';
 import Action from '../basic/mavAction';
 import Data from '../basic/data';
+import Config from '../basic/config';
 
 class Nav extends React.Component {
 
     constructor(props) {
         super(props);
+
+        this.drawType = Config.drawType;
+
         this.state = {
             moduleShow: false,
-            type: 'data', // edit | data
             layers: {},
-            dataType: null //point line polygon self
+            dataType: null, //point line polygon self
+            drawType: 'simple'
         }
     }
 
@@ -41,12 +45,6 @@ class Nav extends React.Component {
         });
     }
 
-    changeStyle(data) {
-        this.setState({
-            type: data
-        })
-    }
-
     changeValue(type) {
         var activeId = this.state.activeId;
         var option = this.state.layers[activeId].option;
@@ -67,36 +65,40 @@ class Nav extends React.Component {
     getControl(type, options) {
         // console.log(type, options)
         var names = {
-            'fillStyle': {
+            fillStyle: {
                 name: '填充颜色',
                 type: 'color',
             },
-            'shadowColor': {
+            shadowColor: {
                 name: '阴影颜色',
                 type: 'color',
             },
-            'shadowBlur': {
+            shadowBlur: {
                 name: '阴影模糊',
                 type: 'range',
             },
-            'size': {
+            size: {
                 name: '大小',
                 type: 'range'
             },
-            'draw': {
-                name: '绘图类型',
-                type: 'select',
-                options: ['simple', 'bubble', 'intensity', 'category', 'choropleth', 'heatmap', 'grid', 'honeycomb', 'text', 'icon'],
-            },
             // line
-            'strokeStyle': {
+            strokeStyle: {
                 name: '线条颜色',
                 type: 'color',
             },
-            'lineWidth': {
+            lineWidth: {
                 name: '线条宽度',
                 type: 'range'
             },
+
+            maxSize: {
+                name: '最大半径',
+                type: 'range'
+            },
+            max: {
+                name: '最大阀值',
+                type: 'range'
+            }
 
         }
 
@@ -151,6 +153,7 @@ class Nav extends React.Component {
     }
 
     changeDataType(type) {
+        // console.log(type)
         var self = this;
         var id = self.state.activeId;
         var layers = self.state.layers;
@@ -176,6 +179,23 @@ class Nav extends React.Component {
         });
     }
 
+    changeDrawType(type) {
+        var dataType = this.state.dataType;
+        var option = Config.drawType[type].config ? Config.drawType[type].config[dataType] : {}
+        this.state.layers[this.state.activeId].option = option;
+        this.setState({
+            drawType: type
+        });
+
+        Action.emit({
+            data: {
+                type: 'layerChange',
+                id: this.state.activeId,
+                option: option
+            }
+        });
+    }
+
     render() {
         // options
         var options = [];
@@ -186,46 +206,69 @@ class Nav extends React.Component {
             }
         };
 
+        // layer type
+        var layerTypes = [];
+        var dataType = this.state.dataType;
+        for (var i in this.drawType) {
+            var types = this.drawType[i];
+            if (types.useData.indexOf(dataType) != -1) {
+                layerTypes.push(
+                    <span className={"map-style-dataTypes-block " + (this.state.drawType == i ? 'active' : '') }
+                        key={"dataType_" + types.name}
+                        onClick={this.changeDrawType.bind(this, i) }
+                        >
+                        {types.name}
+                    </span>
+                )
+            }
+        }
+
         return (
             <div className="map-style" style={{ display: this.state.moduleShow ? 'block' : 'none' }}>
                 <div className="map-style-info">
-                    <div className="map-style-info-name"><span className="map-style-info-name-liststyle"></span>{this.state.layerName}</div>
+                    <div className="map-style-info-name">
+                        <span className="map-style-info-name-liststyle"></span>
+                        {this.state.layerName}
+                    </div>
                     <div className="map-style-info-fn">
-                        <span className={"map-style-info-fn-btn " + (this.state.type == 'edit' ? 'active' : '') }
-                            onClick={this.changeStyle.bind(this, 'edit') }>
+                        <span className="map-style-info-fn-btn active">
                             <span className="map-style-info-fn-icon">&#xe90c; </span>
                             <span>调整样式</span>
                         </span>
-                        <span className={"map-style-info-fn-btn " + (this.state.type == 'data' ? 'active' : '') }
-                            onClick={this.changeStyle.bind(this, 'data') }>
-                            <span className="map-style-info-fn-icon">&#xe99c; </span>
-                            <span>修改数据</span>
-                        </span>
                     </div>
                 </div>
-                <div className="map-style-datablock" style={{ display: this.state.type == 'edit' ? 'block' : 'none' }}>
-                    <div className="map-style-datatitle">图层类型</div>
-                    <div className="map-style-datatitle">调整参数</div>
-                    {options}
-                </div>
+
                 <div className="map-style-datablock" style={{ display: this.state.type == 'data' ? 'block' : 'none' }}>
-                    <div className="map-style-datatitle">选择数据来源</div>
-                    <p className={"radio-block " + (this.state.dataType == 'point' ? 'active' : '') }
-                        onClick={this.changeDataType.bind(this, 'point') }>
-                        <span className="radio"></span>DEMO点数据
-                    </p>
-                    <p className={"radio-block " + (this.state.dataType == 'line' ? 'active' : '') }
-                        onClick={this.changeDataType.bind(this, 'line') }>
-                        <span className="radio"></span>DEMO线数据
-                    </p>
-                    <p className={"radio-block " + (this.state.dataType == 'polygon' ? 'active' : '') }
-                        onClick={this.changeDataType.bind(this, 'polygon') }>
-                        <span className="radio"></span>DEMO面数据
-                    </p>
-                    <p className={"radio-block " + (this.state.dataType == 'self' ? 'active' : '') }
-                        onClick={this.changeDataType.bind(this, 'self') }>
-                        <span className="radio"></span>自定义数据
-                    </p>
+                    <div className="map-style-datatitle">&#xe964; 选择数据</div>
+                    <div>
+                        <p className={"radio-block " + (this.state.dataType == 'point' ? 'active' : '') }
+                            onClick={this.changeDataType.bind(this, 'point') }>
+                            <span className="radio"></span>DEMO点数据
+                        </p>
+                        <p className={"radio-block " + (this.state.dataType == 'line' ? 'active' : '') }
+                            onClick={this.changeDataType.bind(this, 'line') }>
+                            <span className="radio"></span>DEMO线数据
+                        </p>
+                        <p className={"radio-block " + (this.state.dataType == 'polygon' ? 'active' : '') }
+                            onClick={this.changeDataType.bind(this, 'polygon') }
+                            style={{ display: 'none' }}>
+                            <span className="radio"></span>DEMO面数据
+                        </p>
+                        <p className={"radio-block " + (this.state.dataType == 'self' ? 'active' : '') }
+                            onClick={this.changeDataType.bind(this, 'self') }>
+                            <span className="radio"></span>自定义数据
+                        </p>
+                    </div>
+                </div>
+
+                <div className="map-style-datablock"
+                    style={{ display: (this.state.dataType === null ? 'none' : '') }}>
+                    <div className="map-style-datatitle">&#xe9b8; 图层类型</div>
+                    <div className="map-style-dataTypes">
+                        {layerTypes}
+                    </div>
+                    <div className="map-style-datatitle">&#xe992; 调整参数</div>
+                    {options}
                 </div>
             </div>
         );
