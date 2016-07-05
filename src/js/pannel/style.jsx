@@ -113,6 +113,13 @@ class Nav extends React.Component {
                 min: 0.01,
                 max: 1,
                 step: 0.01,
+            },
+            strength: {
+                name: '强度',
+                type: 'range',
+                min: 0.01,
+                max: 1,
+                step: 0.01,
             }
 
         }

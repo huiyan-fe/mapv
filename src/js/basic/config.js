@@ -13,7 +13,7 @@ var config = {
     drawType: {
         'simple': {
             name: '普通',
-            useData: ['point'],
+            useData: ['point', 'line'],
             config: {
                 point: {
                     fillStyle: 'rgba(151, 192, 247, 0.6)',
@@ -97,7 +97,7 @@ var config = {
         },
         'heatmap': {
             name: '热力图',
-            useData: ['point'],
+            useData: ['point', 'line'],
             config: {
                 point: {
                     radius: 19,
@@ -105,9 +105,21 @@ var config = {
                         0.25: "rgb(0,0,255)",
                         0.55: "rgb(0,255,0)",
                         0.85: "yellow",
-                        1.0: "rgb(255,0,0)"
+                        1.00: "rgb(255,0,0)"
                     },
                     max: 100,
+                    draw: 'heatmap'
+                },
+                line: {
+                    gradient: {
+                        0.25: "rgb(0,0,255)",
+                        0.55: "rgb(0,255,0)",
+                        0.85: "yellow",
+                        1.00: "rgb(255,0,0)"
+                    },
+                    max: 30,
+                    strength: 0.3,
+                    // strokeStyle: 'rgba(0, 0, 0, 0.9)',
                     draw: 'heatmap'
                 }
             }
