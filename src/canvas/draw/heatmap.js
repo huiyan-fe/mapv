@@ -54,7 +54,7 @@ function drawGray(context, dataSet, options) {
     context.beginPath();
 
     data.forEach(function(item) {
-        
+        // console.log(item)
         var coordinates = item.geometry.coordinates;
         var type = item.geometry.type;
 
@@ -64,8 +64,7 @@ function drawGray(context, dataSet, options) {
             context.drawImage(circle, coordinates[0] - circle.width / 2, coordinates[1] - circle.height / 2);
         } else if (type === 'LineString') {
             pathSimple.draw(context, item, options);
-        } else if (type === 'Polygon') {
-        }
+        } else if (type === 'Polygon') {}
 
     });
 
@@ -75,6 +74,8 @@ function drawGray(context, dataSet, options) {
 }
 
 function draw(context, dataSet, options) {
+    var strength = options.strength || 0.3;
+    context.strokeStyle = 'rgba(0,0,0,' + strength + ')';
 
     options = options || {};
 
@@ -84,7 +85,12 @@ function draw(context, dataSet, options) {
 
     var colored = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
     colorize(colored.data, utilsColorPalette.getImageData({
-        defaultGradient: options.gradient || { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
+        defaultGradient: options.gradient || {
+            0.25: "rgb(0,0,255)",
+            0.55: "rgb(0,255,0)",
+            0.85: "yellow",
+            1.0: "rgb(255,0,0)"
+        },
     }), options);
 
     context.putImageData(colored, 0, 0);

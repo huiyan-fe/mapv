@@ -19,6 +19,7 @@ function Layer(map, dataSet, options) {
     var self = this;
 
     self.init(options);
+    self.argCheck(options);
 
     self.map = map;
 
@@ -93,7 +94,7 @@ function Layer(map, dataSet, options) {
 
         // get data from data set
         var data = dataSet.get(dataGetOptions);
-        
+
         // deal with data based on draw
         for (var i = 0; i < data.length; i++) {
             var item = data[i];
@@ -147,6 +148,14 @@ function Layer(map, dataSet, options) {
 
     };
 
+}
+
+Layer.prototype.argCheck = function(options) {
+    if (options.draw == 'heatmap') {
+        if (options.strokeStyle) {
+            console.warn('[heatmap] options.strokeStyle is discard, pleause use options.strength [eg: options.strength = 0.1]');
+        }
+    }
 }
 
 Layer.prototype.init = function(options) {
