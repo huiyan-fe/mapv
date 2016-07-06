@@ -7,7 +7,7 @@ class Datas extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            moduleShow: !false,
+            moduleShow: false,
             layers: [],
             activeLayer: null
         }
