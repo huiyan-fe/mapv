@@ -19,7 +19,11 @@ class Nav extends React.Component {
     componentDidMount() {
         var self = this;
         Store.on(function (data) {
-            if (data.type == 'newLayer') {
+            if (data.type == 'changeNav') {
+                self.setState({
+                    moduleShow: false
+                })
+            } else if (data.type == 'newLayer') {
                 var id = data.layerId;
                 var layers = self.state.layers;
                 layers[id] = {
