@@ -4,7 +4,6 @@
 
 export default {
     draw: function(context, data, options) {
-
         var type = data.geometry.type;
         var coordinates = data.geometry.coordinates;
 
@@ -16,7 +15,6 @@ export default {
             context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
 
         } else if (type == 'LineString') {
-
             context.moveTo(coordinates[0][0], coordinates[0][1]);
             for (var j = 1; j < coordinates.length; j++) {
                 context.lineTo(coordinates[j][0], coordinates[j][1]);
@@ -38,7 +36,7 @@ export default {
         }
     },
 
-    drawPolygon: function (context, coordinates) {
+    drawPolygon: function(context, coordinates) {
 
         for (var i = 0; i < coordinates.length; i++) {
 

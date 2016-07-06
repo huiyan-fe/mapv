@@ -136,7 +136,6 @@
 
   var pathSimple = {
       draw: function(context, data, options) {
-
           var type = data.geometry.type;
           var coordinates = data.geometry.coordinates;
 
@@ -148,7 +147,6 @@
               context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
 
           } else if (type == 'LineString') {
-
               context.moveTo(coordinates[0][0], coordinates[0][1]);
               for (var j = 1; j < coordinates.length; j++) {
                   context.lineTo(coordinates[j][0], coordinates[j][1]);
@@ -170,7 +168,7 @@
           }
       },
 
-      drawPolygon: function (context, coordinates) {
+      drawPolygon: function(context, coordinates) {
 
           for (var i = 0; i < coordinates.length; i++) {
 
@@ -312,7 +310,7 @@
       context.beginPath();
 
       data.forEach(function(item) {
-          
+          // console.log(item)
           var coordinates = item.geometry.coordinates;
           var type = item.geometry.type;
 
@@ -322,8 +320,7 @@
               context.drawImage(circle, coordinates[0] - circle.width / 2, coordinates[1] - circle.height / 2);
           } else if (type === 'LineString') {
               pathSimple.draw(context, item, options);
-          } else if (type === 'Polygon') {
-          }
+          } else if (type === 'Polygon') {}
 
       });
 
@@ -333,6 +330,8 @@
   }
 
   function draw(context, dataSet, options) {
+      var strength = options.strength || 0.3;
+      context.strokeStyle = 'rgba(0,0,0,' + strength + ')';
 
       options = options || {};
 
@@ -342,7 +341,12 @@
 
       var colored = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
       colorize(colored.data, utilsColorPalette.getImageData({
-          defaultGradient: options.gradient || { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
+          defaultGradient: options.gradient || {
+              0.25: "rgb(0,0,255)",
+              0.55: "rgb(0,255,0)",
+              0.85: "yellow",
+              1.0: "rgb(255,0,0)"
+          },
       }), options);
 
       context.putImageData(colored, 0, 0);
@@ -1781,6 +1785,7 @@
       var self = this;
 
       self.init(options);
+      self.argCheck(options);
 
       self.map = map;
 
@@ -1855,7 +1860,7 @@
 
           // get data from data set
           var data = dataSet.get(dataGetOptions);
-          
+
           // deal with data based on draw
           for (var i = 0; i < data.length; i++) {
               var item = data[i];
@@ -1909,6 +1914,14 @@
 
       };
 
+  }
+
+  Layer.prototype.argCheck = function(options) {
+      if (options.draw == 'heatmap') {
+          if (options.strokeStyle) {
+              console.warn('[heatmap] options.strokeStyle is discard, pleause use options.strength [eg: options.strength = 0.1]');
+          }
+      }
   }
 
   Layer.prototype.init = function(options) {
