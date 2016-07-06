@@ -30,7 +30,7 @@ class Nav extends React.Component {
                     data: [],
                     option: {},
                     drawType: 'simple',
-                    dataType: null
+                    dataType: null,
                 }
 
                 self.setState({
@@ -43,6 +43,7 @@ class Nav extends React.Component {
             } else if (data.type == 'changeLayer') {
                 self.setState({
                     activeId: data.layerId,
+                    moduleShow: true,
                 });
             }
         });
@@ -184,11 +185,13 @@ class Nav extends React.Component {
         var id = self.state.activeId;
         var layers = self.state.layers;
 
-        var _data = Data(type);
+        var _data = Data.get(type);
+        var option = Config.drawType['simple'].config[_data.type];
         layers[id] = {
             data: _data.data,
-            option: _data.options,
-            dataType: type,
+            option: option,
+            dataType: _data.type,
+            dataName: type,
             drawType: 'simple'
         }
 
@@ -230,7 +233,7 @@ class Nav extends React.Component {
         // options
         var options = [];
         var activeLayer = this.state.layers[this.state.activeId] || {};
-        console.log(activeLayer.drawType)
+        // console.log(activeLayer.drawType)
 
         if (activeLayer) {
             var _options = activeLayer.option;
@@ -247,7 +250,7 @@ class Nav extends React.Component {
             var types = Config.drawType[i];
             if (types.useData.indexOf(dataType) != -1) {
                 layerTypes.push(
-                    <span className={"map-style-dataTypes-block " + (activeLayer.drawType == i ? 'active' : '') }
+                    <span  className={"map-style-dataTypes-block " + (activeLayer.drawType == i ? 'active' : '') }
                         key={"dataType_" + types.name}
                         onClick={this.changeDrawType.bind(this, i) }
                         >
@@ -255,6 +258,23 @@ class Nav extends React.Component {
                     </span>
                 )
             }
+        }
+
+        var dataDom = [];
+        var dataLists = Data.getList();
+        var nameMaping = {
+            'point': 'DEMO点数据',
+            'line': 'DEMO线数据'
+        }
+        for (var i in dataLists) {
+            var dataName = dataLists[i];
+            dataDom.push(
+                <p key={'datas_' + dataName} className={"radio-block " + (activeLayer.dataName == dataName ? 'active' : '') }
+                    onClick={this.changeDataType.bind(this, dataName) }>
+                    <span className="radio"></span>
+                    {nameMaping[dataName] ? nameMaping[dataName] : dataName}
+                </p>
+            )
         }
 
         return (
@@ -275,23 +295,7 @@ class Nav extends React.Component {
                 <div className="map-style-datablock" style={{ display: this.state.type == 'data' ? 'block' : 'none' }}>
                     <div className="map-style-datatitle">&#xe964; 选择数据</div>
                     <div>
-                        <p className={"radio-block " + (dataType == 'point' ? 'active' : '') }
-                            onClick={this.changeDataType.bind(this, 'point') }>
-                            <span className="radio"></span>DEMO点数据
-                        </p>
-                        <p className={"radio-block " + (dataType == 'line' ? 'active' : '') }
-                            onClick={this.changeDataType.bind(this, 'line') }>
-                            <span className="radio"></span>DEMO线数据
-                        </p>
-                        <p className={"radio-block " + (dataType == 'polygon' ? 'active' : '') }
-                            onClick={this.changeDataType.bind(this, 'polygon') }
-                            style={{ display: 'none' }}>
-                            <span className="radio"></span>DEMO面数据
-                        </p>
-                        <p className={"radio-block " + (dataType == 'self' ? 'active' : '') }
-                            onClick={this.changeDataType.bind(this, 'self') }>
-                            <span className="radio"></span>自定义数据
-                        </p>
+                        {dataDom}
                     </div>
                 </div>
 
