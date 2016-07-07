@@ -14,10 +14,8 @@ import LoadData from './basic/loadData.js';
 class MyComponent extends React.Component {
     componentDidMount() {
         new LoadData({
-            addData: function (data) {
-                // console.log(Data.get('line'));
+            addData: function (data) {;
                 //let's image the data is string
-
                 var lineData = [];
                 for (var i in data) {
                     var _data = data[i];
@@ -42,7 +40,7 @@ class MyComponent extends React.Component {
                         }
                     })
                 }
-                Data.set('abc', { data: lineData, type: 'line' });
+                Data.set('新建数据', { data: lineData, type: 'line' });
             }
         });
     }
