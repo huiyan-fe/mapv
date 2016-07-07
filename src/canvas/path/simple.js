@@ -6,33 +6,36 @@ export default {
     draw: function(context, data, options) {
         var type = data.geometry.type;
         var coordinates = data.geometry.coordinates;
-
-        if (type == 'Point') {
-
-            context.moveTo(data.x, data.y);
-
-            var size = data.size || options.size || 5;
-            context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
-
-        } else if (type == 'LineString') {
-            context.moveTo(coordinates[0][0], coordinates[0][1]);
-            for (var j = 1; j < coordinates.length; j++) {
-                context.lineTo(coordinates[j][0], coordinates[j][1]);
-            }
-
-        } else if (type == 'Polygon') {
-
-            this.drawPolygon(context, coordinates);
-            context.closePath();
-
-        } else if (type == 'MultiPolygon') {
-            for (var i = 0; i < coordinates.length; i++) {
-                var polygon = coordinates[i];
-                this.drawPolygon(context, polygon);
-            }
-            context.closePath();
-        } else {
-            console.log('type' + type + 'is not support now!');
+        switch (type) {
+            case 'Point':
+                var size = data.size || options.size || 5;
+                context.moveTo(data.x, data.y);
+                context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
+                break;
+            case 'LineString':
+                for (var j = 0; j < coordinates.length; j++) {
+                    var x = coordinates[j][0];
+                    var y = coordinates[j][1];
+                    if (j == 0) {
+                        context.moveTo(x, y);
+                    } else {
+                        context.lineTo(x, y);
+                    }
+                }
+                break;
+            case 'Polygon':
+                this.drawPolygon(context, coordinates);
+                break;
+            case 'MultiPolygon':
+                for (var i = 0; i < coordinates.length; i++) {
+                    var polygon = coordinates[i];
+                    this.drawPolygon(context, polygon);
+                }
+                context.closePath();
+                break;
+            default:
+                console.log('type' + type + 'is not support now!');
+                break;
         }
     },
 

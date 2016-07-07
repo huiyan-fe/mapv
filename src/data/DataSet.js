@@ -50,7 +50,7 @@ DataSet.prototype = new Event();
 /**
  * Add data.
  */
-DataSet.prototype.add = function (data, senderId) {
+DataSet.prototype.add = function(data, senderId) {
     if (Array.isArray(data)) {
         // Array
         for (var i = 0, len = data.length; i < len; i++) {
@@ -67,11 +67,11 @@ DataSet.prototype.add = function (data, senderId) {
 /**
  * get data.
  */
-DataSet.prototype.get = function (args) {
-
+DataSet.prototype.get = function(args) {
+    // console.warn('get')
     args = args || {};
 
-    // var data = JSON.parse(JSON.stringify(this._data));
+    // TODO: 不修改原始数据，在数据上挂载新的名称，每次修改数据直接修改新名称下的数据，可以省去deepCopy
     var data = deepCopy(this._data);
 
     if (args.filter) {
@@ -83,6 +83,7 @@ DataSet.prototype.get = function (args) {
         }
     }
 
+    // TODO: 坐标转换可以监听地图的change事件，不用每次get都去处理坐标
     if (args.transferCoordinate) {
         data = this.transferCoordinate(data, args.transferCoordinate);
     }
@@ -94,7 +95,7 @@ DataSet.prototype.get = function (args) {
 /**
  * set data.
  */
-DataSet.prototype.set = function (data) {
+DataSet.prototype.set = function(data) {
     this.clear();
     this.add(data);
     this._trigger('change');
@@ -103,26 +104,24 @@ DataSet.prototype.set = function (data) {
 /**
  * clear data.
  */
-DataSet.prototype.clear = function (args) {
+DataSet.prototype.clear = function(args) {
     this._data = []; // map with data indexed by id
 }
 
 /**
  * remove data.
  */
-DataSet.prototype.remove = function (args) {
-};
+DataSet.prototype.remove = function(args) {};
 
 /**
  * update data.
  */
-DataSet.prototype.update = function (args) {
-};
+DataSet.prototype.update = function(args) {};
 
 /**
  * transfer coordinate.
  */
-DataSet.prototype.transferCoordinate = function (data, transferFn) {
+DataSet.prototype.transferCoordinate = function(data, transferFn) {
 
     for (var i = 0; i < data.length; i++) {
 
