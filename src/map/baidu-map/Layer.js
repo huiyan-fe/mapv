@@ -51,7 +51,8 @@ function Layer(map, dataSet, options) {
     }
 
     function update(time) {
-
+        console.time('update')
+        console.time('st1');
         var context = this.canvas.getContext("2d");
 
         if (self.options.draw == 'time') {
@@ -93,9 +94,14 @@ function Layer(map, dataSet, options) {
         }
 
         // get data from data set
+        console.time('- dataSet')
         var data = dataSet.get(dataGetOptions);
+        console.timeEnd('- dataSet')
 
+        console.timeEnd('st1');
         // deal with data based on draw
+
+        // TODO: 部分情况下可以不用循环，比如heatmap
         for (var i = 0; i < data.length; i++) {
             var item = data[i];
             if (self.options.draw == 'bubble') {
@@ -115,7 +121,7 @@ function Layer(map, dataSet, options) {
 
         // draw
         if (self.options.draw == 'heatmap') {
-            drawHeatmap.draw(context, new DataSet(data), self.options);
+            drawHeatmap.draw(context, data, self.options);
         } else if (self.options.draw == 'grid' || self.options.draw == 'honeycomb') {
             var data1 = dataSet.get();
             var minx = data1[0].geometry.coordinates[0];
@@ -145,7 +151,7 @@ function Layer(map, dataSet, options) {
         } else {
             drawSimple.draw(context, new DataSet(data), self.options);
         }
-
+        console.timeEnd('update')
     };
 
 }
