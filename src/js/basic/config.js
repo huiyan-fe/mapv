@@ -13,7 +13,7 @@ var config = {
     drawType: {
         'simple': {
             name: '普通',
-            useData: ['point'],
+            useData: ['point', 'line'],
             config: {
                 point: {
                     fillStyle: 'rgba(151, 192, 247, 0.6)',
@@ -97,7 +97,7 @@ var config = {
         },
         'heatmap': {
             name: '热力图',
-            useData: ['point'],
+            useData: ['point', 'line'],
             config: {
                 point: {
                     radius: 19,
@@ -105,9 +105,21 @@ var config = {
                         0.25: "rgb(0,0,255)",
                         0.55: "rgb(0,255,0)",
                         0.85: "yellow",
-                        1.0: "rgb(255,0,0)"
+                        1.00: "rgb(255,0,0)"
                     },
                     max: 100,
+                    draw: 'heatmap'
+                },
+                line: {
+                    gradient: {
+                        0.25: "rgb(0,0,255)",
+                        0.55: "rgb(0,255,0)",
+                        0.85: "yellow",
+                        1.00: "rgb(255,0,0)"
+                    },
+                    max: 30,
+                    strength: 0.3,
+                    // strokeStyle: 'rgba(0, 0, 0, 0.9)',
                     draw: 'heatmap'
                 }
             }
@@ -117,10 +129,8 @@ var config = {
             useData: ['point'],
             config: {
                 point: {
-                    fillStyle: 'rgba(55, 50, 250, 0.8)',
                     shadowColor: 'rgba(255, 250, 50, 1)',
                     shadowBlur: 20,
-                    size: 8,
                     gridWidth: 30,
                     globalAlpha: 0.5,
                     gradient: {
@@ -136,10 +146,8 @@ var config = {
             useData: ['point'],
             config: {
                 point: {
-                    fillStyle: 'rgba(55, 50, 250, 0.8)',
                     shadowColor: 'rgba(255, 250, 50, 1)',
                     shadowBlur: 20,
-                    size: 30,
                     max: 100,
                     gridWidth: 30,
                     globalAlpha: 0.5,

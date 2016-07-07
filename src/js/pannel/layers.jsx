@@ -16,9 +16,10 @@ class Nav extends React.Component {
     componentDidMount() {
         var self = this;
         Store.on(function (data) {
-            if (data.type == 'changeNav' && data.data == 'layers') {
+            if (data.type == 'changeNav') {
+                var moduleShow = data.data == 'layers' ? true : false;
                 self.setState({
-                    moduleShow: true
+                    moduleShow: moduleShow
                 })
             }
         });
@@ -60,6 +61,15 @@ class Nav extends React.Component {
         });
     }
 
+    layersToggle(id, e) {
+        e.stopPropagation();
+        var layers = this.state.layers;
+        layers[id].show = !layers[id].show;
+        this.setState({
+            layers: layers
+        })
+    }
+
     render() {
         var self = this;
         var layers = this.state.layers.map((item, index) => {
@@ -67,7 +77,12 @@ class Nav extends React.Component {
                 <li key={"layers-" + index}
                     className={item.id === self.state.activeLayer ? "active" : ""}
                     onClick={this.changeActive.bind(this, item.id) }>
-                    <span className="map-lists-show">&#xe9ce; </span><span>{item.name}</span>
+                    <span
+                        className="map-lists-show"
+                        onClick={self.layersToggle.bind(this, item.id) }>
+                        {item.show ? <span>&#xe9ce; </span> : <span>&#xe9d1; </span>}
+                    </span>
+                    <span>{item.name}</span>
                 </li>
             );
         });

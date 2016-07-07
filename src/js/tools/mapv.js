@@ -136,41 +136,42 @@
 
   var pathSimple = {
       draw: function(context, data, options) {
-
           var type = data.geometry.type;
           var coordinates = data.geometry.coordinates;
-
-          if (type == 'Point') {
-
-              context.moveTo(data.x, data.y);
-
-              var size = data.size || options.size || 5;
-              context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
-
-          } else if (type == 'LineString') {
-
-              context.moveTo(coordinates[0][0], coordinates[0][1]);
-              for (var j = 1; j < coordinates.length; j++) {
-                  context.lineTo(coordinates[j][0], coordinates[j][1]);
-              }
-
-          } else if (type == 'Polygon') {
-
-              this.drawPolygon(context, coordinates);
-              context.closePath();
-
-          } else if (type == 'MultiPolygon') {
-              for (var i = 0; i < coordinates.length; i++) {
-                  var polygon = coordinates[i];
-                  this.drawPolygon(context, polygon);
-              }
-              context.closePath();
-          } else {
-              console.log('type' + type + 'is not support now!');
+          switch (type) {
+              case 'Point':
+                  var size = data.size || options.size || 5;
+                  context.moveTo(data.x, data.y);
+                  context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
+                  break;
+              case 'LineString':
+                  for (var j = 0; j < coordinates.length; j++) {
+                      var x = coordinates[j][0];
+                      var y = coordinates[j][1];
+                      if (j == 0) {
+                          context.moveTo(x, y);
+                      } else {
+                          context.lineTo(x, y);
+                      }
+                  }
+                  break;
+              case 'Polygon':
+                  this.drawPolygon(context, coordinates);
+                  break;
+              case 'MultiPolygon':
+                  for (var i = 0; i < coordinates.length; i++) {
+                      var polygon = coordinates[i];
+                      this.drawPolygon(context, polygon);
+                  }
+                  context.closePath();
+                  break;
+              default:
+                  console.log('type' + type + 'is not support now!');
+                  break;
           }
       },
 
-      drawPolygon: function (context, coordinates) {
+      drawPolygon: function(context, coordinates) {
 
           for (var i = 0; i < coordinates.length; i++) {
 
@@ -263,98 +264,6 @@
       }
   }
 
-  function createCircle(radius) {
-
-      var circle = document.createElement('canvas');
-      var context = circle.getContext('2d');
-      var shadowBlur = 13;
-      var r2 = radius + shadowBlur;
-      var offsetDistance = 10000;
-
-      circle.width = circle.height = r2 * 2;
-
-      context.shadowBlur = shadowBlur;
-      context.shadowColor = 'black';
-      context.shadowOffsetX = context.shadowOffsetY = offsetDistance;
-
-      context.beginPath();
-      context.arc(r2 - offsetDistance, r2 - offsetDistance, radius, 0, Math.PI * 2, true);
-      context.closePath();
-      context.fill();
-      return circle;
-  }
-
-  function colorize(pixels, gradient, options) {
-
-      var maxOpacity = options.maxOpacity || 0.8;
-      for (var i = 3, len = pixels.length, j; i < len; i += 4) {
-          j = pixels[i] * 4; // get gradient color from opacity value
-
-          if (pixels[i] / 256 > maxOpacity) {
-              pixels[i] = 256 * maxOpacity;
-          }
-
-          pixels[i - 3] = gradient[j];
-          pixels[i - 2] = gradient[j + 1];
-          pixels[i - 1] = gradient[j + 2];
-      }
-  }
-
-  function drawGray(context, dataSet, options) {
-
-      var max = options.max || 100;
-      var radius = options.radius || 13;
-
-      var circle = createCircle(radius);
-
-      var data = dataSet.get();
-
-      context.beginPath();
-
-      data.forEach(function(item) {
-          
-          var coordinates = item.geometry.coordinates;
-          var type = item.geometry.type;
-
-          context.globalAlpha = item.count / max;
-
-          if (type === 'Point') {
-              context.drawImage(circle, coordinates[0] - circle.width / 2, coordinates[1] - circle.height / 2);
-          } else if (type === 'LineString') {
-              pathSimple.draw(context, item, options);
-          } else if (type === 'Polygon') {
-          }
-
-      });
-
-      context.stroke();
-
-
-  }
-
-  function draw(context, dataSet, options) {
-
-      options = options || {};
-
-      context.save();
-
-      drawGray(context, dataSet, options);
-
-      var colored = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
-      colorize(colored.data, utilsColorPalette.getImageData({
-          defaultGradient: options.gradient || { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
-      }), options);
-
-      context.putImageData(colored, 0, 0);
-
-      context.restore();
-
-  }
-
-  var drawHeatmap = {
-      draw: draw
-  }
-
   /**
    * @author kyle / http://nikai.us/
    */
@@ -420,6 +329,126 @@
       return size;
   }
 
+  function createCircle(radius) {
+
+      var circle = document.createElement('canvas');
+      var context = circle.getContext('2d');
+      var shadowBlur = 13;
+      var r2 = radius + shadowBlur;
+      var offsetDistance = 10000;
+
+      circle.width = circle.height = r2 * 2;
+
+      context.shadowBlur = shadowBlur;
+      context.shadowColor = 'black';
+      context.shadowOffsetX = context.shadowOffsetY = offsetDistance;
+
+      context.beginPath();
+      context.arc(r2 - offsetDistance, r2 - offsetDistance, radius, 0, Math.PI * 2, true);
+      context.closePath();
+      context.fill();
+      return circle;
+  }
+
+  function colorize(pixels, gradient, options) {
+
+      var maxOpacity = options.maxOpacity || 0.8;
+      for (var i = 3, len = pixels.length, j; i < len; i += 4) {
+          j = pixels[i] * 4; // get gradient color from opacity value
+
+          if (pixels[i] / 256 > maxOpacity) {
+              pixels[i] = 256 * maxOpacity;
+          }
+
+          pixels[i - 3] = gradient[j];
+          pixels[i - 2] = gradient[j + 1];
+          pixels[i - 1] = gradient[j + 2];
+      }
+  }
+
+  function drawGray(context, dataSet, options) {
+
+      var max = options.max || 100;
+      // console.log(max)
+      var radius = options.radius || 13;
+
+      var color = new Intensity({
+          gradient: options.gradient,
+          max: max
+      })
+
+      var circle = createCircle(radius);
+
+      var data = dataSet;
+
+
+
+      var dataOrderByAlpha = {};
+
+      data.forEach(function(item, index) {
+          var alpha = Math.min(1, item.count / max).toFixed(2);
+          dataOrderByAlpha[alpha] = dataOrderByAlpha[alpha] || [];
+          dataOrderByAlpha[alpha].push(item);
+      });
+
+      for (var i in dataOrderByAlpha) {
+          if (isNaN(i)) continue;
+          var _data = dataOrderByAlpha[i];
+          context.beginPath();
+          if (!options.withoutAlpha) {
+              context.globalAlpha = i;
+          }
+          _data.forEach(function(item, index) {
+              var coordinates = item.geometry.coordinates;
+              var type = item.geometry.type;
+              if (type === 'Point') {
+                  context.globalAlpha = item.count / max;
+                  context.drawImage(circle, coordinates[0] - circle.width / 2, coordinates[1] - circle.height / 2);
+              } else if (type === 'LineString') {
+                  pathSimple.draw(context, item, options);
+              } else if (type === 'Polygon') {
+
+              }
+          });
+          // console.warn(i, i * max, color.getColor(i * max))
+          context.strokeStyle = color.getColor(i * max);
+          context.stroke();
+      }
+  }
+
+  function draw(context, dataSet, options) {
+      var strength = options.strength || 0.3;
+      context.strokeStyle = 'rgba(0,0,0,' + strength + ')';
+
+      options = options || {};
+
+      context.save();
+      console.time('drawGray')
+      drawGray(context, dataSet, options);
+      console.timeEnd('drawGray');
+      // return false;
+      if (!options.absolute) {
+          console.time('changeColor');
+          var colored = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
+          colorize(colored.data, utilsColorPalette.getImageData({
+              defaultGradient: options.gradient || {
+                  0.25: "rgb(0,0,255)",
+                  0.55: "rgb(0,255,0)",
+                  0.85: "yellow",
+                  1.0: "rgb(255,0,0)"
+              },
+          }), options);
+          console.timeEnd('changeColor');
+          context.putImageData(colored, 0, 0);
+
+          context.restore();
+      }
+  }
+
+  var drawHeatmap = {
+      draw: draw
+  }
+
   var drawGrid = {
       draw: function (context, dataSet, options) {
 
@@ -464,13 +493,13 @@
   }
 
   function hex_corner(center, size, i) {
-      var angle_deg = 60 * i   + 30;
+      var angle_deg = 60 * i + 30;
       var angle_rad = Math.PI / 180 * angle_deg;
       return [center.x + size * Math.cos(angle_rad), center.y + size * Math.sin(angle_rad)];
   }
 
   var drawHoneycomb = {
-      draw: function (context, dataSet, options) {
+      draw: function(context, dataSet, options) {
 
           context.save();
 
@@ -488,12 +517,12 @@
 
           var offset = options.offset || {
               x: 10,
-              y: 10 
+              y: 10
           }
 
-          //The maximum radius the hexagons can have to still fit the screen
-          var r = options.size || 40;
-
+          //
+          var r = options.gridWidth || 40;
+          r = r / 2 / Math.sin(Math.PI / 3);
           var dx = r * 2 * Math.sin(Math.PI / 3);
           var dy = r * 1.5;
 
@@ -501,8 +530,10 @@
 
           for (var i = 0; i < data.length; i++) {
               var coordinates = data[i].geometry.coordinates;
-              var py = (coordinates[1] - offset.y)  / dy, pj = Math.round(py),
-                  px = (coordinates[0] - offset.x) / dx - (pj & 1 ? .5 : 0), pi = Math.round(px),
+              var py = (coordinates[1] - offset.y) / dy,
+                  pj = Math.round(py),
+                  px = (coordinates[0] - offset.x) / dx - (pj & 1 ? .5 : 0),
+                  pi = Math.round(px),
                   py1 = py - pj;
 
               if (Math.abs(py1) * 3 > 1) {
@@ -514,8 +545,11 @@
                   if (px1 * px1 + py1 * py1 > px2 * px2 + py2 * py2) pi = pi2 + (pj & 1 ? 1 : -1) / 2, pj = pj2;
               }
 
-              var id = pi + "-" + pj, bin = binsById[id];
-              if (bin) bin.push(data[i]); else {
+              var id = pi + "-" + pj,
+                  bin = binsById[id];
+              if (bin) {
+                  bin.push(data[i])
+              } else {
                   bin = binsById[id] = [data[i]];
                   bin.i = pi;
                   bin.j = pj;
@@ -540,9 +574,10 @@
 
                   var radius = r;
 
-                  //radius = intensity.getSize(count);
-
-                  var result = hex_corner({x: item.x + offset.x, y: item.y + offset.y}, radius, j);
+                  var result = hex_corner({
+                      x: item.x + offset.x,
+                      y: item.y + offset.y
+                  }, radius, j);
                   context.lineTo(result[0], result[1]);
               }
               context.closePath();
@@ -1623,7 +1658,7 @@
   /**
    * Add data.
    */
-  DataSet.prototype.add = function (data, senderId) {
+  DataSet.prototype.add = function(data, senderId) {
       if (Array.isArray(data)) {
           // Array
           for (var i = 0, len = data.length; i < len; i++) {
@@ -1640,11 +1675,11 @@
   /**
    * get data.
    */
-  DataSet.prototype.get = function (args) {
-
+  DataSet.prototype.get = function(args) {
+      // console.warn('get')
       args = args || {};
 
-      // var data = JSON.parse(JSON.stringify(this._data));
+      // TODO: 不修改原始数据，在数据上挂载新的名称，每次修改数据直接修改新名称下的数据，可以省去deepCopy
       var data = deepCopy(this._data);
 
       if (args.filter) {
@@ -1656,6 +1691,7 @@
           }
       }
 
+      // TODO: 坐标转换可以监听地图的change事件，不用每次get都去处理坐标
       if (args.transferCoordinate) {
           data = this.transferCoordinate(data, args.transferCoordinate);
       }
@@ -1667,7 +1703,7 @@
   /**
    * set data.
    */
-  DataSet.prototype.set = function (data) {
+  DataSet.prototype.set = function(data) {
       this.clear();
       this.add(data);
       this._trigger('change');
@@ -1676,26 +1712,24 @@
   /**
    * clear data.
    */
-  DataSet.prototype.clear = function (args) {
+  DataSet.prototype.clear = function(args) {
       this._data = []; // map with data indexed by id
   }
 
   /**
    * remove data.
    */
-  DataSet.prototype.remove = function (args) {
-  };
+  DataSet.prototype.remove = function(args) {};
 
   /**
    * update data.
    */
-  DataSet.prototype.update = function (args) {
-  };
+  DataSet.prototype.update = function(args) {};
 
   /**
    * transfer coordinate.
    */
-  DataSet.prototype.transferCoordinate = function (data, transferFn) {
+  DataSet.prototype.transferCoordinate = function(data, transferFn) {
 
       for (var i = 0; i < data.length; i++) {
 
@@ -1775,6 +1809,7 @@
       var self = this;
 
       self.init(options);
+      self.argCheck(options);
 
       self.map = map;
 
@@ -1806,7 +1841,8 @@
       }
 
       function update(time) {
-
+          console.time('update')
+          console.time('st1');
           var context = this.canvas.getContext("2d");
 
           if (self.options.draw == 'time') {
@@ -1848,9 +1884,14 @@
           }
 
           // get data from data set
+          console.time('- dataSet')
           var data = dataSet.get(dataGetOptions);
+          console.timeEnd('- dataSet')
 
+          console.timeEnd('st1');
           // deal with data based on draw
+
+          // TODO: 部分情况下可以不用循环，比如heatmap
           for (var i = 0; i < data.length; i++) {
               var item = data[i];
               if (self.options.draw == 'bubble') {
@@ -1870,7 +1911,7 @@
 
           // draw
           if (self.options.draw == 'heatmap') {
-              drawHeatmap.draw(context, new DataSet(data), self.options);
+              drawHeatmap.draw(context, data, self.options);
           } else if (self.options.draw == 'grid' || self.options.draw == 'honeycomb') {
               var data1 = dataSet.get();
               var minx = data1[0].geometry.coordinates[0];
@@ -1900,9 +1941,17 @@
           } else {
               drawSimple.draw(context, new DataSet(data), self.options);
           }
-
+          console.timeEnd('update')
       };
 
+  }
+
+  Layer.prototype.argCheck = function(options) {
+      if (options.draw == 'heatmap') {
+          if (options.strokeStyle) {
+              console.warn('[heatmap] options.strokeStyle is discard, pleause use options.strength [eg: options.strength = 0.1]');
+          }
+      }
   }
 
   Layer.prototype.init = function(options) {
