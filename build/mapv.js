@@ -1677,7 +1677,7 @@
   /**
    * get data.
    */
-  DataSet.prototype.get = function (args) {
+  DataSet.prototype.get = function(args) {
       args = args || {};
 
       // TODO: 不修改原始数据，在数据上挂载新的名称，每次修改数据直接修改新名称下的数据，可以省去deepCopy
