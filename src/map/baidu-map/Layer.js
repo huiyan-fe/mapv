@@ -120,37 +120,39 @@ function Layer(map, dataSet, options) {
         }
 
         // draw
-        if (self.options.draw == 'heatmap') {
-            drawHeatmap.draw(context, data, self.options);
-        } else if (self.options.draw == 'grid' || self.options.draw == 'honeycomb') {
-            var data1 = dataSet.get();
-            var minx = data1[0].geometry.coordinates[0];
-            var maxy = data1[0].geometry.coordinates[1];
-            for (var i = 1; i < data1.length; i++) {
-                if (data1[i].geometry.coordinates[0] < minx) {
-                    minx = data1[i].geometry.coordinates[0];
+        switch (self.options.draw) {
+            case 'heatmap':
+                drawHeatmap.draw(context, new DataSet(data), self.options);
+                break;
+            case 'grid':
+            case 'honeycomb':
+                var minx = data[0].geometry.coordinates[0];
+                var maxy = data[0].geometry.coordinates[1];
+                for (var i = 1; i < data.length; i++) {
+                    minx = Math.min(data[i].geometry.coordinates[0], minx);
+                    maxy = Math.max(data[i].geometry.coordinates[1], maxy);
                 }
-                if (data1[i].geometry.coordinates[1] > maxy) {
-                    maxy = data1[i].geometry.coordinates[1];
+                var nwPixel = map.pointToPixel(new BMap.Point(minx, maxy));
+                self.options.offset = {
+                    x: nwPixel.x,
+                    y: nwPixel.y
+                };
+                if (self.options.draw == 'grid') {
+                    drawGrid.draw(context, new DataSet(data), self.options);
+                } else {
+                    drawHoneycomb.draw(context, new DataSet(data), self.options);
                 }
-            }
-            var nwPixel = map.pointToPixel(new BMap.Point(minx, maxy));
-            self.options.offset = {
-                x: nwPixel.x,
-                y: nwPixel.y
-            };
-            if (self.options.draw == 'grid') {
-                drawGrid.draw(context, new DataSet(data), self.options);
-            } else {
-                drawHoneycomb.draw(context, new DataSet(data), self.options);
-            }
-        } else if (self.options.draw == 'text') {
-            drawText.draw(context, new DataSet(data), self.options);
-        } else if (self.options.draw == 'icon') {
-            drawText.draw(context, new DataSet(data), self.options);
-        } else {
-            drawSimple.draw(context, new DataSet(data), self.options);
+                break;
+            case 'text':
+                drawText.draw(context, new DataSet(data), self.options);
+                break;
+            case 'icon':
+                drawText.draw(context, new DataSet(data), self.options);
+                break;
+            default:
+                drawSimple.draw(context, new DataSet(data), self.options);
         }
+
         console.timeEnd('update')
     };
 
@@ -168,6 +170,7 @@ Layer.prototype.init = function(options) {
     var self = this;
 
     self.options = options;
+
     self.intensity = new Intensity({
         maxSize: self.options.maxSize,
         gradient: self.options.gradient,
@@ -200,7 +203,30 @@ Layer.prototype.update = function(obj) {
 }
 
 Layer.prototype.set = function(obj) {
+    var conf = {
+        globalAlpha: 1,
+        globalCompositeOperation: 'source-over',
+        imageSmoothingEnabled: true,
+        strokeStyle: '#000000',
+        fillStyle: '#000000',
+        shadowOffsetX: 0,
+        shadowOffsetY: 0,
+        shadowBlur: 0,
+        shadowColor: 'rgba(0, 0, 0, 0)',
+        lineWidth: 1,
+        lineCap: 'butt',
+        lineJoin: 'miter',
+        miterLimit: 10,
+        lineDashOffset: 0,
+        font: '10px sans-serif',
+        textAlign: 'start',
+        textBaseline: 'alphabetic'
+    }
     var self = this;
+    var ctx = self.canvasLayer.canvas.getContext("2d");
+    for (var i in conf) {
+        ctx[i] = conf[i];
+    }
     self.init(obj.options);
     self.canvasLayer.draw();
 }

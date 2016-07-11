@@ -15,13 +15,11 @@ export default {
 
         context.save();
 
+        var data = dataSet.get();
+
         for (var key in options) {
             context[key] = options[key];
         }
-
-        var data = dataSet.get();
-
-        var data = dataSet.get();
 
         var grids = {};
 

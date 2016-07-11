@@ -99,9 +99,11 @@ function draw(context, dataSet, options) {
 
     options = options || {};
 
+    var data = dataSet.get();
+
     context.save();
     console.time('drawGray')
-    drawGray(context, dataSet, options);
+    drawGray(context, data, options);
     console.timeEnd('drawGray');
     // return false;
     if (!options.absolute) {

@@ -6,14 +6,16 @@ import pathSimple from "../path/simple";
 
 export default {
     draw: function(context, dataSet, options) {
-
+        var data = dataSet.get();
+        // console.log('xxxx',options)
         context.save();
 
         for (var key in options) {
             context[key] = options[key];
         }
 
-        var data = dataSet.get();
+
+        // console.log(data);
 
         for (var i = 0, len = data.length; i < len; i++) {
 
