@@ -88,7 +88,7 @@
 
                 var dataSet = new mapv.DataSet(_data);
 
-                var options = {
+                var options1 = {
                     gradient: {
                         0.25: "rgb(0,0,255)",
                         0.55: "rgb(0,255,0)",
@@ -101,7 +101,31 @@
                     draw: 'heatmap'
                 }
 
+                var options = {
+                    strokeStyle: "rgba(255, 250, 50, 0.3)",
+                    shadowColor: "rgba(255, 250, 50, 1)",
+                    shadowBlur: 20,
+                    lineWidth: 0.7,
+                    draw: 'simple'
+                }
+
                 var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+                mapvLayer.set({
+                    options: options1
+                });
+
+                // mapvLayer.set({
+                //     gradient: {
+                //         0.25: "rgb(0,0,255)",
+                //         0.55: "rgb(0,255,0)",
+                //         0.85: "yellow",
+                //         1.0: "rgb(255,0,0)"
+                //     },
+                //     max: 1000,
+                //     withoutAlpha: true,
+                //     absolute: true,
+                //     draw: 'heatmap'
+                // })
             }
         })
 

@@ -168,6 +168,7 @@ Layer.prototype.init = function(options) {
     var self = this;
 
     self.options = options;
+    // console.warn('@@@@1', options)
     self.intensity = new Intensity({
         maxSize: self.options.maxSize,
         gradient: self.options.gradient,
@@ -200,7 +201,30 @@ Layer.prototype.update = function(obj) {
 }
 
 Layer.prototype.set = function(obj) {
+    var conf = {
+        globalAlpha: 1,
+        globalCompositeOperation: 'source-over',
+        imageSmoothingEnabled: true,
+        strokeStyle: '#000000',
+        fillStyle: '#000000',
+        shadowOffsetX: 0,
+        shadowOffsetY: 0,
+        shadowBlur: 0,
+        shadowColor: 'rgba(0, 0, 0, 0)',
+        lineWidth: 1,
+        lineCap: 'butt',
+        lineJoin: 'miter',
+        miterLimit: 10,
+        lineDashOffset: 0,
+        font: '10px sans-serif',
+        textAlign: 'start',
+        textBaseline: 'alphabetic'
+    }
     var self = this;
+    var ctx = self.canvasLayer.canvas.getContext("2d");
+    for (var i in conf) {
+        ctx[i] = conf[i];
+    }
     self.init(obj.options);
     self.canvasLayer.draw();
 }
