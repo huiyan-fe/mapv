@@ -64,18 +64,14 @@ function Layer(map, dataSet, options) {
         var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
 
         var data = dataSet.get({
-            transferCoordinate: function (coordinate) {
-
+            transferCoordinate: function(coordinate) {
                 var latLng = new google.maps.LatLng(coordinate[1], coordinate[0]);
                 var worldPoint = mapProjection.fromLatLngToPoint(latLng);
-
                 var pixel = {
                     x: (worldPoint.x - offset.x) * scale,
                     y: (worldPoint.y - offset.y) * scale,
                 }
-
                 return [pixel.x, pixel.y];
-
             }
         });
 
@@ -118,7 +114,7 @@ function Layer(map, dataSet, options) {
 
             options.offset = {
                 x: (worldPoint.x - offset.x) * scale,
-                y: (worldPoint.y - offset.y) * scale 
+                y: (worldPoint.y - offset.y) * scale
             };
             if (options.draw == 'grid') {
                 drawGrid.draw(context, new DataSet(data), options);
@@ -126,6 +122,7 @@ function Layer(map, dataSet, options) {
                 drawHoneycomb.draw(context, new DataSet(data), options);
             }
         } else {
+            console.log('hehe')
             drawSimple.draw(context, new DataSet(data), options);
         }
 

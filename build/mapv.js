@@ -190,14 +190,16 @@
 
   var drawSimple = {
       draw: function(context, dataSet, options) {
-
+          var data = dataSet.get();
+          // console.log('xxxx',options)
           context.save();
 
           for (var key in options) {
               context[key] = options[key];
           }
 
-          var data = dataSet.get();
+
+          // console.log(data);
 
           for (var i = 0, len = data.length; i < len; i++) {
 
@@ -422,9 +424,11 @@
 
       options = options || {};
 
+      var data = dataSet.get();
+
       context.save();
       console.time('drawGray')
-      drawGray(context, dataSet, options);
+      drawGray(context, data, options);
       console.timeEnd('drawGray');
       // return false;
       if (!options.absolute) {
@@ -450,7 +454,7 @@
   }
 
   var drawGrid = {
-      draw: function (context, dataSet, options) {
+      draw: function(context, dataSet, options) {
 
           context.save();
 
@@ -467,7 +471,7 @@
 
           for (var i = 0; i < data.length; i++) {
               var coordinates = data[i].geometry.coordinates;
-              var gridKey = Math.floor((coordinates[0] - offset.x)/ gridWidth) + "," + Math.floor((coordinates[1] - offset.y) / gridWidth);
+              var gridKey = Math.floor((coordinates[0] - offset.x) / gridWidth) + "," + Math.floor((coordinates[1] - offset.y) / gridWidth);
               if (!grids[gridKey]) {
                   grids[gridKey] = 0;
               }
@@ -503,13 +507,11 @@
 
           context.save();
 
+          var data = dataSet.get();
+
           for (var key in options) {
               context[key] = options[key];
           }
-
-          var data = dataSet.get();
-
-          var data = dataSet.get();
 
           var grids = {};
 
@@ -1675,8 +1677,7 @@
   /**
    * get data.
    */
-  DataSet.prototype.get = function(args) {
-      // console.warn('get')
+  DataSet.prototype.get = function (args) {
       args = args || {};
 
       // TODO: 不修改原始数据，在数据上挂载新的名称，每次修改数据直接修改新名称下的数据，可以省去deepCopy
@@ -1691,7 +1692,6 @@
           }
       }
 
-      // TODO: 坐标转换可以监听地图的change事件，不用每次get都去处理坐标
       if (args.transferCoordinate) {
           data = this.transferCoordinate(data, args.transferCoordinate);
       }
@@ -1910,37 +1910,39 @@
           }
 
           // draw
-          if (self.options.draw == 'heatmap') {
-              drawHeatmap.draw(context, data, self.options);
-          } else if (self.options.draw == 'grid' || self.options.draw == 'honeycomb') {
-              var data1 = dataSet.get();
-              var minx = data1[0].geometry.coordinates[0];
-              var maxy = data1[0].geometry.coordinates[1];
-              for (var i = 1; i < data1.length; i++) {
-                  if (data1[i].geometry.coordinates[0] < minx) {
-                      minx = data1[i].geometry.coordinates[0];
+          switch (self.options.draw) {
+              case 'heatmap':
+                  drawHeatmap.draw(context, new DataSet(data), self.options);
+                  break;
+              case 'grid':
+              case 'honeycomb':
+                  var minx = data[0].geometry.coordinates[0];
+                  var maxy = data[0].geometry.coordinates[1];
+                  for (var i = 1; i < data.length; i++) {
+                      minx = Math.min(data[i].geometry.coordinates[0], minx);
+                      maxy = Math.max(data[i].geometry.coordinates[1], maxy);
                   }
-                  if (data1[i].geometry.coordinates[1] > maxy) {
-                      maxy = data1[i].geometry.coordinates[1];
+                  var nwPixel = map.pointToPixel(new BMap.Point(minx, maxy));
+                  self.options.offset = {
+                      x: nwPixel.x,
+                      y: nwPixel.y
+                  };
+                  if (self.options.draw == 'grid') {
+                      drawGrid.draw(context, new DataSet(data), self.options);
+                  } else {
+                      drawHoneycomb.draw(context, new DataSet(data), self.options);
                   }
-              }
-              var nwPixel = map.pointToPixel(new BMap.Point(minx, maxy));
-              self.options.offset = {
-                  x: nwPixel.x,
-                  y: nwPixel.y
-              };
-              if (self.options.draw == 'grid') {
-                  drawGrid.draw(context, new DataSet(data), self.options);
-              } else {
-                  drawHoneycomb.draw(context, new DataSet(data), self.options);
-              }
-          } else if (self.options.draw == 'text') {
-              drawText.draw(context, new DataSet(data), self.options);
-          } else if (self.options.draw == 'icon') {
-              drawText.draw(context, new DataSet(data), self.options);
-          } else {
-              drawSimple.draw(context, new DataSet(data), self.options);
+                  break;
+              case 'text':
+                  drawText.draw(context, new DataSet(data), self.options);
+                  break;
+              case 'icon':
+                  drawText.draw(context, new DataSet(data), self.options);
+                  break;
+              default:
+                  drawSimple.draw(context, new DataSet(data), self.options);
           }
+
           console.timeEnd('update')
       };
 
@@ -1958,7 +1960,7 @@
       var self = this;
 
       self.options = options;
-      // console.warn('@@@@1', options)
+
       self.intensity = new Intensity({
           maxSize: self.options.maxSize,
           gradient: self.options.gradient,
@@ -2621,18 +2623,14 @@
           var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
 
           var data = dataSet.get({
-              transferCoordinate: function (coordinate) {
-
+              transferCoordinate: function(coordinate) {
                   var latLng = new google.maps.LatLng(coordinate[1], coordinate[0]);
                   var worldPoint = mapProjection.fromLatLngToPoint(latLng);
-
                   var pixel = {
                       x: (worldPoint.x - offset.x) * scale,
                       y: (worldPoint.y - offset.y) * scale,
                   }
-
                   return [pixel.x, pixel.y];
-
               }
           });
 
@@ -2675,7 +2673,7 @@
 
               options.offset = {
                   x: (worldPoint.x - offset.x) * scale,
-                  y: (worldPoint.y - offset.y) * scale 
+                  y: (worldPoint.y - offset.y) * scale
               };
               if (options.draw == 'grid') {
                   drawGrid.draw(context, new DataSet(data), options);
@@ -2683,6 +2681,7 @@
                   drawHoneycomb.draw(context, new DataSet(data), options);
               }
           } else {
+              console.log('hehe')
               drawSimple.draw(context, new DataSet(data), options);
           }
 
