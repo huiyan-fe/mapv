@@ -2,6 +2,8 @@ export {version} from "./build/version"
 
 export {default as x} from "./src/3d/index"
 export {default as X} from "./src/3d/index"
+export {default as Flate} from "./src/3d/map/Flate"
+export {default as Earth} from "./src/3d/map/Earth"
 
 export {default as canvasClear} from "./src/canvas/clear";
 export {default as canvasResolutionScale} from "./src/canvas/resolutionScale";

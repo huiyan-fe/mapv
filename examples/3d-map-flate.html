@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+	<style type="text/css">
+		#canvas {
+			border: 5px dotted red;
+			width: 800px;
+			height: 800px;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="canvas"></div>
+
+	<!-- library -->
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script type="text/javascript" src="js/three.min.js"></script>
+	<script type="text/javascript" src="../build/mapv.js"></script>
+	<script type="text/javascript">
+		var canvas = document.querySelector('#canvas');
+		var flate = new mapv.Flate(canvas);
+        $.get('data/china.json', function(geojson) {
+            var dataSet = mapv.geojson.getDataSet(geojson);
+            flate.setDataSet(dataSet);
+        });
+	</script>
+
+</body>
+
+</html>
