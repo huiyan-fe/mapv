@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+
+    <style type="text/css">
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        #mapabc {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="mapabc"></div>
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="../build/mapv.js"></script>
+
+    <script type="text/javascript">
+        var randomCount = 300;
+
+        var data = [];
+
+        var citys = ["北京", "天津", "上海", "重庆", "石家庄", "太原", "呼和浩特", "哈尔滨", "长春", "沈阳", "济南", "南京", "合肥", "杭州", "南昌", "福州", "郑州", "武汉", "长沙", "广州", "南宁", "西安", "银川", "兰州", "西宁", "乌鲁木齐", "成都", "贵阳", "昆明", "拉萨", "海口"];
+
+        // 构造数据
+        while (randomCount--) {
+            var cityCenter = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
+            data.push({
+                geometry: {
+                    type: 'Point',
+                    coordinates: [cityCenter.lng - 2 + Math.random() * 4, cityCenter.lat - 2 + Math.random() * 4]
+                },
+                count: 30 * Math.random()
+            });
+        }
+
+        var dataSet = new mapv.DataSet(data);
+
+        var options = {
+            fillStyle: 'rgba(55, 50, 250, 0.6)',
+            shadowColor: 'rgba(55, 50, 250, 0.5)',
+            shadowBlur: 10,
+            size: 5,
+            draw: 'simple'
+        }
+
+        var baiduMap = new mapv.Map('mapabc', 'baidu');
+        var mapvLayer = baiduMap.addLayer(dataSet, options);
+
+        // dataSet.set(data); // 修改数据
+
+        // mapvLayer.show(); // 显示图层
+        // mapvLayer.hide(); // 删除图层
+    </script>
+
+</body>
+
+</html>

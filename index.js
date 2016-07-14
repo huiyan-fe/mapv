@@ -22,6 +22,8 @@ export {default as utilDataRangeChoropleth} from "./src/utils/data-range/Choropl
 export {default as Timer} from "./src/utils/animation/Timer";
 export {default as Animator} from "./src/utils/animation/Animator";
 
+export {default as Map} from "./src/map/mapHelper";
+
 export {default as baiduMapCanvasLayer} from "./src/map/baidu-map/CanvasLayer";
 export {default as baiduMapLayer} from "./src/map/baidu-map/Layer";
 

@@ -3,6 +3,7 @@
  */
 
 import utilsColorPalette from "../utils/colorPalette";
+import Intensity from "../../utils/data-range/Intensity";
 import pathSimple from "../path/simple";
 
 function createCircle(radius) {
@@ -45,52 +46,82 @@ function colorize(pixels, gradient, options) {
 function drawGray(context, dataSet, options) {
 
     var max = options.max || 100;
+    // console.log(max)
     var radius = options.radius || 13;
+
+    var color = new Intensity({
+        gradient: options.gradient,
+        max: max
+    })
 
     var circle = createCircle(radius);
 
-    var data = dataSet.get();
+    var data = dataSet;
 
-    context.beginPath();
 
-    data.forEach(function(item) {
-        
-        var coordinates = item.geometry.coordinates;
-        var type = item.geometry.type;
 
-        context.globalAlpha = item.count / max;
+    var dataOrderByAlpha = {};
 
-        if (type === 'Point') {
-            context.drawImage(circle, coordinates[0] - circle.width / 2, coordinates[1] - circle.height / 2);
-        } else if (type === 'LineString') {
-            pathSimple.draw(context, item, options);
-        } else if (type === 'Polygon') {
-        }
-
+    data.forEach(function(item, index) {
+        var alpha = Math.min(1, item.count / max).toFixed(2);
+        dataOrderByAlpha[alpha] = dataOrderByAlpha[alpha] || [];
+        dataOrderByAlpha[alpha].push(item);
     });
 
-    context.stroke();
+    for (var i in dataOrderByAlpha) {
+        if (isNaN(i)) continue;
+        var _data = dataOrderByAlpha[i];
+        context.beginPath();
+        if (!options.withoutAlpha) {
+            context.globalAlpha = i;
+        }
+        _data.forEach(function(item, index) {
+            var coordinates = item.geometry.coordinates;
+            var type = item.geometry.type;
+            if (type === 'Point') {
+                context.globalAlpha = item.count / max;
+                context.drawImage(circle, coordinates[0] - circle.width / 2, coordinates[1] - circle.height / 2);
+            } else if (type === 'LineString') {
+                pathSimple.draw(context, item, options);
+            } else if (type === 'Polygon') {
 
-
+            }
+        });
+        // console.warn(i, i * max, color.getColor(i * max))
+        context.strokeStyle = color.getColor(i * max);
+        context.stroke();
+    }
 }
 
 function draw(context, dataSet, options) {
+    var strength = options.strength || 0.3;
+    context.strokeStyle = 'rgba(0,0,0,' + strength + ')';
 
     options = options || {};
 
+    var data = dataSet.get();
+
     context.save();
+    console.time('drawGray')
+    drawGray(context, data, options);
+    console.timeEnd('drawGray');
+    // return false;
+    if (!options.absolute) {
+        console.time('changeColor');
+        var colored = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
+        colorize(colored.data, utilsColorPalette.getImageData({
+            defaultGradient: options.gradient || {
+                0.25: "rgb(0,0,255)",
+                0.55: "rgb(0,255,0)",
+                0.85: "yellow",
+                1.0: "rgb(255,0,0)"
+            },
+        }), options);
+        console.timeEnd('changeColor');
+        context.putImageData(colored, 0, 0);
 
-    drawGray(context, dataSet, options);
-
-    var colored = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
-    colorize(colored.data, utilsColorPalette.getImageData({
-        defaultGradient: options.gradient || { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
-    }), options);
-
-    context.putImageData(colored, 0, 0);
-
-    context.restore();
-
+        context.restore();
+    }
 }
 
 export default {
