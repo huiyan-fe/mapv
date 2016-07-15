@@ -1,3 +1,15 @@
+
+var group = new THREE.Group();
+import Intensity from "../../utils/data-range/Intensity";
+
+var intensity = new Intensity({
+    gradient: {
+        0: '#006bab',
+        1: '#002841',
+    },
+    max: 100
+});
+
 function Flate (container) {
     this.container = container;
     this.init();
@@ -16,10 +28,10 @@ Flate.prototype.init = function () {
     var WIDTH = this.container.offsetWidth;
     var HEIGHT = this.container.offsetHeight;
     var camera = this.camera = new THREE.PerspectiveCamera( 40, WIDTH / HEIGHT, 0.01, 9000 );
-    camera.position.x = 0;
-    camera.position.y = 50;
-    camera.position.z = 155;
-    camera.lookAt(new THREE.Vector3( 0, 0, 0 ));
+    camera.position.x = 105;
+    camera.position.y = 40;
+    camera.position.z = 85;
+    //camera.lookAt(new THREE.Vector3( 0, 0, 0 ));
 
     var scene = this.scene = new THREE.Scene();
 
@@ -44,7 +56,7 @@ Flate.prototype.init = function () {
     floor.position.x = 0;
     floor.position.y = 0;
     floor.position.z = 0;
-    scene.add(floor);
+    //scene.add(floor);
 
     // LIGHT
     var light = new THREE.PointLight('rgb(50, 50, 250)');
@@ -63,8 +75,7 @@ Flate.prototype.init = function () {
 
     var material = new THREE.LineBasicMaterial( { color: 0xff0000, linewidth: 95 } );
     var line = this.line = new THREE.Line(geometry, material);
-    console.log(line);
-    scene.add(line);
+    //scene.add(line);
 
     this.current = 0;
 
@@ -90,17 +101,85 @@ Flate.prototype.render = function () {
         }
     }
 
-    this.line.geometry = geometry;
+    //this.line.geometry = geometry;
 
     this.renderer.render( this.scene, this.camera );
 }
 
 Flate.prototype.setDataSet = function (dataSet) {
-    console.log(dataSet.get());
+    // create a canvas element
+    var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
+    canvas.width = 50;
+    canvas.height = 50;
+    context.fillStyle = "rgba(255,255,50,0.75)";
+    //context.shadowColor = "rgba(255,255,255,0.95)";
+    //context.shadowBlur = 0;
+    context.arc(25, 25, 10, 0, Math.PI * 2);
+    context.fill();
+    
+    // canvas contents will be used for a texture
+    var texture = new THREE.Texture(canvas) 
+    texture.needsUpdate = true;
+      
+    var material = new THREE.MeshBasicMaterial( {map: texture, side:THREE.DoubleSide } );
+    material.transparent = true;
+
+
+    var rs = dataSet.get();
+    var features = rs;
+    for (var i = 0; i < features.length; i++) {
+        var feature = features[i];
+        if (feature.geometry.type == 'Polygon') {
+            var coords = getCoordinates(feature.geometry.coordinates[0]);
+            addShape(coords);
+        } else if (feature.geometry.type == 'MultiPolygon') {
+            for (var j = 0; j < feature.geometry.coordinates.length; j++) {
+                var coords = getCoordinates(feature.geometry.coordinates[j][0]);
+                addShape(coords);
+            }
+        } else if (feature.geometry.type == 'Point') {
+
+            var size = canvas.width / 15 + (Math.random() * 4);
+            var mesh = new THREE.Mesh(
+                new THREE.PlaneGeometry(size, size),
+                material
+              );
+            mesh.position.set(feature.geometry.coordinates[0], feature.geometry.coordinates[1], 5);
+            this.scene.add( mesh );
+        }
+
+        var cityname = feature.name;
+        var center = feature.cp;
+
+
+    }
+    this.scene.add(group);
+
 }
 
-Flate.prototype.setDataSet = function (dataSet) {
-    console.log(dataSet.get());
+function getCoordinates(coordinates) {
+    var coords = [];
+    for (var j = 0; j < coordinates.length; j++) {
+        coords.push(new THREE.Vector2(coordinates[j][0], coordinates[j][1]));
+    }
+    return coords;
+}
+
+function addShape(coords) {
+    var shape = new THREE.Shape(coords);
+    var geometry = new THREE.ShapeGeometry( shape );
+
+    var color = 'rgb(' + ~~(Math.random() * 256) + ', ' + ~~(Math.random() * 256) + ', ' + ~~(Math.random() * 256) + ')';
+    color = intensity.getColor(Math.random() * 100);
+    var mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: color, side: THREE.DoubleSide} ) );
+    mesh.position.set( 0, 0, 0 );
+    group.add(mesh);
+
+    var points = shape.createPointsGeometry();
+    var line = new THREE.Line( points, new THREE.LineBasicMaterial( { color: 'rgb(0, 137, 191)', linewidth: 1 } ) );
+    line.position.set( 0, 0, 0.1);
+    group.add( line );
 }
 
 export default Flate;
