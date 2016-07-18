@@ -172,7 +172,6 @@
        return size;
    }
 
-   var group = new THREE.Group();
    var intensity = new Intensity({
        gradient: {
            0: '#006bab',
@@ -186,6 +185,8 @@
        this.init();
 
        var that = this;
+
+       this.group = new THREE.Group();
 
        function animate(time) {
            requestAnimationFrame(animate);
@@ -302,12 +303,12 @@
        for (var i = 0; i < features.length; i++) {
            var feature = features[i];
            if (feature.geometry.type == 'Polygon') {
-               var coords = getCoordinates(feature.geometry.coordinates[0]);
-               addShape(coords);
+               var coords = this.getCoordinates(feature.geometry.coordinates[0]);
+               this.addShape(coords);
            } else if (feature.geometry.type == 'MultiPolygon') {
                for (var j = 0; j < feature.geometry.coordinates.length; j++) {
-                   var coords = getCoordinates(feature.geometry.coordinates[j][0]);
-                   addShape(coords);
+                   var coords = this.getCoordinates(feature.geometry.coordinates[j][0]);
+                   this.addShape(coords);
                }
            } else if (feature.geometry.type == 'Point') {
 
@@ -325,11 +326,12 @@
 
 
        }
-       this.scene.add(group);
+       this.scene.add(this.group);
 
    }
 
-   function getCoordinates(coordinates) {
+
+   Flate.prototype.getCoordinates = function (coordinates) {
        var coords = [];
        for (var j = 0; j < coordinates.length; j++) {
            coords.push(new THREE.Vector2(coordinates[j][0], coordinates[j][1]));
@@ -337,7 +339,7 @@
        return coords;
    }
 
-   function addShape(coords) {
+   Flate.prototype.addShape = function (coords) {
        var shape = new THREE.Shape(coords);
        var geometry = new THREE.ShapeGeometry( shape );
 
@@ -345,12 +347,12 @@
        color = intensity.getColor(Math.random() * 100);
        var mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: color, side: THREE.DoubleSide} ) );
        mesh.position.set( 0, 0, 0 );
-       group.add(mesh);
+       this.group.add(mesh);
 
        var points = shape.createPointsGeometry();
        var line = new THREE.Line( points, new THREE.LineBasicMaterial( { color: 'rgb(0, 137, 191)', linewidth: 1 } ) );
        line.position.set( 0, 0, 0.1);
-       group.add( line );
+       this.group.add( line );
    }
 
    var flights = [
