@@ -188,8 +188,13 @@
 
        this.group = new THREE.Group();
 
+       this.center = [105, 33];
+
        function animate(time) {
            requestAnimationFrame(animate);
+
+           //that.controls.update();
+
            that.render();
        }
 
@@ -200,16 +205,25 @@
        var WIDTH = this.container.offsetWidth;
        var HEIGHT = this.container.offsetHeight;
        var camera = this.camera = new THREE.PerspectiveCamera( 40, WIDTH / HEIGHT, 0.01, 9000 );
-       camera.position.x = 105;
-       camera.position.y = 40;
+       camera.position.x = 0;
+       camera.position.y = 0;
        camera.position.z = 85;
-       //camera.lookAt(new THREE.Vector3( 0, 0, 0 ));
+       camera.lookAt(new THREE.Vector3( 0, 0, 0 ));
 
        var scene = this.scene = new THREE.Scene();
 
        var renderer = this.renderer = new THREE.WebGLRenderer({
            alpha: true
        });
+
+       /*
+       var controls = this.controls = new THREE.OrbitControls( camera, renderer.domElement );
+       controls.enableDamping = true;
+       controls.dampingFactor = 0.25;
+       controls.enableZoom = true;
+       */
+
+
        // renderer.setClearColor('rgb(1, 11, 21)', 1);
        renderer.setPixelRatio( window.devicePixelRatio );
        renderer.setSize( WIDTH, HEIGHT );
@@ -317,7 +331,7 @@
                    new THREE.PlaneGeometry(size, size),
                    material
                  );
-               mesh.position.set(feature.geometry.coordinates[0], feature.geometry.coordinates[1], 5);
+               mesh.position.set(feature.geometry.coordinates[0] - this.center[0], feature.geometry.coordinates[1] - this.center[1], 1);
                this.scene.add( mesh );
            }
 
@@ -334,7 +348,7 @@
    Flate.prototype.getCoordinates = function (coordinates) {
        var coords = [];
        for (var j = 0; j < coordinates.length; j++) {
-           coords.push(new THREE.Vector2(coordinates[j][0], coordinates[j][1]));
+           coords.push(new THREE.Vector2(coordinates[j][0] - this.center[0], coordinates[j][1] - this.center[1]));
        }
        return coords;
    }
