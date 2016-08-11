@@ -158,6 +158,22 @@
             url: 'baidu-map-point-heatmap.html',
             pic: 'baidu-map-point-heatmap.jpg'
         },
+        {
+            url: 'baidu-map-point-honeycomb.html',
+            pic: 'baidu-map-point-honeycomb.jpg'
+        },
+        {
+            url: 'baidu-map-point-icon.html',
+            pic: 'baidu-map-point-icon.jpg'
+        },
+        {
+            url: 'baidu-map-point-intensity.html',
+            pic: 'baidu-map-point-intensity.jpg'
+        },
+        {
+            url: 'baidu-map-point-text.html',
+            pic: 'baidu-map-point-text.jpg'
+        },
     ];
     var html = [];
     for (var i = 0; i < data.length; i++) {

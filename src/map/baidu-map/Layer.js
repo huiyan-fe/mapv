@@ -8,7 +8,8 @@ import drawHeatmap from "../../canvas/draw/heatmap";
 import drawSimple from "../../canvas/draw/simple";
 import drawGrid from "../../canvas/draw/grid";
 import drawHoneycomb from "../../canvas/draw/honeycomb";
-import drawText from "../../canvas/draw/icon";
+import drawText from "../../canvas/draw/text";
+import drawIcon from "../../canvas/draw/icon";
 import DataSet from "../../data/DataSet";
 import Intensity from "../../utils/data-range/Intensity";
 import Category from "../../utils/data-range/Category";
@@ -52,7 +53,6 @@ function Layer(map, dataSet, options) {
 
     function update(time) {
         console.time('update')
-        console.time('st1');
         var context = this.canvas.getContext("2d");
 
         if (self.options.draw == 'time') {
@@ -75,8 +75,18 @@ function Layer(map, dataSet, options) {
         var zoomUnit = Math.pow(2, 18 - map.getZoom());
         var projection = map.getMapType().getProjection();
 
+        var mcCenter = projection.lngLatToPoint(map.getCenter());
+        var nwMc = new BMap.Pixel(mcCenter.x - (map.getSize().width / 2) * zoomUnit, mcCenter.y + (map.getSize().height / 2) * zoomUnit); //左上角墨卡托坐标
+
         var dataGetOptions = {
             transferCoordinate: function(coordinate) {
+
+                if (self.options.coordinateType == 'bd09mc') {
+                    var x = (coordinate[0] - nwMc.x) / zoomUnit;
+                    var y = (nwMc.y - coordinate[1]) / zoomUnit;
+                    return [x, y];
+                }
+
                 var pixel = map.pointToPixel(new BMap.Point(coordinate[0], coordinate[1]));
                 return [pixel.x, pixel.y];
             }
@@ -94,31 +104,42 @@ function Layer(map, dataSet, options) {
         }
 
         // get data from data set
-        console.time('- dataSet')
         var data = dataSet.get(dataGetOptions);
-        console.timeEnd('- dataSet')
 
-        console.timeEnd('st1');
         // deal with data based on draw
 
         // TODO: 部分情况下可以不用循环，比如heatmap
-        for (var i = 0; i < data.length; i++) {
-            var item = data[i];
-            if (self.options.draw == 'bubble') {
-                data[i].size = self.intensity.getSize(item.count);
-            } else if (self.options.draw == 'intensity') {
-                if (data[i].geometry.type === 'LineString') {
-                    data[i].strokeStyle = self.intensity.getColor(item.count);
-                } else {
-                    data[i].fillStyle = self.intensity.getColor(item.count);
+        console.time('setstyle');
+
+        var draw = self.options.draw;
+        if (draw == 'bubble' || draw == 'intensity' || draw == 'category' || draw == 'choropleth') {
+
+            for (var i = 0; i < data.length; i++) {
+                var item = data[i];
+                if (self.options.draw == 'bubble') {
+                    data[i].size = self.intensity.getSize(item.count);
+                } else if (self.options.draw == 'intensity') {
+                    if (data[i].geometry.type === 'LineString') {
+                        data[i].strokeStyle = self.intensity.getColor(item.count);
+                    } else {
+                        data[i].fillStyle = self.intensity.getColor(item.count);
+                    }
+                } else if (self.options.draw == 'category') {
+                    data[i].fillStyle = self.category.get(item.count);
+                } else if (self.options.draw == 'choropleth') {
+                    data[i].fillStyle = self.choropleth.get(item.count);
                 }
-            } else if (self.options.draw == 'category') {
-                data[i].fillStyle = self.category.get(item.count);
-            } else if (self.options.draw == 'choropleth') {
-                data[i].fillStyle = self.choropleth.get(item.count);
             }
+
         }
 
+        console.timeEnd('setstyle');
+
+        if (self.options.minZoom && map.getZoom() < self.options.minZoom || self.options.maxZoom && map.getZoom() > self.options.maxZoom) {
+            return;
+        }
+
+        console.time('draw');
         // draw
         switch (self.options.draw) {
             case 'heatmap':
@@ -147,11 +168,12 @@ function Layer(map, dataSet, options) {
                 drawText.draw(context, new DataSet(data), self.options);
                 break;
             case 'icon':
-                drawText.draw(context, new DataSet(data), self.options);
+                drawIcon.draw(context, new DataSet(data), self.options);
                 break;
             default:
-                drawSimple.draw(context, new DataSet(data), self.options);
+                drawSimple.draw(context, data, self.options);
         }
+        console.timeEnd('draw');
 
         console.timeEnd('update')
     };

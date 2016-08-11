@@ -121,6 +121,25 @@
        this.gradient = options.gradient || { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"};
        this.maxSize = options.maxSize || 35;
        this.max = options.max || 100;
+       this.initPalette();
+   }
+
+   Intensity.prototype.initPalette = function () {
+       var gradient = this.gradient;
+
+       var paletteCanvas = document.createElement('canvas');
+       paletteCanvas.width = 256;
+       paletteCanvas.height = 1;
+
+       var paletteCtx = this.paletteCtx = paletteCanvas.getContext('2d');
+
+       var lineGradient = paletteCtx.createLinearGradient(0, 0, 256, 1);
+       for (var key in gradient) {
+           lineGradient.addColorStop(key, gradient[key]);
+       }
+
+       paletteCtx.fillStyle = lineGradient;
+       paletteCtx.fillRect(0, 0, 256, 1);
    }
 
    Intensity.prototype.getColor = function (value) {
@@ -130,24 +149,8 @@
            value = max;
        }
 
-       var gradient = this.gradient;
-
-       var paletteCanvas = document.createElement('canvas');
-       paletteCanvas.width = 256;
-       paletteCanvas.height = 1;
-
-       var paletteCtx = paletteCanvas.getContext('2d');
-
-       var lineGradient = paletteCtx.createLinearGradient(0, 0, 256, 1);
-       for (var key in gradient) {
-           lineGradient.addColorStop(key, gradient[key]);
-       }
-
-       paletteCtx.fillStyle = lineGradient;
-       paletteCtx.fillRect(0, 0, 256, 1);
-
        var index = Math.floor(value / max * (256 - 1)) * 4;
-       var imageData = paletteCtx.getImageData(0, 0, 256, 1).data;
+       var imageData = this.paletteCtx.getImageData(0, 0, 256, 1).data;
        return "rgba(" + imageData[index] + ", " + imageData[index + 1] + ", " + imageData[index + 2] + ", " + imageData[index + 3] / 256 + ")";
    }
 
@@ -377,7 +380,6 @@
    while (index--) {
        flights.push([19.670399 + Math.random() * 35, 78.895343 + Math.random() * 50, 19.670399 + Math.random() * 35, 78.895343 + Math.random() * 50]);
    }
-   console.log(flights.length);
 
    var positions;
    var start_flight_idx = 0;
@@ -787,9 +789,275 @@
 
    }
 
+   function Event() {
+       this._subscribers = {};  // event subscribers
+   }
+
+   /**
+    * Subscribe to an event, add an event listener
+    * @param {String} event        Event name. Available events: 'put', 'update',
+    *                              'remove'
+    * @param {function} callback   Callback method. Called with three parameters:
+    *                                  {String} event
+    *                                  {Object | null} params
+    *                                  {String | Number} senderId
+    */
+   Event.prototype.on = function(event, callback) {
+     var subscribers = this._subscribers[event];
+     if (!subscribers) {
+       subscribers = [];
+       this._subscribers[event] = subscribers;
+     }
+
+     subscribers.push({
+       callback: callback
+     });
+   };
+
+   /**
+    * Unsubscribe from an event, remove an event listener
+    * @param {String} event
+    * @param {function} callback
+    */
+   Event.prototype.off = function(event, callback) {
+     var subscribers = this._subscribers[event];
+     if (subscribers) {
+       this._subscribers[event] = subscribers.filter(listener => listener.callback != callback);
+     }
+   };
+
+   /**
+    * Trigger an event
+    * @param {String} event
+    * @param {Object | null} params
+    * @param {String} [senderId]       Optional id of the sender.
+    * @private
+    */
+   Event.prototype._trigger = function (event, params, senderId) {
+     if (event == '*') {
+       throw new Error('Cannot trigger event *');
+     }
+
+     var subscribers = [];
+     if (event in this._subscribers) {
+       subscribers = subscribers.concat(this._subscribers[event]);
+     }
+     if ('*' in this._subscribers) {
+       subscribers = subscribers.concat(this._subscribers['*']);
+     }
+
+     for (var i = 0, len = subscribers.length; i < len; i++) {
+       var subscriber = subscribers[i];
+       if (subscriber.callback) {
+         subscriber.callback(event, params, senderId || null);
+       }
+     }
+   };
+
+   /**
+    * DataSet
+    *
+    * A data set can:
+    * - add/remove/update data
+    * - gives triggers upon changes in the data
+    * - can  import/export data in various data formats
+    * @param {Array} [data]    Optional array with initial data
+    * the field geometry is like geojson, it can be:
+    * {
+    *     "type": "Point",
+    *     "coordinates": [125.6, 10.1]
+    * }
+    * {
+    *     "type": "LineString",
+    *     "coordinates": [
+    *         [102.0, 0.0], [103.0, 1.0], [104.0, 0.0], [105.0, 1.0]
+    *     ]
+    * }
+    * {
+    *     "type": "Polygon",
+    *     "coordinates": [
+    *         [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],
+    *           [100.0, 1.0], [100.0, 0.0] ]
+    *     ]
+    * }
+    * @param {Object} [options]   Available options:
+    * 
+    */
+   function DataSet(data, options) {
+
+       this._options = options || {};
+       this._data = []; // map with data indexed by id
+
+       // add initial data when provided
+       if (data) {
+           this.add(data);
+       }
+
+   }
+
+   DataSet.prototype = new Event();
+
+   /**
+    * Add data.
+    */
+   DataSet.prototype.add = function(data, senderId) {
+       if (Array.isArray(data)) {
+           // Array
+           for (var i = 0, len = data.length; i < len; i++) {
+               this._data.push(data[i]);
+           }
+       } else if (data instanceof Object) {
+           // Single item
+           this._data.push(data);
+       } else {
+           throw new Error('Unknown dataType');
+       }
+   };
+
+   /**
+    * get data.
+    */
+   DataSet.prototype.get = function(args) {
+       args = args || {};
+
+       console.time('copy data time')
+       var start = new Date();
+       // TODO: 不修改原始数据，在数据上挂载新的名称，每次修改数据直接修改新名称下的数据，可以省去deepCopy
+       var data = deepCopy(this._data);
+
+       console.timeEnd('copy data time')
+
+       console.time('transferCoordinate time')
+
+       var start = new Date();
+
+       if (args.filter) {
+           for (var i = 0; i < data.length; i++) {
+               if (!args.filter(data[i])) {
+                   data.splice(i, 1);
+                   i--;
+               }
+           }
+       }
+
+       if (args.transferCoordinate) {
+           data = this.transferCoordinate(data, args.transferCoordinate);
+       }
+
+       console.timeEnd('transferCoordinate time')
+
+       return data;
+
+   };
+
+   /**
+    * set data.
+    */
+   DataSet.prototype.set = function(data) {
+       this.clear();
+       this.add(data);
+       this._trigger('change');
+   }
+
+   /**
+    * clear data.
+    */
+   DataSet.prototype.clear = function(args) {
+       this._data = []; // map with data indexed by id
+   }
+
+   /**
+    * remove data.
+    */
+   DataSet.prototype.remove = function(args) {};
+
+   /**
+    * update data.
+    */
+   DataSet.prototype.update = function(args) {};
+
+   /**
+    * transfer coordinate.
+    */
+   DataSet.prototype.transferCoordinate = function(data, transferFn) {
+
+       for (var i = 0; i < data.length; i++) {
+
+           var item = data[i];
+
+           if (data[i].geometry) {
+
+               if (data[i].geometry.type === 'Point') {
+                   var coordinates = data[i].geometry.coordinates;
+                   data[i].geometry.coordinates = transferFn(coordinates);
+               }
+
+               if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'MultiPolygon') {
+
+                   var coordinates = data[i].geometry.coordinates;
+
+                   if (data[i].geometry.type === 'Polygon') {
+
+                       var newCoordinates = getPolygon(coordinates);
+                       data[i].geometry.coordinates = newCoordinates;
+
+                   } else if (data[i].geometry.type === 'MultiPolygon') {
+                       var newCoordinates = [];
+                       for (var c = 0; c < coordinates.length; c++) {
+                           var polygon = coordinates[c];
+                           var polygon = getPolygon(polygon);
+                           newCoordinates.push(polygon);
+                       }
+
+                       data[i].geometry.coordinates = newCoordinates;
+                   }
+
+               }
+
+               if (data[i].geometry.type === 'LineString') {
+                   var coordinates = data[i].geometry.coordinates;
+                   var newCoordinates = [];
+                   for (var j = 0; j < coordinates.length; j++) {
+                       newCoordinates.push(transferFn(coordinates[j]));
+                   }
+                   data[i].geometry.coordinates = newCoordinates;
+               }
+           }
+       }
+
+       function getPolygon(coordinates) {
+           var newCoordinates = [];
+           for (var c = 0; c < coordinates.length; c++) {
+               var coordinate = coordinates[c];
+               var newcoordinate = [];
+               for (var j = 0; j < coordinate.length; j++) {
+                   var pixel = map.pointToPixel(new BMap.Point(coordinate[j][0], coordinate[j][1]));
+                   newcoordinate.push(transferFn(coordinate[j]));
+               }
+               newCoordinates.push(newcoordinate);
+           }
+           return newCoordinates;
+       }
+
+       return data;
+   };
+
+   function deepCopy(obj) {
+       var newObj;
+       if (typeof obj == 'object') {
+           newObj = obj instanceof Array ? [] : {};
+           for (var i in obj) {
+               newObj[i] = obj[i] instanceof HTMLElement ? obj[i] : deepCopy(obj[i]);
+           }
+       } else {
+           newObj = obj
+       }
+       return newObj;
+   }
+
    var drawSimple = {
        draw: function(context, dataSet, options) {
-           var data = dataSet.get();
+           var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
            // console.log('xxxx',options)
            context.save();
 
@@ -2073,6 +2341,23 @@
            context.textBaseline = 'middle';
            
            // set from options
+           for (var key in options) {
+               context[key] = options[key];
+           }
+           for (var i = 0, len = data.length; i < len; i++) {
+               context.fillText(data[i].text, data[i].geometry.coordinates[0], data[i].geometry.coordinates[1])
+           };
+       }
+   }
+
+   var drawIcon = {
+       draw: function (context, dataSet, options) {
+           var data = dataSet.get();
+           context.fillStyle = 'white';
+           context.textAlign = 'center';
+           context.textBaseline = 'middle';
+           
+           // set from options
            // for (var key in options) {
            //     context[key] = options[key];
            // }
@@ -2081,262 +2366,6 @@
                context.drawImage(data[i].icon, data[i].geometry.coordinates[0], data[i].geometry.coordinates[1])
            };
        }
-   }
-
-   function Event() {
-       this._subscribers = {};  // event subscribers
-   }
-
-   /**
-    * Subscribe to an event, add an event listener
-    * @param {String} event        Event name. Available events: 'put', 'update',
-    *                              'remove'
-    * @param {function} callback   Callback method. Called with three parameters:
-    *                                  {String} event
-    *                                  {Object | null} params
-    *                                  {String | Number} senderId
-    */
-   Event.prototype.on = function(event, callback) {
-     var subscribers = this._subscribers[event];
-     if (!subscribers) {
-       subscribers = [];
-       this._subscribers[event] = subscribers;
-     }
-
-     subscribers.push({
-       callback: callback
-     });
-   };
-
-   /**
-    * Unsubscribe from an event, remove an event listener
-    * @param {String} event
-    * @param {function} callback
-    */
-   Event.prototype.off = function(event, callback) {
-     var subscribers = this._subscribers[event];
-     if (subscribers) {
-       this._subscribers[event] = subscribers.filter(listener => listener.callback != callback);
-     }
-   };
-
-   /**
-    * Trigger an event
-    * @param {String} event
-    * @param {Object | null} params
-    * @param {String} [senderId]       Optional id of the sender.
-    * @private
-    */
-   Event.prototype._trigger = function (event, params, senderId) {
-     if (event == '*') {
-       throw new Error('Cannot trigger event *');
-     }
-
-     var subscribers = [];
-     if (event in this._subscribers) {
-       subscribers = subscribers.concat(this._subscribers[event]);
-     }
-     if ('*' in this._subscribers) {
-       subscribers = subscribers.concat(this._subscribers['*']);
-     }
-
-     for (var i = 0, len = subscribers.length; i < len; i++) {
-       var subscriber = subscribers[i];
-       if (subscriber.callback) {
-         subscriber.callback(event, params, senderId || null);
-       }
-     }
-   };
-
-   /**
-    * DataSet
-    *
-    * A data set can:
-    * - add/remove/update data
-    * - gives triggers upon changes in the data
-    * - can  import/export data in various data formats
-    * @param {Array} [data]    Optional array with initial data
-    * the field geometry is like geojson, it can be:
-    * {
-    *     "type": "Point",
-    *     "coordinates": [125.6, 10.1]
-    * }
-    * {
-    *     "type": "LineString",
-    *     "coordinates": [
-    *         [102.0, 0.0], [103.0, 1.0], [104.0, 0.0], [105.0, 1.0]
-    *     ]
-    * }
-    * {
-    *     "type": "Polygon",
-    *     "coordinates": [
-    *         [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],
-    *           [100.0, 1.0], [100.0, 0.0] ]
-    *     ]
-    * }
-    * @param {Object} [options]   Available options:
-    * 
-    */
-   function DataSet(data, options) {
-
-       this._options = options || {};
-       this._data = []; // map with data indexed by id
-
-       // add initial data when provided
-       if (data) {
-           this.add(data);
-       }
-
-   }
-
-   DataSet.prototype = new Event();
-
-   /**
-    * Add data.
-    */
-   DataSet.prototype.add = function(data, senderId) {
-       if (Array.isArray(data)) {
-           // Array
-           for (var i = 0, len = data.length; i < len; i++) {
-               this._data.push(data[i]);
-           }
-       } else if (data instanceof Object) {
-           // Single item
-           this._data.push(data);
-       } else {
-           throw new Error('Unknown dataType');
-       }
-   };
-
-   /**
-    * get data.
-    */
-   DataSet.prototype.get = function(args) {
-       args = args || {};
-
-       // TODO: 不修改原始数据，在数据上挂载新的名称，每次修改数据直接修改新名称下的数据，可以省去deepCopy
-       var data = deepCopy(this._data);
-
-       if (args.filter) {
-           for (var i = 0; i < data.length; i++) {
-               if (!args.filter(data[i])) {
-                   data.splice(i, 1);
-                   i--;
-               }
-           }
-       }
-
-       if (args.transferCoordinate) {
-           data = this.transferCoordinate(data, args.transferCoordinate);
-       }
-
-       return data;
-
-   };
-
-   /**
-    * set data.
-    */
-   DataSet.prototype.set = function(data) {
-       this.clear();
-       this.add(data);
-       this._trigger('change');
-   }
-
-   /**
-    * clear data.
-    */
-   DataSet.prototype.clear = function(args) {
-       this._data = []; // map with data indexed by id
-   }
-
-   /**
-    * remove data.
-    */
-   DataSet.prototype.remove = function(args) {};
-
-   /**
-    * update data.
-    */
-   DataSet.prototype.update = function(args) {};
-
-   /**
-    * transfer coordinate.
-    */
-   DataSet.prototype.transferCoordinate = function(data, transferFn) {
-
-       for (var i = 0; i < data.length; i++) {
-
-           var item = data[i];
-
-           if (data[i].geometry) {
-
-               if (data[i].geometry.type === 'Point') {
-                   var coordinates = data[i].geometry.coordinates;
-                   data[i].geometry.coordinates = transferFn(coordinates);
-               }
-
-               if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'MultiPolygon') {
-
-                   var coordinates = data[i].geometry.coordinates;
-
-                   if (data[i].geometry.type === 'Polygon') {
-
-                       var newCoordinates = getPolygon(coordinates);
-                       data[i].geometry.coordinates = newCoordinates;
-
-                   } else if (data[i].geometry.type === 'MultiPolygon') {
-                       var newCoordinates = [];
-                       for (var c = 0; c < coordinates.length; c++) {
-                           var polygon = coordinates[c];
-                           var polygon = getPolygon(polygon);
-                           newCoordinates.push(polygon);
-                       }
-
-                       data[i].geometry.coordinates = newCoordinates;
-                   }
-
-               }
-
-               if (data[i].geometry.type === 'LineString') {
-                   var coordinates = data[i].geometry.coordinates;
-                   var newCoordinates = [];
-                   for (var j = 0; j < coordinates.length; j++) {
-                       newCoordinates.push(transferFn(coordinates[j]));
-                   }
-                   data[i].geometry.coordinates = newCoordinates;
-               }
-           }
-       }
-
-       function getPolygon(coordinates) {
-           var newCoordinates = [];
-           for (var c = 0; c < coordinates.length; c++) {
-               var coordinate = coordinates[c];
-               var newcoordinate = [];
-               for (var j = 0; j < coordinate.length; j++) {
-                   var pixel = map.pointToPixel(new BMap.Point(coordinate[j][0], coordinate[j][1]));
-                   newcoordinate.push(transferFn(coordinate[j]));
-               }
-               newCoordinates.push(newcoordinate);
-           }
-           return newCoordinates;
-       }
-
-       return data;
-   };
-
-   function deepCopy(obj) {
-       var newObj;
-       if (typeof obj == 'object') {
-           newObj = obj instanceof Array ? [] : {};
-           for (var i in obj) {
-               newObj[i] = obj[i] instanceof HTMLElement ? obj[i] : deepCopy(obj[i]);
-           }
-       } else {
-           newObj = obj
-       }
-       return newObj;
    }
 
    function Layer(map, dataSet, options) {
@@ -2376,7 +2405,6 @@
 
        function update(time) {
            console.time('update')
-           console.time('st1');
            var context = this.canvas.getContext("2d");
 
            if (self.options.draw == 'time') {
@@ -2399,8 +2427,18 @@
            var zoomUnit = Math.pow(2, 18 - map.getZoom());
            var projection = map.getMapType().getProjection();
 
+           var mcCenter = projection.lngLatToPoint(map.getCenter());
+           var nwMc = new BMap.Pixel(mcCenter.x - (map.getSize().width / 2) * zoomUnit, mcCenter.y + (map.getSize().height / 2) * zoomUnit); //左上角墨卡托坐标
+
            var dataGetOptions = {
                transferCoordinate: function(coordinate) {
+
+                   if (self.options.coordinateType == 'bd09mc') {
+                       var x = (coordinate[0] - nwMc.x) / zoomUnit;
+                       var y = (nwMc.y - coordinate[1]) / zoomUnit;
+                       return [x, y];
+                   }
+
                    var pixel = map.pointToPixel(new BMap.Point(coordinate[0], coordinate[1]));
                    return [pixel.x, pixel.y];
                }
@@ -2418,31 +2456,42 @@
            }
 
            // get data from data set
-           console.time('- dataSet')
            var data = dataSet.get(dataGetOptions);
-           console.timeEnd('- dataSet')
 
-           console.timeEnd('st1');
            // deal with data based on draw
 
            // TODO: 部分情况下可以不用循环，比如heatmap
-           for (var i = 0; i < data.length; i++) {
-               var item = data[i];
-               if (self.options.draw == 'bubble') {
-                   data[i].size = self.intensity.getSize(item.count);
-               } else if (self.options.draw == 'intensity') {
-                   if (data[i].geometry.type === 'LineString') {
-                       data[i].strokeStyle = self.intensity.getColor(item.count);
-                   } else {
-                       data[i].fillStyle = self.intensity.getColor(item.count);
+           console.time('setstyle');
+
+           var draw = self.options.draw;
+           if (draw == 'bubble' || draw == 'intensity' || draw == 'category' || draw == 'choropleth') {
+
+               for (var i = 0; i < data.length; i++) {
+                   var item = data[i];
+                   if (self.options.draw == 'bubble') {
+                       data[i].size = self.intensity.getSize(item.count);
+                   } else if (self.options.draw == 'intensity') {
+                       if (data[i].geometry.type === 'LineString') {
+                           data[i].strokeStyle = self.intensity.getColor(item.count);
+                       } else {
+                           data[i].fillStyle = self.intensity.getColor(item.count);
+                       }
+                   } else if (self.options.draw == 'category') {
+                       data[i].fillStyle = self.category.get(item.count);
+                   } else if (self.options.draw == 'choropleth') {
+                       data[i].fillStyle = self.choropleth.get(item.count);
                    }
-               } else if (self.options.draw == 'category') {
-                   data[i].fillStyle = self.category.get(item.count);
-               } else if (self.options.draw == 'choropleth') {
-                   data[i].fillStyle = self.choropleth.get(item.count);
                }
+
            }
 
+           console.timeEnd('setstyle');
+
+           if (self.options.minZoom && map.getZoom() < self.options.minZoom || self.options.maxZoom && map.getZoom() > self.options.maxZoom) {
+               return;
+           }
+
+           console.time('draw');
            // draw
            switch (self.options.draw) {
                case 'heatmap':
@@ -2471,11 +2520,12 @@
                    drawText.draw(context, new DataSet(data), self.options);
                    break;
                case 'icon':
-                   drawText.draw(context, new DataSet(data), self.options);
+                   drawIcon.draw(context, new DataSet(data), self.options);
                    break;
                default:
-                   drawSimple.draw(context, new DataSet(data), self.options);
+                   drawSimple.draw(context, data, self.options);
            }
+           console.timeEnd('draw');
 
            console.timeEnd('update')
        };

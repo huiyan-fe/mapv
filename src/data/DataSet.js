@@ -70,8 +70,16 @@ DataSet.prototype.add = function(data, senderId) {
 DataSet.prototype.get = function(args) {
     args = args || {};
 
+    console.time('copy data time')
+    var start = new Date();
     // TODO: 不修改原始数据，在数据上挂载新的名称，每次修改数据直接修改新名称下的数据，可以省去deepCopy
     var data = deepCopy(this._data);
+
+    console.timeEnd('copy data time')
+
+    console.time('transferCoordinate time')
+
+    var start = new Date();
 
     if (args.filter) {
         for (var i = 0; i < data.length; i++) {
@@ -85,6 +93,8 @@ DataSet.prototype.get = function(args) {
     if (args.transferCoordinate) {
         data = this.transferCoordinate(data, args.transferCoordinate);
     }
+
+    console.timeEnd('transferCoordinate time')
 
     return data;
 

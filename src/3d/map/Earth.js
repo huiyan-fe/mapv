@@ -6,7 +6,6 @@ var index = 100;
 while (index--) {
     flights.push([19.670399 + Math.random() * 35, 78.895343 + Math.random() * 50, 19.670399 + Math.random() * 35, 78.895343 + Math.random() * 50]);
 }
-console.log(flights.length);
 
 var positions, sizes;
 var start_flight_idx = 0;
