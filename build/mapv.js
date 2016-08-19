@@ -738,7 +738,7 @@
    var pathSimple = {
        draw: function(context, data, options) {
            var type = data.geometry.type;
-           var coordinates = data.geometry.coordinates;
+           var coordinates = data.geometry._coordinates || data.geometry.coordinates;
            switch (type) {
                case 'Point':
                    var size = data.size || options.size || 5;
@@ -822,7 +822,13 @@
    Event.prototype.off = function(event, callback) {
      var subscribers = this._subscribers[event];
      if (subscribers) {
-       this._subscribers[event] = subscribers.filter(listener => listener.callback != callback);
+       //this._subscribers[event] = subscribers.filter(listener => listener.callback != callback);
+       for (var i = 0; i < subscribers.length; i++) {
+           if (subscribers[i].callback == callback) {
+               subscribers.splice(i, 1);
+               i--;
+           }
+       }
      }
    };
 
@@ -923,7 +929,8 @@
        console.time('copy data time')
        var start = new Date();
        // TODO: 不修改原始数据，在数据上挂载新的名称，每次修改数据直接修改新名称下的数据，可以省去deepCopy
-       var data = deepCopy(this._data);
+       // var data = deepCopy(this._data);
+       var data = this._data;
 
        console.timeEnd('copy data time')
 
@@ -932,12 +939,13 @@
        var start = new Date();
 
        if (args.filter) {
+           var newData = [];
            for (var i = 0; i < data.length; i++) {
-               if (!args.filter(data[i])) {
-                   data.splice(i, 1);
-                   i--;
+               if (args.filter(data[i])) {
+                   newData.push(data[i]);
                }
            }
+           data = newData;
        }
 
        if (args.transferCoordinate) {
@@ -989,7 +997,7 @@
 
                if (data[i].geometry.type === 'Point') {
                    var coordinates = data[i].geometry.coordinates;
-                   data[i].geometry.coordinates = transferFn(coordinates);
+                   data[i].geometry._coordinates = transferFn(coordinates);
                }
 
                if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'MultiPolygon') {
@@ -999,7 +1007,7 @@
                    if (data[i].geometry.type === 'Polygon') {
 
                        var newCoordinates = getPolygon(coordinates);
-                       data[i].geometry.coordinates = newCoordinates;
+                       data[i].geometry._coordinates = newCoordinates;
 
                    } else if (data[i].geometry.type === 'MultiPolygon') {
                        var newCoordinates = [];
@@ -1009,7 +1017,7 @@
                            newCoordinates.push(polygon);
                        }
 
-                       data[i].geometry.coordinates = newCoordinates;
+                       data[i].geometry._coordinates = newCoordinates;
                    }
 
                }
@@ -1020,7 +1028,7 @@
                    for (var j = 0; j < coordinates.length; j++) {
                        newCoordinates.push(transferFn(coordinates[j]));
                    }
-                   data[i].geometry.coordinates = newCoordinates;
+                   data[i].geometry._coordinates = newCoordinates;
                }
            }
        }
@@ -1041,19 +1049,6 @@
 
        return data;
    };
-
-   function deepCopy(obj) {
-       var newObj;
-       if (typeof obj == 'object') {
-           newObj = obj instanceof Array ? [] : {};
-           for (var i in obj) {
-               newObj[i] = obj[i] instanceof HTMLElement ? obj[i] : deepCopy(obj[i]);
-           }
-       } else {
-           newObj = obj
-       }
-       return newObj;
-   }
 
    var drawSimple = {
        draw: function(context, dataSet, options) {
@@ -1203,7 +1198,7 @@
                context.globalAlpha = i;
            }
            _data.forEach(function(item, index) {
-               var coordinates = item.geometry.coordinates;
+               var coordinates = item.geometry._coordinates || item.geometry.coordinates;
                var type = item.geometry.type;
                if (type === 'Point') {
                    context.globalAlpha = item.count / max;
@@ -1272,7 +1267,7 @@
            }
 
            for (var i = 0; i < data.length; i++) {
-               var coordinates = data[i].geometry.coordinates;
+               var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
                var gridKey = Math.floor((coordinates[0] - offset.x) / gridWidth) + "," + Math.floor((coordinates[1] - offset.y) / gridWidth);
                if (!grids[gridKey]) {
                    grids[gridKey] = 0;
@@ -1333,7 +1328,7 @@
            var binsById = {};
 
            for (var i = 0; i < data.length; i++) {
-               var coordinates = data[i].geometry.coordinates;
+               var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
                var py = (coordinates[1] - offset.y) / dy,
                    pj = Math.round(py),
                    px = (coordinates[0] - offset.x) / dx - (pj & 1 ? .5 : 0),
@@ -2345,7 +2340,8 @@
                context[key] = options[key];
            }
            for (var i = 0, len = data.length; i < len; i++) {
-               context.fillText(data[i].text, data[i].geometry.coordinates[0], data[i].geometry.coordinates[1])
+               var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
+               context.fillText(data[i].text, coordinates[0], coordinates[1])
            };
        }
    }
@@ -2363,13 +2359,16 @@
            // }
            // console.log(data)
            for (var i = 0, len = data.length; i < len; i++) {
-               context.drawImage(data[i].icon, data[i].geometry.coordinates[0], data[i].geometry.coordinates[1])
+               var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
+               context.drawImage(data[i].icon, coordinates[0], coordinates[1])
            };
        }
    }
 
    function Layer(map, dataSet, options) {
        var self = this;
+       var data = null;
+       options = options || {};
 
        self.init(options);
        self.argCheck(options);
@@ -2403,6 +2402,15 @@
            });
        }
 
+
+       if (self.options.methods) {
+           if (self.options.methods.click) {
+               map.setDefaultCursor("default");
+               map.addEventListener('click', function() {
+               });
+           }
+       }
+
        function update(time) {
            console.time('update')
            var context = this.canvas.getContext("2d");
@@ -2433,7 +2441,7 @@
            var dataGetOptions = {
                transferCoordinate: function(coordinate) {
 
-                   if (self.options.coordinateType == 'bd09mc') {
+                   if (self.options.coordType == 'bd09mc') {
                        var x = (coordinate[0] - nwMc.x) / zoomUnit;
                        var y = (nwMc.y - coordinate[1]) / zoomUnit;
                        return [x, y];
@@ -2456,7 +2464,7 @@
            }
 
            // get data from data set
-           var data = dataSet.get(dataGetOptions);
+           data = dataSet.get(dataGetOptions);
 
            // deal with data based on draw
 

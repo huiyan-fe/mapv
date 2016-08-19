@@ -5,7 +5,7 @@
 export default {
     draw: function(context, data, options) {
         var type = data.geometry.type;
-        var coordinates = data.geometry.coordinates;
+        var coordinates = data.geometry._coordinates || data.geometry.coordinates;
         switch (type) {
             case 'Point':
                 var size = data.size || options.size || 5;

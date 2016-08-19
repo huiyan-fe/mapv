@@ -21,7 +21,7 @@ export default {
         }
 
         for (var i = 0; i < data.length; i++) {
-            var coordinates = data[i].geometry.coordinates;
+            var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
             var gridKey = Math.floor((coordinates[0] - offset.x) / gridWidth) + "," + Math.floor((coordinates[1] - offset.y) / gridWidth);
             if (!grids[gridKey]) {
                 grids[gridKey] = 0;

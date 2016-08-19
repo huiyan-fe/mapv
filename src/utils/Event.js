@@ -31,7 +31,13 @@ Event.prototype.on = function(event, callback) {
 Event.prototype.off = function(event, callback) {
   var subscribers = this._subscribers[event];
   if (subscribers) {
-    this._subscribers[event] = subscribers.filter(listener => listener.callback != callback);
+    //this._subscribers[event] = subscribers.filter(listener => listener.callback != callback);
+    for (var i = 0; i < subscribers.length; i++) {
+        if (subscribers[i].callback == callback) {
+            subscribers.splice(i, 1);
+            i--;
+        }
+    }
   }
 };
 

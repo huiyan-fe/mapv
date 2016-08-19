@@ -17,7 +17,8 @@ export default {
             context[key] = options[key];
         }
         for (var i = 0, len = data.length; i < len; i++) {
-            context.fillText(data[i].text, data[i].geometry.coordinates[0], data[i].geometry.coordinates[1])
+            var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
+            context.fillText(data[i].text, coordinates[0], coordinates[1])
         };
     }
 }

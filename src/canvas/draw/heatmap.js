@@ -76,7 +76,7 @@ function drawGray(context, dataSet, options) {
             context.globalAlpha = i;
         }
         _data.forEach(function(item, index) {
-            var coordinates = item.geometry.coordinates;
+            var coordinates = item.geometry._coordinates || item.geometry.coordinates;
             var type = item.geometry.type;
             if (type === 'Point') {
                 context.globalAlpha = item.count / max;

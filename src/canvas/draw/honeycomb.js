@@ -39,7 +39,7 @@ export default {
         var binsById = {};
 
         for (var i = 0; i < data.length; i++) {
-            var coordinates = data[i].geometry.coordinates;
+            var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
             var py = (coordinates[1] - offset.y) / dy,
                 pj = Math.round(py),
                 px = (coordinates[0] - offset.x) / dx - (pj & 1 ? .5 : 0),

@@ -73,7 +73,8 @@ DataSet.prototype.get = function(args) {
     console.time('copy data time')
     var start = new Date();
     // TODO: 不修改原始数据，在数据上挂载新的名称，每次修改数据直接修改新名称下的数据，可以省去deepCopy
-    var data = deepCopy(this._data);
+    // var data = deepCopy(this._data);
+    var data = this._data;
 
     console.timeEnd('copy data time')
 
@@ -82,12 +83,13 @@ DataSet.prototype.get = function(args) {
     var start = new Date();
 
     if (args.filter) {
+        var newData = [];
         for (var i = 0; i < data.length; i++) {
-            if (!args.filter(data[i])) {
-                data.splice(i, 1);
-                i--;
+            if (args.filter(data[i])) {
+                newData.push(data[i]);
             }
         }
+        data = newData;
     }
 
     if (args.transferCoordinate) {
@@ -139,7 +141,7 @@ DataSet.prototype.transferCoordinate = function(data, transferFn) {
 
             if (data[i].geometry.type === 'Point') {
                 var coordinates = data[i].geometry.coordinates;
-                data[i].geometry.coordinates = transferFn(coordinates);
+                data[i].geometry._coordinates = transferFn(coordinates);
             }
 
             if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'MultiPolygon') {
@@ -149,7 +151,7 @@ DataSet.prototype.transferCoordinate = function(data, transferFn) {
                 if (data[i].geometry.type === 'Polygon') {
 
                     var newCoordinates = getPolygon(coordinates);
-                    data[i].geometry.coordinates = newCoordinates;
+                    data[i].geometry._coordinates = newCoordinates;
 
                 } else if (data[i].geometry.type === 'MultiPolygon') {
                     var newCoordinates = [];
@@ -159,7 +161,7 @@ DataSet.prototype.transferCoordinate = function(data, transferFn) {
                         newCoordinates.push(polygon);
                     }
 
-                    data[i].geometry.coordinates = newCoordinates;
+                    data[i].geometry._coordinates = newCoordinates;
                 }
 
             }
@@ -170,7 +172,7 @@ DataSet.prototype.transferCoordinate = function(data, transferFn) {
                 for (var j = 0; j < coordinates.length; j++) {
                     newCoordinates.push(transferFn(coordinates[j]));
                 }
-                data[i].geometry.coordinates = newCoordinates;
+                data[i].geometry._coordinates = newCoordinates;
             }
         }
     }

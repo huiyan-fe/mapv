@@ -18,6 +18,8 @@ import Animator from "../../utils/animation/Animator";
 
 function Layer(map, dataSet, options) {
     var self = this;
+    var data = null;
+    options = options || {};
 
     self.init(options);
     self.argCheck(options);
@@ -51,6 +53,15 @@ function Layer(map, dataSet, options) {
         });
     }
 
+
+    if (self.options.methods) {
+        if (self.options.methods.click) {
+            map.setDefaultCursor("default");
+            map.addEventListener('click', function() {
+            });
+        }
+    }
+
     function update(time) {
         console.time('update')
         var context = this.canvas.getContext("2d");
@@ -81,7 +92,7 @@ function Layer(map, dataSet, options) {
         var dataGetOptions = {
             transferCoordinate: function(coordinate) {
 
-                if (self.options.coordinateType == 'bd09mc') {
+                if (self.options.coordType == 'bd09mc') {
                     var x = (coordinate[0] - nwMc.x) / zoomUnit;
                     var y = (nwMc.y - coordinate[1]) / zoomUnit;
                     return [x, y];
@@ -104,7 +115,7 @@ function Layer(map, dataSet, options) {
         }
 
         // get data from data set
-        var data = dataSet.get(dataGetOptions);
+        data = dataSet.get(dataGetOptions);
 
         // deal with data based on draw
 

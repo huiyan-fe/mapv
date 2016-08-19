@@ -132,6 +132,9 @@
         $(this).find("p").animate({opacity:0},200).css("display","none");
     })
 
+    var url = location.hash.substr(1) || 'baidu-map-point-simple.html';
+    $('#iframes').attr('src', url);
+
     window.onhashchange = function() {
         var url = location.hash.substr(1);
         $('#iframes').attr('src', url);
@@ -173,6 +176,66 @@
         {
             url: 'baidu-map-point-text.html',
             pic: 'baidu-map-point-text.jpg'
+        },
+        {
+            url: 'baidu-map-point-time.html',
+            pic: 'baidu-map-point-time.jpg'
+        },
+        {
+            url: 'baidu-map-polygon-intensity.html',
+            pic: 'baidu-map-polygon-intensity.jpg'
+        },
+        {
+            url: 'baidu-map-polygon-simple.html',
+            pic: 'baidu-map-polygon-simple.jpg'
+        },
+        {
+            url: 'baidu-map-polyline-heatmap.html',
+            pic: 'baidu-map-polyline-heatmap.jpg'
+        },
+        {
+            url: 'baidu-map-polyline-intensity.html',
+            pic: 'baidu-map-polyline-intensity.jpg'
+        },
+        {
+            url: 'baidu-map-polyline-simple.html',
+            pic: 'baidu-map-polyline-simple.jpg'
+        },
+        {
+            url: 'baidu-map-polyline-time.html',
+            pic: 'baidu-map-polyline-time.jpg'
+        },
+        {
+            url: 'beijing-village.html',
+            pic: 'beijing-village.jpg'
+        },
+        {
+            url: 'geojson-china.html',
+            pic: 'geojson-china.jpg'
+        },
+        {
+            url: 'geojson-world.html',
+            pic: 'geojson-world.jpg'
+        },
+        {
+            url: 'google-maps-point-bubble.html',
+            pic: 'google-maps-point-bubble.jpg'
+        },
+        {
+            url: 'google-maps-point-grid.html',
+            pic: 'google-maps-point-grid.jpg'
+        },
+        {
+            url: 'google-maps-point-honeycomb.html',
+            pic: 'google-maps-point-honeycomb.jpg'
+        },
+        {
+            url: 'google-maps-point-simple.html',
+            pic: 'google-maps-point-simple.jpg'
+        },
+        {
+            url: 'google-maps-polyline-simple.html',
+            pic: 'google-maps-polyline-simple.jpg'
         },
     ];
     var html = [];

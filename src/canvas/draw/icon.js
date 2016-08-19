@@ -18,7 +18,8 @@ export default {
         // }
         // console.log(data)
         for (var i = 0, len = data.length; i < len; i++) {
-            context.drawImage(data[i].icon, data[i].geometry.coordinates[0], data[i].geometry.coordinates[1])
+            var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
+            context.drawImage(data[i].icon, coordinates[0], coordinates[1])
         };
     }
 }
