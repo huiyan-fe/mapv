@@ -17,6 +17,14 @@ var config = {
             pic: 'baidu-map-polyline-time.jpg'
         },
         {
+            url: 'csv-car.html',
+            pic: 'csv-car.jpg'
+        },
+        {
+            url: 'poi-yiheyuan-meishi.html',
+            pic: 'poi-yiheyuan-meishi.jpg'
+        },
+        {
             url: 'baidu-map-point-bubble.html',
             pic: 'baidu-map-point-bubble.jpg'
         },
