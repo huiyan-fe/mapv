@@ -7,8 +7,20 @@
 ## Introduction [中文](https://github.com/huiyan-fe/mapv/blob/v2/README_CN.md)
 This branch contains the prerelease of Mapv 2.0. This API is unstable and may change at any point prior to the release.
 
-### UserList
+## Supported Environments
+Mapv is develop by canvas, it supports so-called "modern" browsers, which generally means everything except IE8 and older versions.
+
+## Install And Usage
+### Initialization environment
+    npm install
+### Development
+    npm test
+### Publish
+    npm run publish
+
+## UserList
 [![百度慧眼](./asset/user/huiyan.png)](http://huiyan.baidu.com)
+
 [![百度交通云](./asset/user/jiaotong.png)](http://jiaotong.baidu.com/)
 
 ## LICENSE
