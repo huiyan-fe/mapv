@@ -10,6 +10,7 @@
             height: 100%;
             margin: 0;
             padding: 0;
+            background:black;
             overflow: hidden;
         }
 
@@ -49,7 +50,7 @@
             {"source":"0", "target":"1"}
         ]
 
-        var randomCount = parseInt(canvas.width * canvas.height / 300);
+        var randomCount = 700;
 
         while (randomCount--) {
             node_data[randomCount] = {
@@ -57,7 +58,7 @@
                 y: ctx.canvas.height * Math.random(),
             }
             edge_data.push(
-                {"source": ~~(randomCount * Math.random()), "target": ~~(randomCount * Math.random())}
+                {"source": ~~(randomCount * Math.random()), "target": 0}
             );
         }
 
@@ -85,8 +86,9 @@
         }
 
         var options = {
-            strokeStyle: 'rgba(255, 55, 50, 1)',
-            lineWidth: 0.3,
+            strokeStyle: 'rgba(55, 55, 250, 0.8)',
+            lineWidth: 0.5,
+            globalCompositeOperation: 'lighter',
             draw: 'simple'
         }
 

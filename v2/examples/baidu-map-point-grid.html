@@ -65,12 +65,9 @@
             shadowColor: 'rgba(255, 250, 50, 1)',
             shadowBlur: 20,
             size: 8,
-            gridWidth: 30,
+            gridWidth: 40,
             globalAlpha: 0.5,
-            gradient: {
-                0: 'white',
-                1: 'red'
-            },
+            gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
             draw: 'grid'
         }
 
@@ -83,7 +80,7 @@
             size: 3,
             draw: 'simple'
         }
-        var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+        //var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
     </script>
 	
 </body>

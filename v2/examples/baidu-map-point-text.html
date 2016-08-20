@@ -62,7 +62,11 @@
         var dataSet = new mapv.DataSet(data);
         
         var options = {
-            draw: 'text'
+            draw: 'text',
+            font: '18px Arial',
+            fillStyle: 'yellow',
+            shadowColor: 'yellow',
+            shadowBlur: 10
         }
 
         var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);

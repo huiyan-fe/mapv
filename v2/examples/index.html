@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>mapv</title>
+    <link rel='stylesheet' href='./css/index.css' />
+    <link rel="stylesheet" href="./css/style.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=mEgbC3vGaaPnAxDeeHUollEZ"></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="btn btn-l">
+        <span class="lines line lines-arrow"></span>
+    </div>
+    <div class="oprbtns">
+        <div class="btn btn-r btn-src">源码</div>
+        <div class="btn btn-refresh">还原</div>
+    </div>
+    <div class="left l-trf">
+    <div class="nav">
+        <ul>
+        </ul>
+    </div>
+</div>
+    <!-- end of left -->
+    <div class="right r-trf">
+        <div class="code">
+            <textarea name="code" id="code"></textarea>
+        </div>
+
+        <div class="effect effect-r">
+            <iframe src="" frameborder="0" name="iframes" id="iframes"></iframe>
+        </div>
+    </div>
+    <!-- end of right -->
+</div>
+<!-- end of .container -->
+<script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+<script type="text/javascript" src="js/codemirror.min.js"></script>
+<script type="text/javascript" src="js/config.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
+</body>
+</html>

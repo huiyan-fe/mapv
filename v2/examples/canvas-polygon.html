@@ -34,9 +34,10 @@
 
         var data = [];
 
-        var randomCount = parseInt(canvas.width * canvas.height / 2000);
+        var randomCount = 50;
 
         while (randomCount--) {
+            // 添加三角形
             data.push({
                 geometry: {
                     type: 'Polygon',
@@ -51,8 +52,9 @@
         var dataSet = new mapv.DataSet(data);
 
         var options = {
-            fillStyle: 'rgba(55, 55, 250, 0.1)',
-            strokeStyle: 'rgba(55, 55, 250, 0.2)',
+            fillStyle: 'rgba(55, 55, 250, 0.2)',
+            strokeStyle: 'rgba(55, 55, 250, 0.3)',
+            lineWidth: 1,
             draw: 'simple'
         }
 
