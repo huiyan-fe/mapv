@@ -11,27 +11,56 @@
             padding: 0;
         }
         
+        .boxContainer {
+        }
+
         .box {
             width: 265px;
             height: 265px;
-            background-size: 300px 300px;
+            background-size: 400px 400px;
+            background-repeat:no-repeat;
             background-position: center;center;
             float: left;
         }
 
     </style>
     <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <link href="index/css/base.css" rel="stylesheet" />
+    <link href="index/css/index.css" rel="stylesheet" /></head>
 
 </head>
 
 <body>
+    <div class="nav">
+      <div class="nav-brand">
+        <a href="./">
+        <img src="index/images/logo_new.png" class="nav-logo" />
+        </a>
+        </div>
+      <ul class="nav-li">
+        <li>
+          <a target="_blank" href="https://github.com/huiyan-fe/mapv">GITHUB</a></li>
+        <li>
+          <a href="gallery.html">Gallery</a></li>
+        <li>
+          <a target="_blank" href="examples/">Demo</a></li>
+        <li>
+          <a href="https://huiyan-fe.gitbooks.io/mapv/content/">API</a></li>
+          <!--
+        <li>
+          <a href="/online">Online</a></li>
+          -->
+        <li>
+          <a href="https://github.com/huiyan-fe/mapv/v1">V1</a></li>
+      </ul>
+    </div>
     <!-- an transparent bar, so that we can scroll the page -->
     <div style="position: fixed; width: 10px; top:0; right:0; bottom:0; background: red; z-index: 10; opacity: 0"></div>
 
     <div class="boxContainer">
     </div>
 
-    <script type="text/javascript" src="js/config.js"></script>
+    <script type="text/javascript" src="examples/js/config.js"></script>
     <script type="text/javascript">
         var gridWidth = 256;
         window.addEventListener('resize', resize);
@@ -41,7 +70,7 @@
         var html = [];
         for (var i = 0; i < data.length; i++) {
             var item = data[i];
-            html.push('<a class="index" href="index.html#' + item.url + '"><div class="box" style="background-image:url(pics/' + item.pic + ')"></div></a>');
+            html.push('<a class="index" href="examples/#' + item.url + '"><div class="box" style="background-image:url(examples/pics/' + item.pic + ')"></div></a>');
                 
         }
         $('.boxContainer').html(html.join(''));
