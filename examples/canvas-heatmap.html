@@ -33,7 +33,7 @@
 
         var ctx = canvas.getContext('2d');
 
-        var dataSet = new mapv.DataSet([
+        var data = [
             {
                 geometry: {
                     type: 'Point',
@@ -55,16 +55,27 @@
                 },
                 count: 30
             }
-        ]);
+        ];
 
+        var randomCount = 900;
+        while (randomCount--) {
+            data.push({
+                geometry: {
+                    type: 'Point',
+                    coordinates: [ctx.canvas.width * Math.random(), ctx.canvas.height * Math.random()]
+                },
+                count: Math.random() * 30 + 5
+            });
+        }
 
+        var dataSet = new mapv.DataSet(data);
 
         var options = {
             fillStyle: 'rgba(55, 50, 250, 0.3)',
             shadowColor: 'rgba(55, 50, 250, 0.8)',
             globalCompositeOperation: 'lighter',
             shadowBlur: 10,
-            radius: 15,
+            radius: 13,
             max: 30,
             maxOpacity: 0.7,
             draw: 'heatmap'

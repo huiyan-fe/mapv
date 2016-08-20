@@ -10,6 +10,7 @@
             height: 100%;
             margin: 0;
             padding: 0;
+            background:blue;
             overflow: hidden;
         }
 
@@ -34,7 +35,7 @@
 
         var data = [];
 
-        var randomCount = parseInt(canvas.width * canvas.height / 1000);
+        var randomCount = 5000;
 
         while (randomCount--) {
             data.push({
@@ -47,8 +48,8 @@
         }
 
         var options = {
-            strokeStyle: 'rgba(55, 55, 250, 1)',
-            lineWidth: 0.5,
+            strokeStyle: 'rgba(255, 255, 50, 1)',
+            lineWidth: 0.3,
             draw: 'simple'
         }
 

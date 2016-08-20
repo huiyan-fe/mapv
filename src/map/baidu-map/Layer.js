@@ -17,6 +17,10 @@ import Choropleth from "../../utils/data-range/Choropleth";
 import Animator from "../../utils/animation/Animator";
 
 function Layer(map, dataSet, options) {
+    if (!(dataSet instanceof DataSet)) {
+        dataSet = new DataSet(dataSet);
+    }
+
     var self = this;
     var data = null;
     options = options || {};

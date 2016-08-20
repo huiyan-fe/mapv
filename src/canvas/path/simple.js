@@ -49,7 +49,7 @@ export default {
             for (var j = 1; j < coordinate.length; j++) {
                 context.lineTo(coordinate[j][0], coordinate[j][1]);
             }
-            context.moveTo(coordinate[0][0], coordinate[0][1]);
+            context.lineTo(coordinate[0][0], coordinate[0][1]);
         }
 
     }

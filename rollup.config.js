@@ -4,6 +4,6 @@ export default {
 	entry: 'index.js',
 	format: 'umd',
 	moduleName: 'mapv',
-	// plugins: [babel()],
+	plugins: [babel()],
 	dest: 'build/mapv.js'
 }
