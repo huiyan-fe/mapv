@@ -1,6 +1,6 @@
 # Mapv - a library of geography visualization
 
-<a href="http://echarts.baidu.com">
+<a href="http://mapv.baidu.com">
     <img style="vertical-align: top;" src="./asset/logo.png?raw=true" alt="logo">
 </a>
 
