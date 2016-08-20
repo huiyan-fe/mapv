@@ -4,7 +4,7 @@
     <img style="vertical-align: top;" src="./asset/logo.png?raw=true" alt="logo">
 </a>
 
-## Introduction [中文](https://github.com/huiyan-fe/mapv/master/README_CN.md)
+## Introduction [中文](https://github.com/huiyan-fe/mapv/blob/v2/README_CN.md)
 This branch contains the prerelease of Mapv 2.0. This API is unstable and may change at any point prior to the release.
 
 
