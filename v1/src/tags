@@ -1,0 +1,400 @@
+!	common/Class.js	/^    typeof this.__listeners[type] != "object" && (this.__listeners[type] = []);$/;"	s
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
++	layer/Layer.js	/^            funcName += 'Drawer';$/;"	s
+Accessor	common/MVCObject.js	/^    }$/;"	c
+Accessor.prototype.transform	common/MVCObject.js	/^    Accessor.prototype.transform = function(from, to) {$/;"	f
+Accessor.transform	common/MVCObject.js	/^    Accessor.prototype.transform = function(from, to) {$/;"	m
+BubbleDrawer	Drawer/BubbleDrawer.js	/^function BubbleDrawer() {$/;"	f
+BubbleDrawer	Drawer/BubbleDrawer.js	/^util.inherits(BubbleDrawer, Drawer);$/;"	c
+BubbleDrawer.drawMap	Drawer/BubbleDrawer.js	/^BubbleDrawer.prototype.drawMap = function () {$/;"	m
+BubbleDrawer.prototype.drawMap	Drawer/BubbleDrawer.js	/^BubbleDrawer.prototype.drawMap = function () {$/;"	f
+CanvasLayer	layer/CanvasLayer.js	/^function CanvasLayer(options){$/;"	c
+CanvasLayer.adjustSize	layer/CanvasLayer.js	/^CanvasLayer.prototype.adjustSize = function(){$/;"	m
+CanvasLayer.draw	layer/CanvasLayer.js	/^CanvasLayer.prototype.draw = function(){$/;"	m
+CanvasLayer.getContainer	layer/CanvasLayer.js	/^CanvasLayer.prototype.getContainer = function(){$/;"	m
+CanvasLayer.getZIndex	layer/CanvasLayer.js	/^CanvasLayer.prototype.getZIndex = function(){$/;"	m
+CanvasLayer.hide	layer/CanvasLayer.js	/^CanvasLayer.prototype.hide = function(){$/;"	m
+CanvasLayer.initialize	layer/CanvasLayer.js	/^CanvasLayer.prototype.initialize = function(map){$/;"	m
+CanvasLayer.prototype.adjustSize	layer/CanvasLayer.js	/^CanvasLayer.prototype.adjustSize = function(){$/;"	f
+CanvasLayer.prototype.draw	layer/CanvasLayer.js	/^CanvasLayer.prototype.draw = function(){$/;"	f
+CanvasLayer.prototype.getContainer	layer/CanvasLayer.js	/^CanvasLayer.prototype.getContainer = function(){$/;"	f
+CanvasLayer.prototype.getZIndex	layer/CanvasLayer.js	/^CanvasLayer.prototype.getZIndex = function(){$/;"	f
+CanvasLayer.prototype.hide	layer/CanvasLayer.js	/^CanvasLayer.prototype.hide = function(){$/;"	f
+CanvasLayer.prototype.initialize	layer/CanvasLayer.js	/^CanvasLayer.prototype.initialize = function(map){$/;"	f
+CanvasLayer.prototype.setZIndex	layer/CanvasLayer.js	/^CanvasLayer.prototype.setZIndex = function(zIndex){$/;"	f
+CanvasLayer.prototype.show	layer/CanvasLayer.js	/^CanvasLayer.prototype.show = function(){$/;"	f
+CanvasLayer.setZIndex	layer/CanvasLayer.js	/^CanvasLayer.prototype.setZIndex = function(zIndex){$/;"	m
+CanvasLayer.show	layer/CanvasLayer.js	/^CanvasLayer.prototype.show = function(){$/;"	m
+CategoryDrawer	Drawer/CategoryDrawer.js	/^function CategoryDrawer() {$/;"	f
+CategoryDrawer	Drawer/CategoryDrawer.js	/^util.inherits(CategoryDrawer, Drawer);$/;"	c
+CategoryDrawer.drawMap	Drawer/CategoryDrawer.js	/^CategoryDrawer.prototype.drawMap = function () {$/;"	m
+CategoryDrawer.prototype.drawMap	Drawer/CategoryDrawer.js	/^CategoryDrawer.prototype.drawMap = function () {$/;"	f
+ChoroplethDrawer	Drawer/ChoroplethDrawer.js	/^function ChoroplethDrawer() {$/;"	f
+ChoroplethDrawer	Drawer/ChoroplethDrawer.js	/^util.inherits(ChoroplethDrawer, Drawer);$/;"	c
+ChoroplethDrawer.drawMap	Drawer/ChoroplethDrawer.js	/^ChoroplethDrawer.prototype.drawMap = function () {$/;"	m
+ChoroplethDrawer.prototype.drawMap	Drawer/ChoroplethDrawer.js	/^ChoroplethDrawer.prototype.drawMap = function () {$/;"	f
+Class	common/Class.js	/^function Class () {$/;"	c
+Class.addEventListener	common/Class.js	/^Class.prototype.addEventListener = function (type, handler) {$/;"	m
+Class.dispatchEvent	common/Class.js	/^Class.prototype.dispatchEvent = function (type, options) {$/;"	m
+Class.dispose	common/Class.js	/^Class.prototype.dispose = function () {$/;"	m
+Class.prototype.addEventListener	common/Class.js	/^Class.prototype.addEventListener = function (type, handler) {$/;"	f
+Class.prototype.dispatchEvent	common/Class.js	/^Class.prototype.dispatchEvent = function (type, options) {$/;"	f
+Class.prototype.dispose	common/Class.js	/^Class.prototype.dispose = function () {$/;"	f
+Class.prototype.removeEventListener	common/Class.js	/^Class.prototype.removeEventListener = function (type, handler) {$/;"	f
+Class.removeEventListener	common/Class.js	/^Class.prototype.removeEventListener = function (type, handler) {$/;"	m
+Clazz	common/util.js	/^        var Clazz = new Function();$/;"	c
+ClusterDrawer	Drawer/ClusterDrawer.js	/^function ClusterDrawer() {$/;"	f
+ClusterDrawer	Drawer/ClusterDrawer.js	/^util.inherits(ClusterDrawer, Drawer);$/;"	c
+ClusterDrawer.drawMap	Drawer/ClusterDrawer.js	/^ClusterDrawer.prototype.drawMap = function () {$/;"	m
+ClusterDrawer.formatParam	Drawer/ClusterDrawer.js	/^ClusterDrawer.prototype.formatParam = function () {$/;"	m
+ClusterDrawer.prototype.drawDataRange	Drawer/ClusterDrawer.js	/^\/\/ ClusterDrawer.prototype.drawDataRange = function (canvas, data, drawOptions) {$/;"	f
+ClusterDrawer.prototype.drawMap	Drawer/ClusterDrawer.js	/^ClusterDrawer.prototype.drawMap = function () {$/;"	f
+ClusterDrawer.prototype.formatParam	Drawer/ClusterDrawer.js	/^ClusterDrawer.prototype.formatParam = function () {$/;"	f
+DataControl	control/DataControl.js	/^function DataControl(superObj) {$/;"	c
+DataControl.initDom	control/DataControl.js	/^DataControl.prototype.initDom = function () {$/;"	m
+DataControl.initEvent	control/DataControl.js	/^DataControl.prototype.initEvent = function () {$/;"	m
+DataControl.prototype.initDom	control/DataControl.js	/^DataControl.prototype.initDom = function () {$/;"	f
+DataControl.prototype.initEvent	control/DataControl.js	/^DataControl.prototype.initEvent = function () {$/;"	f
+DataRange	component/DataRange.js	/^function DataRange(layer) {$/;"	c
+DataRangeControl	control/DataRangeControl.js	/^function DataRangeControl(){$/;"	c
+DensityDrawer	Drawer/DensityDrawer.js	/^function DensityDrawer() {$/;"	c
+DensityDrawer.drawMap	Drawer/DensityDrawer.js	/^DensityDrawer.prototype.drawMap = function () {$/;"	m
+DensityDrawer.prototype.drawMap	Drawer/DensityDrawer.js	/^DensityDrawer.prototype.drawMap = function () {$/;"	f
+DensityDrawer.prototype.scale	Drawer/DensityDrawer.js	/^DensityDrawer.prototype.scale = function (scale) {$/;"	f
+DensityDrawer.scale	Drawer/DensityDrawer.js	/^DensityDrawer.prototype.scale = function (scale) {$/;"	m
+DensityDrawer.window.var.obj.ctx	Drawer/DensityDrawer.js	/^        zoomUnit: zoomUnit,$/;"	p
+DensityDrawer.window.var.obj.data	Drawer/DensityDrawer.js	/^    var obj = {$/;"	p
+DensityDrawer.window.var.obj.nwMc	Drawer/DensityDrawer.js	/^        data: data,$/;"	p
+DensityDrawer.window.var.obj.size	Drawer/DensityDrawer.js	/^        nwMc: nwMc,$/;"	p
+DensityDrawer.window.var.obj.zoomUnit	Drawer/DensityDrawer.js	/^        size: size,$/;"	p
+DrawScale	control/DrawScale.js	/^function DrawScale() {$/;"	c
+DrawScale._Event	control/DrawScale.js	/^DrawScale.prototype._Event = function () {$/;"	m
+DrawScale._draw	control/DrawScale.js	/^DrawScale.prototype._draw = function () {$/;"	m
+DrawScale.change	control/DrawScale.js	/^DrawScale.prototype.change = function (callback) {$/;"	m
+DrawScale.hide	control/DrawScale.js	/^DrawScale.prototype.hide = function () {$/;"	m
+DrawScale.init	control/DrawScale.js	/^DrawScale.prototype.init = function () {$/;"	m
+DrawScale.prototype._Event	control/DrawScale.js	/^DrawScale.prototype._Event = function () {$/;"	f
+DrawScale.prototype._draw	control/DrawScale.js	/^DrawScale.prototype._draw = function () {$/;"	f
+DrawScale.prototype.change	control/DrawScale.js	/^DrawScale.prototype.change = function (callback) {$/;"	f
+DrawScale.prototype.hide	control/DrawScale.js	/^DrawScale.prototype.hide = function () {$/;"	f
+DrawScale.prototype.init	control/DrawScale.js	/^DrawScale.prototype.init = function () {$/;"	f
+DrawScale.prototype.set	control/DrawScale.js	/^DrawScale.prototype.set = function (obj) {$/;"	f
+DrawScale.prototype.show	control/DrawScale.js	/^DrawScale.prototype.show = function () {$/;"	f
+DrawScale.set	control/DrawScale.js	/^DrawScale.prototype.set = function (obj) {$/;"	m
+DrawScale.show	control/DrawScale.js	/^DrawScale.prototype.show = function () {$/;"	m
+DrawScale.var.mousePos.x	control/DrawScale.js	/^    var mousePos = {$/;"	p
+DrawScale.var.mousePos.y	control/DrawScale.js	/^        x: 0,$/;"	p
+DrawTypeControl	control/DrawTypeControl.js	/^function DrawTypeControl(options) {$/;"	c
+DrawTypeControl.drawTypeControlOptions_changed	control/DrawTypeControl.js	/^DrawTypeControl.prototype.drawTypeControlOptions_changed = function () {$/;"	m
+DrawTypeControl.getContainer	control/DrawTypeControl.js	/^DrawTypeControl.prototype.getContainer = function () {$/;"	m
+DrawTypeControl.initialize	control/DrawTypeControl.js	/^DrawTypeControl.prototype.initialize = function (map) {$/;"	m
+DrawTypeControl.prototype.drawTypeControlOptions_changed	control/DrawTypeControl.js	/^DrawTypeControl.prototype.drawTypeControlOptions_changed = function () {$/;"	f
+DrawTypeControl.prototype.getContainer	control/DrawTypeControl.js	/^DrawTypeControl.prototype.getContainer = function () {$/;"	f
+DrawTypeControl.prototype.initialize	control/DrawTypeControl.js	/^DrawTypeControl.prototype.initialize = function (map) {$/;"	f
+DrawTypeControl.prototype.showLayer	control/DrawTypeControl.js	/^DrawTypeControl.prototype.showLayer = function () {$/;"	f
+DrawTypeControl.showLayer	control/DrawTypeControl.js	/^DrawTypeControl.prototype.showLayer = function () {$/;"	m
+Drawer	Drawer/Drawer.js	/^function Drawer(layer) {$/;"	c
+Drawer.beginDrawCanvasMap	Drawer/Drawer.js	/^Drawer.prototype.beginDrawCanvasMap = function () {$/;"	m
+Drawer.beginDrawMap	Drawer/Drawer.js	/^Drawer.prototype.beginDrawMap = function () {$/;"	m
+Drawer.colors	Drawer/Drawer.js	/^Drawer.prototype.colors = [$/;"	m
+Drawer.drawOptions_changed	Drawer/Drawer.js	/^Drawer.prototype.drawOptions_changed = function () {$/;"	m
+Drawer.endDrawCanvasMap	Drawer/Drawer.js	/^Drawer.prototype.endDrawCanvasMap = function () {$/;"	m
+Drawer.endDrawMap	Drawer/Drawer.js	/^Drawer.prototype.endDrawMap = function () {$/;"	m
+Drawer.generalSplitList	Drawer/Drawer.js	/^Drawer.prototype.generalSplitList = function () {$/;"	m
+Drawer.getRadius	Drawer/Drawer.js	/^Drawer.prototype.getRadius = function () {$/;"	m
+Drawer.prototype.beginDrawCanvasMap	Drawer/Drawer.js	/^Drawer.prototype.beginDrawCanvasMap = function () {$/;"	f
+Drawer.prototype.beginDrawMap	Drawer/Drawer.js	/^Drawer.prototype.beginDrawMap = function () {$/;"	f
+Drawer.prototype.colors	Drawer/Drawer.js	/^Drawer.prototype.colors = [$/;"	a
+Drawer.prototype.drawOptions_changed	Drawer/Drawer.js	/^Drawer.prototype.drawOptions_changed = function () {$/;"	f
+Drawer.prototype.endDrawCanvasMap	Drawer/Drawer.js	/^Drawer.prototype.endDrawCanvasMap = function () {$/;"	f
+Drawer.prototype.endDrawMap	Drawer/Drawer.js	/^Drawer.prototype.endDrawMap = function () {$/;"	f
+Drawer.prototype.generalSplitList	Drawer/Drawer.js	/^Drawer.prototype.generalSplitList = function () {$/;"	f
+Drawer.prototype.getRadius	Drawer/Drawer.js	/^Drawer.prototype.getRadius = function () {$/;"	f
+HeatmapDrawer	Drawer/HeatmapDrawer.js	/^function HeatmapDrawer() {$/;"	c
+HeatmapDrawer.drawMap	Drawer/HeatmapDrawer.js	/^HeatmapDrawer.prototype.drawMap = function () {$/;"	m
+HeatmapDrawer.prototype.drawMap	Drawer/HeatmapDrawer.js	/^HeatmapDrawer.prototype.drawMap = function () {$/;"	f
+HeatmapDrawer.prototype.scale	Drawer/HeatmapDrawer.js	/^HeatmapDrawer.prototype.scale = function (scale) {$/;"	f
+HeatmapDrawer.scale	Drawer/HeatmapDrawer.js	/^HeatmapDrawer.prototype.scale = function (scale) {$/;"	m
+IntensityDrawer	Drawer/IntensityDrawer.js	/^function IntensityDrawer() {$/;"	c
+IntensityDrawer.defaultGradient	Drawer/IntensityDrawer.js	/^IntensityDrawer.prototype.defaultGradient = {$/;"	m
+IntensityDrawer.drawMap	Drawer/IntensityDrawer.js	/^IntensityDrawer.prototype.drawMap = function () {$/;"	m
+IntensityDrawer.getGradient	Drawer/IntensityDrawer.js	/^IntensityDrawer.prototype.getGradient = function () {$/;"	m
+IntensityDrawer.getMax	Drawer/IntensityDrawer.js	/^IntensityDrawer.prototype.getMax = function () {$/;"	m
+IntensityDrawer.masker.max	Drawer/IntensityDrawer.js	/^        min: 0,$/;"	p
+IntensityDrawer.masker.min	Drawer/IntensityDrawer.js	/^    this.masker = {$/;"	p
+IntensityDrawer.prototype.defaultGradient	Drawer/IntensityDrawer.js	/^IntensityDrawer.prototype.defaultGradient = {$/;"	o
+IntensityDrawer.prototype.drawMap	Drawer/IntensityDrawer.js	/^IntensityDrawer.prototype.drawMap = function () {$/;"	f
+IntensityDrawer.prototype.getGradient	Drawer/IntensityDrawer.js	/^IntensityDrawer.prototype.getGradient = function () {$/;"	f
+IntensityDrawer.prototype.getMax	Drawer/IntensityDrawer.js	/^IntensityDrawer.prototype.getMax = function () {$/;"	f
+IntensityDrawer.prototype.scale	Drawer/IntensityDrawer.js	/^IntensityDrawer.prototype.scale = function (scale) {$/;"	f
+IntensityDrawer.scale	Drawer/IntensityDrawer.js	/^IntensityDrawer.prototype.scale = function (scale) {$/;"	m
+Layer	layer/Layer.js	/^function Layer (options) {$/;"	c
+MVCObject	common/MVCObject.js	/^var MVCObject;$/;"	v
+Mapv	Mapv.js	/^function Mapv(options) {$/;"	c
+Mapv._initDrawScale	Mapv.js	/^Mapv.prototype._initDrawScale = function () {$/;"	m
+Mapv.drawTypeControl_changed	Mapv.js	/^Mapv.prototype.drawTypeControl_changed = function () {$/;"	m
+Mapv.prototype._initDrawScale	Mapv.js	/^Mapv.prototype._initDrawScale = function () {$/;"	f
+Mapv.prototype.drawTypeControl_changed	Mapv.js	/^Mapv.prototype.drawTypeControl_changed = function () {$/;"	f
+OptionalData	control/OptionDataControl.js	/^function OptionalData(superObj) {$/;"	c
+OptionalData.bindEvent	control/OptionDataControl.js	/^OptionalData.prototype.bindEvent = function () {$/;"	m
+OptionalData.initCSS	control/OptionDataControl.js	/^OptionalData.prototype.initCSS = function () {$/;"	m
+OptionalData.initController	control/OptionDataControl.js	/^OptionalData.prototype.initController = function (layer, drawType) {$/;"	m
+OptionalData.initDom	control/OptionDataControl.js	/^OptionalData.prototype.initDom = function () {$/;"	m
+OptionalData.prototype.bindEvent	control/OptionDataControl.js	/^OptionalData.prototype.bindEvent = function () {$/;"	f
+OptionalData.prototype.initCSS	control/OptionDataControl.js	/^OptionalData.prototype.initCSS = function () {$/;"	f
+OptionalData.prototype.initController	control/OptionDataControl.js	/^OptionalData.prototype.initController = function (layer, drawType) {$/;"	f
+OptionalData.prototype.initDom	control/OptionDataControl.js	/^OptionalData.prototype.initDom = function () {$/;"	f
+OptionalData.this.updateBtn	control/OptionDataControl.js	/^    this.updateBtn.onclick = function () {$/;"	m
+SimpleDrawer	Drawer/SimpleDrawer.js	/^function SimpleDrawer() {$/;"	f
+SimpleDrawer	Drawer/SimpleDrawer.js	/^util.inherits(SimpleDrawer, Drawer);$/;"	c
+SimpleDrawer.drawAnimation	Drawer/SimpleDrawer.js	/^SimpleDrawer.prototype.drawAnimation = function () {$/;"	m
+SimpleDrawer.drawMap	Drawer/SimpleDrawer.js	/^SimpleDrawer.prototype.drawMap = function () {$/;"	m
+SimpleDrawer.drawWebglMap	Drawer/SimpleDrawer.js	/^SimpleDrawer.prototype.drawWebglMap = function () {$/;"	m
+SimpleDrawer.prototype.drawAnimation	Drawer/SimpleDrawer.js	/^SimpleDrawer.prototype.drawAnimation = function () {$/;"	f
+SimpleDrawer.prototype.drawMap	Drawer/SimpleDrawer.js	/^SimpleDrawer.prototype.drawMap = function () {$/;"	f
+SimpleDrawer.prototype.drawWebglMap	Drawer/SimpleDrawer.js	/^SimpleDrawer.prototype.drawWebglMap = function () {$/;"	f
+SizeDataRange	component/SizeDataRange.js	/^function SizeDataRange() {$/;"	f
+_calculatePixel	layer/Layer.js	/^    _calculatePixel: function () {$/;"	f
+_getDrawer	layer/Layer.js	/^    _getDrawer: function () {$/;"	f
+accessors	common/MVCObject.js	/^        var accessors = '__accessors__';$/;"	s
+add	Drawer/HeatmapDrawer.js	/^    add: function (point) {$/;"	f
+addCssByStyle	common/util.js	/^    addCssByStyle: function (cssString) {$/;"	f
+animationOptions	Drawer/Drawer.js	/^        animationOptions: {},$/;"	o
+animationOptions	layer/Layer.js	/^        animationOptions: {$/;"	o
+animation_changed	layer/Layer.js	/^    animation_changed: function () {$/;"	f
+astr	common/util.js	/^            astr = '[object Array]';$/;"	s
+bindings	common/MVCObject.js	/^        var bindings = '__bindings__';$/;"	s
+box.className	control/OptionDataControl.js	/^        box.className = 'controlBoxBlock';$/;"	s
+box.className	control/OptionDataControl.js	/^    box.className = 'controlBox';$/;"	s
+box.style.background	control/DrawScale.js	/^    box.style.background = 'white';$/;"	s
+box.style.border	control/DrawScale.js	/^    box.style.border = '1px solid #999';$/;"	s
+box.style.borderRadius	control/DrawScale.js	/^    box.style.borderRadius = '6px';$/;"	s
+box.style.bottom	control/DrawScale.js	/^    box.style.bottom = '10px';$/;"	s
+box.style.boxShadow	control/DrawScale.js	/^    box.style.boxShadow = 'rgba(0, 0, 0, 0.2) 0px 0px 4px 2px';$/;"	s
+box.style.position	control/DrawScale.js	/^    box.style.position = 'absolute';$/;"	s
+box.style.right	control/DrawScale.js	/^    box.style.right = '10px';$/;"	s
+btnBox.style.textAlign	control/OptionDataControl.js	/^    btnBox.style.textAlign = 'center';$/;"	s
+canvas.style.background	control/DataRangeControl.js	/^        canvas.style.background = '#fff';$/;"	s
+canvas.style.border	control/DataRangeControl.js	/^        canvas.style.border = '1px solid #999999';$/;"	s
+canvas.style.borderRadius	control/DataRangeControl.js	/^        canvas.style.borderRadius = '4px';$/;"	s
+canvas.style.boxShadow	control/DataRangeControl.js	/^        canvas.style.boxShadow = 'rgba(0,0,0,0.2) 0 0 4px 2px';$/;"	s
+canvas.style.cssText	layer/CanvasLayer.js	/^    canvas.style.cssText = "position:absolute;"$/;"	s
+canvas.style.cursor	control/DrawScale.js	/^    canvas.style.cursor = 'pointer';$/;"	s
+canvas.style.height	control/DataRangeControl.js	/^        canvas.style.height = '190px';$/;"	s
+canvas.style.width	control/DataRangeControl.js	/^        canvas.style.width = '100px';$/;"	s
+canvas.style.width	control/DataRangeControl.js	/^        canvas.style.width = '80px';$/;"	s
+children[i].className	control/DrawTypeControl.js	/^                children[i].className = '';$/;"	s
+class2type	common/util.js	/^        var class2type = {};$/;"	o
+clear	Drawer/HeatmapDrawer.js	/^    clear: function () {$/;"	f
+color	component/DataRange.js	/^        var color = 'rgba(' + this._grad[index] + ', ' + this._grad[index + 1] + ', ' + this._grad[index + 2] + ',' + this._grad[index + 3] +')';$/;"	s
+color	component/DataRange.js	/^        var color = 'rgba(50, 50, 255, 1)';$/;"	s
+colorize	Drawer/HeatmapDrawer.js	/^    colorize: function (pixels, gradient) {$/;"	f
+colors	component/DataRange.js	/^        var colors = ['rgba(255, 255, 0, 0.8)',$/;"	a
+colors	component/DataRange.js	/^        var colors = ['rgba(255, 255, 0, 0.8)',$/;"	s
+colors	component/DataRange.js	/^    colors: [$/;"	a
+control.style.background	control/DataControl.js	/^    control.style.background = 'rgba(0,0,0,0.5)';$/;"	s
+control.style.bottom	control/DataControl.js	/^    control.style.bottom = '50px';$/;"	s
+control.style.color	control/DataControl.js	/^    control.style.color = '#FFF';$/;"	s
+control.style.fontSize	control/DataControl.js	/^    control.style.fontSize = '12px';$/;"	s
+control.style.left	control/DataControl.js	/^    control.style.left = '10px';$/;"	s
+control.style.lineHeight	control/DataControl.js	/^    control.style.lineHeight = '1.8em';$/;"	s
+control.style.overflow	control/DataControl.js	/^    control.style.overflow = 'hidden';$/;"	s
+control.style.padding	control/DataControl.js	/^    control.style.padding = '10px 20px';$/;"	s
+control.style.position	control/DataControl.js	/^    control.style.position = 'absolute';$/;"	s
+control.style.webkitTransition	control/DataControl.js	/^    control.style.webkitTransition = 'all 0.5s ease-in';$/;"	s
+control.style.zIndex	control/DataControl.js	/^    control.style.zIndex = '100000';$/;"	s
+copy	common/util.js	/^    copy: function (obj) {$/;"	f
+ctx.canvas.style.cursor	control/DrawScale.js	/^        ctx.canvas.style.cursor = 'default';$/;"	s
+ctx.canvas.style.cursor	control/DrawScale.js	/^        ctx.canvas.style.cursor = 'pointer';$/;"	s
+ctx.fillStyle	Drawer/ClusterDrawer.js	/^            ctx.fillStyle =  '#fff';$/;"	s
+ctx.fillStyle	Drawer/ClusterDrawer.js	/^        \/\/ ctx.fillStyle = 'black';$/;"	s
+ctx.fillStyle	Drawer/DensityDrawer.js	/^                ctx.fillStyle = 'rgba(0,0,0,0.8)';$/;"	s
+ctx.fillStyle	Drawer/DensityDrawer.js	/^            ctx.fillStyle = 'rgba(255,255,255,0.1)';$/;"	s
+ctx.fillStyle	control/DataRangeControl.js	/^            ctx.fillStyle = '#333';$/;"	s
+ctx.fillStyle	control/DataRangeControl.js	/^            ctx.fillStyle = 'rgba(30, 30, 30, 1)';$/;"	s
+ctx.fillStyle	control/DrawScale.js	/^    ctx.fillStyle = '#ADABAB';$/;"	s
+ctx.fillStyle	control/DrawScale.js	/^    ctx.fillStyle = 'grey';$/;"	s
+ctx.fillStyle	control/DrawScale.js	/^    ctx.fillStyle = 'white';$/;"	s
+ctx.shadowColor	Drawer/HeatmapDrawer.js	/^            ctx.shadowColor = 'black';$/;"	s
+ctx.shadowColor	Drawer/HeatmapDrawer.js	/^        ctx.shadowColor = 'black';$/;"	s
+ctx.textAlign	Drawer/ClusterDrawer.js	/^        ctx.textAlign = 'center';$/;"	s
+ctx.textAlign	Drawer/DensityDrawer.js	/^                ctx.textAlign = 'center';$/;"	s
+ctx.textAlign	control/DrawScale.js	/^    ctx.textAlign = 'left';$/;"	s
+ctx.textBaseline	Drawer/ClusterDrawer.js	/^        ctx.textBaseline = 'middle';$/;"	s
+ctx.textBaseline	Drawer/DensityDrawer.js	/^                ctx.textBaseline = 'middle';$/;"	s
+ctx.textBaseline	Drawer/DensityDrawer.js	/^            ctx.textBaseline = 'top';$/;"	s
+ctx.textBaseline	control/DrawScale.js	/^    ctx.textBaseline = 'middle';$/;"	s
+data	Drawer/HeatmapDrawer.js	/^    data: function (data) {$/;"	f
+data	control/DataControl.js	/^                data = [];$/;"	a
+data	layer/Layer.js	/^        data: [],$/;"	a
+dataRangeControl_changed	layer/Layer.js	/^    dataRangeControl_changed: function () {$/;"	f
+data_changed	component/DataRange.js	/^    data_changed: function () {$/;"	f
+data_changed	layer/Layer.js	/^    data_changed: function () {$/;"	f
+defaultGradient	Drawer/HeatmapDrawer.js	/^    defaultGradient: {$/;"	o
+defaultGradient	component/DataRange.js	/^    defaultGradient: {$/;"	o
+draw	Drawer/DensityDrawer.js	/^function draw(x, y, gridStep, color, ctx) {$/;"	f
+draw	component/DataRange.js	/^    draw: function () {$/;"	f
+draw	layer/Layer.js	/^    draw: function () {$/;"	f
+drawAnimation	layer/Layer.js	/^    drawAnimation: function () {$/;"	f
+drawCategorySplit	control/DataRangeControl.js	/^    drawCategorySplit: function (splitList, drawOptions) {$/;"	f
+drawChoroplethSplit	control/DataRangeControl.js	/^    drawChoroplethSplit: function (splitList, drawOptions) {$/;"	f
+drawHeatmap	Drawer/HeatmapDrawer.js	/^    drawHeatmap: function (minOpacity) {$/;"	f
+drawHoneycomb	Drawer/DensityDrawer.js	/^function drawHoneycomb(obj) {$/;"	f
+drawOptions	Drawer/Drawer.js	/^        drawOptions: {$/;"	o
+drawOptions_changed	component/DataRange.js	/^    drawOptions_changed: function () {$/;"	f
+drawOptions_changed	layer/Layer.js	/^    drawOptions_changed: function () {$/;"	f
+drawRec	Drawer/DensityDrawer.js	/^function drawRec(obj) {$/;"	f
+drawSizeSplit	control/DataRangeControl.js	/^    drawSizeSplit: function (splitList, drawOptions) {$/;"	f
+drawTips	control/DrawScale.js	/^function drawTips(obj) {$/;"	f
+drawTypeControlOptions	Mapv.js	/^        drawTypeControlOptions: {$/;"	o
+drawTypeControlOptions	control/DrawTypeControl.js	/^        drawTypeControlOptions: {},$/;"	o
+drawType_changed	component/DataRange.js	/^    drawType_changed: function () {$/;"	f
+drawType_changed	layer/Layer.js	/^    drawType_changed: function () {$/;"	f
+drawTypes	control/DrawTypeControl.js	/^    var drawTypes = ['simple', 'heatmap', 'density', 'bubble', 'category', 'choropleth', 'intensity', 'cluster'];$/;"	a
+drawTypes	control/DrawTypeControl.js	/^    var drawTypes = ['simple', 'heatmap', 'density', 'bubble', 'category', 'choropleth', 'intensity', 'cluster'];$/;"	s
+extend	common/util.js	/^    extend: function (destination, source) {$/;"	f
+formatParam	Drawer/DensityDrawer.js	/^function formatParam() {$/;"	f
+fs_s	Drawer/SimpleDrawer.js	/^    fs_s = [$/;"	a
+function.formatRender	control/DataControl.js	/^    function formatRender(dataStr) {$/;"	f
+function.makeLabelInput	control/OptionDataControl.js	/^    function makeLabelInput(tag) {$/;"	f
+generalCategorySplitList	component/DataRange.js	/^    generalCategorySplitList: function () {$/;"	f
+generalGradient	component/DataRange.js	/^    generalGradient: function (grad) {$/;"	f
+generalSplitList	component/DataRange.js	/^    generalSplitList: function () {$/;"	f
+getCategoryColor	component/DataRange.js	/^    getCategoryColor: function (count) {$/;"	f
+getColorByGradient	component/DataRange.js	/^    getColorByGradient: function (count) {$/;"	f
+getColorByRange	component/DataRange.js	/^    getColorByRange: function (count) {$/;"	f
+getContainer	control/DataRangeControl.js	/^    getContainer: function(){$/;"	f
+getDataRange	layer/Layer.js	/^    getDataRange: function () {$/;"	f
+getGeoCenter	common/util.js	/^    getGeoCenter: function (geo) {$/;"	f
+getGradient	Drawer/HeatmapDrawer.js	/^    getGradient: function () {$/;"	f
+getGradient	component/DataRange.js	/^    getGradient: function () {$/;"	f
+getMax	Drawer/HeatmapDrawer.js	/^    getMax: function () {$/;"	f
+getSize	component/DataRange.js	/^    getSize: function (count) {$/;"	f
+getterNameCache	common/MVCObject.js	/^        var getterNameCache = {};$/;"	o
+getterNameCache[key]	common/MVCObject.js	/^                return getterNameCache[key] = 'get' + capitalize(key);$/;"	s
+grids	Drawer/ClusterDrawer.js	/^    var grids = {};$/;"	o
+grids	Drawer/DensityDrawer.js	/^    var grids = {};$/;"	o
+gridsObj	Drawer/DensityDrawer.js	/^    var gridsObj = {};$/;"	o
+handleName	control/DrawScale.js	/^            var handleName = 'handle' + tar.name + 'Pos';$/;"	s
+hide	control/DataRangeControl.js	/^    hide: function () {$/;"	f
+historyTitle.textContent	control/DataControl.js	/^    historyTitle.textContent = '历史数据';$/;"	s
+honeycombGrid	Drawer/DensityDrawer.js	/^function honeycombGrid(obj) {$/;"	f
+inherits	common/util.js	/^    inherits: function (subClass, superClass) {$/;"	f
+initialize	control/DataRangeControl.js	/^    initialize: function(map){$/;"	f
+initialize	layer/Layer.js	/^    initialize: function () {$/;"	f
+input.type	control/DataControl.js	/^    input.type = 'file';$/;"	s
+input.type	control/OptionDataControl.js	/^            input.type = 'checkbox';$/;"	s
+isPlainObject	common/util.js	/^    isPlainObject: function (obj) {$/;"	f
+label.style.cursor	control/OptionDataControl.js	/^                label.style.cursor = 'pointer';$/;"	s
+label.style.padding	control/OptionDataControl.js	/^                label.style.padding = '0 10px 0  0';$/;"	s
+li.className	control/DrawTypeControl.js	/^            li.className = 'current';$/;"	s
+mapv_changed	layer/Layer.js	/^    mapv_changed: function () {$/;"	f
+max	Drawer/ClusterDrawer.js	/^var max;$/;"	v
+max	Drawer/DensityDrawer.js	/^var max;$/;"	v
+max	Drawer/HeatmapDrawer.js	/^    max: function (max) {$/;"	f
+min	Drawer/ClusterDrawer.js	/^var min;$/;"	v
+min	Drawer/DensityDrawer.js	/^var min;$/;"	v
+mousePos	control/DrawScale.js	/^    var mousePos = {$/;"	o
+newTag	control/OptionDataControl.js	/^    var newTag = [];$/;"	a
+obj	Drawer/DensityDrawer.js	/^    var obj = {$/;"	o
+obj	control/DataControl.js	/^                    var obj = {};$/;"	o
+property	Drawer/Drawer.js	/^    var property = [$/;"	a
+proto.bindTo	common/MVCObject.js	/^        proto.bindTo = function(key, target, targetKey, noNotify) {$/;"	f
+proto.changed	common/MVCObject.js	/^        proto.changed = function() {};$/;"	f
+proto.get	common/MVCObject.js	/^        proto.get = function(key) {$/;"	f
+proto.initOptions	common/MVCObject.js	/^        proto.initOptions = function(options) {$/;"	f
+proto.notify	common/MVCObject.js	/^        proto.notify = function(key) {$/;"	f
+proto.set	common/MVCObject.js	/^        proto.set = function(key, value) {$/;"	f
+proto.setValues	common/MVCObject.js	/^        proto.setValues = function(values) {$/;"	f
+proto.unbind	common/MVCObject.js	/^        proto.unbind = function(key) {$/;"	f
+proto.unbindAll	common/MVCObject.js	/^        proto.unbindAll = function() {$/;"	f
+r	Drawer/DensityDrawer.js	/^var r =0;g=0;b=0;$/;"	v
+radio.type	control/OptionDataControl.js	/^                radio.type = 'radio';$/;"	s
+radius	Drawer/HeatmapDrawer.js	/^    radius: function (r) {$/;"	f
+recGrids	Drawer/DensityDrawer.js	/^function recGrids(obj, map) {$/;"	f
+resetBtn.textContent	control/OptionDataControl.js	/^    resetBtn.textContent = 'reset';$/;"	s
+self.box.style.display	control/DrawScale.js	/^    self.box.style.display = 'block';$/;"	s
+self.box.style.display	control/DrawScale.js	/^    self.box.style.display = 'none';$/;"	s
+self.box.style.display	control/OptionDataControl.js	/^        self.box.style.display = 'block';$/;"	s
+self.box.style.display	control/OptionDataControl.js	/^        self.box.style.display = 'none';$/;"	s
+self.colors	control/DrawScale.js	/^    self.colors = [$/;"	a
+self.contentBox.innerHTML	control/OptionDataControl.js	/^    self.contentBox.innerHTML = '';$/;"	s
+self.defaultColors	control/DrawScale.js	/^    self.defaultColors = [$/;"	a
+self.handleEndPos	control/DrawScale.js	/^    self.handleEndPos = {$/;"	o
+self.handleEndPos.val	control/DrawScale.js	/^    self.handleEndPos = {$/;"	p
+self.handleStartPos	control/DrawScale.js	/^    self.handleStartPos = {$/;"	o
+self.handleStartPos.val	control/DrawScale.js	/^    self.handleStartPos = {$/;"	p
+self.masker	Drawer/DensityDrawer.js	/^        self.masker = {$/;"	o
+self.masker	Drawer/HeatmapDrawer.js	/^        self.masker = {$/;"	o
+self.masker	Drawer/HeatmapDrawer.js	/^    self.masker = {};$/;"	o
+self.masker	Drawer/IntensityDrawer.js	/^        self.masker = {$/;"	o
+self.point	control/DrawScale.js	/^    self.point = {$/;"	o
+self.point.x	control/DrawScale.js	/^    self.point = {$/;"	p
+self.point.y	control/DrawScale.js	/^        x: 0,$/;"	p
+setterNameCache	common/MVCObject.js	/^        var setterNameCache = {};$/;"	o
+setterNameCache[key]	common/MVCObject.js	/^                return setterNameCache[key] = 'set' + capitalize(key);$/;"	s
+show	control/DataRangeControl.js	/^    show: function () {$/;"	f
+span.className	control/OptionDataControl.js	/^        span.className = 'controlBoxTitle';$/;"	s
+span.style.padding	control/OptionDataControl.js	/^        \/\/ span.style.padding = '0 10px';$/;"	s
+stockXA	Drawer/ClusterDrawer.js	/^    var stockXA = [];$/;"	a
+stockXA	Drawer/DensityDrawer.js	/^    var stockXA = [];$/;"	a
+stockYA	Drawer/ClusterDrawer.js	/^    var stockYA = [];$/;"	a
+stockYA	Drawer/DensityDrawer.js	/^    var stockYA = [];$/;"	a
+subClass	common/util.js	/^        }$/;"	c
+subClass.constructor	common/util.js	/^        subClass.prototype.constructor = subClass;$/;"	m
+tag	control/OptionDataControl.js	/^            tag = {$/;"	o
+tag.name	control/OptionDataControl.js	/^            tag = {$/;"	p
+tag.type	control/OptionDataControl.js	/^                name: tag,$/;"	p
+tarPos	control/DrawScale.js	/^    var tarPos = {$/;"	o
+target.className	control/DrawTypeControl.js	/^            target.className = 'current';$/;"	s
+this.__listeners	common/Class.js	/^    this.__listeners = {}; \/\/ 存储自定义事件对象$/;"	o
+this._data	Drawer/HeatmapDrawer.js	/^        this._data = [];$/;"	a
+this._data	Drawer/HeatmapDrawer.js	/^    this._data = [];$/;"	a
+this._drawer	layer/Layer.js	/^    this._drawer = {};$/;"	o
+this._layers	Mapv.js	/^    this._layers = [];$/;"	a
+this.canvas.style.display	control/DataRangeControl.js	/^            this.canvas.style.display = 'block';$/;"	s
+this.canvas.style.display	control/DataRangeControl.js	/^            this.canvas.style.display = 'none';$/;"	s
+this.canvas.style.display	layer/CanvasLayer.js	/^    this.canvas.style.display = "block";$/;"	s
+this.canvas.style.display	layer/CanvasLayer.js	/^    this.canvas.style.display = "none";$/;"	s
+this.categorySplitList	component/DataRange.js	/^        this.categorySplitList = {};$/;"	o
+this.fillColors	Drawer/DensityDrawer.js	/^    var fillColors = this.fillColors = [$/;"	a
+this.masker	Drawer/DensityDrawer.js	/^    this.masker = {};$/;"	o
+this.masker	Drawer/IntensityDrawer.js	/^    this.masker = {$/;"	o
+this.resetBtn	control/OptionDataControl.js	/^    this.resetBtn.onclick = function () {$/;"	m
+this.resetBtn.onclick	control/OptionDataControl.js	/^    this.resetBtn.onclick = function () {$/;"	f
+this.splitList	Drawer/Drawer.js	/^    this.splitList = [];$/;"	a
+this.splitList	component/DataRange.js	/^        this.splitList = [];$/;"	a
+this.updateBtn.onclick	control/OptionDataControl.js	/^    this.updateBtn.onclick = function () {$/;"	f
+tips.textContent	control/DataControl.js	/^    tips.textContent = '拖拽文件到窗口或者选择自定义文件';$/;"	s
+tipstitle.textContent	control/DataControl.js	/^    tipstitle.textContent = '自定义数据：';$/;"	s
+tmp	layer/Layer.js	/^                var tmp = [];$/;"	a
+uid	common/MVCObject.js	/^        var uid = '__uid__';$/;"	s
+ul.innerHTML	control/DrawTypeControl.js	/^    ul.innerHTML = "";$/;"	s
+update	component/DataRange.js	/^    update: function () {$/;"	f
+update	layer/Layer.js	/^            update: function () {$/;"	f
+updateBtn.textContent	control/OptionDataControl.js	/^    updateBtn.textContent = 'update';$/;"	s
+updateControl	layer/Layer.js	/^    updateControl: function () {$/;"	f
+util	common/util.js	/^var util = {$/;"	o
+util.addCssByStyle	common/util.js	/^    },$/;"	m
+util.copy	common/util.js	/^    },$/;"	m
+util.extend	common/util.js	/^    },$/;"	m
+util.getGeoCenter	common/util.js	/^    },$/;"	m
+util.inherits	common/util.js	/^    },$/;"	m
+util.isPlainObject	common/util.js	/^var util = {$/;"	m
+var.tarPos.name	control/DrawScale.js	/^        y: 0,$/;"	p
+var.tarPos.y	control/DrawScale.js	/^    var tarPos = {$/;"	p
+verticesData	Drawer/SimpleDrawer.js	/^    var verticesData = [];$/;"	a
+vs_s	Drawer/SimpleDrawer.js	/^    vs_s = [$/;"	a
+window.window.var.obj.ctx	Drawer/DensityDrawer.js	/^        min: min,$/;"	p
+window.window.var.obj.fillColors	Drawer/DensityDrawer.js	/^        grids: grids,$/;"	p
+window.window.var.obj.grids	Drawer/DensityDrawer.js	/^        ctx: ctx,$/;"	p
+window.window.var.obj.max	Drawer/DensityDrawer.js	/^        zoomUnit: zoomUnit,$/;"	p
+window.window.var.obj.min	Drawer/DensityDrawer.js	/^        max: max,$/;"	p
+window.window.var.obj.size	Drawer/DensityDrawer.js	/^    var obj = {$/;"	p
+window.window.var.obj.zoomUnit	Drawer/DensityDrawer.js	/^        size: size,$/;"	p
+zIndex_changed	layer/Layer.js	/^    zIndex_changed: function () {$/;"	f
