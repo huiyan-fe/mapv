@@ -191,6 +191,7 @@ function Layer(map, dataSet, options) {
         console.timeEnd('draw');
 
         console.timeEnd('update')
+        options.updateCallback && options.updateCallback(time);
     };
 
 }
