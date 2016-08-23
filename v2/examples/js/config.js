@@ -13,6 +13,10 @@ var config = {
             pic: 'baidu-map-point-time.jpg'
         },
         {
+            url: 'baidu-map-point-time1.html',
+            pic: 'baidu-map-point-time1.jpg'
+        },
+        {
             url: 'baidu-map-polyline-time.html',
             pic: 'baidu-map-polyline-time.jpg'
         },
