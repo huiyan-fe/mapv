@@ -110,33 +110,35 @@ ClusterDrawer.prototype.drawMap = function() {
 
     window.console.time('drawMap');
     for (var i in grids) {
-        var sp = i.split('_');
-        x = Number(sp[0]);
-        y = Number(sp[1]);
-        var v = (grids[i] - min) / step;
-        v = v < 0 ? 0 : v;
+        if (grids[i] !== 0) {
+            var sp = i.split('_');
+            x = Number(sp[0]);
+            y = Number(sp[1]);
+            var v = (grids[i] + 0.1 - min) / step;
+            // console.log(grids[i] , min)
+            v = v < 0 ? 0 : v;
 
-        var cx = x + gridStep / 2;
-        var cy = y + gridStep / 2;
+            var cx = x + gridStep / 2;
+            var cy = y + gridStep / 2;
 
-        ctx.fillStyle = param.fillStyle || '#fa8b2e';
+            ctx.fillStyle = param.fillStyle || '#fa8b2e';
 
-        ctx.beginPath();
+            ctx.beginPath();
+            ctx.arc(cx, cy, v * 5 + 5, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.lineWidth = 8 * v / 10 + 1;
+            ctx.strokeStyle = param.strokeStyle || '#fff';
+            ctx.stroke();
 
-        ctx.arc(cx, cy, v * 5, 0, 2 * Math.PI);
-        ctx.fill();
-        ctx.lineWidth = 8 * v / 10;
-        ctx.strokeStyle = param.strokeStyle || '#fff';
-        ctx.stroke();
-
-        // ctx.save();
-        ctx.font = 30 * v / 10 + 'px serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        if (grids[i] !== 0 && param.label && param.label.show) {
-            ctx.fillStyle = '#fff';
-            ctx.fillText(grids[i], cx, cy);
-            // ctx.restore();
+            // ctx.save();
+            ctx.font = 30 * v / 10 + 5 + 'px serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            if (param.label && param.label.show) {
+                ctx.fillStyle = '#fff';
+                ctx.fillText(grids[i], cx, cy);
+                // ctx.restore();
+            }
         }
         // }
     }

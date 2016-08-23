@@ -31,8 +31,8 @@ gulp.task('script', function() {
         "src/Drawer/*.js",
         "src/end.js",
     ])
-    .pipe(jshint())
-    .pipe(jshint.reporter('default'))
+    //.pipe(jshint())
+    //.pipe(jshint.reporter('default'))
     .pipe(babel())
     .pipe(concat('Mapv.js'))
     .pipe(replace(/\/\/annotation/g, ''))

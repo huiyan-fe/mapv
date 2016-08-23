@@ -705,7 +705,7 @@ util.extend(DataRange.prototype, {
         index = parseInt(index, 10);
         index *= 4;
 
-        var color = 'rgba(' + this._grad[index] + ', ' + this._grad[index + 1] + ', ' + this._grad[index + 2] + ',' + this._grad[index + 3] + ')';
+        var color = 'rgba(' + this._grad[index] + ', ' + this._grad[index + 1] + ', ' + this._grad[index + 2] + ',' + this._grad[index + 3] / 255 + ')';
         return color;
     }
 
@@ -2625,10 +2625,6 @@ var brushes = {};
         ctx.beginPath();
         var lastPoint = geo[0];
 
-        var img = new Image();
-        img.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAAB50RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNS4xqx9I6wAAABR0RVh0Q3JlYXRpb24gVGltZQAxLzQvMTJldbXMAAACIklEQVRYhbWX227bMBBEj25pLk2KImj+/w+LvjRxJVN5ICeebKmqsmUBC11AkYezQy3VAPfADfAF6IEZGIE/wKFcH7nS0QEPJZ6AbwbUFZhUzvM1AHryzB+B7wWgBd6AX5wUUaRrANyQFXgGXoCBLP3Pcq2Z/yanY1eIvsQtOQU/gK/knD8ZgMe0J0QPNOR8C+K53D8WgGQxA697QvSh845swgeyEj1ZDW8jiF2M2ZPzeiidvpYBB+CObEgB6KyB38hKXATRkVeBvgP3ZeA7ckq0HBtOq2AqcWQHFTo++0D3g4WM2hrE0SCkytkATXg2l2etDT6UtoI47gXRlbNm5SGQjs9qOMQU2m+G8M+tS+szUzup4UokLoTo7NoBxhLu8gghY0blNqXDAVwJQUgNKeG+kHljOjYVry7ce9HR4AJRSXaIuESjh1YhIkCEcE9ECKVEEA4g1VbTUQOoQXg6IoSipsRqOpYAHCSa0yVegqiZsgqxBrAG4f0o4jv/hPgfAO/Qzen1oOWkRsvfSnhJPwtAELVaIAgMpA3gi9+ILQAO4W53JZYgFlOxFcAhavUgkeVXDWnsnZiO+VwAB4m+8DyrojaV9h9KXALgndbKsyAUVYhLAdTpUlHSsQSQ9gBwiFgPXAlv92HevQAihG9ikz13pUZg2hPAIbyiuuQ++AiM/c4AgtBGxlfJgbytazgVt3QNAEH4niCRf/cH8tJMBWh6B2crbJFfpZtGAAAAAElFTkSuQmCC';
-        img.width = 10;
-
         for (var i = 1; i < geo.length; i++) {
             var currentPoint = geo[i];
             var dist = distanceBetween(lastPoint, currentPoint);
@@ -2648,16 +2644,31 @@ var brushes = {};
             lastPoint = currentPoint;
         }
 
+        colorize(ctx);
+    }
+
+    var img = new Image();
+    img.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAAB50RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNS4xqx9I6wAAABR0RVh0Q3JlYXRpb24gVGltZQAxLzQvMTJldbXMAAACIklEQVRYhbWX227bMBBEj25pLk2KImj+/w+LvjRxJVN5ICeebKmqsmUBC11AkYezQy3VAPfADfAF6IEZGIE/wKFcH7nS0QEPJZ6AbwbUFZhUzvM1AHryzB+B7wWgBd6AX5wUUaRrANyQFXgGXoCBLP3Pcq2Z/yanY1eIvsQtOQU/gK/knD8ZgMe0J0QPNOR8C+K53D8WgGQxA697QvSh845swgeyEj1ZDW8jiF2M2ZPzeiidvpYBB+CObEgB6KyB38hKXATRkVeBvgP3ZeA7ckq0HBtOq2AqcWQHFTo++0D3g4WM2hrE0SCkytkATXg2l2etDT6UtoI47gXRlbNm5SGQjs9qOMQU2m+G8M+tS+szUzup4UokLoTo7NoBxhLu8gghY0blNqXDAVwJQUgNKeG+kHljOjYVry7ce9HR4AJRSXaIuESjh1YhIkCEcE9ECKVEEA4g1VbTUQOoQXg6IoSipsRqOpYAHCSa0yVegqiZsgqxBrAG4f0o4jv/hPgfAO/Qzen1oOWkRsvfSnhJPwtAELVaIAgMpA3gi9+ILQAO4W53JZYgFlOxFcAhavUgkeVXDWnsnZiO+VwAB4m+8DyrojaV9h9KXALgndbKsyAUVYhLAdTpUlHSsQSQ9gBwiFgPXAlv92HevQAihG9ikz13pUZg2hPAIbyiuuQ++AiM/c4AgtBGxlfJgbytazgVt3QNAEH4niCRf/cH8tJMBWh6B2crbJFfpZtGAAAAAElFTkSuQmCC';
+
+    function colorize(ctx) {
+        ctx.save();
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(1, 0);
+        ctx.stroke();
+        ctx.restore();
+        var color = ctx.getImageData(0, 0, 1, 1).data;
+        ctx.clearRect(0, 0, 1, 1);
+
         var colored = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
         for (var i = 3, len = colored.data.length, j; i < len; i += 4) {
-            colored.data[i - 3] = 255;
-            colored.data[i - 2] = 50;
-            colored.data[i - 1] = 50;
+            colored.data[i - 3] = color[0];
+            colored.data[i - 2] = color[1];
+            colored.data[i - 1] = color[2];
         }
         ctx.putImageData(colored, 0, 0);
     }
-
-    function colorize() {}
 
     function distanceBetween(point1, point2) {
         return Math.sqrt(Math.pow(point2[0] - point1[0], 2) + Math.pow(point2[1] - point1[1], 2));
@@ -2681,10 +2692,102 @@ var brushes = {};
      * @file basic
      * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
      */
-    function neighborBrush(ctx, geo, drawOptions) {
-        ctx.beginPath();
+    function furNeighborBrush(ctx, geo, drawOptions) {
+
         for (var i = 1; i < geo.length; i++) {
-            //ctx.lineTo(geo[i][0], geo[i][1]);
+            ctx.beginPath();
+            ctx.lineWidth = 3;
+            ctx.moveTo(geo[i - 1][0], geo[i - 1][1]);
+            ctx.lineTo(geo[i][0], geo[i][1]);
+            ctx.globalAlpha = 1;
+            ctx.stroke();
+
+            for (var j = 0, len = i; j < len; j++) {
+                var dx = geo[j][0] - geo[i][0];
+                var dy = geo[j][1] - geo[i][1];
+                var d = dx * dx + dy * dy;
+
+                if (d < 50 * 50 && Math.random() < d / 50 * 50) {
+                    ctx.beginPath();
+                    ctx.lineWidth = 1;
+                    ctx.globalAlpha = 0.1;
+                    ctx.moveTo(geo[i][0] + dx * 0.2, geo[i][1] + dy * 0.2);
+                    ctx.lineTo(geo[j][0] - dx * 0.2, geo[j][1] - dy * 0.2);
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+
+    brushes.furNeighbor = furNeighborBrush;
+})();
+'use strict';
+
+(function () {
+
+    /**
+     * @file basic
+     * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+     */
+    function linesPatternBrush(ctx, geo, drawOptions) {
+
+        ctx.beginPath();
+
+        var p1 = geo[0];
+        var p2 = geo[1];
+        ctx.moveTo(p1[0], p1[1]);
+
+        for (var i = 1; i < geo.length; i++) {
+            var midPoint = midPointBtw(p1, p2);
+            ctx.quadraticCurveTo(p1[0], p1[1], midPoint[0], midPoint[1]);
+            p1 = geo[i];
+            p2 = geo[i + 1];
+        }
+
+        var pattern = ctx.createPattern(getPattern(), 'repeat');
+        ctx.strokeStyle = pattern;
+        ctx.stroke();
+    }
+
+    function midPointBtw(p1, p2) {
+        return [p1[0] + (p2[0] - p1[0]) / 2, p1[1] + (p2[1] - p1[1]) / 2];
+    }
+
+    function getPattern() {
+        var patternCanvas = document.createElement('canvas'),
+            dotWidth = 10,
+            dotDistance = 5,
+            patternCtx = patternCanvas.getContext('2d');
+
+        patternCanvas.width = patternCanvas.height = dotWidth + dotDistance;
+
+        patternCtx.strokeStyle = 'green';
+        patternCtx.lineWidth = 5;
+        patternCtx.beginPath();
+        patternCtx.moveTo(0, 5);
+        patternCtx.lineTo(10, 5);
+        patternCtx.closePath();
+        patternCtx.stroke();
+
+        return patternCanvas;
+    }
+
+    brushes.linesPattern = linesPatternBrush;
+})();
+"use strict";
+
+(function () {
+
+    /**
+     * @file basic
+     * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+     */
+    function neighborBrush(ctx, geo, drawOptions) {
+
+        ctx.beginPath();
+
+        for (var i = 1; i < geo.length; i++) {
+
             ctx.moveTo(geo[i - 1][0], geo[i - 1][1]);
             ctx.lineTo(geo[i][0], geo[i][1]);
 
@@ -2699,6 +2802,7 @@ var brushes = {};
                 }
             }
         }
+
         ctx.stroke();
     }
 
@@ -2715,6 +2819,7 @@ var brushes = {};
     function pen2Brush(ctx, geo, drawOptions) {
         ctx.beginPath();
         var lastPoint = geo[0];
+        ctx.lineWidth = 1;
 
         for (var i = 1; i < geo.length; i++) {
             var currentPoint = geo[i];
@@ -2750,16 +2855,118 @@ var brushes = {};
      */
     function penBrush(ctx, geo, drawOptions) {
         ctx.beginPath();
+
         for (var i = 1; i < geo.length; i++) {
             ctx.beginPath();
             ctx.moveTo(geo[i - 1][0], geo[i - 1][1]);
-            ctx.lineWidth = Math.floor(Math.random() * 3) + 3;
+            ctx.lineWidth = getRandomInt(3, 5);
             ctx.lineTo(geo[i][0], geo[i][1]);
             ctx.stroke();
         }
     }
 
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
     brushes.pen = penBrush;
+})();
+"use strict";
+
+(function () {
+
+    /**
+     * @file basic
+     * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+     */
+    function sprayBrush(ctx, geo, drawOptions) {
+        ctx.beginPath();
+        var density = 50;
+        for (var i = 0; i < geo.length; i++) {
+            for (var j = density; j--;) {
+                var radius = 10;
+                var offsetX = getRandomInt(-radius, radius);
+                var offsetY = getRandomInt(-radius, radius);
+                ctx.fillRect(geo[i][0] + offsetX, geo[i][1] + offsetY, 1, 1);
+            }
+        }
+    }
+
+    brushes.spray = sprayBrush;
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+})();
+'use strict';
+
+(function () {
+
+    /**
+     * @file basic
+     * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
+     */
+    function thickBrush(ctx, geo, drawOptions) {
+        ctx.beginPath();
+        var lastPoint = geo[0];
+
+        for (var i = 1; i < geo.length; i++) {
+            var currentPoint = geo[i];
+            var dist = distanceBetween(lastPoint, currentPoint);
+            var angle = angleBetween(lastPoint, currentPoint);
+
+            for (var j = 0; j < dist; j += 2) {
+                var x = lastPoint[0] + Math.sin(angle) * j;
+                var y = lastPoint[1] + Math.cos(angle) * j;
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.scale(0.3, 0.3);
+                ctx.drawImage(img, 0, 0);
+                ctx.restore();
+            }
+
+            lastPoint = currentPoint;
+        }
+
+        colorize(ctx);
+    }
+
+    var img = new Image();
+    img.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAAB50RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNS4xqx9I6wAAABR0RVh0Q3JlYXRpb24gVGltZQAxLzQvMTJldbXMAAACIklEQVRYhbWX227bMBBEj25pLk2KImj+/w+LvjRxJVN5ICeebKmqsmUBC11AkYezQy3VAPfADfAF6IEZGIE/wKFcH7nS0QEPJZ6AbwbUFZhUzvM1AHryzB+B7wWgBd6AX5wUUaRrANyQFXgGXoCBLP3Pcq2Z/yanY1eIvsQtOQU/gK/knD8ZgMe0J0QPNOR8C+K53D8WgGQxA697QvSh845swgeyEj1ZDW8jiF2M2ZPzeiidvpYBB+CObEgB6KyB38hKXATRkVeBvgP3ZeA7ckq0HBtOq2AqcWQHFTo++0D3g4WM2hrE0SCkytkATXg2l2etDT6UtoI47gXRlbNm5SGQjs9qOMQU2m+G8M+tS+szUzup4UokLoTo7NoBxhLu8gghY0blNqXDAVwJQUgNKeG+kHljOjYVry7ce9HR4AJRSXaIuESjh1YhIkCEcE9ECKVEEA4g1VbTUQOoQXg6IoSipsRqOpYAHCSa0yVegqiZsgqxBrAG4f0o4jv/hPgfAO/Qzen1oOWkRsvfSnhJPwtAELVaIAgMpA3gi9+ILQAO4W53JZYgFlOxFcAhavUgkeVXDWnsnZiO+VwAB4m+8DyrojaV9h9KXALgndbKsyAUVYhLAdTpUlHSsQSQ9gBwiFgPXAlv92HevQAihG9ikz13pUZg2hPAIbyiuuQ++AiM/c4AgtBGxlfJgbytazgVt3QNAEH4niCRf/cH8tJMBWh6B2crbJFfpZtGAAAAAElFTkSuQmCC';
+
+    function colorize(ctx) {
+        ctx.save();
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(1, 0);
+        ctx.stroke();
+        ctx.restore();
+        var color = ctx.getImageData(0, 0, 1, 1).data;
+        ctx.clearRect(0, 0, 1, 1);
+
+        var colored = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+        for (var i = 3, len = colored.data.length, j; i < len; i += 4) {
+            colored.data[i - 3] = color[0];
+            colored.data[i - 2] = color[1];
+            colored.data[i - 1] = color[2];
+        }
+        ctx.putImageData(colored, 0, 0);
+    }
+
+    function distanceBetween(point1, point2) {
+        return Math.sqrt(Math.pow(point2[0] - point1[0], 2) + Math.pow(point2[1] - point1[1], 2));
+    }
+
+    function angleBetween(point1, point2) {
+        return Math.atan2(point2[0] - point1[0], point2[1] - point1[1]);
+    }
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    brushes.thick = thickBrush;
 })();
 /**
  * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
@@ -2776,6 +2983,9 @@ function BrushDrawer() {
 util.inherits(BrushDrawer, Drawer);
 
 BrushDrawer.prototype.drawMap = function () {
+
+    console.time('draw brush');
+
     this.beginDrawMap();
 
     var data = this.getLayer().getData();
@@ -2795,6 +3005,8 @@ BrushDrawer.prototype.drawMap = function () {
     }
 
     this.endDrawMap();
+
+    console.timeEnd('draw brush');
 };
 /**
  * @author nikai (@胖嘟嘟的骨头, nikai@baidu.com)
@@ -3070,33 +3282,35 @@ ClusterDrawer.prototype.drawMap = function () {
 
     window.console.time('drawMap');
     for (var i in grids) {
-        var sp = i.split('_');
-        x = Number(sp[0]);
-        y = Number(sp[1]);
-        var v = (grids[i] - min) / step;
-        v = v < 0 ? 0 : v;
+        if (grids[i] !== 0) {
+            var sp = i.split('_');
+            x = Number(sp[0]);
+            y = Number(sp[1]);
+            var v = (grids[i] + 0.1 - min) / step;
+            // console.log(grids[i] , min)
+            v = v < 0 ? 0 : v;
 
-        var cx = x + gridStep / 2;
-        var cy = y + gridStep / 2;
+            var cx = x + gridStep / 2;
+            var cy = y + gridStep / 2;
 
-        ctx.fillStyle = param.fillStyle || '#fa8b2e';
+            ctx.fillStyle = param.fillStyle || '#fa8b2e';
 
-        ctx.beginPath();
+            ctx.beginPath();
+            ctx.arc(cx, cy, v * 5 + 5, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.lineWidth = 8 * v / 10 + 1;
+            ctx.strokeStyle = param.strokeStyle || '#fff';
+            ctx.stroke();
 
-        ctx.arc(cx, cy, v * 5, 0, 2 * Math.PI);
-        ctx.fill();
-        ctx.lineWidth = 8 * v / 10;
-        ctx.strokeStyle = param.strokeStyle || '#fff';
-        ctx.stroke();
-
-        // ctx.save();
-        ctx.font = 30 * v / 10 + 'px serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        if (grids[i] !== 0 && param.label && param.label.show) {
-            ctx.fillStyle = '#fff';
-            ctx.fillText(grids[i], cx, cy);
-            // ctx.restore();
+            // ctx.save();
+            ctx.font = 30 * v / 10 + 5 + 'px serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            if (param.label && param.label.show) {
+                ctx.fillStyle = '#fff';
+                ctx.fillText(grids[i], cx, cy);
+                // ctx.restore();
+            }
         }
         // }
     }
@@ -3386,7 +3600,7 @@ function drawRec(obj) {
         var color = obj.dataRange.getColorByGradient(grids[i]);
         try {
             if (options.opacity) {
-                var alpha = parseInt(color.match(/rgba\(.+?\,.+?\,.+?\,(.+?)\)/)[1] * options.opacity) / 255;
+                var alpha = color.match(/rgba\(.+?\,.+?\,.+?\,(.+?)\)/)[1] * options.opacity;
                 color = color.replace(/(rgba\(.+?\,.+?\,.+?\,).+?(\))/, '$1' + alpha + '$2');
             }
         } catch (e) {}
@@ -4994,4 +5208,9 @@ function generateSprite() {
 
 Mapv.Layer = Layer;
 window.Mapv = Mapv;
+
+// add state
+var _image = new Image();
+_image.src = "http://api.map.baidu.com/images/blank.gif?product=jsapi&sub_product=jsapi&v=2.0&sub_product_v=2.0&t=18547002&code=mapv&da_src=mapv&t=" + new Date().getTime();
+
 }();
