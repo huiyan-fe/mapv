@@ -55,7 +55,7 @@ var layer = new Mapv.Layer({
         fillStyle: "rgba(255, 255, 50, 1)",  // 填充颜色
         strokeStyle: "rgba(50, 50, 255, 0.8)", // 描边颜色，不传就不描边
         lineWidth: 5, // 描边宽度
-        radius: 5, // 半径大小
+        size: 5, // 半径大小
         unit: 'px' // 半径对应的单位，px:默认值，屏幕像素单位,m:米,对应地图上的大约距离,18级别时候1像素大约代表1米
     }
 });
