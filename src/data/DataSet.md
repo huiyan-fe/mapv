@@ -67,3 +67,16 @@ mapv中主要都是展示地理信息数据用的，需要在数据中加个geom
     ];
 
     var dataSet = new mapv.DataSet(data);
+
+## filter方法
+可以通过filter方法获取过滤后的数据
+
+    var data = dataSet.get({
+        filter: function(item){
+            if (item.count > 10 && item.count < 50) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    })
