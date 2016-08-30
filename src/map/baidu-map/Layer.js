@@ -158,6 +158,9 @@ function Layer(map, dataSet, options) {
         // draw
         switch (self.options.draw) {
             case 'heatmap':
+                if (self.options.radiusUnit == 'm') {
+                    self.options._radius = self.options.radius / zoomUnit;
+                };
                 drawHeatmap.draw(context, new DataSet(data), self.options);
                 break;
             case 'grid':

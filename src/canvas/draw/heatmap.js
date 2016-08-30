@@ -10,7 +10,7 @@ function createCircle(radius) {
 
     var circle = document.createElement('canvas');
     var context = circle.getContext('2d');
-    var shadowBlur = 13;
+    var shadowBlur = radius / 2;
     var r2 = radius + shadowBlur;
     var offsetDistance = 10000;
 
@@ -47,7 +47,13 @@ function drawGray(context, dataSet, options) {
 
     var max = options.max || 100;
     // console.log(max)
-    var radius = options.radius || 13;
+    var radius = options._radius;
+    if (radius == undefined) {
+        radius = options.radius;
+        if (radius == undefined) {
+            radius = 13;
+        }
+    }
 
     var color = new Intensity({
         gradient: options.gradient,
