@@ -51,7 +51,10 @@
 
 .slide-title-button {
   margin-top: 40px; }
+  .slide-title-button a,
   .slide-title-button button {
+    text-decoration: none;
+    font-size: 12px;
     display: inline-block;
     margin: 0 30px;
     padding: 0;
