@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "publish": "VERSION=`node -e 'console.log(require(\"./package.json\").version)'` && cp build/mapv.js build/mapv.v${VERSION}.js && uglifyjs build/mapv.v${VERSION}.js -c -m -o build/mapv.v${VERSION}.min.js",
+    "publish": "VERSION=`node -e 'console.log(require(\"./package.json\").version)'` && cp build/mapv.js build/mapv.v${VERSION}.js && uglifyjs build/mapv.v${VERSION}.js -c drop_console -m -o build/mapv.v${VERSION}.min.js",
     "mini": "npm run build && uglifyjs build/mapv.js -c -m -o build/mapv.min.js",
     "build": "mkdir -p build && node -e 'process.stdout.write(\"export var version = \\\"\" + require(\"./package.json\").version + \"\\\";\\n\");' > build/version.js && rollup -c ",
     "watch": "npm-watch",

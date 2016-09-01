@@ -1137,7 +1137,7 @@
 
       var circle = document.createElement('canvas');
       var context = circle.getContext('2d');
-      var shadowBlur = 13;
+      var shadowBlur = radius / 2;
       var r2 = radius + shadowBlur;
       var offsetDistance = 10000;
 
@@ -1174,7 +1174,13 @@
 
       var max = options.max || 100;
       // console.log(max)
-      var radius = options.radius || 13;
+      var radius = options._radius;
+      if (radius == undefined) {
+          radius = options.radius;
+          if (radius == undefined) {
+              radius = 13;
+          }
+      }
 
       var color = new Intensity({
           gradient: options.gradient,
@@ -2371,6 +2377,8 @@
 
       var canvasLayer = this.canvasLayer = new CanvasLayer({
           map: map,
+          paneName: options.paneName,
+          zIndex: options.zIndex,
           update: update
       });
 
@@ -2494,6 +2502,9 @@
           // draw
           switch (self.options.draw) {
               case 'heatmap':
+                  if (self.options.radiusUnit == 'm') {
+                      self.options._radius = self.options.radius / zoomUnit;
+                  };
                   drawHeatmap.draw(context, new DataSet(data), self.options);
                   break;
               case 'grid':
@@ -2527,6 +2538,7 @@
           console.timeEnd('draw');
 
           console.timeEnd('update');
+          options.updateCallback && options.updateCallback(time);
       };
   }
 
