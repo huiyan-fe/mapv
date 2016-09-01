@@ -189,7 +189,7 @@
 
         var data = [];
 
-        $.get('data/china.json', function (rs) {
+        $.get('data/china-point.json', function (rs) {
             for (var i = 0; i < rs[0].length; i++) {
                 var geoCoord = rs[0][i].geoCoord;
                 data.push({
