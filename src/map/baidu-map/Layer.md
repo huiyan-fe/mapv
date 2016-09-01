@@ -37,7 +37,7 @@
 * simple 最直接的方式绘制点线面
 * time 按时间字段来动画展示数据
 * heatmap 热力图展示
-* density 网格状展示
+* grid 网格状展示
 * honeycomb 蜂窝状展示
 * bubble 用不同大小的圆来展示
 * intensity 根据不同的值对应按渐变色中颜色进行展示
@@ -47,11 +47,71 @@
 * icon 展示icon
 
 ### simple:
-(示例地址)[http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-simple.html]
-dataSet
+[示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-simple.html)
+dataSet中也可直接配置每个数据项的样式
+```js
+{
+    geometry: {
+        type: 'Point',
+        coordinates: [123, 23]
+    },
+    size: 10, // 点数据时候使用
+    fillStyle: 'red', // 点数据时候使用
+    strokeStyle: 'red' // 线数据时候使用
+}
+```
+
+### time:
+[示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-time.html)
+```js
+{
+    draw: 'time',
+    steps: 100, // 时间动画的帧数
+    trails: 10, // 时间动画的拖尾大小
+    duration: 5, // 单个动画的时间，单位秒
+}
+```
+
+### heatmap:
+[示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-heatmap.html)
+```js
+var options = {
+    draw: 'heatmap',
+    radius: 13, // 每个热力点半径大小
+    gradient: { // 热力图渐变色
+        0.25: "rgb(0,0,255)",
+        0.55: "rgb(0,255,0)",
+        0.85: "yellow",
+        1.0: "rgb(255,0,0)"
+    },
+    max: 100, // 最大权重值
+}
+
+dataSet中加count字段，代表权重，根据上面配置用以计算它的热度
+```
+
+### grid:
+[示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-grid.html)
+```js
+{
+    draw: 'grid',
+    gridWidth: 40,
+    gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
+}
+```
+
+### honeycomb:
+[示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-honeycomb.html)
+```js
+{
+    draw: 'honeycomb',
+    gridWidth: 40,
+    gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
+}
+```
 
 ### bubble对应的options:
-(示例地址)[http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-bubble.html]
+[示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-bubble.html)
 ```js
 {
     max: 100 // 数值最大值范围
@@ -61,7 +121,7 @@ dataSet
 dataSet中加count字段，代表权重，根据上面配置用以计算它实际展示的大小
 
 ### intensity对应的options:
-(示例地址)[http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-intensity.html]
+[示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-intensity.html)
 ```js
 {
     gradient: { // 显示的颜色渐变范围$
@@ -75,7 +135,7 @@ dataSet中加count字段，代表权重，根据上面配置用以计算它实�
 ```
 
 ### category对应的options:
-(示例地址)[http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-category.html]
+[示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-category.html)
 ```js
 {
     splitList: { // 按对应的值按相应颜色展示
@@ -91,7 +151,7 @@ dataSet中加count字段，代表权重，根据上面配置用以计算它实�
 ```
 
 ### choropleth对应的options:
-(示例地址)[http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-choropleth.html]
+[示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-choropleth.html)
 ```js
 {
     // 按数值区间来展示不同颜色的点
@@ -121,7 +181,7 @@ dataSet中加count字段，代表权重，根据上面配置用以计算它实�
 ```
 
 ### icon对应的options:
-(示例地址)[http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-icon.html]
+[示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-icon.html)
 ```js
 {
     icon: Image // 加载好的Image对象
@@ -129,7 +189,7 @@ dataSet中加count字段，代表权重，根据上面配置用以计算它实�
 ```
 
 ### text对应的options:
-(示例地址)[http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-text.html]
+[示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-text.html)
 ```js
 {
     text: '文本内容' 
