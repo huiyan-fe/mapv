@@ -33,7 +33,7 @@ function Layer(map, dataSet, options) {
     var canvasLayer = this.canvasLayer = new CanvasLayer({
         map: map,
         paneName: options.paneName,
-        zIndex: options.zIndex;
+        zIndex: options.zIndex,
         update: update
     });
 
