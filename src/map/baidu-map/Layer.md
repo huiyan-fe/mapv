@@ -16,8 +16,8 @@
 ### options通用的属性:
 ```js
 {
-    size: 5 // 大小值
-    unit: 'px' // 可选px或者m
+    zIndex: 1, // 层级
+    size: 5, // 大小值
     fillStyle: 'rgba(200, 200, 50, 1)', // 填充颜色
     strokeStyle: 'rgba(0, 0, 255, 1)', // 描边颜色
     lineWidth: 4, // 描边宽度
