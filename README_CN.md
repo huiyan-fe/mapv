@@ -10,6 +10,7 @@ Mapv 是一款地理信息可视化开源库，可以用来展示大量地理信
 Mapv使用canvas开发，支持现在被称为“现代”浏览器, 通常兼容除了IE8及IE以下版本的其他大部分浏览器。
 
 ## 安装使用
+如果你使用npm，执行命令npm install mapv。或者可以下载[最后发布的版本](https://github.com/huiyan-fe/mapv/releases)。也可以使用示例中的版本。
 ### 初始化环境
     npm install
 ### 开发

@@ -1,8 +1,8 @@
 {
   "name": "mapv",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
-  "main": "index.js",
+  "main": "build/mapv.js",
   "scripts": {
     "publish": "VERSION=`node -e 'console.log(require(\"./package.json\").version)'` && cp build/mapv.js build/mapv.v${VERSION}.js && uglifyjs build/mapv.v${VERSION}.js -c drop_console -m -o build/mapv.v${VERSION}.min.js",
     "mini": "npm run build && uglifyjs build/mapv.js -c -m -o build/mapv.min.js",

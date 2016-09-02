@@ -11,6 +11,7 @@ This branch contains the prerelease of Mapv 2.0. This API is unstable and may ch
 Mapv is develop by canvas, it supports so-called "modern" browsers, which generally means everything except IE8 and older versions.
 
 ## Install And Usage
+If you use npm, npm install mapv. Otherwise, download the [latest release](https://github.com/huiyan-fe/mapv/releases). Or can use the version in examples.
 ### Initialization environment
     npm install
 ### Development
