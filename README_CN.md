@@ -5,6 +5,7 @@
 
 ## 简介 [English](https://github.com/huiyan-fe/mapv/blob/v2/README.md)
 Mapv 是一款地理信息可视化开源库，可以用来展示大量地理信息数据，点、线、面的数据，每种数据也有不同的展示类型，如直接打点、热力图、网格、聚合等方式展示数据。
+当前是Mapv 2.0的预发布版本，当前api是不稳定的并有可能随时发生变化。
 
 ## 示例
 <a href="http://huiyan-fe.github.io/mapv/v2/gallery.html">

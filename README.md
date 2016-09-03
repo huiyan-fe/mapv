@@ -5,7 +5,8 @@
 </a>
 
 ## Introduction [中文](https://github.com/huiyan-fe/mapv/blob/v2/README_CN.md)
-This branch contains the prerelease of Mapv 2.0. This API is unstable and may change at any point prior to the release.
+Mapv is a library of geography visualization, it can be used to visualize the big data of point, polyeline and polygon, and it has a different ways, such as simple, heatmap, grid, time and others to display the datas.
+This is the prerelease of Mapv 2.0. This API is unstable and may change at any point prior to the release.
 
 ## Examples
 <a href="http://huiyan-fe.github.io/mapv/v2/gallery.html">
