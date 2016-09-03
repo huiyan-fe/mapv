@@ -1,3 +1,4 @@
+> [API Reference](https://github.com/huiyan-fe/mapv/blob/v2/API.md) ▸ baiduMapLayer
 # mapv.baiduMapLayer
 
 ## 创建地图
