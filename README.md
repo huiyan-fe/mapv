@@ -13,6 +13,9 @@ This is the prerelease of Mapv 2.0. This API is unstable and may change at any p
     <img style="vertical-align: top;" src="./asset/overview.png?raw=true" alt="logo">
 </a>
 
+## Documents
+[API Reference](https://github.com/huiyan-fe/mapv/wiki)
+
 ## Supported Environments
 Mapv is develop by canvas, it supports so-called "modern" browsers, which generally means everything except IE8 and older versions.
 
