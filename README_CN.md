@@ -42,6 +42,7 @@ Mapv使用canvas开发，支持现在被称为“现代”浏览器, 通常兼�
 
 ## Contqct us
 邮箱: <a href="mailto:mapv@baidu.com">mapv@baidu.com</a>
+
 QQ群: 321519841
 
 ## 许可证

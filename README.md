@@ -42,6 +42,7 @@ You can download the [latest release](https://github.com/huiyan-fe/mapv/releases
 
 ## Contqct us
 Mail: <a href="mailto:mapv@baidu.com">mapv@baidu.com</a>
+
 QQ group: 321519841
 
 ## LICENSE
