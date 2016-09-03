@@ -83,18 +83,57 @@
                         value: '#960b3d'
                     }
                 ],
+                globalAlpha: 0.9,
                 draw: 'choropleth'
             }
 
             var dataSet = mapv.geojson.getDataSet(geojson);
-            var data = dataSet.get();
-            for (var i = 0; i < data.length; i++) {
-                if (data[i].name === '北京') {
-                    data[i].count = 100
-                } else {
-                    data[i].count = Math.random() * 70
-                }
+            var citys = {
+                '新疆': Math.random() * 70,
+                '西藏': Math.random() * 70,
+                '内蒙古': Math.random() * 70,
+                '青海': Math.random() * 70,
+                '四川': Math.random() * 70,
+                '黑龙江': Math.random() * 70,
+                '甘肃': Math.random() * 70,
+                '云南': Math.random() * 70,
+                '广西': Math.random() * 70,
+                '湖南': Math.random() * 70,
+                '陕西': Math.random() * 70,
+                '广东': Math.random() * 70,
+                '吉林': Math.random() * 70,
+                '河北': Math.random() * 70,
+                '湖北': Math.random() * 70,
+                '贵州': Math.random() * 70,
+                '山东': Math.random() * 70,
+                '江西': Math.random() * 70,
+                '河南': Math.random() * 70,
+                '辽宁': Math.random() * 70,
+                '山西': Math.random() * 70,
+                '安徽': Math.random() * 70,
+                '福建': Math.random() * 70,
+                '浙江': Math.random() * 70,
+                '江苏': Math.random() * 70,
+                '重庆': Math.random() * 70,
+                '宁夏': Math.random() * 70,
+                '海南': Math.random() * 70,
+                '台湾': Math.random() * 70,
+                '北京': Math.random() * 70,
+                '天津': Math.random() * 70,
+                '上海': Math.random() * 70,
+                '香港': Math.random() * 70,
+                '澳门': Math.random() * 70,
             }
+            var data = dataSet.get({
+                filter: function (item) {
+                    if (!citys[item.name]) {
+                        return false;
+                    }
+
+                    item.count = citys[item.name];
+                    return true;
+                }
+            });
             dataSet = new mapv.DataSet(data);
 
             var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
