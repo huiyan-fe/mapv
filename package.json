@@ -1,19 +1,40 @@
 {
-  "name": "Mapv",
-  "version": "0.1.0",
+  "name": "mapv",
+  "version": "0.0.2",
+  "description": "",
+  "main": "build/mapv.js",
   "scripts": {
-    "start": "PORT=8088 pm2 start ./editor/bin/www --name mapv_editor"
+    "publish": "VERSION=`node -e 'console.log(require(\"./package.json\").version)'` && cp build/mapv.js build/mapv.v${VERSION}.js && uglifyjs build/mapv.v${VERSION}.js -c drop_console -m -o build/mapv.v${VERSION}.min.js",
+    "mini": "npm run build && uglifyjs build/mapv.js -c -m -o build/mapv.min.js",
+    "build": "mkdir -p build && node -e 'process.stdout.write(\"export var version = \\\"\" + require(\"./package.json\").version + \"\\\";\\n\");' > build/version.js && rollup -c ",
+    "watch": "npm-watch",
+    "test": "npm run watch"
   },
+  "watch": {
+    "build": {
+      "patterns": [
+        "src",
+        "index.js"
+      ],
+      "extensions": "js,jsx",
+      "ignore": ""
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/huiyan-fe/mapv.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/huiyan-fe/mapv/issues"
+  },
+  "homepage": "https://github.com/huiyan-fe/mapv#readme",
   "devDependencies": {
-    "gulp": "^3.9.0",
-    "gulp-babel": "^5.2.1",
-    "gulp-browserify": "^0.5.1",
-    "gulp-concat": "^2.6.0",
-    "gulp-copy": "0.0.2",
-    "gulp-jshint": "^1.11.2",
-    "gulp-rename": "^1.2.2",
-    "gulp-replace": "^0.5.4",
-    "gulp-strip-debug": "^1.0.2",
-    "gulp-uglify": "^1.4.1"
+    "babel-preset-es2015-rollup": "^1.1.1",
+    "npm-watch": "^0.1.4",
+    "rollup": "^0.25.4",
+    "rollup-plugin-babel": "^2.4.0",
+    "uglify-js": "^2.6.2"
   }
 }

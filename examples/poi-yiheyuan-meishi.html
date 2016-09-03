@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>颐和园圆明园周边美食</title>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="../build/mapv.js"></script>
+
+    <script type="text/javascript">
+
+        // 百度地图API功能
+        var map = new BMap.Map("map", {
+            enableMapClick: false
+        });    // 创建Map实例
+
+        var point = new BMap.Point(116.297928, 40.010341);
+
+        map.centerAndZoom(new BMap.Point(116.297928, 40.010341), 13);  // 初始化地图,设置中心点坐标和地图级别
+
+        var circle = new BMap.Circle(point, 4325, {
+            fillOpacity: 0.3,
+            strokeOpacity: 0.5,
+            strokeWeight: 1,
+            strokeStyle: 'dashed',
+            strokeColor: 'blue'
+        });
+
+        map.addOverlay(circle);
+
+        map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+
+        map.setMapStyle({
+            styleJson: [
+                {
+                    "featureType": "all",
+                    "elementType": "all",
+                    "stylers": {
+                        "lightness": 61,
+                        "saturation": -70
+                    }
+                }
+            ]
+        });
+
+
+
+        $.get('data/poi-yiheyuan-meishi.json', function(data) {
+
+            var dataSet = new mapv.DataSet(data);
+
+            var options = {
+                fillStyle: 'rgba(180, 80, 80, 0.5)',
+                size: 3,
+                draw: 'simple'
+            }
+
+            var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+        });
+    </script>
+	
+</body>
+</html>

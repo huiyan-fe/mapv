@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style type="text/css">
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        
+        .box {
+            width: 265px;
+            height: 265px;
+            background-size: 300px 300px;
+            background-position: center;center;
+            float: left;
+        }
+
+    </style>
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+
+</head>
+
+<body>
+    <!-- an transparent bar, so that we can scroll the page -->
+    <div style="position: fixed; width: 10px; top:0; right:0; bottom:0; background: red; z-index: 10; opacity: 0"></div>
+
+    <div class="boxContainer">
+    </div>
+
+    <script type="text/javascript" src="js/config.js"></script>
+    <script type="text/javascript">
+        var gridWidth = 256;
+        window.addEventListener('resize', resize);
+
+        var data = config.demos;
+        
+        var html = [];
+        for (var i = 0; i < data.length; i++) {
+            var item = data[i];
+            html.push('<a class="index" href="index.html#' + item.url + '"><div class="box" style="background-image:url(pics/' + item.pic + ')"></div></a>');
+                
+        }
+        $('.boxContainer').html(html.join(''));
+
+        function resize() {
+            var count = Math.floor($(window).width() / gridWidth);
+            var width = $(window).width() / count;
+            $('.box').width(width);
+        }
+
+        resize();
+    </script>
+</body>
+
+</html>

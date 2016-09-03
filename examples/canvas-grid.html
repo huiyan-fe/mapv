@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #canvas {
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript" src="../build/mapv.js"></script>
+
+    <script type="text/javascript">
+
+        var canvas = document.querySelector('#canvas');
+
+        canvas.width = document.body.offsetWidth;
+        canvas.height = document.body.offsetHeight;
+
+        var ctx = canvas.getContext('2d');
+
+        mapv.canvasResolutionScale(ctx);
+
+        var data = [];
+
+        var randomCount = parseInt(canvas.width * canvas.height / 2000);
+
+        while (randomCount--) {
+            data.push({
+                geometry: {
+                    type: 'Point',
+                    coordinates: [ctx.canvas.width * Math.random(), ctx.canvas.height * Math.random()]
+                },
+                count: Math.random() * 50
+            });
+        }
+
+        var options = {
+            fillStyle: 'rgba(55, 50, 250, 0.3)',
+            shadowColor: 'rgba(55, 50, 250, 0.3)',
+            globalCompositeOperation: 'lighter',
+            lineWidth: 0.5,
+            shadowBlur: 2,
+            max: 50,
+            gradient: {
+                0: 'lightblue',
+                1: 'blue'
+            },
+            offset: {
+                x: 20,
+                y: 20
+            },
+            draw: 'grid'
+        }
+
+        var dataSet = new mapv.DataSet(data);
+        mapv.canvasDrawGrid.draw(ctx, dataSet, options);
+
+        var options = {
+            fillStyle: 'rgba(255, 250, 50, 0.8)',
+            shadowColor: 'rgba(255, 250, 50, 0.8)',
+            shadowBlur: 10,
+            size: 2,
+            draw: 'simple'
+        }
+
+        mapv.canvasDrawSimple.draw(ctx, dataSet, options);
+
+    </script>
+	
+</body>
+</html>

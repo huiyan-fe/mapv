@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+	<style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow:hidden;
+            margin:0;
+            padding:0;
+        }
+		#canvas {
+            width: 100%;
+            height: 100%;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="canvas"></div>
+
+	<!-- library -->
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script type="text/javascript" src="js/three.min.js"></script>
+    <script type="text/javascript" src="http://threejs.org/examples/js/controls/OrbitControls.js"></script>
+	<script type="text/javascript" src="../build/mapv.js"></script>
+	<script type="text/javascript">
+		var canvas = document.querySelector('#canvas');
+		var flate = new mapv.Flate(canvas);
+        $.get('data/china.json', function(geojson) {
+            var dataSet = mapv.geojson.getDataSet(geojson);
+            flate.setDataSet(dataSet);
+        });
+
+        var randomCount = 50;
+
+        var data = [];
+
+        var citys = ["北京","天津","上海","重庆","石家庄","太原","呼和浩特","哈尔滨","长春","沈阳","济南","南京","合肥","杭州","南昌","福州","郑州","武汉","长沙","广州","南宁","西安","银川","兰州","西宁","乌鲁木齐","成都","贵阳","昆明","拉萨","海口"];
+
+        // 构造数据
+        while (randomCount--) {
+            var cityCenter = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
+            data.push({
+                geometry: {
+                    type: 'Point',
+                    coordinates: [cityCenter.lng - 1 + Math.random() * 2, cityCenter.lat - 1 + Math.random() * 2]
+                },
+                count: 100 * Math.random()
+            });
+        }
+
+        var dataSet = new mapv.DataSet(data);
+
+        flate.setDataSet(new mapv.DataSet(data));
+        
+        var z = 85;
+        var flag = true;
+        function animate() {
+            if (flag) {
+                z += 0.2;
+            } else {
+                z -= 0.2;
+            }
+
+            if (z > 120) {
+                flag = false;
+            }
+
+            if (z < 55) {
+                flag = true;
+            }
+
+            flate.camera.position.z = z;
+            requestAnimationFrame(animate);
+        }
+
+        //animate();
+
+
+	</script>
+
+</body>
+
+</html>

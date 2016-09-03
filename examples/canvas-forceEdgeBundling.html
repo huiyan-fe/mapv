@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background:black;
+            overflow: hidden;
+        }
+
+        #canvas {
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript" src="../build/mapv.js"></script>
+
+    <script type="text/javascript">
+
+        var canvas = document.querySelector('#canvas');
+
+        canvas.width = document.body.offsetWidth;
+        canvas.height = document.body.offsetHeight;
+
+        var ctx = canvas.getContext('2d');
+
+
+
+        /* test */
+
+        var node_data = {
+            "0":{"x":922.24444, "y":347.29444},
+            "1":{"x":814.42222, "y":409.16111},
+            "2":{"x":738, "y":427.33333000000005},
+            "3":{"x":784.5, "y":381.33333},
+            "4":{"x":1066.09167, "y":350.40278},
+            "5":{"x":925.4861099999999, "y":313.275}
+        }
+
+        var edge_data = [
+            {"source":"0", "target":"1"}
+        ]
+
+        var randomCount = 700;
+
+        while (randomCount--) {
+            node_data[randomCount] = {
+                x: ctx.canvas.width * Math.random(),
+                y: ctx.canvas.height * Math.random(),
+            }
+            edge_data.push(
+                {"source": ~~(randomCount * Math.random()), "target": 0}
+            );
+        }
+
+        var fbundling = mapv.utilForceEdgeBundling()
+                        .step_size(3.0)
+                        .nodes(node_data)
+                        .edges(edge_data);
+
+        var results = fbundling();  
+
+        var data = [];
+
+        for (var i = 0; i < results.length; i++) {
+            var line = results[i];
+            var coordinates = [];
+            for (var j = 0; j < line.length; j++) {
+                coordinates.push([line[j].x, line[j].y]);
+            }
+            data.push({
+                geometry: {
+                    type: 'LineString',
+                    coordinates: coordinates
+                }
+            });
+        }
+
+        var options = {
+            strokeStyle: 'rgba(55, 55, 250, 0.8)',
+            lineWidth: 0.5,
+            globalCompositeOperation: 'lighter',
+            draw: 'simple'
+        }
+
+        var dataSet = new mapv.DataSet(data);
+
+        mapv.canvasResolutionScale(ctx);
+
+        mapv.canvasDrawSimple.draw(ctx, dataSet, options);
+
+    </script>
+	
+</body>
+</html>
