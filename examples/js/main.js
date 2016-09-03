@@ -151,7 +151,7 @@
     var html = [];
     for (var i = 0; i < data.length; i++) {
         var item = data[i];
-        html.push('<li><a class="index" href="#' + item.url + '" style="background-image:url(pics/' + item.pic + ')">"</a></li>');
+        html.push('<li><a class="index" href="#' + item.url + '" style="background-image:url(pics/' + item.pic + ')"></a></li>');
             
     }
     $('.nav ul').html(html.join(''));
