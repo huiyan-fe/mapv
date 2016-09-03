@@ -3,7 +3,7 @@
     <img style="vertical-align: top;" src="./asset/logo.png?raw=true" alt="logo">
 </a>
 
-## 简介 [English](https://github.com/huiyan-fe/mapv/blob/v2/README.md)
+## 简介 [English](https://github.com/huiyan-fe/mapv/blob/master/README.md)
 Mapv 是一款地理信息可视化开源库，可以用来展示大量地理信息数据，点、线、面的数据，每种数据也有不同的展示类型，如直接打点、热力图、网格、聚合等方式展示数据。
 当前是Mapv 2.0的预发布版本，当前api是不稳定的并有可能随时发生变化。
 
@@ -13,7 +13,7 @@ Mapv 是一款地理信息可视化开源库，可以用来展示大量地理信
 </a>
 
 ## 相关文档
-[API 参考](https://github.com/huiyan-fe/mapv/blob/v2/API.md)
+[API 参考](https://github.com/huiyan-fe/mapv/blob/master/API.md)
 
 ## 支持环境
 Mapv使用canvas开发，支持现在被称为“现代”浏览器, 通常兼容除了IE8及IE以下版本的其他大部分浏览器。
