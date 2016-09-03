@@ -138,6 +138,10 @@
     window.onhashchange = function() {
         var url = location.hash.substr(1);
         $('#iframes').attr('src', url);
+
+        $('.nav a').removeClass('current');
+        var item = $('.nav a[href="#' + url + '"]');
+        item.addClass('current');
     }
 
     var data = config.demos;
@@ -149,5 +153,11 @@
             
     }
     $('.nav ul').html(html.join(''));
+
+    $('.nav a').removeClass('current');
+    var item = $('.nav a[href="#' + url + '"]');
+    item.addClass('current');
+    var scrollTop = item.position().top;
+    $('.nav').scrollTop(scrollTop);
 })(jQuery)
 
