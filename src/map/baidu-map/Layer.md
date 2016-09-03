@@ -1,6 +1,29 @@
 # mapv.baiduMapLayer
-百度地图可视化叠加图层
 
+## 创建地图
+
+mapv部分效果展示需要依赖于地图，我们可以通过以下方式创建地图：
+
+以百度地图为例(具体的方法请参阅百度地图的js [api手册](http://lbsyun.baidu.com/index.php?title=jspopular))
+
+```javascript
+// 创建Map实例
+var map = new BMap.Map("map", {
+  enableMapClick: false
+});    
+       
+// 初始化地图,设置中心点坐标和地图级别
+map.centerAndZoom(new BMap.Point(106.962497, 38.208726), 4);  
+
+// 设置地图样式
+map.setMapStyle({
+  style: 'midnight'
+});
+```
+
+添加百度地图可视化叠加图层
+
+```javascript
     var options = {
         fillStyle: 'rgba(55, 50, 250, 0.6)',
         shadowColor: 'rgba(55, 50, 250, 0.5)',
@@ -10,6 +33,7 @@
     }
 
     var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+```
 
 ## options
 
@@ -186,12 +210,27 @@ dataSet中加count字段，代表权重，根据上面配置用以计算它实�
 [示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-icon.html)
 ```js
 {
+    draw: 'icon',
+}
+```
+dataSet中添加字段
+```js
+{
     icon: Image // 加载好的Image对象
 }
 ```
 
 ### text对应的options:
 [示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-text.html)
+```js
+{
+    draw: 'text',
+    fillStyle: 'white',
+    textAlign: 'center',
+    textBaseline: 'middle'
+}
+```
+dataSet中添加字段
 ```js
 {
     text: '文本内容' 
