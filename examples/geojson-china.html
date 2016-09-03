@@ -140,6 +140,34 @@
 
         });
 
+
+        var options = {
+            fillStyle: 'rgba(55, 50, 250, 0.6)',
+            shadowColor: 'rgba(55, 50, 250, 0.5)',
+            shadowBlur: 10,
+            size: 5,
+            zIndex: 10,
+            draw: 'simple'
+        }
+
+        var data = [
+        {
+            geometry: {
+                type: 'Point',
+                coordinates: [116.403406, 39.92733]
+            }
+        },
+        {
+            geometry: {
+                type: 'Point',
+                coordinates: [113.089018, 23.289683]
+            }
+        }
+        ];
+        var dataSet = new mapv.DataSet(data);
+
+        var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
     </script>
 	
 </body>
