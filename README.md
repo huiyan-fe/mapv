@@ -4,7 +4,7 @@
     <img style="vertical-align: top;" src="./asset/logo.png?raw=true" alt="logo">
 </a>
 
-## Introduction [中文](https://github.com/huiyan-fe/mapv/blob/v2/README_CN.md)
+## Introduction [中文](https://github.com/huiyan-fe/mapv/blob/master/README_CN.md)
 Mapv is a library of geography visualization, it can be used to visualize the big data of point, polyeline and polygon, and it has a different ways, such as simple, heatmap, grid, time and others to display the datas.
 This is the prerelease of Mapv 2.0. This API is unstable and may change at any point prior to the release.
 
@@ -14,7 +14,7 @@ This is the prerelease of Mapv 2.0. This API is unstable and may change at any p
 </a>
 
 ## Documents
-[API Reference](https://github.com/huiyan-fe/mapv/blob/v2/API.md)
+[API Reference](https://github.com/huiyan-fe/mapv/blob/master/API.md)
 
 ## Supported Environments
 Mapv is develop by canvas, it supports so-called "modern" browsers, which generally means everything except IE8 and older versions.
