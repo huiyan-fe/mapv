@@ -1,6 +1,6 @@
 # Mapv - a library of geography visualization
 
-<a href="http://huiyan-fe.github.io/mapv/v2/">
+<a href="http://huiyan-fe.github.io/mapv/">
     <img style="vertical-align: top;" src="./asset/logo.png?raw=true" alt="logo">
 </a>
 
@@ -9,7 +9,7 @@ Mapv is a library of geography visualization, it can be used to visualize the bi
 This is the prerelease of Mapv 2.0. This API is unstable and may change at any point prior to the release.
 
 ## Examples
-<a href="http://huiyan-fe.github.io/mapv/v2/gallery.html">
+<a href="http://huiyan-fe.github.io/mapv/gallery.html">
     <img style="vertical-align: top;" src="./asset/overview.png?raw=true" alt="logo">
 </a>
 

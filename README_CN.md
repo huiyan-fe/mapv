@@ -1,5 +1,5 @@
 # Mapv - 地理信息可视化开源库
-<a href="http://huiyan-fe.github.io/mapv/v2/">
+<a href="http://huiyan-fe.github.io/mapv/">
     <img style="vertical-align: top;" src="./asset/logo.png?raw=true" alt="logo">
 </a>
 
@@ -8,7 +8,7 @@ Mapv 是一款地理信息可视化开源库，可以用来展示大量地理信
 当前是Mapv 2.0的预发布版本，当前api是不稳定的并有可能随时发生变化。
 
 ## 示例
-<a href="http://huiyan-fe.github.io/mapv/v2/gallery.html">
+<a href="http://huiyan-fe.github.io/mapv/gallery.html">
     <img style="vertical-align: top;" src="./asset/overview.png?raw=true" alt="logo">
 </a>
 
