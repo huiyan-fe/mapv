@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+
+    <style type="text/css">
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="map"></div>
+    <canvas id="canvas"></canvas>
+    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="../build/mapv.js"></script>
+
+
+    <script type="text/javascript">
+        // 百度地图API功能
+        var map = new BMap.Map("map", {
+            enableMapClick: false
+        }); // 创建Map实例
+        map.centerAndZoom('北京'); // 初始化地图,设置中心点坐标和地图级别
+        map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+
+        map.setMapStyle({
+            style: 'midnight'
+        });
+
+        var randomCount = 100;
+
+        var data = [];
+
+        var citys = ["北京", "天津", "上海", "重庆", "石家庄", "太原", "呼和浩特", "哈尔滨", "长春", "沈阳", "济南", "南京", "合肥", "杭州", "南昌", "福州", "郑州", "武汉", "长沙", "广州", "南宁", "西安", "银川", "兰州", "西宁", "乌鲁木齐", "成都", "贵阳", "昆明", "拉萨", "海口"];
+
+        // 构造数据
+        while (randomCount--) {
+            var cityCenter1 = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
+            var cityCenter2 = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
+            data.push({
+                geometry: {
+                    type: 'LineString',
+                    coordinates: [
+                        [cityCenter1.lng - 1 + Math.random() * 1, cityCenter1.lat - 1 + Math.random() * 1],
+                        [cityCenter2.lng - 1 + Math.random() * 1, cityCenter2.lat - 1 + Math.random() * 1]
+                    ]
+                },
+                count: 30 * Math.random()
+            });
+        }
+
+        $.ajax({
+            url: 'data/heatmap-test',
+            success: function(data) {
+                var _data = [];
+                data = data.split('\n');
+                for (var i in data) {
+                    var dataLine = data[i].split('\t');
+                    var lines = dataLine[0].split(',');
+                    var coor = [];
+                    for (var j = 0; j < lines.length; j += 2) {
+                        coor.push([lines[j], lines[j + 1]])
+                    }
+                    _data.push({
+                        geometry: {
+                            type: 'LineString',
+                            coordinates: coor
+                        },
+                        count: dataLine[1]
+                    });
+                }
+
+                var dataSet = new mapv.DataSet(_data);
+
+                var options1 = {
+                    gradient: {
+                        0.25: "rgb(0,0,255)",
+                        0.55: "rgb(0,255,0)",
+                        0.85: "yellow",
+                        1.0: "rgb(255,0,0)"
+                    },
+                    max: 1000,
+                    withoutAlpha: true,
+                    absolute: true,
+                    draw: 'heatmap'
+                }
+
+                var options = {
+                    strokeStyle: "rgba(255, 250, 50, 0.3)",
+                    shadowColor: "rgba(255, 250, 50, 1)",
+                    shadowBlur: 20,
+                    lineWidth: 0.7,
+                    draw: 'simple'
+                }
+
+                var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+                mapvLayer.set({
+                    options: options1
+                });
+
+                // mapvLayer.set({
+                //     gradient: {
+                //         0.25: "rgb(0,0,255)",
+                //         0.55: "rgb(0,255,0)",
+                //         0.85: "yellow",
+                //         1.0: "rgb(255,0,0)"
+                //     },
+                //     max: 1000,
+                //     withoutAlpha: true,
+                //     absolute: true,
+                //     draw: 'heatmap'
+                // })
+            }
+        })
+
+        // console.log(data)
+    </script>
+
+</body>
+
+</html>

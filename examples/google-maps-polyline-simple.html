@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCkOU6Ut2S2p90EyNlOx8HGaivgC8YD47s"></script>
+    <script type="text/javascript" src="../build/mapv.js"></script>
+
+    <script type="text/javascript">
+
+        // Create a map object and specify the DOM element for display.
+        var map = new google.maps.Map(document.getElementById('map'), {
+            center: new google.maps.LatLng(39.931093, 116.302544),
+            scrollwheel: false,
+            zoom: 10
+        });
+
+        var styles = [
+          {
+            stylers: [
+              { hue: "#00ffe6" },
+              { saturation: -20 }
+            ]
+          },{
+            featureType: "road",
+            elementType: "geometry",
+            stylers: [
+              { lightness: 100 },
+              { visibility: "simplified" }
+            ]
+          },{
+            featureType: "road",
+            elementType: "labels",
+            stylers: [
+              { visibility: "off" }
+            ]
+          }
+        ];
+
+        map.setOptions({styles: styles});
+
+        var resolutionScale = window.devicePixelRatio || 1;
+
+        $.get('data/gps', function(rs) {
+            var lineData = [];
+            var pointData = [];
+            rs = rs.split("\n");
+            var coordinates = [];
+            for (var i = 0; i < rs.length - 1; i++) {
+                var item = rs[i].split(",");
+                coordinates.push([item[1], item[2], item[0]]);
+                pointData.push({
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [item[1], item[2]]
+                    }
+                });
+            }
+            coordinates.sort(function (a, b) {
+                return a[2] - b[2];
+            });
+            lineData.push({
+                geometry: {
+                    type: 'LineString',
+                    coordinates: coordinates
+                }
+            });
+
+            var mapvLayer = new mapv.googleMapLayer(map, new mapv.DataSet(lineData), {
+                strokeStyle: 'rgba(55, 50, 250, 1)',
+                lineWidth: 3,
+                draw: 'simple'
+            });
+
+            var mapvLayer = new mapv.googleMapLayer(map, new mapv.DataSet(pointData), {
+                fillStyle: 'rgba(255, 250, 50, 1)',
+                size: 3,
+                draw: 'simple'
+            });
+
+        });
+
+
+    </script>
+	
+</body>
+</html>

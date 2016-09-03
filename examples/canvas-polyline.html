@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background:blue;
+            overflow: hidden;
+        }
+
+        #canvas {
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript" src="../build/mapv.js"></script>
+
+    <script type="text/javascript">
+
+        var canvas = document.querySelector('#canvas');
+
+        canvas.width = document.body.offsetWidth;
+        canvas.height = document.body.offsetHeight;
+
+        var ctx = canvas.getContext('2d');
+
+        var data = [];
+
+        var randomCount = 5000;
+
+        while (randomCount--) {
+            data.push({
+                geometry: {
+                    type: 'LineString',
+                    coordinates: [[ctx.canvas.width * Math.random(), ctx.canvas.height * Math.random()], [ctx.canvas.width * Math.random(), ctx.canvas.height * Math.random()]]
+                },
+                count: 30 * Math.random()
+            });
+        }
+
+        var options = {
+            strokeStyle: 'rgba(255, 255, 50, 1)',
+            lineWidth: 0.3,
+            draw: 'simple'
+        }
+
+        var dataSet = new mapv.DataSet(data);
+
+        mapv.canvasResolutionScale(ctx);
+
+        mapv.canvasDrawSimple.draw(ctx, dataSet, options);
+
+    </script>
+	
+</body>
+</html>

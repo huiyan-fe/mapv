@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="../build/mapv.js"></script>
+
+    <script type="text/javascript">
+
+        // 百度地图API功能
+        var map = new BMap.Map("map", {
+            enableMapClick: false
+        });    // 创建Map实例
+        map.centerAndZoom(new BMap.Point(0, 0), 3);  // 初始化地图,设置中心点坐标和地图级别
+        map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+
+        map.setMapStyle({
+            styleJson: [
+                {
+                    "featureType": "all",
+                    "elementType": "all",
+                    "stylers": {
+                        "lightness": 61,
+                        "saturation": -100
+                    }
+                }
+            ]
+        });
+
+        $.get('data/countries.geo.json', function(geojson) {
+
+            var options = {
+                fillStyle: 'rgba(255, 80, 53, 0.8)',
+                max: 100,
+                gradient: {
+                    0: 'rgba(174, 220, 188, 0.6)',
+                    1: 'rgba(62, 183, 108, 1)'
+                },
+                draw: 'intensity'
+            }
+
+            var dataSet = mapv.geojson.getDataSet(geojson);
+            var data = dataSet.get();
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].name === 'China') {
+                    data[i].count = 100
+                } else {
+                    data[i].count = Math.random() * 100
+                }
+            }
+            dataSet = new mapv.DataSet(data);
+
+            var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+        });
+
+    </script>
+	
+</body>
+</html>
