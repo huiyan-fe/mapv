@@ -68,8 +68,13 @@ mapv中主要都是展示地理信息数据用的，需要在数据中加个geom
 
     var dataSet = new mapv.DataSet(data);
 
-## filter方法
-可以通过filter方法获取过滤后的数据
+## dataSet的方法
+### dataSet.get
+通过此方法可以获取当前数据集的数据
+    
+    var data = dataSet.get();
+    
+同时可通过filter参数方法获取过滤后的数据
 
     var data = dataSet.get({
         filter: function(item){
@@ -79,4 +84,18 @@ mapv中主要都是展示地理信息数据用的，需要在数据中加个geom
                 return false;
             }
         }
-    })
+    });
+
+### dataSet.set
+通过此方法可以修改数据集的内容
+
+    dataSet.set([
+        {
+            geometry: {
+                type: 'Point',
+                coordinates: [123, 23]
+            },
+            fillStyle: 'red',
+            size: 30
+        }
+    ]);

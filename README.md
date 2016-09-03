@@ -35,6 +35,8 @@ You can download the [latest release](https://github.com/huiyan-fe/mapv/releases
 
 [![百度交通云](./asset/user/jiaotong.png)](http://jiaotong.baidu.com/)
 
+[![百度地图开放平台](./asset/user/lbsyun.png)](http://lbsyun.baidu.com/)
+
 ## LICENSE
 Copyright (c) 2016, Baidu, Inc.
 All rights reserved.

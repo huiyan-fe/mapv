@@ -35,6 +35,8 @@ Mapv使用canvas开发，支持现在被称为“现代”浏览器, 通常兼�
 
 [![百度交通云](./asset/user/jiaotong.png)](http://jiaotong.baidu.com/)
 
+[![百度地图开放平台](./asset/user/lbsyun.png)](http://lbsyun.baidu.com/)
+
 ## 许可证
 Copyright (c) 2016, Baidu, Inc.
 All rights reserved.
