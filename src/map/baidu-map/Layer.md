@@ -62,7 +62,9 @@ dataSet中也可直接配置每个数据项的样式
 ```
 
 ### time:
-[示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-time.html)
+[点动画1](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-time.html)
+[点动画2](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-time1.html)
+[线动画](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-polyline-time.html)
 ```js
 {
     draw: 'time',
