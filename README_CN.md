@@ -13,7 +13,7 @@ Mapv 是一款地理信息可视化开源库，可以用来展示大量地理信
 </a>
 
 ## 相关文档
-[API 参考](https://github.com/huiyan-fe/mapv/wiki)
+[API 参考](https://github.com/huiyan-fe/mapv/blob/v2/API.md)
 
 ## 支持环境
 Mapv使用canvas开发，支持现在被称为“现代”浏览器, 通常兼容除了IE8及IE以下版本的其他大部分浏览器。
@@ -39,6 +39,10 @@ Mapv使用canvas开发，支持现在被称为“现代”浏览器, 通常兼�
 [![百度交通云](./asset/user/jiaotong.png)](http://jiaotong.baidu.com/)
 
 [![百度地图开放平台](./asset/user/lbsyun.png)](http://lbsyun.baidu.com/)
+
+## Contqct us
+邮箱: <a href="mailto:mapv@baidu.com">mapv@baidu.com</a>
+QQ群: 321519841
 
 ## 许可证
 Copyright (c) 2016, Baidu, Inc.

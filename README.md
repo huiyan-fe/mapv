@@ -14,7 +14,7 @@ This is the prerelease of Mapv 2.0. This API is unstable and may change at any p
 </a>
 
 ## Documents
-[API Reference](https://github.com/huiyan-fe/mapv/wiki)
+[API Reference](https://github.com/huiyan-fe/mapv/blob/v2/API.md)
 
 ## Supported Environments
 Mapv is develop by canvas, it supports so-called "modern" browsers, which generally means everything except IE8 and older versions.
@@ -39,6 +39,10 @@ You can download the [latest release](https://github.com/huiyan-fe/mapv/releases
 [![百度交通云](./asset/user/jiaotong.png)](http://jiaotong.baidu.com/)
 
 [![百度地图开放平台](./asset/user/lbsyun.png)](http://lbsyun.baidu.com/)
+
+## Contqct us
+Mail: <a href="mailto:mapv@baidu.com">mapv@baidu.com</a>
+QQ group: 321519841
 
 ## LICENSE
 Copyright (c) 2016, Baidu, Inc.
