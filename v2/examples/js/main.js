@@ -91,7 +91,6 @@
         isSrc ? $(this).text('源码')&&(isSrc=false) : $(this).text('运行')&&(isSrc=true);
         isSrc ? $('.oprbtns').addClass('refresh_show') : $('.oprbtns').removeClass('refresh_show');
         hasChanged();
-        getSource();
         if(hasChange) {
            runCode()
            hasChange  = false;
@@ -134,10 +133,13 @@
 
     var url = location.hash.substr(1) || 'baidu-map-point-simple.html';
     $('#iframes').attr('src', url);
+    getSource();
+
 
     window.onhashchange = function() {
         var url = location.hash.substr(1);
         $('#iframes').attr('src', url);
+        getSource();
 
         $('.nav a').removeClass('current');
         var item = $('.nav a[href="#' + url + '"]');
