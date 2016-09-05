@@ -53,45 +53,21 @@
         $.get('data/geojson/guang_dong.geo.json', function(geojson) {
 
             var options = {
-                splitList: [
-                    {
-                        start: 0,
-                        end: 10,
-                        value: '#f1eef6'
-                    },{
-                        start: 10,
-                        end: 20,
-                        value: '#d5bad9'
-                    },{
-                        start: 20,
-                        end: 30,
-                        value: '#cc97c7'
-                    },{
-                        start: 30,
-                        end: 40,
-                        value: '#e469af'
-                    },{
-                        start: 40,
-                        end: 50,
-                        value: '#ee3387'
-                    },{
-                        start: 50,
-                        end: 60,
-                        value: '#d61e53'
-                    },{
-                        start: 60,
-                        value: '#960b3d'
-                    }
-                ],
-                globalAlpha: 0.9,
-                draw: 'choropleth'
+                gradient: {
+                    0: 'yellow',
+                    1: 'red'
+                },
+                globalAlpha: 0.8,
+                draw: 'intensity'
             }
 
             var dataSet = mapv.geojson.getDataSet(geojson);
             var citys = {
-                '深圳市': Math.random() * 70,
-                '广州市': Math.random() * 70,
-                '佛山市': Math.random() * 70,
+                '深圳市': 20,
+                '广州市': 40,
+                '佛山市': 60,
+                '江门市': 80,
+                '中山市': 100,
             }
             var data = dataSet.get({
                 filter: function (item) {
@@ -111,9 +87,9 @@
 
 
         var options = {
-            fillStyle: 'rgba(55, 50, 250, 0.6)',
+            fillStyle: 'rgba(55, 50, 250, 0.9)',
             shadowColor: 'rgba(55, 50, 250, 0.5)',
-            shadowBlur: 10,
+            shadowBlur: 30,
             size: 5,
             zIndex: 10,
             draw: 'simple'
@@ -123,13 +99,13 @@
         {
             geometry: {
                 type: 'Point',
-                coordinates: [116.403406, 39.92733]
+                coordinates: [113.678121, 22.64869]
             }
         },
         {
             geometry: {
                 type: 'Point',
-                coordinates: [113.089018, 23.289683]
+                coordinates: [113.788121, 23.34869]
             }
         }
         ];
