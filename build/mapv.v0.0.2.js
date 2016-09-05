@@ -4,93 +4,132 @@
   (factory((global.mapv = global.mapv || {})));
 }(this, function (exports) { 'use strict';
 
-  var version = "0.0.2";
+  var babelHelpers = {};
+  babelHelpers.typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+    return typeof obj;
+  } : function (obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+  };
 
-  class X {
-      constructor(dom, opt) {
+  babelHelpers.classCallCheck = function (instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  };
+
+  babelHelpers.createClass = function () {
+    function defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }
+
+    return function (Constructor, protoProps, staticProps) {
+      if (protoProps) defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) defineProperties(Constructor, staticProps);
+      return Constructor;
+    };
+  }();
+
+  babelHelpers;
+
+  var version = "0.0.0";
+
+  var X = function () {
+      function X(dom, opt) {
+          babelHelpers.classCallCheck(this, X);
+
           this.dom = dom;
           this.opt = opt;
           this.init();
       }
 
-      init() {
-          var zoom = 1;
+      babelHelpers.createClass(X, [{
+          key: 'init',
+          value: function init() {
+              var zoom = 1;
 
-          var scene = new THREE.Scene();
-          var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 10e7);
-          var renderer = new THREE.WebGLRenderer();
+              var scene = new THREE.Scene();
+              var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 10e7);
+              var renderer = new THREE.WebGLRenderer();
 
-          // add controls
-          var controls = new THREE.OrbitControls(camera, renderer.domElement);
-          controls.enableDamping = true;
-          controls.dampingFactor = 0.25;
-          // controls.enableZoom = false;
-          renderer.setSize(this.dom.clientWidth, this.dom.clientHeight);
-          this.dom.appendChild(renderer.domElement);
+              // add controls
+              var controls = new THREE.OrbitControls(camera, renderer.domElement);
+              controls.enableDamping = true;
+              controls.dampingFactor = 0.25;
+              // controls.enableZoom = false;
+              renderer.setSize(this.dom.clientWidth, this.dom.clientHeight);
+              this.dom.appendChild(renderer.domElement);
 
-          var geometry = new THREE.PlaneGeometry(80 * zoom, 50 * zoom, 10, 10);
-          var material = new THREE.MeshBasicMaterial({
-              color: 0x585858,
-              wireframe: true
-          });
-          var cube = window.cube = new THREE.Mesh(geometry, material);
-          cube.rotateX(-Math.PI / 2);
-          scene.add(cube);
-          camera.position.y = 50 * zoom;
-          camera.position.z = 50 * zoom;
-          camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-          function render() {
-              requestAnimationFrame(render);
-              renderer.render(scene, camera);
-              controls.update();
-          }
-          render();
-
-          var sizeZoom = this.opt.grid.size * zoom;
-
-          var gradeData = {};
-          var min = Infinity;
-          var max = -Infinity;
-          for (var i in data) {
-              var x = parseInt(data[i].lng * zoom / sizeZoom) * sizeZoom;
-              var y = parseInt(data[i].lat * zoom / sizeZoom) * sizeZoom;
-              gradeData[x + '_' + y] = gradeData[x + '_' + y] || 0;
-              gradeData[x + '_' + y]++;
-              max = Math.max(max, gradeData[x + '_' + y]);
-              min = Math.min(min, gradeData[x + '_' + y]);
-          }
-
-          // color~
-          var color = getColor();
-
-          var lines = new THREE.Object3D();
-          for (var i in gradeData) {
-              var colorPersent = max == min ? 0 : (gradeData[i] - min) / (max - min);
-              var colorInedx = parseInt(colorPersent * (color.length / 4)) - 1;
-              colorInedx = colorInedx < 0 ? 0 : colorInedx;
-              var r = color[colorInedx * 4].toString(16);
-              r = r.length < 2 ? '0' + r : r;
-              var g = color[colorInedx * 4 + 1].toString(16);
-              g = g.length < 2 ? '0' + g : g;
-              var b = color[colorInedx * 4 + 2].toString(16);
-              b = b.length < 2 ? '0' + b : b;
-
-              var height = gradeData[i] * 1.5;
-              var geometry = new THREE.BoxGeometry(sizeZoom * 0.9, height, sizeZoom * 0.9);
+              var geometry = new THREE.PlaneGeometry(80 * zoom, 50 * zoom, 10, 10);
               var material = new THREE.MeshBasicMaterial({
-                  color: '#' + r + g + b
+                  color: 0x585858,
+                  wireframe: true
               });
-              var cube = new THREE.Mesh(geometry, material);
-              var pos = i.split('_');
-              cube.position.x = pos[0] - this.opt.center.lng * zoom;
-              cube.position.y = height / 2;
-              cube.position.z = this.opt.center.lat * zoom - pos[1];
-              lines.add(cube);
+              var cube = window.cube = new THREE.Mesh(geometry, material);
+              cube.rotateX(-Math.PI / 2);
+              scene.add(cube);
+              camera.position.y = 50 * zoom;
+              camera.position.z = 50 * zoom;
+              camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+              function render() {
+                  requestAnimationFrame(render);
+                  renderer.render(scene, camera);
+                  controls.update();
+              }
+              render();
+
+              var sizeZoom = this.opt.grid.size * zoom;
+
+              var gradeData = {};
+              var min = Infinity;
+              var max = -Infinity;
+              for (var i in data) {
+                  var x = parseInt(data[i].lng * zoom / sizeZoom) * sizeZoom;
+                  var y = parseInt(data[i].lat * zoom / sizeZoom) * sizeZoom;
+                  gradeData[x + '_' + y] = gradeData[x + '_' + y] || 0;
+                  gradeData[x + '_' + y]++;
+                  max = Math.max(max, gradeData[x + '_' + y]);
+                  min = Math.min(min, gradeData[x + '_' + y]);
+              }
+
+              // color~
+              var color = getColor();
+
+              var lines = new THREE.Object3D();
+              for (var i in gradeData) {
+                  var colorPersent = max == min ? 0 : (gradeData[i] - min) / (max - min);
+                  var colorInedx = parseInt(colorPersent * (color.length / 4)) - 1;
+                  colorInedx = colorInedx < 0 ? 0 : colorInedx;
+                  var r = color[colorInedx * 4].toString(16);
+                  r = r.length < 2 ? '0' + r : r;
+                  var g = color[colorInedx * 4 + 1].toString(16);
+                  g = g.length < 2 ? '0' + g : g;
+                  var b = color[colorInedx * 4 + 2].toString(16);
+                  b = b.length < 2 ? '0' + b : b;
+
+                  var height = gradeData[i] * 1.5;
+                  var geometry = new THREE.BoxGeometry(sizeZoom * 0.9, height, sizeZoom * 0.9);
+                  var material = new THREE.MeshBasicMaterial({
+                      color: '#' + r + g + b
+                  });
+                  var cube = new THREE.Mesh(geometry, material);
+                  var pos = i.split('_');
+                  cube.position.x = pos[0] - this.opt.center.lng * zoom;
+                  cube.position.y = height / 2;
+                  cube.position.z = this.opt.center.lat * zoom - pos[1];
+                  lines.add(cube);
+              }
+              scene.add(lines);
           }
-          scene.add(lines);
-      }
-  }
+      }]);
+      return X;
+  }();
 
   function getColor() {
       var canvas = document.createElement('canvas');
@@ -348,7 +387,7 @@
       var shape = new THREE.Shape(coords);
       var geometry = new THREE.ShapeGeometry(shape);
 
-      var color = 'rgb(' + ~~(Math.random() * 256) + ', ' + ~~(Math.random() * 256) + ', ' + ~~(Math.random() * 256) + ')';
+      var color = 'rgb(' + ~ ~(Math.random() * 256) + ', ' + ~ ~(Math.random() * 256) + ', ' + ~ ~(Math.random() * 256) + ')';
       color = intensity.getColor(Math.random() * 100);
       var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide }));
       mesh.position.set(0, 0, 0);
@@ -710,7 +749,7 @@
    */
 
   var pathSimple = {
-      draw: function (context, data, options) {
+      draw: function draw(context, data, options) {
           var type = data.geometry.type;
           var coordinates = data.geometry._coordinates || data.geometry.coordinates;
           switch (type) {
@@ -746,7 +785,7 @@
           }
       },
 
-      drawPolygon: function (context, coordinates) {
+      drawPolygon: function drawPolygon(context, coordinates) {
 
           for (var i = 0; i < coordinates.length; i++) {
 
@@ -898,15 +937,15 @@
   DataSet.prototype.get = function (args) {
       args = args || {};
 
-      //console.time('copy data time')
+      console.time('copy data time');
       var start = new Date();
       // TODO: 不修改原始数据，在数据上挂载新的名称，每次修改数据直接修改新名称下的数据，可以省去deepCopy
       // var data = deepCopy(this._data);
       var data = this._data;
 
-      //console.timeEnd('copy data time')
+      console.timeEnd('copy data time');
 
-      //console.time('transferCoordinate time')
+      console.time('transferCoordinate time');
 
       var start = new Date();
 
@@ -924,7 +963,7 @@
           data = this.transferCoordinate(data, args.transferCoordinate);
       }
 
-      //console.timeEnd('transferCoordinate time')
+      console.timeEnd('transferCoordinate time');
 
       return data;
   };
@@ -1020,7 +1059,7 @@
   };
 
   var drawSimple = {
-      draw: function (context, dataSet, options) {
+      draw: function draw(context, dataSet, options) {
           var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
           // console.log('xxxx',options)
           context.save();
@@ -1074,7 +1113,7 @@
    */
 
   var utilsColorPalette = {
-      getImageData: function (config) {
+      getImageData: function getImageData(config) {
           var gradientConfig = config.gradient || config.defaultGradient;
           var paletteCanvas = document.createElement('canvas');
           var paletteCtx = paletteCanvas.getContext('2d');
@@ -1219,7 +1258,7 @@
   };
 
   var drawGrid = {
-      draw: function (context, dataSet, options) {
+      draw: function draw(context, dataSet, options) {
 
           context.save();
 
@@ -1240,7 +1279,7 @@
               if (!grids[gridKey]) {
                   grids[gridKey] = 0;
               }
-              grids[gridKey] += ~~(data[i].count || 1);
+              grids[gridKey] += ~ ~(data[i].count || 1);
           }
 
           for (var gridKey in grids) {
@@ -1268,7 +1307,7 @@
   }
 
   var drawHoneycomb = {
-      draw: function (context, dataSet, options) {
+      draw: function draw(context, dataSet, options) {
 
           context.save();
 
@@ -1382,7 +1421,7 @@
   }
 
   var cityCenter = {
-      getCenterByCityName: function (name) {
+      getCenterByCityName: function getCenterByCityName(name) {
           for (var i = 0; i < citycenter.municipalities.length; i++) {
               if (citycenter.municipalities[i].n == name) {
                   return getCenter(citycenter.municipalities[i].g);
@@ -1405,107 +1444,6 @@
       }
   };
 
-  /**
-    * 根据弧线的坐标节点数组
-    */
-  function getCurvePoints(points) {
-    var curvePoints = [];
-    for (var i = 0; i < points.length - 1; i++) {
-      var p = getCurveByTwoPoints(points[i], points[i + 1]);
-      if (p && p.length > 0) {
-        curvePoints = curvePoints.concat(p);
-      }
-    }
-    return curvePoints;
-  }
-
-  /**
-   * 根据两点获取曲线坐标点数组
-   * @param Point 起点
-   * @param Point 终点
-   */
-  function getCurveByTwoPoints(obj1, obj2) {
-    if (!obj1 || !obj2) {
-      return null;
-    }
-
-    var B1 = function (x) {
-      return 1 - 2 * x + x * x;
-    };
-    var B2 = function (x) {
-      return 2 * x - 2 * x * x;
-    };
-    var B3 = function (x) {
-      return x * x;
-    };
-
-    var curveCoordinates = [];
-
-    var count = 40; // 曲线是由一些小的线段组成的，这个表示这个曲线所有到的折线的个数
-    var isFuture = false;
-    var t, h, h2, lat3, lng3, j, t2;
-    var LnArray = [];
-    var i = 0;
-    var inc = 0;
-
-    if (typeof obj2 == "undefined") {
-      if (typeof curveCoordinates != "undefined") {
-        curveCoordinates = [];
-      }
-      return;
-    }
-
-    var lat1 = parseFloat(obj1.lat);
-    var lat2 = parseFloat(obj2.lat);
-    var lng1 = parseFloat(obj1.lng);
-    var lng2 = parseFloat(obj2.lng);
-
-    // 计算曲线角度的方法
-    if (lng2 > lng1) {
-      if (parseFloat(lng2 - lng1) > 180) {
-        if (lng1 < 0) {
-          lng1 = parseFloat(180 + 180 + lng1);
-        }
-      }
-    }
-
-    if (lng1 > lng2) {
-      if (parseFloat(lng1 - lng2) > 180) {
-        if (lng2 < 0) {
-          lng2 = parseFloat(180 + 180 + lng2);
-        }
-      }
-    }
-    j = 0;
-    t2 = 0;
-    if (lat2 == lat1) {
-      t = 0;
-      h = lng1 - lng2;
-    } else if (lng2 == lng1) {
-      t = Math.PI / 2;
-      h = lat1 - lat2;
-    } else {
-      t = Math.atan((lat2 - lat1) / (lng2 - lng1));
-      h = (lat2 - lat1) / Math.sin(t);
-    }
-    if (t2 == 0) {
-      t2 = t + Math.PI / 5;
-    }
-    h2 = h / 2;
-    lng3 = h2 * Math.cos(t2) + lng1;
-    lat3 = h2 * Math.sin(t2) + lat1;
-
-    for (i = 0; i < count + 1; i++) {
-      curveCoordinates.push([lng1 * B1(inc) + lng3 * B2(inc) + lng2 * B3(inc), lat1 * B1(inc) + lat3 * B2(inc) + lat2 * B3(inc)]);
-      inc = inc + 1 / count;
-    }
-    return curveCoordinates;
-  }
-
-  var curve = {
-    getPoints: getCurvePoints
-  };
-
   /* 
   FDEB algorithm implementation [www.win.tue.nl/~dholten/papers/forcebundles_eurovis.pdf].
 
@@ -1514,7 +1452,7 @@
 
   */
 
-  var ForceEdgeBundling = function () {
+  var ForceEdgeBundling = function ForceEdgeBundling() {
       var data_nodes = {},
           // {'nodeid':{'x':,'y':},..}
       data_edges = [],
@@ -1587,16 +1525,20 @@
 
       /*** Initialization Methods ***/
       function initialize_edge_subdivisions() {
-          for (var i = 0; i < data_edges.length; i++) if (P_initial == 1) subdivision_points_for_edge[i] = []; //0 subdivisions
-          else {
-                  subdivision_points_for_edge[i] = [];
-                  subdivision_points_for_edge[i].push(data_nodes[data_edges[i].source]);
-                  subdivision_points_for_edge[i].push(data_nodes[data_edges[i].target]);
-              }
+          for (var i = 0; i < data_edges.length; i++) {
+              if (P_initial == 1) subdivision_points_for_edge[i] = []; //0 subdivisions
+              else {
+                      subdivision_points_for_edge[i] = [];
+                      subdivision_points_for_edge[i].push(data_nodes[data_edges[i].source]);
+                      subdivision_points_for_edge[i].push(data_nodes[data_edges[i].target]);
+                  }
+          }
       }
 
       function initialize_compatibility_lists() {
-          for (var i = 0; i < data_edges.length; i++) compatibility_list_for_edge[i] = []; //0 compatible edges.
+          for (var i = 0; i < data_edges.length; i++) {
+              compatibility_list_for_edge[i] = [];
+          } //0 compatible edges.
       }
 
       function filter_self_loops(edgelist) {
@@ -1679,33 +1621,33 @@
                   subdivision_points_for_edge[e_idx].push(data_nodes[data_edges[e_idx].target]); // target
               } else {
 
-                  var divided_edge_length = compute_divided_edge_length(e_idx);
-                  var segment_length = divided_edge_length / (P + 1);
-                  var current_segment_length = segment_length;
-                  var new_subdivision_points = [];
-                  new_subdivision_points.push(data_nodes[data_edges[e_idx].source]); //source
+                      var divided_edge_length = compute_divided_edge_length(e_idx);
+                      var segment_length = divided_edge_length / (P + 1);
+                      var current_segment_length = segment_length;
+                      var new_subdivision_points = [];
+                      new_subdivision_points.push(data_nodes[data_edges[e_idx].source]); //source
 
-                  for (var i = 1; i < subdivision_points_for_edge[e_idx].length; i++) {
-                      var old_segment_length = euclidean_distance(subdivision_points_for_edge[e_idx][i], subdivision_points_for_edge[e_idx][i - 1]);
+                      for (var i = 1; i < subdivision_points_for_edge[e_idx].length; i++) {
+                          var old_segment_length = euclidean_distance(subdivision_points_for_edge[e_idx][i], subdivision_points_for_edge[e_idx][i - 1]);
 
-                      while (old_segment_length > current_segment_length) {
-                          var percent_position = current_segment_length / old_segment_length;
-                          var new_subdivision_point_x = subdivision_points_for_edge[e_idx][i - 1].x;
-                          var new_subdivision_point_y = subdivision_points_for_edge[e_idx][i - 1].y;
+                          while (old_segment_length > current_segment_length) {
+                              var percent_position = current_segment_length / old_segment_length;
+                              var new_subdivision_point_x = subdivision_points_for_edge[e_idx][i - 1].x;
+                              var new_subdivision_point_y = subdivision_points_for_edge[e_idx][i - 1].y;
 
-                          new_subdivision_point_x += percent_position * (subdivision_points_for_edge[e_idx][i].x - subdivision_points_for_edge[e_idx][i - 1].x);
-                          new_subdivision_point_y += percent_position * (subdivision_points_for_edge[e_idx][i].y - subdivision_points_for_edge[e_idx][i - 1].y);
-                          new_subdivision_points.push({ 'x': new_subdivision_point_x,
-                              'y': new_subdivision_point_y });
+                              new_subdivision_point_x += percent_position * (subdivision_points_for_edge[e_idx][i].x - subdivision_points_for_edge[e_idx][i - 1].x);
+                              new_subdivision_point_y += percent_position * (subdivision_points_for_edge[e_idx][i].y - subdivision_points_for_edge[e_idx][i - 1].y);
+                              new_subdivision_points.push({ 'x': new_subdivision_point_x,
+                                  'y': new_subdivision_point_y });
 
-                          old_segment_length -= current_segment_length;
-                          current_segment_length = segment_length;
+                              old_segment_length -= current_segment_length;
+                              current_segment_length = segment_length;
+                          }
+                          current_segment_length -= old_segment_length;
                       }
-                      current_segment_length -= old_segment_length;
+                      new_subdivision_points.push(data_nodes[data_edges[e_idx].target]); //target
+                      subdivision_points_for_edge[e_idx] = new_subdivision_points;
                   }
-                  new_subdivision_points.push(data_nodes[data_edges[e_idx].target]); //target
-                  subdivision_points_for_edge[e_idx] = new_subdivision_points;
-              }
           }
       }
       /*** ********************** ***/
@@ -1777,7 +1719,7 @@
       /*** ************************ ***/
 
       /*** Main Bundling Loop Methods ***/
-      var forcebundle = function () {
+      var forcebundle = function forcebundle() {
           var S = S_initial;
           var I = I_initial;
           var P = P_initial;
@@ -1993,36 +1935,42 @@
    * @author kyle / http://nikai.us/
    */
 
-  class Timer {
+  var Timer = function () {
+      function Timer(callback, options) {
+          babelHelpers.classCallCheck(this, Timer);
 
-      constructor(callback, options) {
           this._call = callback;
           this._runing = false;
           this.start();
       }
 
-      start() {
-          this._runing = true;
-          requestAnimationFrame(this._launch.bind(this));
-      }
-
-      stop() {
-          this._runing = false;
-      }
-
-      _launch(timestamp) {
-          if (this._runing) {
-              this._call && this._call(timestamp);
+      babelHelpers.createClass(Timer, [{
+          key: "start",
+          value: function start() {
+              this._runing = true;
               requestAnimationFrame(this._launch.bind(this));
           }
-      }
-
-  }
+      }, {
+          key: "stop",
+          value: function stop() {
+              this._runing = false;
+          }
+      }, {
+          key: "_launch",
+          value: function _launch(timestamp) {
+              if (this._runing) {
+                  this._call && this._call(timestamp);
+                  requestAnimationFrame(this._launch.bind(this));
+              }
+          }
+      }]);
+      return Timer;
+  }();
 
   /**
    * Abstract handler for animator steps
    */
-  var AnimatorStepsRange = function (start, end) {
+  var AnimatorStepsRange = function AnimatorStepsRange(start, end) {
       if (start < 0) throw new Error('start must be a positive number');
       if (start >= end) throw new Error('start must be smaller than end');
 
@@ -2032,11 +1980,11 @@
 
   AnimatorStepsRange.prototype = {
 
-      diff: function () {
+      diff: function diff() {
           return this.end - this.start;
       },
 
-      isLast: function (step) {
+      isLast: function isLast(step) {
           // round step into an integer, to be able to compare number as expected (also converts bad input to 0)
           return (step | 0) === this.end;
       }
@@ -2104,7 +2052,7 @@
 
   Animator.prototype = {
 
-      start: function () {
+      start: function start() {
           this.running = true;
           requestAnimationFrame$1(this._tick);
           this.options.onStart && this.options.onStart();
@@ -2113,25 +2061,25 @@
           }
       },
 
-      isRunning: function () {
+      isRunning: function isRunning() {
           return this.running;
       },
 
-      stop: function () {
+      stop: function stop() {
           this.pause();
           this.time(this.stepsRange().start);
           this.options.onStop && this.options.onStop();
       },
 
       // real animation time
-      time: function (_) {
+      time: function time(_) {
           if (!arguments.length) return this._time;
           this._time = _;
           var t = this.range(this.domain(this._time));
           this.callback(t);
       },
 
-      toggle: function () {
+      toggle: function toggle() {
           if (this.running) {
               this.pause();
           } else {
@@ -2139,7 +2087,7 @@
           }
       },
 
-      rescale: function () {
+      rescale: function rescale() {
           this.domainInv = linear(this.options.animationDelay, this.options.animationDelay + this.options.animationDuration);
           this.domain = this.domainInv.invert();
           this.range = linear(0, this._defaultStepsRange.end);
@@ -2149,7 +2097,7 @@
           return this;
       },
 
-      duration: function (_) {
+      duration: function duration(_) {
           if (!arguments.length) return this.options.animationDuration;
           this.options.animationDuration = _;
           if (this.time() > _) {
@@ -2159,7 +2107,7 @@
           return this;
       },
 
-      steps: function (_) {
+      steps: function steps(_) {
           this.options.steps = _;
           this._defaultStepsRange = new AnimatorStepsRange(0, _);
           return this.rescale();
@@ -2167,7 +2115,7 @@
 
       // Returns or sets a (custom) steps range
       // Setting a steps range must be within the full range
-      stepsRange: function (start, end) {
+      stepsRange: function stepsRange(start, end) {
           if (arguments.length === 2) {
               if (start < this._defaultStepsRange.start) throw new Error('start must be within default steps range');
               if (end > this._defaultStepsRange.end) throw new Error('end must be within default steps range');
@@ -2184,23 +2132,23 @@
           return this._customStepsRange || this._defaultStepsRange;
       },
 
-      removeCustomStepsRange: function () {
+      removeCustomStepsRange: function removeCustomStepsRange() {
           this._customStepsRange = undefined;
           this.options.onStepsRange && this.options.onStepsRange();
       },
 
-      step: function (s) {
+      step: function step(s) {
           if (arguments.length === 0) return this.range(this.domain(this._time));
           this._time = this.domainInv(this.rangeInv(s));
       },
 
-      pause: function () {
+      pause: function pause() {
           this.running = false;
           cancelAnimationFrame(this._tick);
           this.options.onPause && this.options.onPause();
       },
 
-      _tick: function () {
+      _tick: function _tick() {
           var t1 = +new Date();
           var delta = (t1 - this._t0) * 0.001;
           // if delta is really big means the tab lost the focus
@@ -2231,8 +2179,10 @@
    * @author Mofei<http://www.zhuwenlong.com>
    */
 
-  class MapHelper {
-      constructor(id, type, opt) {
+  var MapHelper = function () {
+      function MapHelper(id, type, opt) {
+          babelHelpers.classCallCheck(this, MapHelper);
+
           if (!id || !type) {
               console.warn('id 和 type 为必填项');
               return false;
@@ -2260,16 +2210,21 @@
           });
       }
 
-      addLayer(datas, options) {
-          if (this.type == 'baidu') {
-              return new mapv.baiduMapLayer(this.map, dataSet, options);
+      babelHelpers.createClass(MapHelper, [{
+          key: 'addLayer',
+          value: function addLayer(datas, options) {
+              if (this.type == 'baidu') {
+                  return new mapv.baiduMapLayer(this.map, dataSet, options);
+              }
           }
-      }
-
-      getMap() {
-          return this.map;
-      }
-  }
+      }, {
+          key: 'getMap',
+          value: function getMap() {
+              return this.map;
+          }
+      }]);
+      return MapHelper;
+  }();
 
   /**
    * 一直覆盖在当前地图视野的Canvas对象
@@ -2370,7 +2325,7 @@
   }
 
   var drawText = {
-      draw: function (context, dataSet, options) {
+      draw: function draw(context, dataSet, options) {
           var data = dataSet.get();
           context.fillStyle = 'white';
           context.textAlign = 'center';
@@ -2388,7 +2343,7 @@
   };
 
   var drawIcon = {
-      draw: function (context, dataSet, options) {
+      draw: function draw(context, dataSet, options) {
           var data = dataSet.get();
           context.fillStyle = 'white';
           context.textAlign = 'center';
@@ -2457,7 +2412,7 @@
       }
 
       function update(time) {
-          //console.time('update')
+          console.time('update');
           var context = this.canvas.getContext("2d");
 
           if (self.options.draw == 'time') {
@@ -2484,7 +2439,7 @@
           var nwMc = new BMap.Pixel(mcCenter.x - map.getSize().width / 2 * zoomUnit, mcCenter.y + map.getSize().height / 2 * zoomUnit); //左上角墨卡托坐标
 
           var dataGetOptions = {
-              transferCoordinate: function (coordinate) {
+              transferCoordinate: function transferCoordinate(coordinate) {
 
                   if (self.options.coordType == 'bd09mc') {
                       var x = (coordinate[0] - nwMc.x) / zoomUnit;
@@ -2514,7 +2469,7 @@
           // deal with data based on draw
 
           // TODO: 部分情况下可以不用循环，比如heatmap
-          //console.time('setstyle');
+          console.time('setstyle');
 
           var draw = self.options.draw;
           if (draw == 'bubble' || draw == 'intensity' || draw == 'category' || draw == 'choropleth') {
@@ -2537,13 +2492,13 @@
               }
           }
 
-          //console.timeEnd('setstyle');
+          console.timeEnd('setstyle');
 
           if (self.options.minZoom && map.getZoom() < self.options.minZoom || self.options.maxZoom && map.getZoom() > self.options.maxZoom) {
               return;
           }
 
-          //console.time('draw');
+          console.time('draw');
           // draw
           switch (self.options.draw) {
               case 'heatmap':
@@ -2580,9 +2535,9 @@
               default:
                   drawSimple.draw(context, data, self.options);
           }
-          //console.timeEnd('draw');
+          console.timeEnd('draw');
 
-          //console.timeEnd('update')
+          console.timeEnd('update');
           options.updateCallback && options.updateCallback(time);
       };
   }
@@ -3240,7 +3195,7 @@
           var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
 
           var data = dataSet.get({
-              transferCoordinate: function (coordinate) {
+              transferCoordinate: function transferCoordinate(coordinate) {
                   var latLng = new google.maps.LatLng(coordinate[1], coordinate[0]);
                   var worldPoint = mapProjection.fromLatLngToPoint(latLng);
                   var pixel = {
@@ -3305,7 +3260,7 @@
   }
 
   var geojson = {
-      getDataSet: function (geoJson) {
+      getDataSet: function getDataSet(geoJson) {
 
           var data = [];
           var features = geoJson.features;
@@ -3325,7 +3280,7 @@
   };
 
   var csv = {
-      CSVToArray: function (strData, strDelimiter) {
+      CSVToArray: function CSVToArray(strData, strDelimiter) {
           // Check to see if the delimiter is defined. If not,
           // then default to comma.
           strDelimiter = strDelimiter || ",";
@@ -3392,7 +3347,7 @@
           return arrData;
       },
 
-      getDataSet: function (csvStr) {
+      getDataSet: function getDataSet(csvStr) {
 
           var arr = this.CSVToArray(csvStr, ',');
 
@@ -3429,7 +3384,6 @@
   exports.canvasDrawGrid = drawGrid;
   exports.canvasDrawHoneycomb = drawHoneycomb;
   exports.utilCityCenter = cityCenter;
-  exports.utilCurve = curve;
   exports.utilForceEdgeBundling = ForceEdgeBundling;
   exports.utilDataRangeIntensity = Intensity;
   exports.utilDataRangeCategory = Category;
