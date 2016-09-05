@@ -6,8 +6,9 @@
   font-style: normal; }
 
 .slide {
-  height: 100%;
-  position: relative; }
+    height: 100%;
+    position: relative; 
+}
 
 .slide-cover {
   position: absolute;
