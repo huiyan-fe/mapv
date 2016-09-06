@@ -1,10 +1,6 @@
 var config = {
     demos: [
         {
-            url: 'baidu-map-point-simple.html',
-            pic: 'baidu-map-point-simple.jpg'
-        },
-        {
             url: 'baidu-map-forceEdgeBundling.html',
             pic: 'baidu-map-forceEdgeBundling.jpg'
         },
@@ -21,8 +17,16 @@ var config = {
             pic: 'baidu-map-polyline-time.jpg'
         },
         {
+            url: 'qianxi',
+            pic: 'qianxi'
+        },
+        {
             url: 'csv-car.html',
             pic: 'csv-car.jpg'
+        },
+        {
+            url: 'baidu-map-point-simple.html',
+            pic: 'baidu-map-point-simple.jpg'
         },
         {
             url: 'poi-yiheyuan-meishi.html',
@@ -87,6 +91,10 @@ var config = {
         {
             url: 'geojson-china.html',
             pic: 'geojson-china.jpg'
+        },
+        {
+            url: 'geojson-guangdong.html',
+            pic: 'geojson-guangdong.jpg'
         },
         {
             url: 'geojson-world.html',

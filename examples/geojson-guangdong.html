@@ -83,35 +83,38 @@
 
             var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
 
+            var textOptions = {
+                draw: 'text',
+                font: '14px Arial',
+                fillStyle: 'blue',
+                shadowColor: 'white',
+                shadowBlue: 20,
+                zIndex: 11,
+                shadowBlur: 10
+            }
+
+            var data = [];
+
+            for (var key in citys) {
+                var center = mapv.utilCityCenter.getCenterByCityName(key.replace('市', ''));
+                data.push(
+                    {
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [center.lng, center.lat]
+                        },
+                        text: key
+                    }
+                );
+            }
+            var dataSet = new mapv.DataSet(data);
+
+            var mapvLayer = new mapv.baiduMapLayer(map, dataSet, textOptions);
+
         });
 
 
-        var options = {
-            fillStyle: 'rgba(55, 50, 250, 0.9)',
-            shadowColor: 'rgba(55, 50, 250, 0.5)',
-            shadowBlur: 30,
-            size: 5,
-            zIndex: 10,
-            draw: 'simple'
-        }
-
-        var data = [
-        {
-            geometry: {
-                type: 'Point',
-                coordinates: [113.678121, 22.64869]
-            }
-        },
-        {
-            geometry: {
-                type: 'Point',
-                coordinates: [113.788121, 23.34869]
-            }
-        }
-        ];
-        var dataSet = new mapv.DataSet(data);
-
-        var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+        
 
     </script>
 	
