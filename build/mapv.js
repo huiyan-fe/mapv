@@ -4,7 +4,7 @@
   (factory((global.mapv = global.mapv || {})));
 }(this, function (exports) { 'use strict';
 
-  var version = "0.0.2";
+  var version = "0.0.3";
 
   class X {
       constructor(dom, opt) {
@@ -1094,12 +1094,12 @@
       }
   };
 
-  function createCircle(radius) {
+  function createCircle(size) {
 
       var circle = document.createElement('canvas');
       var context = circle.getContext('2d');
-      var shadowBlur = radius / 2;
-      var r2 = radius + shadowBlur;
+      var shadowBlur = size / 2;
+      var r2 = size + shadowBlur;
       var offsetDistance = 10000;
 
       circle.width = circle.height = r2 * 2;
@@ -1109,7 +1109,7 @@
       context.shadowOffsetX = context.shadowOffsetY = offsetDistance;
 
       context.beginPath();
-      context.arc(r2 - offsetDistance, r2 - offsetDistance, radius, 0, Math.PI * 2, true);
+      context.arc(r2 - offsetDistance, r2 - offsetDistance, size, 0, Math.PI * 2, true);
       context.closePath();
       context.fill();
       return circle;
@@ -1135,11 +1135,11 @@
 
       var max = options.max || 100;
       // console.log(max)
-      var radius = options._radius;
-      if (radius == undefined) {
-          radius = options.radius;
-          if (radius == undefined) {
-              radius = 13;
+      var size = options._size;
+      if (size == undefined) {
+          size = options.size;
+          if (size == undefined) {
+              size = 13;
           }
       }
 
@@ -1148,7 +1148,7 @@
           max: max
       });
 
-      var circle = createCircle(radius);
+      var circle = createCircle(size);
 
       var data = dataSet;
 
@@ -1227,7 +1227,7 @@
 
           var grids = {};
 
-          var gridWidth = options.gridWidth || 50;
+          var size = options._size || options.size || 50;
 
           var offset = options.offset || {
               x: 0,
@@ -1236,7 +1236,7 @@
 
           for (var i = 0; i < data.length; i++) {
               var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
-              var gridKey = Math.floor((coordinates[0] - offset.x) / gridWidth) + "," + Math.floor((coordinates[1] - offset.y) / gridWidth);
+              var gridKey = Math.floor((coordinates[0] - offset.x) / size) + "," + Math.floor((coordinates[1] - offset.y) / size);
               if (!grids[gridKey]) {
                   grids[gridKey] = 0;
               }
@@ -1252,7 +1252,7 @@
               });
 
               context.beginPath();
-              context.rect(gridKey[0] * gridWidth + .5 + offset.x, gridKey[1] * gridWidth + .5 + offset.y, gridWidth - 1, gridWidth - 1);
+              context.rect(gridKey[0] * size + .5 + offset.x, gridKey[1] * size + .5 + offset.y, size - 1, size - 1);
               context.fillStyle = intensity.getColor(grids[gridKey]);
               context.fill();
           }
@@ -1280,15 +1280,13 @@
 
           var grids = {};
 
-          var gridWidth = options.gridWidth || 1;
-
           var offset = options.offset || {
               x: 10,
               y: 10
           };
 
           //
-          var r = options.gridWidth || 40;
+          var r = options._size || options.size || 40;
           r = r / 2 / Math.sin(Math.PI / 3);
           var dx = r * 2 * Math.sin(Math.PI / 3);
           var dy = r * 1.5;
@@ -1927,7 +1925,9 @@
    *   }
    */
   function Category(splitList) {
-      this.splitList = splitList;
+      this.splitList = splitList || {
+          other: 1
+      };
   }
 
   Category.prototype.get = function (count) {
@@ -2545,11 +2545,15 @@
 
           //console.time('draw');
           // draw
+
+          if (self.options.unit == 'm' && self.options.size) {
+              self.options._size = self.options.size / zoomUnit;
+          } else {
+              self.options._size = self.options.size;
+          }
+
           switch (self.options.draw) {
               case 'heatmap':
-                  if (self.options.radiusUnit == 'm') {
-                      self.options._radius = self.options.radius / zoomUnit;
-                  };
                   drawHeatmap.draw(context, new DataSet(data), self.options);
                   break;
               case 'grid':
@@ -2605,6 +2609,7 @@
           gradient: self.options.gradient,
           max: self.options.max
       });
+
       self.category = new Category(self.options.splitList);
       self.choropleth = new Choropleth(self.options.splitList);
   };
