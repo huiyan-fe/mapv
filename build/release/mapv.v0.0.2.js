@@ -4,15 +4,20 @@
   (factory((global.mapv = global.mapv || {})));
 }(this, function (exports) { 'use strict';
 
-  var version = "0.0.3";
+  var babelHelpers = {};
+  babelHelpers.typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+    return typeof obj;
+  } : function (obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+  };
 
-  var classCallCheck = function (instance, Constructor) {
+  babelHelpers.classCallCheck = function (instance, Constructor) {
     if (!(instance instanceof Constructor)) {
       throw new TypeError("Cannot call a class as a function");
     }
   };
 
-  var createClass = function () {
+  babelHelpers.createClass = function () {
     function defineProperties(target, props) {
       for (var i = 0; i < props.length; i++) {
         var descriptor = props[i];
@@ -30,16 +35,20 @@
     };
   }();
 
+  babelHelpers;
+
+  var version = "0.0.0";
+
   var X = function () {
       function X(dom, opt) {
-          classCallCheck(this, X);
+          babelHelpers.classCallCheck(this, X);
 
           this.dom = dom;
           this.opt = opt;
           this.init();
       }
 
-      createClass(X, [{
+      babelHelpers.createClass(X, [{
           key: 'init',
           value: function init() {
               var zoom = 1;
@@ -378,7 +387,7 @@
       var shape = new THREE.Shape(coords);
       var geometry = new THREE.ShapeGeometry(shape);
 
-      var color = 'rgb(' + ~~(Math.random() * 256) + ', ' + ~~(Math.random() * 256) + ', ' + ~~(Math.random() * 256) + ')';
+      var color = 'rgb(' + ~ ~(Math.random() * 256) + ', ' + ~ ~(Math.random() * 256) + ', ' + ~ ~(Math.random() * 256) + ')';
       color = intensity.getColor(Math.random() * 100);
       var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide }));
       mesh.position.set(0, 0, 0);
@@ -928,15 +937,15 @@
   DataSet.prototype.get = function (args) {
       args = args || {};
 
-      //console.time('copy data time')
+      console.time('copy data time');
       var start = new Date();
       // TODO: 不修改原始数据，在数据上挂载新的名称，每次修改数据直接修改新名称下的数据，可以省去deepCopy
       // var data = deepCopy(this._data);
       var data = this._data;
 
-      //console.timeEnd('copy data time')
+      console.timeEnd('copy data time');
 
-      //console.time('transferCoordinate time')
+      console.time('transferCoordinate time');
 
       var start = new Date();
 
@@ -954,7 +963,7 @@
           data = this.transferCoordinate(data, args.transferCoordinate);
       }
 
-      //console.timeEnd('transferCoordinate time')
+      console.timeEnd('transferCoordinate time');
 
       return data;
   };
@@ -1124,12 +1133,12 @@
       }
   };
 
-  function createCircle(size) {
+  function createCircle(radius) {
 
       var circle = document.createElement('canvas');
       var context = circle.getContext('2d');
-      var shadowBlur = size / 2;
-      var r2 = size + shadowBlur;
+      var shadowBlur = radius / 2;
+      var r2 = radius + shadowBlur;
       var offsetDistance = 10000;
 
       circle.width = circle.height = r2 * 2;
@@ -1139,7 +1148,7 @@
       context.shadowOffsetX = context.shadowOffsetY = offsetDistance;
 
       context.beginPath();
-      context.arc(r2 - offsetDistance, r2 - offsetDistance, size, 0, Math.PI * 2, true);
+      context.arc(r2 - offsetDistance, r2 - offsetDistance, radius, 0, Math.PI * 2, true);
       context.closePath();
       context.fill();
       return circle;
@@ -1165,11 +1174,11 @@
 
       var max = options.max || 100;
       // console.log(max)
-      var size = options._size;
-      if (size == undefined) {
-          size = options.size;
-          if (size == undefined) {
-              size = 13;
+      var radius = options._radius;
+      if (radius == undefined) {
+          radius = options.radius;
+          if (radius == undefined) {
+              radius = 13;
           }
       }
 
@@ -1178,7 +1187,7 @@
           max: max
       });
 
-      var circle = createCircle(size);
+      var circle = createCircle(radius);
 
       var data = dataSet;
 
@@ -1257,7 +1266,7 @@
 
           var grids = {};
 
-          var size = options._size || options.size || 50;
+          var gridWidth = options.gridWidth || 50;
 
           var offset = options.offset || {
               x: 0,
@@ -1266,11 +1275,11 @@
 
           for (var i = 0; i < data.length; i++) {
               var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
-              var gridKey = Math.floor((coordinates[0] - offset.x) / size) + "," + Math.floor((coordinates[1] - offset.y) / size);
+              var gridKey = Math.floor((coordinates[0] - offset.x) / gridWidth) + "," + Math.floor((coordinates[1] - offset.y) / gridWidth);
               if (!grids[gridKey]) {
                   grids[gridKey] = 0;
               }
-              grids[gridKey] += ~~(data[i].count || 1);
+              grids[gridKey] += ~ ~(data[i].count || 1);
           }
 
           for (var gridKey in grids) {
@@ -1282,7 +1291,7 @@
               });
 
               context.beginPath();
-              context.rect(gridKey[0] * size + .5 + offset.x, gridKey[1] * size + .5 + offset.y, size - 1, size - 1);
+              context.rect(gridKey[0] * gridWidth + .5 + offset.x, gridKey[1] * gridWidth + .5 + offset.y, gridWidth - 1, gridWidth - 1);
               context.fillStyle = intensity.getColor(grids[gridKey]);
               context.fill();
           }
@@ -1310,13 +1319,15 @@
 
           var grids = {};
 
+          var gridWidth = options.gridWidth || 1;
+
           var offset = options.offset || {
               x: 10,
               y: 10
           };
 
           //
-          var r = options._size || options.size || 40;
+          var r = options.gridWidth || 40;
           r = r / 2 / Math.sin(Math.PI / 3);
           var dx = r * 2 * Math.sin(Math.PI / 3);
           var dy = r * 1.5;
@@ -1431,107 +1442,6 @@
           }
           return null;
       }
-  };
-
-  /**
-    * 根据弧线的坐标节点数组
-    */
-  function getCurvePoints(points) {
-    var curvePoints = [];
-    for (var i = 0; i < points.length - 1; i++) {
-      var p = getCurveByTwoPoints(points[i], points[i + 1]);
-      if (p && p.length > 0) {
-        curvePoints = curvePoints.concat(p);
-      }
-    }
-    return curvePoints;
-  }
-
-  /**
-   * 根据两点获取曲线坐标点数组
-   * @param Point 起点
-   * @param Point 终点
-   */
-  function getCurveByTwoPoints(obj1, obj2) {
-    if (!obj1 || !obj2) {
-      return null;
-    }
-
-    var B1 = function B1(x) {
-      return 1 - 2 * x + x * x;
-    };
-    var B2 = function B2(x) {
-      return 2 * x - 2 * x * x;
-    };
-    var B3 = function B3(x) {
-      return x * x;
-    };
-
-    var curveCoordinates = [];
-
-    var count = 40; // 曲线是由一些小的线段组成的，这个表示这个曲线所有到的折线的个数
-    var isFuture = false;
-    var t, h, h2, lat3, lng3, j, t2;
-    var LnArray = [];
-    var i = 0;
-    var inc = 0;
-
-    if (typeof obj2 == "undefined") {
-      if (typeof curveCoordinates != "undefined") {
-        curveCoordinates = [];
-      }
-      return;
-    }
-
-    var lat1 = parseFloat(obj1.lat);
-    var lat2 = parseFloat(obj2.lat);
-    var lng1 = parseFloat(obj1.lng);
-    var lng2 = parseFloat(obj2.lng);
-
-    // 计算曲线角度的方法
-    if (lng2 > lng1) {
-      if (parseFloat(lng2 - lng1) > 180) {
-        if (lng1 < 0) {
-          lng1 = parseFloat(180 + 180 + lng1);
-        }
-      }
-    }
-
-    if (lng1 > lng2) {
-      if (parseFloat(lng1 - lng2) > 180) {
-        if (lng2 < 0) {
-          lng2 = parseFloat(180 + 180 + lng2);
-        }
-      }
-    }
-    j = 0;
-    t2 = 0;
-    if (lat2 == lat1) {
-      t = 0;
-      h = lng1 - lng2;
-    } else if (lng2 == lng1) {
-      t = Math.PI / 2;
-      h = lat1 - lat2;
-    } else {
-      t = Math.atan((lat2 - lat1) / (lng2 - lng1));
-      h = (lat2 - lat1) / Math.sin(t);
-    }
-    if (t2 == 0) {
-      t2 = t + Math.PI / 5;
-    }
-    h2 = h / 2;
-    lng3 = h2 * Math.cos(t2) + lng1;
-    lat3 = h2 * Math.sin(t2) + lat1;
-
-    for (i = 0; i < count + 1; i++) {
-      curveCoordinates.push([lng1 * B1(inc) + lng3 * B2(inc) + lng2 * B3(inc), lat1 * B1(inc) + lat3 * B2(inc) + lat2 * B3(inc)]);
-      inc = inc + 1 / count;
-    }
-    return curveCoordinates;
-  }
-
-  var curve = {
-    getPoints: getCurvePoints
   };
 
   /* 
@@ -1711,33 +1621,33 @@
                   subdivision_points_for_edge[e_idx].push(data_nodes[data_edges[e_idx].target]); // target
               } else {
 
-                  var divided_edge_length = compute_divided_edge_length(e_idx);
-                  var segment_length = divided_edge_length / (P + 1);
-                  var current_segment_length = segment_length;
-                  var new_subdivision_points = [];
-                  new_subdivision_points.push(data_nodes[data_edges[e_idx].source]); //source
+                      var divided_edge_length = compute_divided_edge_length(e_idx);
+                      var segment_length = divided_edge_length / (P + 1);
+                      var current_segment_length = segment_length;
+                      var new_subdivision_points = [];
+                      new_subdivision_points.push(data_nodes[data_edges[e_idx].source]); //source
 
-                  for (var i = 1; i < subdivision_points_for_edge[e_idx].length; i++) {
-                      var old_segment_length = euclidean_distance(subdivision_points_for_edge[e_idx][i], subdivision_points_for_edge[e_idx][i - 1]);
+                      for (var i = 1; i < subdivision_points_for_edge[e_idx].length; i++) {
+                          var old_segment_length = euclidean_distance(subdivision_points_for_edge[e_idx][i], subdivision_points_for_edge[e_idx][i - 1]);
 
-                      while (old_segment_length > current_segment_length) {
-                          var percent_position = current_segment_length / old_segment_length;
-                          var new_subdivision_point_x = subdivision_points_for_edge[e_idx][i - 1].x;
-                          var new_subdivision_point_y = subdivision_points_for_edge[e_idx][i - 1].y;
+                          while (old_segment_length > current_segment_length) {
+                              var percent_position = current_segment_length / old_segment_length;
+                              var new_subdivision_point_x = subdivision_points_for_edge[e_idx][i - 1].x;
+                              var new_subdivision_point_y = subdivision_points_for_edge[e_idx][i - 1].y;
 
-                          new_subdivision_point_x += percent_position * (subdivision_points_for_edge[e_idx][i].x - subdivision_points_for_edge[e_idx][i - 1].x);
-                          new_subdivision_point_y += percent_position * (subdivision_points_for_edge[e_idx][i].y - subdivision_points_for_edge[e_idx][i - 1].y);
-                          new_subdivision_points.push({ 'x': new_subdivision_point_x,
-                              'y': new_subdivision_point_y });
+                              new_subdivision_point_x += percent_position * (subdivision_points_for_edge[e_idx][i].x - subdivision_points_for_edge[e_idx][i - 1].x);
+                              new_subdivision_point_y += percent_position * (subdivision_points_for_edge[e_idx][i].y - subdivision_points_for_edge[e_idx][i - 1].y);
+                              new_subdivision_points.push({ 'x': new_subdivision_point_x,
+                                  'y': new_subdivision_point_y });
 
-                          old_segment_length -= current_segment_length;
-                          current_segment_length = segment_length;
+                              old_segment_length -= current_segment_length;
+                              current_segment_length = segment_length;
+                          }
+                          current_segment_length -= old_segment_length;
                       }
-                      current_segment_length -= old_segment_length;
+                      new_subdivision_points.push(data_nodes[data_edges[e_idx].target]); //target
+                      subdivision_points_for_edge[e_idx] = new_subdivision_points;
                   }
-                  new_subdivision_points.push(data_nodes[data_edges[e_idx].target]); //target
-                  subdivision_points_for_edge[e_idx] = new_subdivision_points;
-              }
           }
       }
       /*** ********************** ***/
@@ -1959,9 +1869,7 @@
    *   }
    */
   function Category(splitList) {
-      this.splitList = splitList || {
-          other: 1
-      };
+      this.splitList = splitList;
   }
 
   Category.prototype.get = function (count) {
@@ -2029,14 +1937,14 @@
 
   var Timer = function () {
       function Timer(callback, options) {
-          classCallCheck(this, Timer);
+          babelHelpers.classCallCheck(this, Timer);
 
           this._call = callback;
           this._runing = false;
           this.start();
       }
 
-      createClass(Timer, [{
+      babelHelpers.createClass(Timer, [{
           key: "start",
           value: function start() {
               this._runing = true;
@@ -2108,13 +2016,13 @@
       return _linear;
   }
 
-  var global$1 = window;
+  var global = window;
 
-  var requestAnimationFrame$1 = global$1.requestAnimationFrame || global$1.mozRequestAnimationFrame || global$1.webkitRequestAnimationFrame || global$1.msRequestAnimationFrame || function (callback) {
-      return global$1.setTimeout(callback, 1000 / 60);
+  var requestAnimationFrame$1 = global.requestAnimationFrame || global.mozRequestAnimationFrame || global.webkitRequestAnimationFrame || global.msRequestAnimationFrame || function (callback) {
+      return global.setTimeout(callback, 1000 / 60);
   };
 
-  var cancelAnimationFrame = global$1.cancelAnimationFrame || global$1.mozCancelAnimationFrame || global$1.webkitCancelAnimationFrame || global$1.msCancelAnimationFrame || function (id) {
+  var cancelAnimationFrame = global.cancelAnimationFrame || global.mozCancelAnimationFrame || global.webkitCancelAnimationFrame || global.msCancelAnimationFrame || function (id) {
       clearTimeout(id);
   };
 
@@ -2273,7 +2181,7 @@
 
   var MapHelper = function () {
       function MapHelper(id, type, opt) {
-          classCallCheck(this, MapHelper);
+          babelHelpers.classCallCheck(this, MapHelper);
 
           if (!id || !type) {
               console.warn('id 和 type 为必填项');
@@ -2302,7 +2210,7 @@
           });
       }
 
-      createClass(MapHelper, [{
+      babelHelpers.createClass(MapHelper, [{
           key: 'addLayer',
           value: function addLayer(datas, options) {
               if (this.type == 'baidu') {
@@ -2504,7 +2412,7 @@
       }
 
       function update(time) {
-          //console.time('update')
+          console.time('update');
           var context = this.canvas.getContext("2d");
 
           if (self.options.draw == 'time') {
@@ -2561,7 +2469,7 @@
           // deal with data based on draw
 
           // TODO: 部分情况下可以不用循环，比如heatmap
-          //console.time('setstyle');
+          console.time('setstyle');
 
           var draw = self.options.draw;
           if (draw == 'bubble' || draw == 'intensity' || draw == 'category' || draw == 'choropleth') {
@@ -2584,23 +2492,19 @@
               }
           }
 
-          //console.timeEnd('setstyle');
+          console.timeEnd('setstyle');
 
           if (self.options.minZoom && map.getZoom() < self.options.minZoom || self.options.maxZoom && map.getZoom() > self.options.maxZoom) {
               return;
           }
 
-          //console.time('draw');
+          console.time('draw');
           // draw
-
-          if (self.options.unit == 'm' && self.options.size) {
-              self.options._size = self.options.size / zoomUnit;
-          } else {
-              self.options._size = self.options.size;
-          }
-
           switch (self.options.draw) {
               case 'heatmap':
+                  if (self.options.radiusUnit == 'm') {
+                      self.options._radius = self.options.radius / zoomUnit;
+                  };
                   drawHeatmap.draw(context, new DataSet(data), self.options);
                   break;
               case 'grid':
@@ -2631,9 +2535,9 @@
               default:
                   drawSimple.draw(context, data, self.options);
           }
-          //console.timeEnd('draw');
+          console.timeEnd('draw');
 
-          //console.timeEnd('update')
+          console.timeEnd('update');
           options.updateCallback && options.updateCallback(time);
       };
   }
@@ -2656,7 +2560,6 @@
           gradient: self.options.gradient,
           max: self.options.max
       });
-
       self.category = new Category(self.options.splitList);
       self.choropleth = new Choropleth(self.options.splitList);
   };
@@ -3481,7 +3384,6 @@
   exports.canvasDrawGrid = drawGrid;
   exports.canvasDrawHoneycomb = drawHoneycomb;
   exports.utilCityCenter = cityCenter;
-  exports.utilCurve = curve;
   exports.utilForceEdgeBundling = ForceEdgeBundling;
   exports.utilDataRangeIntensity = Intensity;
   exports.utilDataRangeCategory = Category;
