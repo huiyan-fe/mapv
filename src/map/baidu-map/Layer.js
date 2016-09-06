@@ -69,7 +69,7 @@ function Layer(map, dataSet, options) {
     }
 
     function update(time) {
-        console.time('update')
+        //console.time('update')
         var context = this.canvas.getContext("2d");
 
         if (self.options.draw == 'time') {
@@ -126,7 +126,7 @@ function Layer(map, dataSet, options) {
         // deal with data based on draw
 
         // TODO: 部分情况下可以不用循环，比如heatmap
-        console.time('setstyle');
+        //console.time('setstyle');
 
         var draw = self.options.draw;
         if (draw == 'bubble' || draw == 'intensity' || draw == 'category' || draw == 'choropleth') {
@@ -150,13 +150,13 @@ function Layer(map, dataSet, options) {
 
         }
 
-        console.timeEnd('setstyle');
+        //console.timeEnd('setstyle');
 
         if (self.options.minZoom && map.getZoom() < self.options.minZoom || self.options.maxZoom && map.getZoom() > self.options.maxZoom) {
             return;
         }
 
-        console.time('draw');
+        //console.time('draw');
         // draw
         switch (self.options.draw) {
             case 'heatmap':
@@ -193,9 +193,9 @@ function Layer(map, dataSet, options) {
             default:
                 drawSimple.draw(context, data, self.options);
         }
-        console.timeEnd('draw');
+        //console.timeEnd('draw');
 
-        console.timeEnd('update')
+        //console.timeEnd('update')
         options.updateCallback && options.updateCallback(time);
     };
 

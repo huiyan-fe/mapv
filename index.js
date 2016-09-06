@@ -14,6 +14,7 @@ export {default as canvasDrawGrid} from "./src/canvas/draw/grid";
 export {default as canvasDrawHoneycomb} from "./src/canvas/draw/honeycomb";
 
 export {default as utilCityCenter} from "./src/utils/cityCenter";
+export {default as utilCurve} from "./src/utils/curve";
 export {default as utilForceEdgeBundling} from "./src/utils/forceEdgeBundling";
 
 export {default as utilDataRangeIntensity} from "./src/utils/data-range/Intensity";

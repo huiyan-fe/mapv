@@ -898,15 +898,15 @@
   DataSet.prototype.get = function (args) {
       args = args || {};
 
-      console.time('copy data time');
+      //console.time('copy data time')
       var start = new Date();
       // TODO: 不修改原始数据，在数据上挂载新的名称，每次修改数据直接修改新名称下的数据，可以省去deepCopy
       // var data = deepCopy(this._data);
       var data = this._data;
 
-      console.timeEnd('copy data time');
+      //console.timeEnd('copy data time')
 
-      console.time('transferCoordinate time');
+      //console.time('transferCoordinate time')
 
       var start = new Date();
 
@@ -924,7 +924,7 @@
           data = this.transferCoordinate(data, args.transferCoordinate);
       }
 
-      console.timeEnd('transferCoordinate time');
+      //console.timeEnd('transferCoordinate time')
 
       return data;
   };
@@ -1403,6 +1403,107 @@
           }
           return null;
       }
+  };
+
+  /**
+    * 根据弧线的坐标节点数组
+    */
+  function getCurvePoints(points) {
+    var curvePoints = [];
+    for (var i = 0; i < points.length - 1; i++) {
+      var p = getCurveByTwoPoints(points[i], points[i + 1]);
+      if (p && p.length > 0) {
+        curvePoints = curvePoints.concat(p);
+      }
+    }
+    return curvePoints;
+  }
+
+  /**
+   * 根据两点获取曲线坐标点数组
+   * @param Point 起点
+   * @param Point 终点
+   */
+  function getCurveByTwoPoints(obj1, obj2) {
+    if (!obj1 || !obj2) {
+      return null;
+    }
+
+    var B1 = function (x) {
+      return 1 - 2 * x + x * x;
+    };
+    var B2 = function (x) {
+      return 2 * x - 2 * x * x;
+    };
+    var B3 = function (x) {
+      return x * x;
+    };
+
+    var curveCoordinates = [];
+
+    var count = 40; // 曲线是由一些小的线段组成的，这个表示这个曲线所有到的折线的个数
+    var isFuture = false;
+    var t, h, h2, lat3, lng3, j, t2;
+    var LnArray = [];
+    var i = 0;
+    var inc = 0;
+
+    if (typeof obj2 == "undefined") {
+      if (typeof curveCoordinates != "undefined") {
+        curveCoordinates = [];
+      }
+      return;
+    }
+
+    var lat1 = parseFloat(obj1.lat);
+    var lat2 = parseFloat(obj2.lat);
+    var lng1 = parseFloat(obj1.lng);
+    var lng2 = parseFloat(obj2.lng);
+
+    // 计算曲线角度的方法
+    if (lng2 > lng1) {
+      if (parseFloat(lng2 - lng1) > 180) {
+        if (lng1 < 0) {
+          lng1 = parseFloat(180 + 180 + lng1);
+        }
+      }
+    }
+
+    if (lng1 > lng2) {
+      if (parseFloat(lng1 - lng2) > 180) {
+        if (lng2 < 0) {
+          lng2 = parseFloat(180 + 180 + lng2);
+        }
+      }
+    }
+    j = 0;
+    t2 = 0;
+    if (lat2 == lat1) {
+      t = 0;
+      h = lng1 - lng2;
+    } else if (lng2 == lng1) {
+      t = Math.PI / 2;
+      h = lat1 - lat2;
+    } else {
+      t = Math.atan((lat2 - lat1) / (lng2 - lng1));
+      h = (lat2 - lat1) / Math.sin(t);
+    }
+    if (t2 == 0) {
+      t2 = t + Math.PI / 5;
+    }
+    h2 = h / 2;
+    lng3 = h2 * Math.cos(t2) + lng1;
+    lat3 = h2 * Math.sin(t2) + lat1;
+
+    for (i = 0; i < count + 1; i++) {
+      curveCoordinates.push([lng1 * B1(inc) + lng3 * B2(inc) + lng2 * B3(inc), lat1 * B1(inc) + lat3 * B2(inc) + lat2 * B3(inc)]);
+      inc = inc + 1 / count;
+    }
+    return curveCoordinates;
+  }
+
+  var curve = {
+    getPoints: getCurvePoints
   };
 
   /* 
@@ -2356,7 +2457,7 @@
       }
 
       function update(time) {
-          console.time('update');
+          //console.time('update')
           var context = this.canvas.getContext("2d");
 
           if (self.options.draw == 'time') {
@@ -2413,7 +2514,7 @@
           // deal with data based on draw
 
           // TODO: 部分情况下可以不用循环，比如heatmap
-          console.time('setstyle');
+          //console.time('setstyle');
 
           var draw = self.options.draw;
           if (draw == 'bubble' || draw == 'intensity' || draw == 'category' || draw == 'choropleth') {
@@ -2436,13 +2537,13 @@
               }
           }
 
-          console.timeEnd('setstyle');
+          //console.timeEnd('setstyle');
 
           if (self.options.minZoom && map.getZoom() < self.options.minZoom || self.options.maxZoom && map.getZoom() > self.options.maxZoom) {
               return;
           }
 
-          console.time('draw');
+          //console.time('draw');
           // draw
           switch (self.options.draw) {
               case 'heatmap':
@@ -2479,9 +2580,9 @@
               default:
                   drawSimple.draw(context, data, self.options);
           }
-          console.timeEnd('draw');
+          //console.timeEnd('draw');
 
-          console.timeEnd('update');
+          //console.timeEnd('update')
           options.updateCallback && options.updateCallback(time);
       };
   }
@@ -3328,6 +3429,7 @@
   exports.canvasDrawGrid = drawGrid;
   exports.canvasDrawHoneycomb = drawHoneycomb;
   exports.utilCityCenter = cityCenter;
+  exports.utilCurve = curve;
   exports.utilForceEdgeBundling = ForceEdgeBundling;
   exports.utilDataRangeIntensity = Intensity;
   exports.utilDataRangeCategory = Category;
