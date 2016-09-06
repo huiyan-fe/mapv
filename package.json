@@ -1,12 +1,12 @@
 {
   "name": "mapv",
   "version": "0.0.3",
-  "description": "",
+  "description": "a library of geography visualization",
   "main": "build/mapv.js",
   "scripts": {
-    "publish": "VERSION=`node -e 'console.log(require(\"./package.json\").version)'` && cp build/mapv.js build/mapv.v${VERSION}.js && uglifyjs build/mapv.v${VERSION}.js -c drop_console -m -o build/mapv.v${VERSION}.min.js",
+    "publish": "VERSION=`node -e 'console.log(require(\"./package.json\").version)'` && cp build/mapv.js build/release/mapv.v${VERSION}.js && uglifyjs build/release/mapv.v${VERSION}.js -c drop_console -m -o build/release/mapv.v${VERSION}.min.js",
     "mini": "npm run build && uglifyjs build/mapv.js -c -m -o build/mapv.min.js",
-    "build": "mkdir -p build && node -e 'process.stdout.write(\"export var version = \\\"\" + require(\"./package.json\").version + \"\\\";\\n\");' > build/version.js && rollup -c ",
+    "build": "mkdir -p build && mkdir -p build/release && node -e 'process.stdout.write(\"export var version = \\\"\" + require(\"./package.json\").version + \"\\\";\\n\");' > build/version.js && rollup -c",
     "watch": "npm-watch",
     "test": "npm run watch"
   },
@@ -24,16 +24,16 @@
     "type": "git",
     "url": "git+https://github.com/huiyan-fe/mapv.git"
   },
-  "author": "",
+  "author": "huiyan-fe",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/huiyan-fe/mapv/issues"
   },
   "homepage": "https://github.com/huiyan-fe/mapv#readme",
   "devDependencies": {
-    "babel-preset-es2015-rollup": "^1.1.1",
+    "babel-preset-es2015-rollup": "^1.2.0",
     "npm-watch": "^0.1.4",
-    "rollup": "^0.25.4",
+    "rollup": "^0.25.8",
     "rollup-plugin-babel": "^2.4.0",
     "uglify-js": "^2.6.2"
   }

@@ -17,7 +17,7 @@ var config = {
             pic: 'baidu-map-polyline-time.jpg'
         },
         {
-            url: 'qianxi',
+            url: 'qianxi.html',
             pic: 'qianxi.jpg'
         },
         {
