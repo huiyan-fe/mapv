@@ -23,15 +23,13 @@ export default {
 
         var grids = {};
 
-        var gridWidth = options.gridWidth || 1;
-
         var offset = options.offset || {
             x: 10,
             y: 10
         }
 
         //
-        var r = options.gridWidth || 40;
+        var r = options._size || options.size || 40;
         r = r / 2 / Math.sin(Math.PI / 3);
         var dx = r * 2 * Math.sin(Math.PI / 3);
         var dy = r * 1.5;

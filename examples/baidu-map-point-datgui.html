@@ -24,8 +24,10 @@
     <div id="map"></div>
     <canvas id="canvas"></canvas>
 
+    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
     <script type="text/javascript" src="../build/mapv.js"></script>
+    <script type="text/javascript" src="js/dat.gui.min.js"></script>
 
     <script type="text/javascript">
 
@@ -37,7 +39,7 @@
         map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
 
         map.setMapStyle({
-            style: 'midnight'
+            style: 'light'
         });
 
         var randomCount = 300;
@@ -57,17 +59,55 @@
                 count: 30 * Math.random()
             });
         }
-
+        console.log(data)
         var dataSet = new mapv.DataSet(data);
 
         var options = {
-            size: 13,
-            gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
-            max: 100,
-            draw: 'heatmap'
+            fillStyle: 'rgba(55, 50, 250, 0.6)',
+            shadowColor: 'rgba(55, 50, 250, 0.5)',
+            shadowBlur: 10,
+            methods: {
+                click: function (item) {
+                }
+            },
+            size: 5,
+            draw: 'simple'
         }
 
         var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+        var CustomOptions = function() {
+            this.size = 750;
+            this.max = 100;
+            this.draw = 'simple';
+            this.unit = 'm';
+            this.fillStyle = '#ffae23';
+            this.render = function () {
+                mapvLayer.update({
+                    options: {
+                        draw: this.draw,
+                        max: this.max,
+                        unit: this.unit,
+                        size: this.size,
+                        fillStyle: this.fillStyle
+                    }
+                })
+            }
+        };
+
+        window.onload = function() {
+            var customOptions = new CustomOptions();
+            var gui = new dat.GUI();
+            gui.add(customOptions, 'unit').onFinishChange(finished);
+            gui.add(customOptions, 'size', 1, 10000).onFinishChange(finished);
+            gui.add(customOptions, 'max', 1, 500000000).onFinishChange(finished);
+            gui.add(customOptions, 'draw', [ 'simple', 'heatmap', 'category', 'honeycomb', 'grid', 'choropleth', 'intensity'] ).onFinishChange(finished);
+            gui.addColor(customOptions, 'fillStyle').onFinishChange(finished);
+            gui.add(customOptions, 'render').onFinishChange(finished);
+            function finished() {
+                customOptions.render();
+            };
+        };
     </script>
 	
 </body>

@@ -18,7 +18,7 @@ var config = {
         },
         {
             url: 'qianxi',
-            pic: 'qianxi'
+            pic: 'qianxi.jpg'
         },
         {
             url: 'csv-car.html',

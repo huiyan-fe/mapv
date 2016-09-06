@@ -16,7 +16,9 @@
  *   }
  */
 function Category(splitList) {
-    this.splitList = splitList;
+    this.splitList = splitList || {
+        other: 1
+    };
 }
 
 Category.prototype.get = function (count) {

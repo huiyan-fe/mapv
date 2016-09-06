@@ -158,11 +158,15 @@ function Layer(map, dataSet, options) {
 
         //console.time('draw');
         // draw
+
+        if (self.options.unit == 'm' && self.options.size) {
+            self.options._size = self.options.size / zoomUnit;
+        } else {
+            self.options._size = self.options.size;
+        }
+
         switch (self.options.draw) {
             case 'heatmap':
-                if (self.options.radiusUnit == 'm') {
-                    self.options._radius = self.options.radius / zoomUnit;
-                };
                 drawHeatmap.draw(context, new DataSet(data), self.options);
                 break;
             case 'grid':
@@ -219,6 +223,7 @@ Layer.prototype.init = function(options) {
         gradient: self.options.gradient,
         max: self.options.max
     });
+
     self.category = new Category(self.options.splitList);
     self.choropleth = new Choropleth(self.options.splitList);
 }

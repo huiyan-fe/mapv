@@ -6,12 +6,12 @@ import utilsColorPalette from "../utils/colorPalette";
 import Intensity from "../../utils/data-range/Intensity";
 import pathSimple from "../path/simple";
 
-function createCircle(radius) {
+function createCircle(size) {
 
     var circle = document.createElement('canvas');
     var context = circle.getContext('2d');
-    var shadowBlur = radius / 2;
-    var r2 = radius + shadowBlur;
+    var shadowBlur = size / 2;
+    var r2 = size + shadowBlur;
     var offsetDistance = 10000;
 
     circle.width = circle.height = r2 * 2;
@@ -21,7 +21,7 @@ function createCircle(radius) {
     context.shadowOffsetX = context.shadowOffsetY = offsetDistance;
 
     context.beginPath();
-    context.arc(r2 - offsetDistance, r2 - offsetDistance, radius, 0, Math.PI * 2, true);
+    context.arc(r2 - offsetDistance, r2 - offsetDistance, size, 0, Math.PI * 2, true);
     context.closePath();
     context.fill();
     return circle;
@@ -47,11 +47,11 @@ function drawGray(context, dataSet, options) {
 
     var max = options.max || 100;
     // console.log(max)
-    var radius = options._radius;
-    if (radius == undefined) {
-        radius = options.radius;
-        if (radius == undefined) {
-            radius = 13;
+    var size = options._size;
+    if (size == undefined) {
+        size = options.size;
+        if (size == undefined) {
+            size = 13;
         }
     }
 
@@ -60,7 +60,7 @@ function drawGray(context, dataSet, options) {
         max: max
     })
 
-    var circle = createCircle(radius);
+    var circle = createCircle(size);
 
     var data = dataSet;
 
