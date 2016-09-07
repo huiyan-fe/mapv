@@ -9,7 +9,7 @@ Mapv 是一款地理信息可视化开源库，可以用来展示大量地理信
 
 ## 示例
 <a href="http://mapv.baidu.com/gallery.html">
-    <img style="vertical-align: top;" src="./asset/overview.png?raw=true" alt="logo">
+    <img style="vertical-align: top;" src="./asset/overview.jpg?raw=true" alt="logo">
 </a>
 
 ## 相关文档

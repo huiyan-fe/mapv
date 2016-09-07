@@ -9,7 +9,7 @@ This is the prerelease of Mapv 2.0. This API is unstable and may change at any p
 
 ## Examples
 <a href="http://mapv.baidu.com/gallery.html">
-    <img style="vertical-align: top;" src="./asset/overview.png?raw=true" alt="logo">
+    <img style="vertical-align: top;" src="./asset/overview.jpg?raw=true" alt="logo">
 </a>
 
 ## Documents
