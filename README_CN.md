@@ -3,6 +3,10 @@
     <img style="vertical-align: top;" src="./asset/logo.png?raw=true" alt="logo">
 </a>
 
+主页: [http://mapv.baidu.com/](http://mapv.baidu.com/)
+
+备用主页: [huiyan-fe.github.io/mapv/](huiyan-fe.github.io/mapv/)
+
 ## 简介 [English](https://github.com/huiyan-fe/mapv/blob/master/README.md)
 Mapv 是一款地理信息可视化开源库，可以用来展示大量地理信息数据，点、线、面的数据，每种数据也有不同的展示类型，如直接打点、热力图、网格、聚合等方式展示数据。
 当前是Mapv 2.0的预发布版本，当前api是不稳定的并有可能随时发生变化。
@@ -35,9 +39,7 @@ Mapv使用canvas开发，支持现在被称为“现代”浏览器, 通常兼�
 
 ## 谁在使用
 [![百度慧眼](./asset/user/huiyan.png)](http://huiyan.baidu.com)
-
 [![百度交通云](./asset/user/jiaotong.png)](http://jiaotong.baidu.com/)
-
 [![百度地图开放平台](./asset/user/lbsyun.png)](http://lbsyun.baidu.com/)
 
 ## Contqct us

@@ -3,6 +3,10 @@
     <img style="vertical-align: top;" src="./asset/logo.png?raw=true" alt="logo">
 </a>
 
+Homepage: [http://mapv.baidu.com/](http://mapv.baidu.com/)
+
+Backup Homepage: [huiyan-fe.github.io/mapv/](huiyan-fe.github.io/mapv/)
+
 ## Introduction [中文](https://github.com/huiyan-fe/mapv/blob/master/README_CN.md)
 Mapv is a library of geography visualization, it can be used to visualize the big data of point, polyeline and polygon, and it has a different ways, such as simple, heatmap, grid, time and others to display the datas.
 This is the prerelease of Mapv 2.0. This API is unstable and may change at any point prior to the release.
@@ -34,9 +38,7 @@ You can download the [latest release](https://github.com/huiyan-fe/mapv/releases
 
 ## UserList
 [![百度慧眼](./asset/user/huiyan.png)](http://huiyan.baidu.com)
-
 [![百度交通云](./asset/user/jiaotong.png)](http://jiaotong.baidu.com/)
-
 [![百度地图开放平台](./asset/user/lbsyun.png)](http://lbsyun.baidu.com/)
 
 ## Contqct us
