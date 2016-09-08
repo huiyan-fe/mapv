@@ -8,32 +8,39 @@
  *                             {Object} gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"}
  */
 function Intensity(options) {
+
     options = options || {};
     this.gradient = options.gradient || { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"};
     this.maxSize = options.maxSize || 35;
     this.max = options.max || 100;
     this.initPalette();
+
 }
 
 Intensity.prototype.initPalette = function () {
+
     var gradient = this.gradient;
 
     var paletteCanvas = document.createElement('canvas');
+
     paletteCanvas.width = 256;
     paletteCanvas.height = 1;
 
     var paletteCtx = this.paletteCtx = paletteCanvas.getContext('2d');
 
     var lineGradient = paletteCtx.createLinearGradient(0, 0, 256, 1);
+
     for (var key in gradient) {
         lineGradient.addColorStop(key, gradient[key]);
     }
 
     paletteCtx.fillStyle = lineGradient;
     paletteCtx.fillRect(0, 0, 256, 1);
+
 }
 
 Intensity.prototype.getColor = function (value) {
+
     var max = this.max;
 
     if (value > max) {
@@ -41,8 +48,11 @@ Intensity.prototype.getColor = function (value) {
     }
 
     var index = Math.floor(value / max * (256 - 1)) * 4;
+
     var imageData = this.paletteCtx.getImageData(0, 0, 256, 1).data;
+
     return "rgba(" + imageData[index] + ", " + imageData[index + 1] + ", " + imageData[index + 2] + ", " + imageData[index + 3] / 256 + ")";
+
 }
 
 /**
@@ -64,6 +74,7 @@ Intensity.prototype.getSize = function (value) {
     size = value / max * maxSize;
 
     return size;
+
 }
 
 export default Intensity;
