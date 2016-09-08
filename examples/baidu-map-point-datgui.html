@@ -35,7 +35,7 @@
         var map = new BMap.Map("map", {
             enableMapClick: false
         });    // 创建Map实例
-        map.centerAndZoom(new BMap.Point(106.962497, 38.208726), 5);  // 初始化地图,设置中心点坐标和地图级别
+        map.centerAndZoom(new BMap.Point(105.403119, 38.028658), 5);  // 初始化地图,设置中心点坐标和地图级别
         map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
 
         map.setMapStyle({
@@ -66,10 +66,6 @@
             fillStyle: 'rgba(55, 50, 250, 0.6)',
             shadowColor: 'rgba(55, 50, 250, 0.5)',
             shadowBlur: 10,
-            methods: {
-                click: function (item) {
-                }
-            },
             size: 5,
             draw: 'simple'
         }
@@ -77,16 +73,20 @@
         var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
 
         var CustomOptions = function() {
-            this.size = 750;
+            this.size = 5;
             this.max = 100;
             this.draw = 'simple';
-            this.unit = 'm';
+            this.unit = 'px';
+            this.shadowColor = 'rgba(55, 50, 250, 0.9)';
+            this.shadowBlur = 10;
             this.fillStyle = '#ffae23';
             this.render = function () {
                 mapvLayer.update({
                     options: {
                         draw: this.draw,
                         max: this.max,
+                        shadowColor: this.shadowColor,
+                        shadowBlur: this.shadowBlur,
                         unit: this.unit,
                         size: this.size,
                         fillStyle: this.fillStyle
@@ -98,11 +98,13 @@
         window.onload = function() {
             var customOptions = new CustomOptions();
             var gui = new dat.GUI();
-            gui.add(customOptions, 'unit').onFinishChange(finished);
+            gui.add(customOptions, 'unit', ['m', 'px']).onFinishChange(finished);
             gui.add(customOptions, 'size', 1, 10000).onFinishChange(finished);
             gui.add(customOptions, 'max', 1, 500000000).onFinishChange(finished);
             gui.add(customOptions, 'draw', [ 'simple', 'heatmap', 'category', 'honeycomb', 'grid', 'choropleth', 'intensity'] ).onFinishChange(finished);
             gui.addColor(customOptions, 'fillStyle').onFinishChange(finished);
+            gui.addColor(customOptions, 'shadowColor').onFinishChange(finished);
+            gui.add(customOptions, 'shadowBlur', 1, 100).onFinishChange(finished);
             gui.add(customOptions, 'render').onFinishChange(finished);
             function finished() {
                 customOptions.render();
