@@ -187,12 +187,25 @@
             }]
         });
 
-        var data = [];
 
-        $.get('data/china-point.json', function (rs) {
+        $.get('data/weibo.json', function (rs) {
+            var data1 = [];
+            var data2 = [];
+            var data3 = [];
+            var data4 = [];
             for (var i = 0; i < rs[0].length; i++) {
                 var geoCoord = rs[0][i].geoCoord;
-                data.push({
+                data1.push({
+                    geometry: {
+                        type: 'Point',
+                        coordinates: geoCoord 
+                    }
+                });
+            }
+
+            for (var i = 0; i < rs[1].length; i++) {
+                var geoCoord = rs[1][i].geoCoord;
+                data2.push({
                     geometry: {
                         type: 'Point',
                         coordinates: geoCoord 
@@ -201,16 +214,44 @@
                 });
             }
 
-            var dataSet = new mapv.DataSet(data);
+            for (var i = 0; i < rs[2].length; i++) {
+                var geoCoord = rs[2][i].geoCoord;
+                data3.push({
+                    geometry: {
+                        type: 'Point',
+                        coordinates: geoCoord 
+                    },
+                });
+            }
+
+            var dataSet = new mapv.DataSet(data1);
             var options = {
-                fillStyle: 'rgba(255, 250, 50, 0.6)',
-                //shadowColor: 'rgba(255, 250, 50, 0.5)',
-                //shadowBlur: 3,
-                updateCallback: function (time) {
-                    time = time.toFixed(2);
-                    $('#time').html('时间' + time);
-                },
-                size: 3,
+                fillStyle: 'rgba(200, 200, 0, 0.8)',
+                size: 0.7,
+                draw: 'simple',
+            }
+            var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+            var dataSet = new mapv.DataSet(data2);
+            var options = {
+                fillStyle: 'rgba(255, 250, 0, 0.8)',
+                size: 0.7,
+                draw: 'simple',
+            }
+            var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+            var dataSet = new mapv.DataSet(data3);
+            var options = {
+                fillStyle: 'rgba(255, 250, 250, 0.6)',
+                size: 0.7,
+                draw: 'simple',
+            }
+            var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+            var dataSet = new mapv.DataSet(data2);
+            var options = {
+                fillStyle: 'rgba(255, 250, 250, 0.9)',
+                size: 1.1,
                 draw: 'time',
                 steps: 10,
                 trails: 1,
