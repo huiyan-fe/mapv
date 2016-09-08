@@ -73,10 +73,11 @@ map.setMapStyle({
 * icon 展示icon
 
 ### simple:
-[示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-simple.html)
+[示例地址](http://mapv.baidu.com/examples/#baidu-map-point-simple.html)
 dataSet中也可直接配置每个数据项的样式
 ```js
 {
+    draw: 'simple',
     geometry: {
         type: 'Point',
         coordinates: [123, 23]
@@ -88,9 +89,9 @@ dataSet中也可直接配置每个数据项的样式
 ```
 
 ### time:
-[点动画1](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-time.html)
-[点动画2](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-time1.html)
-[线动画](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-polyline-time.html)
+[点动画1](http://mapv.baidu.com/examples/#baidu-map-point-time.html)
+[点动画2](http://mapv.baidu.com/examples/#baidu-map-point-time1.html)
+[线动画](http://mapv.baidu.com/examples/#baidu-map-polyline-time.html)
 ```js
 {
     draw: 'time',
@@ -101,7 +102,7 @@ dataSet中也可直接配置每个数据项的样式
 ```
 
 ### heatmap:
-[示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-heatmap.html)
+[示例地址](http://mapv.baidu.com/examples/#baidu-map-point-heatmap.html)
 ```js
 var options = {
     draw: 'heatmap',
@@ -119,7 +120,7 @@ dataSet中加count字段，代表权重，根据上面配置用以计算它的�
 ```
 
 ### grid:
-[示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-grid.html)
+[示例地址](http://mapv.baidu.com/examples/#baidu-map-point-grid.html)
 ```js
 {
     draw: 'grid',
@@ -129,7 +130,7 @@ dataSet中加count字段，代表权重，根据上面配置用以计算它的�
 ```
 
 ### honeycomb:
-[示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-honeycomb.html)
+[示例地址](http://mapv.baidu.com/examples/#baidu-map-point-honeycomb.html)
 ```js
 {
     draw: 'honeycomb',
@@ -139,19 +140,21 @@ dataSet中加count字段，代表权重，根据上面配置用以计算它的�
 ```
 
 ### bubble对应的options:
-[示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-bubble.html)
+[示例地址](http://mapv.baidu.com/examples/#baidu-map-point-bubble.html)
 ```js
 {
-    max: 100 // 数值最大值范围
+    draw: 'bubble',
+    max: 100, // 数值最大值范围
     maxSize: 10, // 显示的圆最大半径大小
 }
 ```
 dataSet中加count字段，代表权重，根据上面配置用以计算它实际展示的大小
 
 ### intensity对应的options:
-[示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-intensity.html)
+[示例地址](http://mapv.baidu.com/examples/#baidu-map-point-intensity.html)
 ```js
 {
+    draw: 'intensity',
     gradient: { // 显示的颜色渐变范围$
         '0': 'blue',$
         '0.6': 'cyan',$
@@ -163,9 +166,10 @@ dataSet中加count字段，代表权重，根据上面配置用以计算它实�
 ```
 
 ### category对应的options:
-[示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-category.html)
+[示例地址](http://mapv.baidu.com/examples/#baidu-map-point-category.html)
 ```js
 {
+    draw: 'category',
     splitList: { // 按对应的值按相应颜色展示
         other: 'rgba(255, 255, 0, 0.8)',
         1: 'rgba(253, 98, 104, 0.8)',
@@ -179,9 +183,10 @@ dataSet中加count字段，代表权重，根据上面配置用以计算它实�
 ```
 
 ### choropleth对应的options:
-[示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-choropleth.html)
+[示例地址](http://mapv.baidu.com/examples/#baidu-map-point-choropleth.html)
 ```js
 {
+    draw: 'choropleth',
     // 按数值区间来展示不同颜色的点
     splitList: [
         {
@@ -209,7 +214,7 @@ dataSet中加count字段，代表权重，根据上面配置用以计算它实�
 ```
 
 ### icon对应的options:
-[示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-icon.html)
+[示例地址](http://mapv.baidu.com/examples/#baidu-map-point-icon.html)
 ```js
 {
     draw: 'icon',
@@ -223,7 +228,7 @@ dataSet中添加字段
 ```
 
 ### text对应的options:
-[示例地址](http://huiyan-fe.github.io/mapv/v2/examples/#baidu-map-point-text.html)
+[示例地址](http://mapv.baidu.com/examples/#baidu-map-point-text.html)
 ```js
 {
     draw: 'text',
@@ -240,6 +245,8 @@ dataSet中添加字段
 ```
 
 ## 方法
-### mapvLayer.update(options); // 修改配置
+### mapvLayer.update({
+    options: {} // 修改配置
+}); 
 ### mapvLayer.show(); // 显示图层
 ### mapvLayer.hide(); // 删除图层
