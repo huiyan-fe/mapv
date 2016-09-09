@@ -46,6 +46,7 @@ function Layer(map, dataSet, options) {
             update.call(canvasLayer, time);
         }, {
             steps: self.options.steps || 100,
+            stepsRange: self.options.stepsRange || 100,
             animationDuration: self.options.duration || 10
         });
         animator.start();

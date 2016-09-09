@@ -84,6 +84,9 @@ function Animator(callback, options) {
     this.options.loop = options.loop === undefined ? true : options.loop;
 
     this.steps(options.steps);
+    if (options.stepsRange && options.stepsRange.start !== undefined && options.stepsRange.end !== undefined) {
+        this.stepsRange(options.stepsRange.start, options.stepsRange.end);
+    }
 }
 
 Animator.prototype = {

@@ -1056,6 +1056,17 @@
       return data;
   };
 
+  DataSet.prototype.initGeometry = function (data, transferFn) {
+      this._data.forEach(function (item) {
+          if (!item.geometry && item.lng && item.lat) {
+              item.geometry = {
+                  type: 'Point',
+                  coordinates: [item.lng, item.lat]
+              };
+          }
+      });
+  };
+
   var drawSimple = {
       draw: function draw(context, dataSet, options) {
           var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
@@ -1192,7 +1203,8 @@
       var dataOrderByAlpha = {};
 
       data.forEach(function (item, index) {
-          var alpha = Math.min(1, item.count / max).toFixed(2);
+          var count = item.count === undefined ? 1 : item.count;
+          var alpha = Math.min(1, count / max).toFixed(2);
           dataOrderByAlpha[alpha] = dataOrderByAlpha[alpha] || [];
           dataOrderByAlpha[alpha].push(item);
       });
@@ -1208,7 +1220,8 @@
               var coordinates = item.geometry._coordinates || item.geometry.coordinates;
               var type = item.geometry.type;
               if (type === 'Point') {
-                  context.globalAlpha = item.count / max;
+                  var count = item.count === undefined ? 1 : item.count;
+                  context.globalAlpha = count / max;
                   context.drawImage(circle, coordinates[0] - circle.width / 2, coordinates[1] - circle.height / 2);
               } else if (type === 'LineString') {
                   pathSimple.draw(context, item, options);
@@ -2147,6 +2160,9 @@
       this.options.loop = options.loop === undefined ? true : options.loop;
 
       this.steps(options.steps);
+      if (options.stepsRange && options.stepsRange.start !== undefined && options.stepsRange.end !== undefined) {
+          this.stepsRange(options.stepsRange.start, options.stepsRange.end);
+      }
   }
 
   Animator.prototype = {
@@ -2490,6 +2506,7 @@
               update.call(canvasLayer, time);
           }, {
               steps: self.options.steps || 100,
+              stepsRange: self.options.stepsRange || 100,
               animationDuration: self.options.duration || 10
           });
           animator.start();

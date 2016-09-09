@@ -69,7 +69,8 @@ function drawGray(context, dataSet, options) {
     var dataOrderByAlpha = {};
 
     data.forEach(function(item, index) {
-        var alpha = Math.min(1, item.count / max).toFixed(2);
+        var count = item.count === undefined ? 1 : item.count;
+        var alpha = Math.min(1, count / max).toFixed(2);
         dataOrderByAlpha[alpha] = dataOrderByAlpha[alpha] || [];
         dataOrderByAlpha[alpha].push(item);
     });
@@ -85,7 +86,8 @@ function drawGray(context, dataSet, options) {
             var coordinates = item.geometry._coordinates || item.geometry.coordinates;
             var type = item.geometry.type;
             if (type === 'Point') {
-                context.globalAlpha = item.count / max;
+                var count = item.count === undefined ? 1 : item.count;
+                context.globalAlpha = count / max;
                 context.drawImage(circle, coordinates[0] - circle.width / 2, coordinates[1] - circle.height / 2);
             } else if (type === 'LineString') {
                 pathSimple.draw(context, item, options);

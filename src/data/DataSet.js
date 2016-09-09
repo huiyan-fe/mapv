@@ -194,6 +194,17 @@ DataSet.prototype.transferCoordinate = function(data, transferFn) {
     return data;
 };
 
+DataSet.prototype.initGeometry = function(data, transferFn) {
+    this._data.forEach(function (item) {
+        if (!item.geometry && item.lng && item.lat) {
+            item.geometry = {
+                type: 'Point',
+                coordinates: [item.lng, item.lat]
+            }
+        }
+    });
+}
+
 function deepCopy(obj) {
     var newObj;
     if (typeof obj == 'object') {
