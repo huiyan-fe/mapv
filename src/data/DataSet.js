@@ -194,15 +194,21 @@ DataSet.prototype.transferCoordinate = function(data, transferFn) {
     return data;
 };
 
-DataSet.prototype.initGeometry = function(data, transferFn) {
-    this._data.forEach(function (item) {
-        if (!item.geometry && item.lng && item.lat) {
-            item.geometry = {
-                type: 'Point',
-                coordinates: [item.lng, item.lat]
+DataSet.prototype.initGeometry = function(transferFn) {
+    if (transferFn) {
+        this._data.forEach(function (item) {
+            item.geometry = transferFn(item);
+        });
+    } else {
+        this._data.forEach(function (item) {
+            if (!item.geometry && item.lng && item.lat) {
+                item.geometry = {
+                    type: 'Point',
+                    coordinates: [item.lng, item.lat]
+                }
             }
-        }
-    });
+        });
+    }
 }
 
 function deepCopy(obj) {
