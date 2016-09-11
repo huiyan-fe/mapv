@@ -146,6 +146,7 @@
    *                             {Object} gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"}
    */
   function Intensity(options) {
+
       options = options || {};
       this.gradient = options.gradient || { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)" };
       this.maxSize = options.maxSize || 35;
@@ -154,15 +155,18 @@
   }
 
   Intensity.prototype.initPalette = function () {
+
       var gradient = this.gradient;
 
       var paletteCanvas = document.createElement('canvas');
+
       paletteCanvas.width = 256;
       paletteCanvas.height = 1;
 
       var paletteCtx = this.paletteCtx = paletteCanvas.getContext('2d');
 
       var lineGradient = paletteCtx.createLinearGradient(0, 0, 256, 1);
+
       for (var key in gradient) {
           lineGradient.addColorStop(key, gradient[key]);
       }
@@ -172,6 +176,7 @@
   };
 
   Intensity.prototype.getColor = function (value) {
+
       var max = this.max;
 
       if (value > max) {
@@ -179,7 +184,9 @@
       }
 
       var index = Math.floor(value / max * (256 - 1)) * 4;
+
       var imageData = this.paletteCtx.getImageData(0, 0, 256, 1).data;
+
       return "rgba(" + imageData[index] + ", " + imageData[index + 1] + ", " + imageData[index + 2] + ", " + imageData[index + 3] / 256 + ")";
   };
 
@@ -1049,6 +1056,23 @@
       return data;
   };
 
+  DataSet.prototype.initGeometry = function (transferFn) {
+      if (transferFn) {
+          this._data.forEach(function (item) {
+              item.geometry = transferFn(item);
+          });
+      } else {
+          this._data.forEach(function (item) {
+              if (!item.geometry && item.lng && item.lat) {
+                  item.geometry = {
+                      type: 'Point',
+                      coordinates: [item.lng, item.lat]
+                  };
+              }
+          });
+      }
+  };
+
   var drawSimple = {
       draw: function draw(context, dataSet, options) {
           var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
@@ -1185,7 +1209,8 @@
       var dataOrderByAlpha = {};
 
       data.forEach(function (item, index) {
-          var alpha = Math.min(1, item.count / max).toFixed(2);
+          var count = item.count === undefined ? 1 : item.count;
+          var alpha = Math.min(1, count / max).toFixed(2);
           dataOrderByAlpha[alpha] = dataOrderByAlpha[alpha] || [];
           dataOrderByAlpha[alpha].push(item);
       });
@@ -1201,7 +1226,8 @@
               var coordinates = item.geometry._coordinates || item.geometry.coordinates;
               var type = item.geometry.type;
               if (type === 'Point') {
-                  context.globalAlpha = item.count / max;
+                  var count = item.count === undefined ? 1 : item.count;
+                  context.globalAlpha = count / max;
                   context.drawImage(circle, coordinates[0] - circle.width / 2, coordinates[1] - circle.height / 2);
               } else if (type === 'LineString') {
                   pathSimple.draw(context, item, options);
@@ -2140,6 +2166,9 @@
       this.options.loop = options.loop === undefined ? true : options.loop;
 
       this.steps(options.steps);
+      if (options.stepsRange && options.stepsRange.start !== undefined && options.stepsRange.end !== undefined) {
+          this.stepsRange(options.stepsRange.start, options.stepsRange.end);
+      }
   }
 
   Animator.prototype = {
@@ -2483,6 +2512,7 @@
               update.call(canvasLayer, time);
           }, {
               steps: self.options.steps || 100,
+              stepsRange: self.options.stepsRange || 100,
               animationDuration: self.options.duration || 10
           });
           animator.start();

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="../build/mapv.js"></script>
+
+    <script type="text/javascript">
+
+        // 百度地图API功能
+        var map = new BMap.Map("map", {
+            enableMapClick: false
+        });    // 创建Map实例
+        map.centerAndZoom(new BMap.Point(105.403119, 38.028658), 5);  // 初始化地图,设置中心点坐标和地图级别
+        map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+
+        map.setMapStyle({
+            styleJson: [
+                {
+                    "featureType": "all",
+                    "elementType": "all",
+                    "stylers": {
+                        "lightness": 61,
+                        "saturation": -100
+                    }
+                },
+                {
+                    "featureType": "road",
+                    "elementType": "labels",
+                    "stylers": {
+                        "visibility": "off"
+                    }
+                }
+            ]
+        });
+
+
+        $.get('data/drive.txt', function(result) {
+
+            var options = {
+                zIndex: 10,
+                lineWidth: 3,
+                strokeStyle: 'red',
+                shadowClor: 'red',
+                shadowBlur: 10,
+                draw: 'simple'
+            }
+
+            result = result.split("\n");
+            var data = [];
+            for (var i = 0; i < result.length; i++) {
+                var item = result[i];
+                var lineStr = item.split(',');
+                var coordinates = [];
+                for (var j = 0; j < lineStr.length; j += 2) {
+                    coordinates.push([lineStr[j], lineStr[j + 1]]);
+                }
+
+                data.push({
+                    geometry: {
+                        type: 'LineString',
+                        coordinates: coordinates
+                    }
+                });
+            }
+            var dataSet = new mapv.DataSet(data);
+            console.log(dataSet);
+
+            var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+        });
+
+
+        $.get('data/china.json', function(geojson) {
+
+            var options = {
+                globalAlpha: 0.9,
+                fillStyle: 'rgba(50, 50, 255, 0.05)',
+                lineWidth: 2,
+                strokeStyle: 'rgba(1, 161, 215, 0.8)',
+                max: 100,
+                draw: 'simple'
+            }
+
+            var dataSet = mapv.geojson.getDataSet(geojson);
+            var citys = {
+                '江苏': 80,
+                '辽宁': 80,
+                '河南': 80,
+                '云南': 80,
+                '四川': 80,
+                '北京': 80,
+                '天津': 80,
+                '河北': 80,
+                '上海': 80,
+                '广东': 80,
+            }
+            var data = dataSet.get({
+                filter: function (item) {
+                    if (!citys[item.name]) {
+                        return false;
+                    }
+
+                    item.count = citys[item.name];
+                    return true;
+                }
+            });
+            dataSet = new mapv.DataSet(data);
+
+            var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+        });
+    </script>
+	
+</body>
+</html>
