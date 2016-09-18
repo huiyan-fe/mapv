@@ -175,7 +175,10 @@ function CanvasLayer(opt_options) {
   }
 }
 
-if (window.google && window.google.maps) {
+
+var global = typeof window === 'undefined' ? {} : window;
+
+if (global.google && global.google.maps) {
 
 CanvasLayer.prototype = new google.maps.OverlayView();
 
@@ -223,13 +226,13 @@ CanvasLayer.CSS_TRANSFORM_ = (function() {
  * @private
  */
 CanvasLayer.prototype.requestAnimFrame_ =
-    window.requestAnimationFrame ||
-    window.webkitRequestAnimationFrame ||
-    window.mozRequestAnimationFrame ||
-    window.oRequestAnimationFrame ||
-    window.msRequestAnimationFrame ||
+    global.requestAnimationFrame ||
+    global.webkitRequestAnimationFrame ||
+    global.mozRequestAnimationFrame ||
+    global.oRequestAnimationFrame ||
+    global.msRequestAnimationFrame ||
     function(callback) {
-      return window.setTimeout(callback, 1000 / 60);
+      return global.setTimeout(callback, 1000 / 60);
     };
 
 /**
@@ -242,11 +245,11 @@ CanvasLayer.prototype.requestAnimFrame_ =
  * @private
  */
 CanvasLayer.prototype.cancelAnimFrame_ =
-    window.cancelAnimationFrame ||
-    window.webkitCancelAnimationFrame ||
-    window.mozCancelAnimationFrame ||
-    window.oCancelAnimationFrame ||
-    window.msCancelAnimationFrame ||
+    global.cancelAnimationFrame ||
+    global.webkitCancelAnimationFrame ||
+    global.mozCancelAnimationFrame ||
+    global.oCancelAnimationFrame ||
+    global.msCancelAnimationFrame ||
     function(requestId) {};
 
 /**
@@ -416,7 +419,7 @@ CanvasLayer.prototype.onRemove = function() {
 
   // cease canvas update callbacks
   if (this.requestAnimationFrameId_) {
-    this.cancelAnimFrame_.call(window, this.requestAnimationFrameId_);
+    this.cancelAnimFrame_.call(global, this.requestAnimationFrameId_);
     this.requestAnimationFrameId_ = null;
   }
 };
@@ -544,7 +547,7 @@ CanvasLayer.prototype.getTopLeft = function() {
 CanvasLayer.prototype.scheduleUpdate = function() {
   if (this.isAdded_ && !this.requestAnimationFrameId_) {
     this.requestAnimationFrameId_ =
-        this.requestAnimFrame_.call(window, this.requestUpdateFunction_);
+        this.requestAnimFrame_.call(global, this.requestUpdateFunction_);
   }
 };
 

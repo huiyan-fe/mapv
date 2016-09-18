@@ -8,7 +8,12 @@ import pathSimple from "../path/simple";
 
 function createCircle(size) {
 
-    var circle = document.createElement('canvas');
+    if (typeof document === 'undefined') {
+        var Canvas = require('canvas');
+        var circle = new Canvas();
+    } else {
+        var circle = document.createElement('canvas');
+    }
     var context = circle.getContext('2d');
     var shadowBlur = size / 2;
     var r2 = size + shadowBlur;
@@ -118,12 +123,12 @@ function draw(context, dataSet, options) {
         console.time('changeColor');
         var colored = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
         colorize(colored.data, utilsColorPalette.getImageData({
-            defaultGradient: options.gradient || {
-                0.25: "rgb(0,0,255)",
-                0.55: "rgb(0,255,0)",
-                0.85: "yellow",
-                1.0: "rgb(255,0,0)"
-            },
+            defaultGradient: options.gradient || { 
+                0.25: "rgba(0, 0, 255, 1)",
+                0.55: "rgba(0, 255, 0, 1)",
+                0.85: "rgba(255, 255, 0, 1)",
+                1.0: "rgba(255, 0, 0, 1)"
+            }
         }), options);
         console.timeEnd('changeColor');
         context.putImageData(colored, 0, 0);

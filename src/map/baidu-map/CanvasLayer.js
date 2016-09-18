@@ -18,7 +18,9 @@ function CanvasLayer(options) {
     this.show();
 }
 
-if (window.BMap) {
+var global = typeof window === 'undefined' ? {} : window;
+
+if (global.BMap) {
 
     CanvasLayer.prototype = new BMap.Overlay();
 
@@ -40,7 +42,7 @@ if (window.BMap) {
         var size = this._map.getSize();
         var canvas = this.canvas;
 
-        var devicePixelRatio = window.devicePixelRatio;
+        var devicePixelRatio = global.devicePixelRatio;
 
         canvas.width = size.width * devicePixelRatio;
         canvas.height = size.height * devicePixelRatio;

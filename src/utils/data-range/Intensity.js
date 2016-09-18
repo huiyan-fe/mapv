@@ -10,7 +10,12 @@
 function Intensity(options) {
 
     options = options || {};
-    this.gradient = options.gradient || { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"};
+    this.gradient = options.gradient || { 
+        0.25: "rgba(0, 0, 255, 1)",
+        0.55: "rgba(0, 255, 0, 1)",
+        0.85: "rgba(255, 255, 0, 1)",
+        1.0: "rgba(255, 0, 0, 1)"
+    };
     this.maxSize = options.maxSize || 35;
     this.max = options.max || 100;
     this.initPalette();
@@ -21,7 +26,12 @@ Intensity.prototype.initPalette = function () {
 
     var gradient = this.gradient;
 
-    var paletteCanvas = document.createElement('canvas');
+    if (typeof document === 'undefined') {
+        var Canvas = require('canvas');
+        var paletteCanvas = new Canvas(256, 1);
+    } else {
+        var paletteCanvas = document.createElement('canvas');
+    }
 
     paletteCanvas.width = 256;
     paletteCanvas.height = 1;
@@ -31,7 +41,7 @@ Intensity.prototype.initPalette = function () {
     var lineGradient = paletteCtx.createLinearGradient(0, 0, 256, 1);
 
     for (var key in gradient) {
-        lineGradient.addColorStop(key, gradient[key]);
+        lineGradient.addColorStop(parseFloat(key), gradient[key]);
     }
 
     paletteCtx.fillStyle = lineGradient;

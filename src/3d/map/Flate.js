@@ -1,15 +1,10 @@
 
 import Intensity from "../../utils/data-range/Intensity";
 
-var intensity = new Intensity({
-    gradient: {
-        0: '#006bab',
-        1: '#002841',
-    },
-    max: 100
-});
+
 
 function Flate (container) {
+    
     this.container = container;
     this.init();
 
@@ -31,6 +26,14 @@ function Flate (container) {
 }
 
 Flate.prototype.init = function () {
+    this.intensity = new Intensity({
+        gradient: {
+            0: '#006bab',
+            1: '#002841',
+        },
+        max: 100
+    });
+
     var WIDTH = this.container.offsetWidth;
     var HEIGHT = this.container.offsetHeight;
     var camera = this.camera = new THREE.PerspectiveCamera( 40, WIDTH / HEIGHT, 0.01, 9000 );
@@ -187,7 +190,7 @@ Flate.prototype.addShape = function (coords) {
     var geometry = new THREE.ShapeGeometry( shape );
 
     var color = 'rgb(' + ~~(Math.random() * 256) + ', ' + ~~(Math.random() * 256) + ', ' + ~~(Math.random() * 256) + ')';
-    color = intensity.getColor(Math.random() * 100);
+    color = this.intensity.getColor(Math.random() * 100);
     var mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: color, side: THREE.DoubleSide} ) );
     mesh.position.set( 0, 0, 0 );
     this.group.add(mesh);

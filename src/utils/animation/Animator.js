@@ -48,7 +48,7 @@ function linear(a, b) {
 }
 
 
-var global = window;
+var global = typeof window === 'undefined' ? {} : window;
 
 var requestAnimationFrame = global.requestAnimationFrame
     || global.mozRequestAnimationFrame
