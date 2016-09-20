@@ -357,12 +357,15 @@
 
             var timeOptions = {
                 fillStyle: 'rgba(255, 250, 250, 0.5)',
-                steps: 100,
                 zIndex: 200,
                 size: 2.5,
-                trails: 5,
-                duration: 5,
-                draw: 'time'
+                animation: {
+                    type: 'time',
+                    trails: 5,
+                    duration: 5,
+                    steps: 100,
+                },
+                draw: 'simple'
             }
 
             var timeMapvLayer = new mapv.baiduMapLayer(map, timeDataSet, timeOptions);

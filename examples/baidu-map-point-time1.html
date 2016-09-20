@@ -211,10 +211,13 @@
                     $('#time').html('时间' + time);
                 },
                 size: 3,
-                draw: 'time',
-                steps: 10,
-                trails: 1,
-                duration: 6,
+                draw: 'simple',
+                animation: {
+                    type: 'time',
+                    steps: 10,
+                    trails: 1,
+                    duration: 6,
+                }
             }
             var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
         });

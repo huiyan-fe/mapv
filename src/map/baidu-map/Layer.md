@@ -55,7 +55,16 @@ map.setMapStyle({
     shadowOffsetY: 0,
     lineCap: 'butt',
     lineJoin: 'miter',
-    miterLimit: 10
+    miterLimit: 10,
+    animation: {
+        type: 'time', // 按时间展示动画
+        stepsRange: { // 动画时间范围,time字段中值
+            start: 0,
+            end: 100
+        },
+        trails: 10, // 时间动画的拖尾大小
+        duration: 5, // 单个动画的时间，单位秒
+    }
 }
 ```
 
@@ -87,20 +96,6 @@ dataSet中也可直接配置每个数据项的样式
     strokeStyle: 'red' // 线数据时候使用
 }
 ```
-
-### time:
-[点动画1](http://mapv.baidu.com/examples/#baidu-map-point-time.html)
-[点动画2](http://mapv.baidu.com/examples/#baidu-map-point-time1.html)
-[线动画](http://mapv.baidu.com/examples/#baidu-map-polyline-time.html)
-```js
-{
-    draw: 'time',
-    steps: 100, // 时间动画的帧数
-    trails: 10, // 时间动画的拖尾大小
-    duration: 5, // 单个动画的时间，单位秒
-}
-```
-
 ### heatmap:
 [示例地址](http://mapv.baidu.com/examples/#baidu-map-point-heatmap.html)
 ```js
@@ -243,6 +238,27 @@ dataSet中添加字段
     text: '文本内容' 
 }
 ```
+
+## animation:
+[点动画1](http://mapv.baidu.com/examples/#baidu-map-point-time.html)
+[点动画2](http://mapv.baidu.com/examples/#baidu-map-point-time1.html)
+[线动画](http://mapv.baidu.com/examples/#baidu-map-polyline-time.html)
+```js
+{
+    draw: 'simple',
+    animation: {
+        type: 'time', // 按时间展示动画
+        stepsRange: { // 动画时间范围,time字段中值
+            start: 0,
+            end: 100
+        },
+        trails: 10, // 时间动画的拖尾大小
+        duration: 5, // 单个动画的时间，单位秒
+    }
+}
+```
+
+
 
 ## 方法
 ### mapvLayer.update({

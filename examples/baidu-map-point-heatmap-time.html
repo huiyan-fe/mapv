@@ -62,9 +62,9 @@
         var dataSet = new mapv.DataSet(data);
 
         var options = {
-            fillStyle: 'rgba(55, 50, 250, 0.2)',
-            globalCompositeOperation: "lighter",
-            size: 15,
+            size: 13,
+            gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
+            max: 60,
             animation: {
                 type: 'time',
                 stepsRange: {
@@ -75,7 +75,7 @@
                 trails: 10,
                 duration: 5,
             },
-            draw: 'simple'
+            draw: 'heatmap'
         }
 
         var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);

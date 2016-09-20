@@ -5,6 +5,10 @@ var config = {
             pic: 'baidu-map-point-simple.jpg'
         },
         {
+            url: 'baidu-map-point-heatmap-time.html',
+            pic: 'baidu-map-point-heatmap-time.gif'
+        },
+        {
             url: 'baidu-map-forceEdgeBundling.html',
             pic: 'baidu-map-forceEdgeBundling.jpg'
         },

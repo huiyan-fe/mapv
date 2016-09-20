@@ -253,10 +253,12 @@
             var options = {
                 fillStyle: 'rgba(255, 250, 250, 0.9)',
                 size: 1.1,
-                draw: 'time',
-                steps: 10,
-                trails: 1,
-                duration: 6,
+                draw: 'simple',
+                animation: {
+                    steps: 10,
+                    trails: 1,
+                    duration: 6,
+                }
             }
             var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
         });

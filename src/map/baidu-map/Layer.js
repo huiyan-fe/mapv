@@ -41,13 +41,19 @@ function Layer(map, dataSet, options) {
         canvasLayer.draw();
     });
 
-    if (self.options.draw == 'time') {
+    var animationOptions = self.options.animation;
+    var isEnabledTime = (
+        animationOptions 
+        && !(animationOptions.enabled === false) 
+    );
+
+    if (self.options.draw == 'time' || isEnabledTime) {
         var animator = new Animator(function(time) {
             update.call(canvasLayer, time);
         }, {
-            steps: self.options.steps || 100,
-            stepsRange: self.options.stepsRange || 100,
-            animationDuration: self.options.duration || 10
+            steps: animationOptions.steps || 100,
+            stepsRange: animationOptions.stepsRange || 100,
+            animationDuration: animationOptions.duration || 10
         });
         animator.start();
 
@@ -73,7 +79,7 @@ function Layer(map, dataSet, options) {
         //console.time('update')
         var context = this.canvas.getContext("2d");
 
-        if (self.options.draw == 'time') {
+        if (isEnabledTime) {
             if (time === undefined) {
                 return;
             }
@@ -112,7 +118,7 @@ function Layer(map, dataSet, options) {
 
         if (time !== undefined) {
             dataGetOptions.filter = function(item) {
-                var trails = self.options.trails || 5;
+                var trails = animationOptions.trails || 5;
                 if (time && item.time > (time - trails) && item.time < time) {
                     return true;
                 } else {
