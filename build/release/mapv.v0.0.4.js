@@ -4,7 +4,7 @@
   (factory((global.mapv = global.mapv || {})));
 }(this, function (exports) { 'use strict';
 
-  var version = "0.0.5";
+  var version = "0.0.3";
 
   var classCallCheck = function (instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -2530,16 +2530,13 @@
           canvasLayer.draw();
       });
 
-      var animationOptions = self.options.animation;
-      var isEnabledTime = animationOptions && !(animationOptions.enabled === false);
-
-      if (self.options.draw == 'time' || isEnabledTime) {
+      if (self.options.draw == 'time') {
           var animator = new Animator(function (time) {
               update.call(canvasLayer, time);
           }, {
-              steps: animationOptions.steps || 100,
-              stepsRange: animationOptions.stepsRange || 100,
-              animationDuration: animationOptions.duration || 10
+              steps: self.options.steps || 100,
+              stepsRange: self.options.stepsRange || 100,
+              animationDuration: self.options.duration || 10
           });
           animator.start();
 
@@ -2563,7 +2560,7 @@
           //console.time('update')
           var context = this.canvas.getContext("2d");
 
-          if (isEnabledTime) {
+          if (self.options.draw == 'time') {
               if (time === undefined) {
                   return;
               }
@@ -2602,7 +2599,7 @@
 
           if (time !== undefined) {
               dataGetOptions.filter = function (item) {
-                  var trails = animationOptions.trails || 5;
+                  var trails = self.options.trails || 5;
                   if (time && item.time > time - trails && item.time < time) {
                       return true;
                   } else {

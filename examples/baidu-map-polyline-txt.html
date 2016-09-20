@@ -17,12 +17,25 @@
             width: 100%;
             height: 100%;
         }
+
+        .panel {
+            position:absolute;
+            left: 0;
+            top: 0;
+            background:rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            width: 200px;
+        }
     </style>
 </head>
 <body>
 
     <div id="map"></div>
     <canvas id="canvas"></canvas>
+    <div class="panel">
+        <input type="text" id="boundaryTxt" value="北京,天津,河北"/>
+        <input type="button" value="添加边界" id="addBoundaryBtn"/>
+    </div>
 
     <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
@@ -87,13 +100,13 @@
                 });
             }
             var dataSet = new mapv.DataSet(data);
-            console.log(dataSet);
 
             var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
 
         });
 
 
+        /*
         $.get('data/china.json', function(geojson) {
 
             var options = {
@@ -133,7 +146,57 @@
             var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
 
         });
-    </script>
+        */
+
+        $('#addBoundaryBtn').bind('click', function () {
+            var boundaryTxt = $('#boundaryTxt').val();
+            if (boundaryTxt) {
+                boundaryTxt = boundaryTxt.split(',');
+                for (var i = 0; i < boundaryTxt.length; i++) {
+                    getBoundary(boundaryTxt[i]);
+                }
+            }
+        });
+
+        var bdData = [];
+
+        function getBoundary(cityname){
+            var bdary = new BMap.Boundary();
+            bdary.get(cityname, function(rs){ // 异步加载
+                var boundary = rs.boundaries[0];
+                boundary = boundary.split(";");
+                var coordinates = [];
+                for (var i = 0; i < boundary.length; i++) {
+                    boundary[i] = boundary[i].split(",");
+                    coordinates.push(boundary[i]);
+                }
+
+                bdData.push({
+                    geometry: {
+                        type: 'LineString',
+                        coordinates: coordinates
+                    }
+                });
+                bdDataSet.set(bdData);
+                console.log(bdDataSet);
+            });
+        }
+
+        var bdOptions = {
+            globalAlpha: 0.9,
+            fillStyle: 'rgba(50, 50, 255, 0.05)',
+            lineWidth: 2,
+            strokeStyle: 'rgba(1, 161, 215, 0.8)',
+            max: 100,
+            draw: 'simple'
+        }
+
+
+        var bdDataSet = new mapv.DataSet(bdData);
+
+        var mapvLayer = new mapv.baiduMapLayer(map, bdDataSet, bdOptions);
+
+</script>
 	
 </body>
 </html>

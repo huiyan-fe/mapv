@@ -1,6 +1,14 @@
 var config = {
     demos: [
         {
+            url: 'baidu-map-point-simple.html',
+            pic: 'baidu-map-point-simple.jpg'
+        },
+        {
+            url: 'baidu-map-point-heatmap-time.html',
+            pic: 'baidu-map-point-heatmap-time.gif'
+        },
+        {
             url: 'baidu-map-forceEdgeBundling.html',
             pic: 'baidu-map-forceEdgeBundling.jpg'
         },
@@ -27,10 +35,6 @@ var config = {
         {
             url: 'csv-car.html',
             pic: 'csv-car.jpg'
-        },
-        {
-            url: 'baidu-map-point-simple.html',
-            pic: 'baidu-map-point-simple.jpg'
         },
         {
             url: 'poi-yiheyuan-meishi.html',

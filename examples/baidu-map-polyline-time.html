@@ -229,11 +229,13 @@
                 fillStyle: 'rgba(255, 250, 250, 0.2)',
                 coordType: 'bd09mc',
                 globalCompositeOperation: "lighter",
-                steps: 100,
                 size: 1.5,
-                trails: 1,
-                duration: 5,
-                draw: 'time'
+                animation: {
+                    steps: 100,
+                    trails: 1,
+                    duration: 5,
+                },
+                draw: 'simple'
             }
 
             var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
