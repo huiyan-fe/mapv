@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="js/dat.gui.min.js"></script>
+    <script type="text/javascript" src="../build/mapv.js"></script>
+
+    <script type="text/javascript">
+
+        // 百度地图API功能
+        var map = new BMap.Map("map", {
+            enableMapClick: false
+        });    // 创建Map实例
+        map.centerAndZoom(new BMap.Point(104.078115,30.589212), 12);  // 初始化地图,设置中心点坐标和地图级别
+        map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+
+        map.setMapStyle({
+            style: 'grayscale'
+        });
+
+        var mapvLayer = null;
+
+        $.get('data/point-mc.csv', function(csvstr) {
+
+            var options = {
+                size: 300,
+                unit: 'm',
+                zIndex: 2,
+                gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
+                max: 30,
+                fillStyle: 'blue',
+                coordType: 'bd09mc',
+                draw: 'heatmap'
+            }
+
+            var dataSet = mapv.csv.getDataSet(csvstr);
+            dataSet.initGeometry();
+
+            console.log(dataSet);
+
+            mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+        });
+
+        var CustomOptions = function() {
+            this.size = 300;
+            this.max = 30;
+            this.draw = 'heatmap';
+            this.unit = 'm';
+            this.fillStyle = '#ffae23';
+            this.render = function () {
+                mapvLayer.update({
+                    options: {
+                        draw: this.draw,
+                        max: this.max,
+                        unit: this.unit,
+                        size: this.size,
+                        fillStyle: this.fillStyle
+                    }
+                })
+            }
+        };
+
+        window.onload = function() {
+            var customOptions = new CustomOptions();
+            var gui = new dat.GUI();
+            gui.add(customOptions, 'unit', ['m', 'px']).onFinishChange(finished);
+            gui.add(customOptions, 'size', 1, 500).onFinishChange(finished);
+            gui.add(customOptions, 'max', 1, 200).onFinishChange(finished);
+            gui.add(customOptions, 'draw', [ 'simple', 'heatmap', 'category', 'honeycomb', 'grid', 'choropleth', 'intensity'] ).onFinishChange(finished);
+            gui.addColor(customOptions, 'fillStyle').onFinishChange(finished);
+            gui.add(customOptions, 'render').onFinishChange(finished);
+            function finished() {
+                customOptions.render();
+            };
+        };
+
+
+        var data = [];
+        var strs = "11594951.03,3553491.69,11595686.98,3554611.67,11596327.07,3555283.69,11597095.07,3556435.74,11598215.07,3558003.76,11599431.02,3559443.68,11601639.07,3561363.7,11604967,3560179.65,11606695.03,3559155.68,11609223.02,3558931.77,11611367.05,3558835.78,11612583.01,3558163.7,11610247.06,3553939.7,11608487.08,3551411.75,11604583.06,3546547.67,11603238.97,3544339.72,11599495.03,3548371.7";
+        strs = strs.split(',');
+        var coordinates = [];
+        for (var i = 0; i < strs.length; i += 2) {
+            coordinates.push([strs[i], strs[i + 1]]);
+        }
+        data.push({
+            geometry: {
+                type: 'Polygon',
+                coordinates: [coordinates]
+            }
+        });
+        console.log(data);
+
+        var dataSet = new mapv.DataSet(data);
+
+        var options = {
+            zIndex: 1,
+            fillStyle: 'rgba(255, 250, 50, 0.05)',
+            strokeStyle: 'rgba(255, 50, 50, 1)',
+            shadowColor: 'rgba(255, 250, 50, 1)',
+            coordType: 'bd09mc',
+            shadowBlur: 20,
+            lineWidth: 3,
+            draw: 'simple'
+        }
+
+        new mapv.baiduMapLayer(map, dataSet, options);
+
+    </script>
+	
+</body>
+</html>
