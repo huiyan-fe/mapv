@@ -34,7 +34,7 @@
         var map = new BMap.Map("map", {
             enableMapClick: false
         });    // 创建Map实例
-        map.centerAndZoom(new BMap.Point(120.398356, 36.091259), 14);  // 初始化地图,设置中心点坐标和地图级别
+        map.centerAndZoom(new BMap.Point(120.398356, 36.091259), 13);  // 初始化地图,设置中心点坐标和地图级别
         map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
 
         map.setMapStyle({
@@ -51,18 +51,18 @@
         });
 
         var boundaryCount = {
-            '市南区':544800,
-            '市北区':558200,
-            '四方区':462500,
-            '李沧区':512400,
-            '崂山区':379500,
-            '城阳区':737200,
-            '黄岛区':524200,
-            '胶州市':843100,
-            '即墨市':1177200,
-            '平度市':1357400,
-            '胶南市':868400,
-            '莱西市':750200,
+            '市南区':5448,
+            '市北区':5582,
+            '四方区':4625,
+            '李沧区':5124,
+            '崂山区':3795,
+            '城阳区':7372,
+            '黄岛区':5242,
+            '胶州市':8431,
+            '即墨市':11772,
+            '平度市':13574,
+            '胶南市':8684,
+            '莱西市':7502,
         }
 
         var bdData = [];
@@ -141,7 +141,7 @@
         var bdOptions = {
             globalAlpha: 0.3,
             lineWidth: 2,
-            max: 1357400,
+            max: 13574,
             gradient: {
                 0: 'lightblue',
                 1: 'red'
@@ -173,7 +173,8 @@
         $.get('data/wanxiangcheng.csv', function(csvstr) {
         
             var options = {
-                size: 300,
+                size: 800,
+                globalAlpha: 0.6,
                 unit: 'm',
                 zIndex: 2,
                 max: 6,
@@ -184,7 +185,7 @@
                     1.0: "rgba(255,0,0,0.6)"
                 },
                 coordType: 'bd09mc',
-                draw: 'heatmap'
+                draw: 'honeycomb'
             }
 
             var dataSet = mapv.csv.getDataSet(csvstr);
