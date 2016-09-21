@@ -61,6 +61,10 @@ var config = {
             pic: 'baidu-map-point-honeycomb.jpg'
         },
         {
+            url: 'wanxiangcheng.html',
+            pic: 'wanxiangcheng.jpg'
+        },
+        {
             url: 'baidu-map-point-icon.html',
             pic: 'baidu-map-point-icon.jpg'
         },
@@ -79,6 +83,10 @@ var config = {
         {
             url: 'baidu-map-polygon-simple.html',
             pic: 'baidu-map-polygon-simple.jpg'
+        },
+        {
+            url: 'baidu-map-polygon-clip.html',
+            pic: 'baidu-map-polygon-clip.jpg'
         },
         {
             url: 'baidu-map-polyline-heatmap.html',
