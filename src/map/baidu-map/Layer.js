@@ -15,6 +15,7 @@ import Intensity from "../../utils/data-range/Intensity";
 import Category from "../../utils/data-range/Category";
 import Choropleth from "../../utils/data-range/Choropleth";
 import Animator from "../../utils/animation/Animator";
+import pathSimple from "../../canvas/path/simple";
 
 function Layer(map, dataSet, options) {
     if (!(dataSet instanceof DataSet)) {
@@ -178,6 +179,11 @@ function Layer(map, dataSet, options) {
                 break;
             case 'grid':
             case 'honeycomb':
+                /*
+                if (data.length <= 0) {
+                    break;
+                }
+
                 var minx = data[0].geometry.coordinates[0];
                 var maxy = data[0].geometry.coordinates[1];
                 for (var i = 1; i < data.length; i++) {
@@ -185,6 +191,8 @@ function Layer(map, dataSet, options) {
                     maxy = Math.max(data[i].geometry.coordinates[1], maxy);
                 }
                 var nwPixel = map.pointToPixel(new BMap.Point(minx, maxy));
+                */
+                var nwPixel = map.pointToPixel(new BMap.Point(0, 0));
                 self.options.offset = {
                     x: nwPixel.x,
                     y: nwPixel.y
@@ -200,6 +208,17 @@ function Layer(map, dataSet, options) {
                 break;
             case 'icon':
                 drawIcon.draw(context, new DataSet(data), self.options);
+                break;
+            case 'clip':
+                context.save();
+                context.fillStyle = options.fillStyle || 'rgba(0, 0, 0, 0.5)';
+                context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+                drawSimple.draw(context, data, self.options);
+                context.beginPath();
+                pathSimple.drawDataSet(context, new DataSet(data), self.options); 
+                context.clip();
+                clear(context);
+                context.restore();
                 break;
             default:
                 drawSimple.draw(context, data, self.options);

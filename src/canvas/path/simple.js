@@ -2,8 +2,20 @@
  * @author kyle / http://nikai.us/
  */
 
+import DataSet from "../../data/DataSet";
+
 export default {
-    draw: function(context, data, options) {
+    drawDataSet: function (context, dataSet, options) {
+
+        var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
+
+        for (var i = 0, len = data.length; i < len; i++) {
+            var item = data[i];
+            this.draw(context, item, options);
+        }
+
+    },
+    draw: function (context, data, options) {
         var type = data.geometry.type;
         var coordinates = data.geometry._coordinates || data.geometry.coordinates;
         switch (type) {
