@@ -753,63 +753,6 @@
       context.scale(devicePixelRatio, devicePixelRatio);
   }
 
-  /**
-   * @author kyle / http://nikai.us/
-   */
-
-  var pathSimple = {
-      draw: function draw(context, data, options) {
-          var type = data.geometry.type;
-          var coordinates = data.geometry._coordinates || data.geometry.coordinates;
-          switch (type) {
-              case 'Point':
-                  var size = data.size || options._size || options.size || 5;
-                  context.moveTo(data.x, data.y);
-                  context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
-                  break;
-              case 'LineString':
-                  for (var j = 0; j < coordinates.length; j++) {
-                      var x = coordinates[j][0];
-                      var y = coordinates[j][1];
-                      if (j == 0) {
-                          context.moveTo(x, y);
-                      } else {
-                          context.lineTo(x, y);
-                      }
-                  }
-                  break;
-              case 'Polygon':
-                  this.drawPolygon(context, coordinates);
-                  break;
-              case 'MultiPolygon':
-                  for (var i = 0; i < coordinates.length; i++) {
-                      var polygon = coordinates[i];
-                      this.drawPolygon(context, polygon);
-                  }
-                  context.closePath();
-                  break;
-              default:
-                  console.log('type' + type + 'is not support now!');
-                  break;
-          }
-      },
-
-      drawPolygon: function drawPolygon(context, coordinates) {
-
-          for (var i = 0; i < coordinates.length; i++) {
-
-              var coordinate = coordinates[i];
-
-              context.moveTo(coordinate[0][0], coordinate[0][1]);
-              for (var j = 1; j < coordinate.length; j++) {
-                  context.lineTo(coordinate[j][0], coordinate[j][1]);
-              }
-              context.lineTo(coordinate[0][0], coordinate[0][1]);
-          }
-      }
-
-  };
-
   function Event() {
     this._subscribers = {}; // event subscribers
   }
@@ -1082,6 +1025,68 @@
               }
           });
       }
+  };
+
+  var pathSimple = {
+      drawDataSet: function drawDataSet(context, dataSet, options) {
+
+          var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
+
+          for (var i = 0, len = data.length; i < len; i++) {
+              var item = data[i];
+              this.draw(context, item, options);
+          }
+      },
+      draw: function draw(context, data, options) {
+          var type = data.geometry.type;
+          var coordinates = data.geometry._coordinates || data.geometry.coordinates;
+          switch (type) {
+              case 'Point':
+                  var size = data.size || options._size || options.size || 5;
+                  context.moveTo(data.x, data.y);
+                  context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
+                  break;
+              case 'LineString':
+                  for (var j = 0; j < coordinates.length; j++) {
+                      var x = coordinates[j][0];
+                      var y = coordinates[j][1];
+                      if (j == 0) {
+                          context.moveTo(x, y);
+                      } else {
+                          context.lineTo(x, y);
+                      }
+                  }
+                  break;
+              case 'Polygon':
+                  this.drawPolygon(context, coordinates);
+                  break;
+              case 'MultiPolygon':
+                  for (var i = 0; i < coordinates.length; i++) {
+                      var polygon = coordinates[i];
+                      this.drawPolygon(context, polygon);
+                  }
+                  context.closePath();
+                  break;
+              default:
+                  console.log('type' + type + 'is not support now!');
+                  break;
+          }
+      },
+
+      drawPolygon: function drawPolygon(context, coordinates) {
+
+          for (var i = 0; i < coordinates.length; i++) {
+
+              var coordinate = coordinates[i];
+
+              context.moveTo(coordinate[0][0], coordinate[0][1]);
+              for (var j = 1; j < coordinate.length; j++) {
+                  context.lineTo(coordinate[j][0], coordinate[j][1]);
+              }
+              context.lineTo(coordinate[0][0], coordinate[0][1]);
+          }
+      }
+
   };
 
   var drawSimple = {
@@ -2661,13 +2666,19 @@
                   break;
               case 'grid':
               case 'honeycomb':
-                  var minx = data[0].geometry.coordinates[0];
+                  /*
+                  if (data.length <= 0) {
+                      break;
+                  }
+                   var minx = data[0].geometry.coordinates[0];
                   var maxy = data[0].geometry.coordinates[1];
                   for (var i = 1; i < data.length; i++) {
                       minx = Math.min(data[i].geometry.coordinates[0], minx);
                       maxy = Math.max(data[i].geometry.coordinates[1], maxy);
                   }
                   var nwPixel = map.pointToPixel(new BMap.Point(minx, maxy));
+                  */
+                  var nwPixel = map.pointToPixel(new BMap.Point(0, 0));
                   self.options.offset = {
                       x: nwPixel.x,
                       y: nwPixel.y
@@ -2683,6 +2694,17 @@
                   break;
               case 'icon':
                   drawIcon.draw(context, new DataSet(data), self.options);
+                  break;
+              case 'clip':
+                  context.save();
+                  context.fillStyle = options.fillStyle || 'rgba(0, 0, 0, 0.5)';
+                  context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+                  drawSimple.draw(context, data, self.options);
+                  context.beginPath();
+                  pathSimple.drawDataSet(context, new DataSet(data), self.options);
+                  context.clip();
+                  clear(context);
+                  context.restore();
                   break;
               default:
                   drawSimple.draw(context, data, self.options);

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="../build/mapv.js"></script>
+
+    <script type="text/javascript">
+
+        // 百度地图API功能
+        var map = new BMap.Map("map", {
+            enableMapClick: false
+        });    // 创建Map实例
+        map.centerAndZoom(new BMap.Point(120.398356, 36.091259), 14);  // 初始化地图,设置中心点坐标和地图级别
+        map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+
+        map.setMapStyle({
+            styleJson: [
+                {
+                    "featureType": "all",
+                    "elementType": "all",
+                    "stylers": {
+                        "lightness": 61,
+                        "saturation": -100
+                    }
+                }
+            ]
+        });
+
+        var boundaryCount = {
+            '市南区':544800,
+            '市北区':558200,
+            '四方区':462500,
+            '李沧区':512400,
+            '崂山区':379500,
+            '城阳区':737200,
+            '黄岛区':524200,
+            '胶州市':843100,
+            '即墨市':1177200,
+            '平度市':1357400,
+            '胶南市':868400,
+            '莱西市':750200,
+        }
+
+        var bdData = [];
+
+        for (var key in boundaryCount) {
+            getBoundary(key);
+        }
+
+        function getBoundary(cityname){
+            var bdary = new BMap.Boundary();
+            bdary.get(cityname, function(rs){ // 异步加载
+                var boundary = rs.boundaries[0];
+
+                if (!boundary) {
+                    return;
+                } else {
+                    console.log(cityname);
+                }
+
+                boundary = boundary.split(";");
+                var coordinates = [];
+                for (var i = 0; i < boundary.length; i++) {
+                    boundary[i] = boundary[i].split(",");
+                    coordinates.push(boundary[i]);
+                }
+
+                bdData.push({
+                    geometry: {
+                        type: 'Polygon',
+                        coordinates: [coordinates]
+                    },
+                    count: parseFloat(boundaryCount[cityname])
+                });
+
+                bdDataSet.set(bdData);
+
+                var center = getCenter(coordinates);
+
+                textData.push(
+                    {
+                        geometry: {
+                            type: 'Point',
+                            coordinates: center 
+                        },
+                        text: cityname
+                    }
+                );
+
+                textDataSet.set(textData);
+
+            });
+        }
+
+        function getCenter (coordinates) {
+            var minx = coordinates[0][0];
+            var miny = coordinates[0][1];
+            var maxx = coordinates[0][0];
+            var maxy = coordinates[0][1];
+            for (var i = 1; i < coordinates.length; i++) {
+                if (coordinates[i][0] < minx) {
+                    minx = coordinates[i][0];
+                }
+                if (coordinates[i][0] > maxx) {
+                    maxx = coordinates[i][0];
+                }
+                if (coordinates[i][1] < miny) {
+                    miny = coordinates[i][1];
+                }
+                if (coordinates[i][1] > maxy) {
+                    maxy = coordinates[i][1];
+                }
+            }
+            return [parseFloat(minx) + (maxx - minx) / 2, parseFloat(miny) + (maxy - miny) / 2];
+        }
+
+        var bdOptions = {
+            globalAlpha: 0.3,
+            lineWidth: 2,
+            max: 1357400,
+            gradient: {
+                0: 'lightblue',
+                1: 'red'
+            },
+            draw: 'intensity'
+        }
+
+        var bdDataSet = new mapv.DataSet(bdData);
+
+        new mapv.baiduMapLayer(map, bdDataSet, bdOptions);
+
+        var textOptions = {
+            draw: 'text',
+            font: '14px Arial',
+            fillStyle: 'yellow',
+            shadowColor: 'blue',
+            shadowBlue: 20,
+            zIndex: 3,
+            shadowBlur: 10
+        }
+
+        var textData = [];
+
+        var textDataSet = new mapv.DataSet(textData);
+
+        var textMapvLayer = new mapv.baiduMapLayer(map, textDataSet, textOptions);
+
+
+        $.get('data/wanxiangcheng.csv', function(csvstr) {
+        
+            var options = {
+                size: 300,
+                unit: 'm',
+                zIndex: 2,
+                max: 6,
+                gradient: { 
+                    0.25: "rgba(0,0,255,0.6)", 
+                    0.55: "rgba(0,255,0,0.6)", 
+                    0.85: "rgba(255,255,0,0.6)", 
+                    1.0: "rgba(255,0,0,0.6)"
+                },
+                coordType: 'bd09mc',
+                draw: 'heatmap'
+            }
+
+            var dataSet = mapv.csv.getDataSet(csvstr);
+            dataSet.initGeometry();
+
+            new mapv.baiduMapLayer(map, dataSet, options);
+
+        });
+
+
+    </script>
+	
+</body>
+</html>

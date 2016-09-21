@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="../build/mapv.js"></script>
+
+    <script type="text/javascript">
+
+        // 百度地图API功能
+        var map = new BMap.Map("map", {
+            enableMapClick: false
+        });    // 创建Map实例
+        map.centerAndZoom(new BMap.Point(106.962497, 38.208726), 5);  // 初始化地图,设置中心点坐标和地图级别
+        map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+
+        map.setMapStyle({
+            styleJson: [
+                {
+                    "featureType": "all",
+                    "elementType": "all",
+                    "stylers": {
+                        "lightness": 61,
+                        "saturation": -100
+                    }
+                }
+            ]
+        });
+
+        $.get('data/china.json', function(geojson) {
+
+            var options = {
+                fillStyle: 'rgba(250, 50, 55, 0.8)',
+                strokeStyle: 'rgba(250, 250, 55, 1)',
+                shadowColor: 'rgba(250, 250, 55, 1)',
+                shadowBlur: 20,
+                lineWidth: 16,
+                globalAlpha: 0.9,
+                draw: 'clip'
+            }
+
+            var dataSet = mapv.geojson.getDataSet(geojson);
+            var citys = {
+                '新疆': Math.random() * 70,
+                '西藏': Math.random() * 70,
+                '内蒙古': Math.random() * 70,
+                '青海': Math.random() * 70,
+                '四川': Math.random() * 70,
+                '黑龙江': Math.random() * 70,
+                '甘肃': Math.random() * 70,
+                '云南': Math.random() * 70,
+                '广西': Math.random() * 70,
+                '湖南': Math.random() * 70,
+                '陕西': Math.random() * 70,
+                '广东': Math.random() * 70,
+                '吉林': Math.random() * 70,
+                '河北': Math.random() * 70,
+                '湖北': Math.random() * 70,
+                '贵州': Math.random() * 70,
+                '山东': Math.random() * 70,
+                '江西': Math.random() * 70,
+                '河南': Math.random() * 70,
+                '辽宁': Math.random() * 70,
+                '山西': Math.random() * 70,
+                '安徽': Math.random() * 70,
+                '福建': Math.random() * 70,
+                '浙江': Math.random() * 70,
+                '江苏': Math.random() * 70,
+                '重庆': Math.random() * 70,
+                '宁夏': Math.random() * 70,
+                '海南': Math.random() * 70,
+                '台湾': Math.random() * 70,
+                '北京': Math.random() * 70,
+                '天津': Math.random() * 70,
+                '上海': Math.random() * 70,
+                '香港': Math.random() * 70,
+                '澳门': Math.random() * 70,
+            }
+            var data = dataSet.get({
+                filter: function (item) {
+                    if (!citys[item.name]) {
+                        return false;
+                    }
+
+                    item.count = citys[item.name];
+                    return true;
+                }
+            });
+            dataSet = new mapv.DataSet(data);
+
+            var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+        });
+
+
+    </script>
+	
+</body>
+</html>
