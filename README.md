@@ -23,12 +23,16 @@ This is the prerelease of Mapv 2.0. This API is unstable and may change at any p
 Mapv is develop by canvas, it supports so-called "modern" browsers, which generally means everything except IE8 and older versions.
 
 ## NPM
-If you use npm, you can use npm to install，Mapv can use in CommonJS by Webpack or Browserify.
+If you use npm, you can use npm to install，Mapv can use in CommonJS by Webpack, Browserify or fis.
 
     npm install mapv
 
 ## Install And Usage
-You can download the [latest release](https://github.com/huiyan-fe/mapv/releases). Or can use the version in examples.
+You can load directly from mapv.baidu.com. For Examples:
+
+    <script src="http://mapv.baidu.com/build/mapv.min.js"></script>
+
+You can also download the [latest release](https://github.com/huiyan-fe/mapv/releases). Or can use the version in examples.
 ### Initialization environment
     npm install
 ### Development

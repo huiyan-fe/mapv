@@ -24,12 +24,16 @@ Mapv使用canvas开发，支持现在被称为“现代”浏览器, 通常兼�
 ## 安装使用
 
 ## NPM
-如果你使用NPM开发环境，可使用NPM 安装，Mapv 能很好地和诸如 Webpack 或 Browserify 的 CommonJS 模块打包器配合使用。
+如果你使用NPM开发环境，可使用NPM 安装，Mapv 能很好地和诸如 Webpack、Browserify 或 fis 的 CommonJS 模块打包器配合使用。
 
     npm install mapv
 
 ## 安装使用
-可以下载[最后发布的版本](https://github.com/huiyan-fe/mapv/releases)。也可以使用示例中的版本。
+你可以直接加载官网(mapv.baidu.com)最新的js脚本文件。如:
+
+    <script src="http://mapv.baidu.com/build/mapv.min.js"></script>
+
+你也可以下载[最后发布的版本](https://github.com/huiyan-fe/mapv/releases)。也可以使用示例中的版本。
 ### 初始化环境
     npm install
 ### 开发
