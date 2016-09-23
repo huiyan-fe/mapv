@@ -13,6 +13,7 @@ function CanvasLayer(options) {
     this.options = options || {};
     this.paneName = this.options.paneName || 'labelPane';
     this.zIndex = this.options.zIndex || 0;
+    this.mixBlendMode = this.options.mixBlendMode || null;
     this._map = options.map;
     this._lastDrawTime = null;
     this.show();
@@ -28,6 +29,7 @@ if (global.BMap) {
         this._map = map;
         var canvas = this.canvas = document.createElement("canvas");
         canvas.style.cssText = "position:absolute;" + "left:0;" + "top:0;" + "z-index:" + this.zIndex + ";";
+        canvas.style.mixBlendMode = this.mixBlendMode;
         this.adjustSize();
         map.getPanes()[this.paneName].appendChild(canvas);
         var that = this;

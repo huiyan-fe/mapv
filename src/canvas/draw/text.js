@@ -16,9 +16,15 @@ export default {
         for (var key in options) {
             context[key] = options[key];
         }
+
+        var offset = options.offset || {
+            x: 0,
+            y: 0
+        };
+
         for (var i = 0, len = data.length; i < len; i++) {
             var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
-            context.fillText(data[i].text, coordinates[0], coordinates[1])
+            context.fillText(data[i].text, coordinates[0] + offset.x, coordinates[1] + offset.y)
         };
     }
 }

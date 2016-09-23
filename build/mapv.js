@@ -2388,6 +2388,7 @@
       this.options = options || {};
       this.paneName = this.options.paneName || 'labelPane';
       this.zIndex = this.options.zIndex || 0;
+      this.mixBlendMode = this.options.mixBlendMode || null;
       this._map = options.map;
       this._lastDrawTime = null;
       this.show();
@@ -2403,6 +2404,7 @@
           this._map = map;
           var canvas = this.canvas = document.createElement("canvas");
           canvas.style.cssText = "position:absolute;" + "left:0;" + "top:0;" + "z-index:" + this.zIndex + ";";
+          canvas.style.mixBlendMode = this.mixBlendMode;
           this.adjustSize();
           map.getPanes()[this.paneName].appendChild(canvas);
           var that = this;
@@ -2484,9 +2486,15 @@
           for (var key in options) {
               context[key] = options[key];
           }
+
+          var offset = options.offset || {
+              x: 0,
+              y: 0
+          };
+
           for (var i = 0, len = data.length; i < len; i++) {
               var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
-              context.fillText(data[i].text, coordinates[0], coordinates[1]);
+              context.fillText(data[i].text, coordinates[0] + offset.x, coordinates[1] + offset.y);
           };
       }
   };
@@ -2527,6 +2535,7 @@
       var canvasLayer = this.canvasLayer = new CanvasLayer({
           map: map,
           paneName: options.paneName,
+          mixBlendMode: options.mixBlendMode,
           zIndex: options.zIndex,
           update: update
       });

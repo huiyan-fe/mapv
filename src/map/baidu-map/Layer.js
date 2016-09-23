@@ -34,6 +34,7 @@ function Layer(map, dataSet, options) {
     var canvasLayer = this.canvasLayer = new CanvasLayer({
         map: map,
         paneName: options.paneName,
+        mixBlendMode: options.mixBlendMode,
         zIndex: options.zIndex,
         update: update
     });
