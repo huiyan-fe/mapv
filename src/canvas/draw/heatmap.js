@@ -88,6 +88,10 @@ function drawGray(context, dataSet, options) {
             context.globalAlpha = i;
         }
         _data.forEach(function(item, index) {
+            if (!item.geometry) {
+                return;
+            }
+
             var coordinates = item.geometry._coordinates || item.geometry.coordinates;
             var type = item.geometry.type;
             if (type === 'Point') {

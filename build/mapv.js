@@ -1249,6 +1249,10 @@
               context.globalAlpha = i;
           }
           _data.forEach(function (item, index) {
+              if (!item.geometry) {
+                  return;
+              }
+
               var coordinates = item.geometry._coordinates || item.geometry.coordinates;
               var type = item.geometry.type;
               if (type === 'Point') {
@@ -2419,7 +2423,7 @@
           var size = this._map.getSize();
           var canvas = this.canvas;
 
-          var devicePixelRatio = global$2.devicePixelRatio;
+          var devicePixelRatio = this.devicePixelRatio = global$2.devicePixelRatio;
 
           canvas.width = size.width * devicePixelRatio;
           canvas.height = size.height * devicePixelRatio;
@@ -2501,7 +2505,8 @@
 
   var drawIcon = {
       draw: function draw(context, dataSet, options) {
-          var data = dataSet.get();
+          var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
+
           context.fillStyle = 'white';
           context.textAlign = 'center';
           context.textBaseline = 'middle';
@@ -2512,8 +2517,12 @@
           // }
           // console.log(data)
           for (var i = 0, len = data.length; i < len; i++) {
-              var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
-              context.drawImage(data[i].icon, coordinates[0], coordinates[1]);
+
+              if (data[i].geometry) {
+                  var icon = data[i].icon;
+                  var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
+                  context.drawImage(icon, coordinates[0] - icon.width / 2, coordinates[1] - icon.height / 2);
+              }
           };
       }
   };
@@ -2569,9 +2578,40 @@
       if (self.options.methods) {
           if (self.options.methods.click) {
               map.setDefaultCursor("default");
-              map.addEventListener('click', function () {});
+              map.addEventListener('click', function (e) {
+                  var pixel = e.pixel;
+                  var context = canvasLayer.canvas.getContext('2d');
+                  var data = dataSet.get();
+                  for (var i = 0; i < data.length; i++) {
+                      context.beginPath();
+                      pathSimple.draw(context, data[i], self.options);
+                      if (context.isPointInPath(pixel.x * canvasLayer.devicePixelRatio, pixel.y * canvasLayer.devicePixelRatio)) {
+                          self.options.methods.click(data[i]);
+                      }
+                  }
+              });
           }
       }
+
+      var zoomUnit = Math.pow(2, 18 - map.getZoom());
+      var projection = map.getMapType().getProjection();
+
+      var mcCenter = projection.lngLatToPoint(map.getCenter());
+      var nwMc = new BMap.Pixel(mcCenter.x - map.getSize().width / 2 * zoomUnit, mcCenter.y + map.getSize().height / 2 * zoomUnit); //左上角墨卡托坐标
+
+      var dataGetOptions = {
+          transferCoordinate: function transferCoordinate(coordinate) {
+
+              if (self.options.coordType == 'bd09mc') {
+                  var x = (coordinate[0] - nwMc.x) / zoomUnit;
+                  var y = (nwMc.y - coordinate[1]) / zoomUnit;
+                  return [x, y];
+              }
+
+              var pixel = map.pointToPixel(new BMap.Point(coordinate[0], coordinate[1]));
+              return [pixel.x, pixel.y];
+          }
+      };
 
       function update(time) {
           //console.time('update')
@@ -2593,26 +2633,6 @@
           for (var key in self.options) {
               context[key] = self.options[key];
           }
-
-          var zoomUnit = Math.pow(2, 18 - map.getZoom());
-          var projection = map.getMapType().getProjection();
-
-          var mcCenter = projection.lngLatToPoint(map.getCenter());
-          var nwMc = new BMap.Pixel(mcCenter.x - map.getSize().width / 2 * zoomUnit, mcCenter.y + map.getSize().height / 2 * zoomUnit); //左上角墨卡托坐标
-
-          var dataGetOptions = {
-              transferCoordinate: function transferCoordinate(coordinate) {
-
-                  if (self.options.coordType == 'bd09mc') {
-                      var x = (coordinate[0] - nwMc.x) / zoomUnit;
-                      var y = (nwMc.y - coordinate[1]) / zoomUnit;
-                      return [x, y];
-                  }
-
-                  var pixel = map.pointToPixel(new BMap.Point(coordinate[0], coordinate[1]));
-                  return [pixel.x, pixel.y];
-              }
-          };
 
           if (time !== undefined) {
               dataGetOptions.filter = function (item) {
@@ -2702,7 +2722,7 @@
                   drawText.draw(context, new DataSet(data), self.options);
                   break;
               case 'icon':
-                  drawIcon.draw(context, new DataSet(data), self.options);
+                  drawIcon.draw(context, data, self.options);
                   break;
               case 'clip':
                   context.save();

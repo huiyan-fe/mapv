@@ -4,10 +4,12 @@
  */
 
 import pathSimple from "../path/simple";
+import DataSet from "../../data/DataSet";
 
 export default {
     draw: function (context, dataSet, options) {
-        var data = dataSet.get();
+        var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
+
         context.fillStyle = 'white';
         context.textAlign = 'center';
         context.textBaseline = 'middle';
@@ -18,8 +20,13 @@ export default {
         // }
         // console.log(data)
         for (var i = 0, len = data.length; i < len; i++) {
-            var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
-            context.drawImage(data[i].icon, coordinates[0], coordinates[1])
+
+            if (data[i].geometry) {
+                var icon = data[i].icon;
+                var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
+                context.drawImage(icon, coordinates[0] - icon.width / 2, coordinates[1] - icon.height / 2);
+            }
+
         };
     }
 }

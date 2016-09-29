@@ -68,12 +68,41 @@ function Layer(map, dataSet, options) {
         });
     }
 
-
     if (self.options.methods) {
         if (self.options.methods.click) {
             map.setDefaultCursor("default");
-            map.addEventListener('click', function() {
+            map.addEventListener('click', function(e) {
+                var pixel = e.pixel;
+                var context = canvasLayer.canvas.getContext('2d');
+                var data = dataSet.get();
+                for (var i = 0; i < data.length; i++) {
+                    context.beginPath();
+                    pathSimple.draw(context, data[i], self.options);
+                    if (context.isPointInPath(pixel.x * canvasLayer.devicePixelRatio, pixel.y * canvasLayer.devicePixelRatio)) {
+                        self.options.methods.click(data[i]);
+                    }
+                }
             });
+        }
+    }
+
+    var zoomUnit = Math.pow(2, 18 - map.getZoom());
+    var projection = map.getMapType().getProjection();
+
+    var mcCenter = projection.lngLatToPoint(map.getCenter());
+    var nwMc = new BMap.Pixel(mcCenter.x - (map.getSize().width / 2) * zoomUnit, mcCenter.y + (map.getSize().height / 2) * zoomUnit); //左上角墨卡托坐标
+
+    var dataGetOptions = {
+        transferCoordinate: function(coordinate) {
+
+            if (self.options.coordType == 'bd09mc') {
+                var x = (coordinate[0] - nwMc.x) / zoomUnit;
+                var y = (nwMc.y - coordinate[1]) / zoomUnit;
+                return [x, y];
+            }
+
+            var pixel = map.pointToPixel(new BMap.Point(coordinate[0], coordinate[1]));
+            return [pixel.x, pixel.y];
         }
     }
 
@@ -96,26 +125,6 @@ function Layer(map, dataSet, options) {
 
         for (var key in self.options) {
             context[key] = self.options[key];
-        }
-
-        var zoomUnit = Math.pow(2, 18 - map.getZoom());
-        var projection = map.getMapType().getProjection();
-
-        var mcCenter = projection.lngLatToPoint(map.getCenter());
-        var nwMc = new BMap.Pixel(mcCenter.x - (map.getSize().width / 2) * zoomUnit, mcCenter.y + (map.getSize().height / 2) * zoomUnit); //左上角墨卡托坐标
-
-        var dataGetOptions = {
-            transferCoordinate: function(coordinate) {
-
-                if (self.options.coordType == 'bd09mc') {
-                    var x = (coordinate[0] - nwMc.x) / zoomUnit;
-                    var y = (nwMc.y - coordinate[1]) / zoomUnit;
-                    return [x, y];
-                }
-
-                var pixel = map.pointToPixel(new BMap.Point(coordinate[0], coordinate[1]));
-                return [pixel.x, pixel.y];
-            }
         }
 
         if (time !== undefined) {
@@ -208,7 +217,7 @@ function Layer(map, dataSet, options) {
                 drawText.draw(context, new DataSet(data), self.options);
                 break;
             case 'icon':
-                drawIcon.draw(context, new DataSet(data), self.options);
+                drawIcon.draw(context, data, self.options);
                 break;
             case 'clip':
                 context.save();
