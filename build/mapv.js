@@ -2599,20 +2599,6 @@
       var mcCenter = projection.lngLatToPoint(map.getCenter());
       var nwMc = new BMap.Pixel(mcCenter.x - map.getSize().width / 2 * zoomUnit, mcCenter.y + map.getSize().height / 2 * zoomUnit); //左上角墨卡托坐标
 
-      var dataGetOptions = {
-          transferCoordinate: function transferCoordinate(coordinate) {
-
-              if (self.options.coordType == 'bd09mc') {
-                  var x = (coordinate[0] - nwMc.x) / zoomUnit;
-                  var y = (nwMc.y - coordinate[1]) / zoomUnit;
-                  return [x, y];
-              }
-
-              var pixel = map.pointToPixel(new BMap.Point(coordinate[0], coordinate[1]));
-              return [pixel.x, pixel.y];
-          }
-      };
-
       function update(time) {
           //console.time('update')
           var context = this.canvas.getContext("2d");
@@ -2633,6 +2619,20 @@
           for (var key in self.options) {
               context[key] = self.options[key];
           }
+
+          var dataGetOptions = {
+              transferCoordinate: function transferCoordinate(coordinate) {
+
+                  if (self.options.coordType == 'bd09mc') {
+                      var x = (coordinate[0] - nwMc.x) / zoomUnit;
+                      var y = (nwMc.y - coordinate[1]) / zoomUnit;
+                      return [x, y];
+                  }
+
+                  var pixel = map.pointToPixel(new BMap.Point(coordinate[0], coordinate[1]));
+                  return [pixel.x, pixel.y];
+              }
+          };
 
           if (time !== undefined) {
               dataGetOptions.filter = function (item) {
