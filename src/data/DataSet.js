@@ -183,7 +183,6 @@ DataSet.prototype.transferCoordinate = function(data, transferFn) {
             var coordinate = coordinates[c];
             var newcoordinate = [];
             for (var j = 0; j < coordinate.length; j++) {
-                var pixel = map.pointToPixel(new BMap.Point(coordinate[j][0], coordinate[j][1]));
                 newcoordinate.push(transferFn(coordinate[j]));
             }
             newCoordinates.push(newcoordinate);

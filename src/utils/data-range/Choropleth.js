@@ -22,7 +22,12 @@
  *
  */
 function Choropleth(splitList) {
-    this.splitList = splitList;
+    this.splitList = splitList || [
+        {
+            start: 0,
+            value: 'red'
+        }
+    ];
 }
 
 Choropleth.prototype.get = function (count) {

@@ -86,13 +86,14 @@ function Layer(map, dataSet, options) {
         }
     }
 
-    var zoomUnit = Math.pow(2, 18 - map.getZoom());
-    var projection = map.getMapType().getProjection();
-
-    var mcCenter = projection.lngLatToPoint(map.getCenter());
-    var nwMc = new BMap.Pixel(mcCenter.x - (map.getSize().width / 2) * zoomUnit, mcCenter.y + (map.getSize().height / 2) * zoomUnit); //左上角墨卡托坐标
-
     function update(time) {
+
+        var zoomUnit = Math.pow(2, 18 - map.getZoom());
+        var projection = map.getMapType().getProjection();
+
+        var mcCenter = projection.lngLatToPoint(map.getCenter());
+        var nwMc = new BMap.Pixel(mcCenter.x - (map.getSize().width / 2) * zoomUnit, mcCenter.y + (map.getSize().height / 2) * zoomUnit); //左上角墨卡托坐标
+
         //console.time('update')
         var context = this.canvas.getContext("2d");
 
@@ -148,13 +149,18 @@ function Layer(map, dataSet, options) {
         //console.time('setstyle');
 
         var draw = self.options.draw;
-        if (draw == 'bubble' || draw == 'intensity' || draw == 'category' || draw == 'choropleth') {
+        if (draw == 'bubble' || draw == 'intensity' || draw == 'category' || draw == 'choropleth' || draw == 'simple') {
 
             for (var i = 0; i < data.length; i++) {
                 var item = data[i];
+
                 if (self.options.draw == 'bubble') {
-                    data[i].size = self.intensity.getSize(item.count);
-                } else if (self.options.draw == 'intensity') {
+                    data[i]._size = self.intensity.getSize(item.count);
+                } else {
+                    data[i]._size = undefined;
+                } 
+
+                if (self.options.draw == 'intensity') {
                     if (data[i].geometry.type === 'LineString') {
                         data[i].strokeStyle = self.intensity.getColor(item.count);
                     } else {
