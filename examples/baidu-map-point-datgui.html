@@ -22,12 +22,11 @@
 <body>
 
     <div id="map"></div>
-    <canvas id="canvas"></canvas>
 
     <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
     <script type="text/javascript" src="../build/mapv.js"></script>
-    <script type="text/javascript" src="js/dat.gui.min.js"></script>
+    <script type="text/javascript" src="js/dat.gui.js"></script>
 
     <script type="text/javascript">
 
@@ -66,33 +65,108 @@
             draw: 'simple',
             max: 100,
             size: 5,
+            maxSize: 50,
+            maxOpacity: 0.8,
+            globalAlpha: 1,
+            lineWidth: 1,
             unit: 'px',
             fillStyle: 'rgba(55, 50, 250, 0.6)',
+            strokeStyle: 'rgba(55, 50, 250, 0.6)',
             shadowColor: 'rgba(55, 50, 250, 0.5)',
-            shadowBlur: 10,
-            render: function () {
-                mapvLayer.update({
-                    options: options 
-                });
-            }
+            shadowBlur: 10
         }
 
         var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
 
-        window.onload = function() {
-            var gui = new dat.GUI();
-            gui.add(options, 'unit', ['m', 'px']).onFinishChange(finished);
-            gui.add(options, 'size', 1, 10000).onFinishChange(finished);
-            gui.add(options, 'max', 1, 500000000).onFinishChange(finished);
-            gui.add(options, 'draw', [ 'simple', 'heatmap', 'category', 'honeycomb', 'grid', 'choropleth', 'intensity'] ).onFinishChange(finished);
-            gui.addColor(options, 'fillStyle').onFinishChange(finished);
-            gui.addColor(options, 'shadowColor').onFinishChange(finished);
-            gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
-            gui.add(options, 'render').onFinishChange(finished);
-            function finished() {
-                options.render();
-            };
+
+        function finished() {
+            mapvLayer.update({
+                options: options 
+            });
         };
+
+        window.onload = function() {
+            initGui();
+        };
+
+        var gui;
+
+        function initGui() {
+            gui && gui.destroy();
+
+            gui = new dat.GUI({
+                nameMap: {
+                    draw: '绘制方法',
+                    unit: '单位',
+                    size: '大小',
+                    fillStyle: '颜色',
+                    globalAlpha: '图层透明度',
+                    maxOpacity: '图层透明度',
+                    shadowColor: '阴影颜色',
+                    shadowBlur: '阴影大小',
+                    lineWidth: '线宽',
+                    strokeStyle: '线颜色',
+                    maxSize: '最大半径值',
+                    max: '最大阈值',
+                }
+            });
+
+            gui.add(options, 'draw', [ 'simple', 'heatmap', 'bubble', 'category', 'honeycomb', 'grid', 'choropleth', 'intensity'] ).onFinishChange(function () {
+                initGui();
+                finished();
+            });
+
+            gui.add(options, 'unit', ['m', 'px']).onFinishChange(function () {
+                initGui();
+                finished();
+            });
+
+            if (options.draw !== 'bubble') {
+
+                if (options.unit == 'm') {
+                    gui.add(options, 'size', 1, 200000).onFinishChange(finished);
+                } else {
+                    gui.add(options, 'size', 1, 100).onFinishChange(finished);
+                }
+
+            }
+
+            if (options.draw !== 'heatmap') {
+                gui.add(options, 'globalAlpha', 0, 1).onFinishChange(finished);
+            }
+
+            switch (options.draw) {
+                case 'simple':
+                    gui.addColor(options, 'fillStyle').onChange(finished);
+                    gui.addColor(options, 'shadowColor').onChange(finished);
+                    gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
+                    gui.add(options, 'lineWidth', 1, 10).onFinishChange(finished);
+                    gui.addColor(options, 'strokeStyle').onChange(finished);
+                    gui.add(options, 'max', 1, 300).onFinishChange(finished);
+                    break;
+                case 'bubble':
+                    gui.addColor(options, 'fillStyle').onChange(finished);
+                    gui.addColor(options, 'shadowColor').onChange(finished);
+                    gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
+                    gui.add(options, 'lineWidth', 1, 10).onFinishChange(finished);
+                    gui.addColor(options, 'strokeStyle').onChange(finished);
+                    gui.add(options, 'max', 1, 300).onFinishChange(finished);
+                    gui.add(options, 'maxSize', 35, 100).onFinishChange(finished);
+                    break;
+                case 'heatmap':
+                    gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
+                    gui.add(options, 'max', 1, 300).onFinishChange(finished);
+                    gui.add(options, 'maxOpacity', 0, 1).onFinishChange(finished);
+                    break;
+                case 'grid':
+                case 'honeycomb':
+                    gui.add(options, 'max', 1, 300).onFinishChange(finished);
+                    gui.add(options, 'lineWidth', 1, 10).onFinishChange(finished);
+                    gui.addColor(options, 'strokeStyle').onChange(finished);
+                    break;
+            }
+            
+        }
 
     </script>
 	
