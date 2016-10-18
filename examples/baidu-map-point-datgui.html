@@ -111,12 +111,24 @@
                 }
             });
 
-            gui.add(options, 'draw', [ 'simple', 'heatmap', 'bubble', 'category', 'honeycomb', 'grid', 'choropleth', 'intensity'] ).onFinishChange(function () {
+            gui.add(options, 'draw', {
+                '普通': 'simple', 
+                '热力图': 'heatmap',
+                '气泡': 'bubble',
+                '颜色分类': 'category',
+                '蜂窝状聚类': 'honeycomb',
+                '网格聚类': 'grid',
+                '值区间分类': 'choropleth',
+                '颜色渐变': 'intensity'
+            }).onFinishChange(function () {
                 initGui();
                 finished();
             });
 
-            gui.add(options, 'unit', ['m', 'px']).onFinishChange(function () {
+            gui.add(options, 'unit', {
+                '像素': 'px',
+                '米': 'm'
+            }).onFinishChange(function () {
                 initGui();
                 finished();
             });
