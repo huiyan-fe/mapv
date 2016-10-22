@@ -17,6 +17,8 @@
             width: 100%;
             height: 100%;
         }
+
+
     </style>
 </head>
 <body>
@@ -72,8 +74,8 @@
             unit: 'px',
             fillStyle: 'rgba(55, 50, 250, 0.6)',
             strokeStyle: 'rgba(55, 50, 250, 0.6)',
-            shadowColor: 'rgba(55, 50, 250, 0.5)',
-            shadowBlur: 10
+            // shadowColor: 'rgba(55, 50, 250, 0.5)',
+            // shadowBlur: 10
         }
 
         var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
@@ -102,8 +104,8 @@
                     fillStyle: '颜色',
                     globalAlpha: '图层透明度',
                     maxOpacity: '图层透明度',
-                    shadowColor: '阴影颜色',
-                    shadowBlur: '阴影大小',
+                    // shadowColor: '阴影颜色',
+                    // shadowBlur: '阴影大小',
                     lineWidth: '线宽',
                     strokeStyle: '线颜色',
                     maxSize: '最大半径值',
@@ -111,12 +113,24 @@
                 }
             });
 
-            gui.add(options, 'draw', [ 'simple', 'heatmap', 'bubble', 'category', 'honeycomb', 'grid', 'choropleth', 'intensity'] ).onFinishChange(function () {
+            gui.add(options, 'draw', {
+                '普通': 'simple', 
+                '热力图': 'heatmap',
+                '气泡': 'bubble',
+                '颜色分类': 'category',
+                '蜂窝状聚类': 'honeycomb',
+                '网格聚类': 'grid',
+                '值区间分类': 'choropleth',
+                '颜色渐变': 'intensity'
+            }).onFinishChange(function () {
                 initGui();
                 finished();
             });
 
-            gui.add(options, 'unit', ['m', 'px']).onFinishChange(function () {
+            gui.add(options, 'unit', {
+                '像素': 'px',
+                '米': 'm'
+            }).onFinishChange(function () {
                 initGui();
                 finished();
             });
@@ -138,23 +152,22 @@
             switch (options.draw) {
                 case 'simple':
                     gui.addColor(options, 'fillStyle').onChange(finished);
-                    gui.addColor(options, 'shadowColor').onChange(finished);
-                    gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
+                    // gui.addColor(options, 'shadowColor').onChange(finished);
+                    // gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
                     gui.add(options, 'lineWidth', 1, 10).onFinishChange(finished);
                     gui.addColor(options, 'strokeStyle').onChange(finished);
-                    gui.add(options, 'max', 1, 300).onFinishChange(finished);
                     break;
                 case 'bubble':
                     gui.addColor(options, 'fillStyle').onChange(finished);
-                    gui.addColor(options, 'shadowColor').onChange(finished);
-                    gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
+                    // gui.addColor(options, 'shadowColor').onChange(finished);
+                    // gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
                     gui.add(options, 'lineWidth', 1, 10).onFinishChange(finished);
                     gui.addColor(options, 'strokeStyle').onChange(finished);
                     gui.add(options, 'max', 1, 300).onFinishChange(finished);
                     gui.add(options, 'maxSize', 35, 100).onFinishChange(finished);
                     break;
                 case 'heatmap':
-                    gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
+                    // gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
                     gui.add(options, 'max', 1, 300).onFinishChange(finished);
                     gui.add(options, 'maxOpacity', 0, 1).onFinishChange(finished);
                     break;
