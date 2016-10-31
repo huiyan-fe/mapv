@@ -1039,11 +1039,16 @@
       draw: function draw(context, data, options) {
           var type = data.geometry.type;
           var coordinates = data.geometry._coordinates || data.geometry.coordinates;
+          var symbol = options.symbol || 'circle';
           switch (type) {
               case 'Point':
                   var size = data._size || data.size || options._size || options.size || 5;
                   context.moveTo(data.x, data.y);
-                  context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
+                  if (options.symbol === 'rect') {
+                      context.rect(coordinates[0], coordinates[1], size, size);
+                  } else {
+                      context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
+                  }
                   break;
               case 'LineString':
                   for (var j = 0; j < coordinates.length; j++) {
@@ -1099,26 +1104,18 @@
           }
 
           // console.log(data);
-
-          for (var i = 0, len = data.length; i < len; i++) {
-
-              var item = data[i];
-
+          if (options.bigData) {
               context.save();
-
-              if (item.fillStyle) {
-                  context.fillStyle = item.fillStyle;
-              }
-
-              if (item.strokeStyle) {
-                  context.strokeStyle = item.strokeStyle;
-              }
-
-              var type = item.geometry.type;
-
               context.beginPath();
 
-              pathSimple.draw(context, item, options);
+              for (var i = 0, len = data.length; i < len; i++) {
+
+                  var item = data[i];
+
+                  pathSimple.draw(context, item, options);
+              };
+
+              var type = options.bigData;
 
               if (type == 'Point' || type == 'Polygon' || type == 'MultiPolygon') {
 
@@ -1132,7 +1129,41 @@
               }
 
               context.restore();
-          };
+          } else {
+              for (var i = 0, len = data.length; i < len; i++) {
+
+                  var item = data[i];
+
+                  context.save();
+
+                  if (item.fillStyle) {
+                      context.fillStyle = item.fillStyle;
+                  }
+
+                  if (item.strokeStyle) {
+                      context.strokeStyle = item.strokeStyle;
+                  }
+
+                  var type = item.geometry.type;
+
+                  context.beginPath();
+
+                  pathSimple.draw(context, item, options);
+
+                  if (type == 'Point' || type == 'Polygon' || type == 'MultiPolygon') {
+
+                      context.fill();
+
+                      if (item.strokeStyle || options.strokeStyle) {
+                          context.stroke();
+                      }
+                  } else if (type == 'LineString') {
+                      context.stroke();
+                  }
+
+                  context.restore();
+              };
+          }
 
           context.restore();
       }

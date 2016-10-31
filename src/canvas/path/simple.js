@@ -18,11 +18,16 @@ export default {
     draw: function (context, data, options) {
         var type = data.geometry.type;
         var coordinates = data.geometry._coordinates || data.geometry.coordinates;
+        var symbol = options.symbol || 'circle';
         switch (type) {
             case 'Point':
                 var size = data._size || data.size || options._size || options.size || 5;
                 context.moveTo(data.x, data.y);
-                context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
+                if (options.symbol === 'rect') {
+                    context.rect(coordinates[0], coordinates[1], size, size);
+                } else {
+                    context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
+                }
                 break;
             case 'LineString':
                 for (var j = 0; j < coordinates.length; j++) {
