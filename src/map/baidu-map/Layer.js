@@ -79,7 +79,7 @@ function Layer(map, dataSet, options) {
                     context.beginPath();
                     pathSimple.draw(context, data[i], self.options);
                     if (context.isPointInPath(pixel.x * canvasLayer.devicePixelRatio, pixel.y * canvasLayer.devicePixelRatio)) {
-                        self.options.methods.click(data[i]);
+                        self.options.methods.click(data[i], e);
                     }
                 }
             });
