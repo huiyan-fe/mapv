@@ -106,48 +106,6 @@
         });
 
 
-        /*
-        $.get('data/china.json', function(geojson) {
-
-            var options = {
-                globalAlpha: 0.9,
-                fillStyle: 'rgba(50, 50, 255, 0.05)',
-                lineWidth: 2,
-                strokeStyle: 'rgba(1, 161, 215, 0.8)',
-                max: 100,
-                draw: 'simple'
-            }
-
-            var dataSet = mapv.geojson.getDataSet(geojson);
-            var citys = {
-                '江苏': 80,
-                '辽宁': 80,
-                '河南': 80,
-                '云南': 80,
-                '四川': 80,
-                '北京': 80,
-                '天津': 80,
-                '河北': 80,
-                '上海': 80,
-                '广东': 80,
-            }
-            var data = dataSet.get({
-                filter: function (item) {
-                    if (!citys[item.name]) {
-                        return false;
-                    }
-
-                    item.count = citys[item.name];
-                    return true;
-                }
-            });
-            dataSet = new mapv.DataSet(data);
-
-            var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
-
-        });
-        */
-
         $('#addBoundaryBtn').bind('click', function () {
             var boundaryTxt = $('#boundaryTxt').val();
             if (boundaryTxt) {
@@ -186,6 +144,7 @@
             globalAlpha: 0.9,
             fillStyle: 'rgba(50, 50, 255, 0.05)',
             lineWidth: 2,
+            bigData: 'LineString',
             strokeStyle: 'rgba(1, 161, 215, 0.8)',
             max: 100,
             draw: 'simple'

@@ -57,21 +57,16 @@
                 count: 30 * Math.random()
             });
         }
-
         console.log(data)
         var dataSet = new mapv.DataSet(data);
 
         var options = {
-            fillStyle: 'rgba(255, 50, 50, 0.6)',
+            fillStyle: 'rgba(255, 50, 50, 0.4)',
             shadowColor: 'rgba(255, 50, 50, 1)',
             shadowBlur: 30,
             globalCompositeOperation: 'lighter',
-            methods: {
-                click: function (item) {
-                    console.log(item);
-                }
-            },
-            size: 5,
+            symbol: 'rect',
+            size: 15,
             draw: 'simple'
         }
 

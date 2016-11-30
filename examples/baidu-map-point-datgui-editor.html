@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .gradient {
+            width: 200px;
+            height: 30px;
+            background: linear-gradient(to right, red 0%, blue 100%);;
+        }
+
+        #map {
+            position: absolute;
+            left: 300px;
+            right: 0;
+            height: 100%;
+        }
+
+        #panel{
+            position: absolute;
+            width: 290px;
+            padding: 5px;
+            left: 0;
+            height: 100%;
+        }
+
+        #selectbox {
+            padding: 10px;
+        }
+
+        /* dat.gui theme */
+        body .dg.main.taller-than-window .close-button {
+            border-top: 1px solid #ddd;
+        }
+
+        body .dg.main .close-button {
+            background-color: #ccc;
+            display: none;
+        }
+
+        body .dg.main .close-button:hover {
+            background-color: #ddd;
+        }
+
+        body .dg {
+            color: #555;
+            text-shadow: none !important;
+        }
+
+        body .dg .slider {
+            height: 23px;
+        }
+
+        body .dg .c {
+            overflow: hidden;
+        }
+
+        body .dg.main::-webkit-scrollbar {
+            background: #fafafa;
+        }
+
+        body .dg.main::-webkit-scrollbar-thumb {
+            background: #bbb;
+        }
+
+        body .dg li:first-child {
+            border-top: 1px solid #ddd;
+        }
+        body .dg li:not(.folder) {
+            background: #fafafa;
+            border-bottom: 1px solid #ddd;
+            border-right: 1px solid #ddd;
+        }
+
+        body .dg li.save-row .button {
+            text-shadow: none !important;
+        }
+
+        body .dg li.title {
+            background: #e8e8e8 url(data:image/gif;base64,R0lGODlhBQAFAJEAAP////Pz8////////yH5BAEAAAIALAAAAAAFAAUAAAIIlI+hKgFxoCgAOw==) 6px 10px no-repeat;
+        }
+
+        body .dg .cr.function:hover,.dg .cr.boolean:hover {
+            background: #fff;
+        }
+
+        body .dg .c input[type=text] {
+            margin: 5px 0;
+            padding: 4px 0;
+            background: #e9e9e9;
+        }
+
+        body .dg .c input[type=text]:hover {
+            background: #eee;
+        }
+
+        body .dg .c input[type=text]:focus {
+            background: #eee;
+            color: #555;
+        }
+
+        body .dg .c .slider {
+            margin-left: 0px;
+            background: #e9e9e9;
+        }
+
+        body .dg .c .slider:hover {
+            background: #eee;
+        }
+
+        body .dg li:not(.folder) {
+            height: 32px;
+        }
+
+        body .dg .c select{
+            margin-top: 7px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="panel">
+    <div class="gradient"></div>
+    <div id="selectbox">
+    <label><input type="radio" name="optiontype" value="point" checked/>点</label>
+    <label><input type="radio" name="optiontype" value="polyline"/>线</label>
+    <label><input type="radio" name="optiontype" value="polygon"/>面</label>
+    </div>
+    </div>
+    <div id="map"></div>
+
+    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="../build/mapv.js"></script>
+    <script type="text/javascript" src="http://huiyan-fe.github.io/dat.gui/build/dat.gui.min.js"></script>
+
+<script type="text/javascript">
+
+// 百度地图API功能
+var map = new BMap.Map("map", {
+    enableMapClick: false
+});    // 创建Map实例
+map.centerAndZoom(new BMap.Point(105.403119, 38.028658), 5);  // 初始化地图,设置中心点坐标和地图级别
+map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+
+map.setMapStyle({
+    style: 'light'
+});
+
+var randomCount = 1000;
+
+var data = [];
+
+var citys = ["北京","天津","上海","重庆","石家庄","太原","呼和浩特","哈尔滨","长春","沈阳","济南","南京","合肥","杭州","南昌","福州","郑州","武汉","长沙","广州","南宁","西安","银川","兰州","西宁","乌鲁木齐","成都","贵阳","昆明","拉萨","海口"];
+
+// 构造数据
+while (randomCount--) {
+    var cityCenter = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
+    data.push({
+        geometry: {
+            type: 'Point',
+            coordinates: [cityCenter.lng - 2 + Math.random() * 4, cityCenter.lat - 2 + Math.random() * 4]
+        },
+        count: 30 * Math.random()
+    });
+}
+console.log(data)
+var dataSet = new mapv.DataSet(data);
+
+var options = {
+    draw: 'simple',
+    max: 100,
+    size: 5,
+    maxSize: 50,
+    maxOpacity: 0.8,
+    globalCompositeOperation: 'source-over',
+    globalAlpha: 1,
+    lineWidth: 0,
+    symbol: 'circle',
+    unit: 'px',
+    gradient: { 
+        0.25: "rgba(0, 0, 255, 1)",
+        0.55: "rgba(0, 255, 0, 1)",
+        0.85: "rgba(255, 255, 0, 1)",
+        1.0: "rgba(255, 0, 0, 1)"
+    },
+    fillStyle: 'rgba(55, 50, 250, 0.6)',
+    strokeStyle: 'rgba(55, 50, 250, 0.6)',
+    shadowColor: 'rgba(55, 50, 250, 0.5)',
+    shadowBlur: 0
+}
+
+var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+
+function finished() {
+    mapvLayer.update({
+        options: options 
+    });
+};
+
+window.onload = function() {
+    initGui();
+};
+
+var gui;
+var optiontype = 'point';
+
+function initGui() {
+    if (gui) {
+
+        document.getElementById('panel').removeChild(gui.domElement);
+        gui.destroy();
+    }
+
+    gui = new dat.GUI({
+        autoPlace: false,
+        width: '100%',
+        nameMap: {
+            draw: '绘制方法',
+            unit: '单位',
+            size: '大小',
+            fillStyle: '填充颜色',
+            globalCompositeOperation: '叠加方式',
+            globalAlpha: '图层透明度',
+            gradient: '渐变色',
+            maxOpacity: '图层透明度',
+            shadowColor: '阴影颜色',
+            shadowBlur: '阴影大小',
+            lineWidth: '线宽',
+            symbol: '形状',
+            strokeStyle: '线颜色',
+            maxSize: '最大半径值',
+            max: '最大阈值',
+            min: '最小阈值',
+        }
+    });
+
+    document.getElementById('panel').appendChild(gui.domElement);
+
+    var drawOptions = {
+        '普通': 'simple',
+        '热力图': 'heatmap',
+        '网格聚类': 'grid',
+        '蜂窝状聚类': 'honeycomb',
+        '颜色渐变': 'intensity',
+        '气泡': 'bubble',
+        '颜色分类': 'category',
+        '值区间分类': 'choropleth'
+    }
+
+    if (optiontype !== 'point') {
+        drawOptions = {
+            '普通': 'simple',
+            '颜色分类': 'category',
+            '值区间分类': 'choropleth',
+            '颜色渐变': 'intensity'
+        }
+    }
+    
+    gui.add(options, 'draw', drawOptions).onFinishChange(function () {
+        initGui();
+        finished();
+    });
+
+    gui.add(options, 'unit', {
+        '像素': 'px',
+        '米': 'm'
+    }).onFinishChange(function () {
+        initGui();
+        finished();
+    });
+
+    if (options.draw !== 'bubble' && optiontype === 'point') {
+
+        if (options.unit == 'm') {
+            gui.add(options, 'size', 1, 200000).onFinishChange(finished);
+        } else {
+            gui.add(options, 'size', 1, 100).onFinishChange(finished);
+        }
+
+    }
+
+    if (options.draw !== 'heatmap') {
+        gui.add(options, 'globalAlpha', 0, 1).onFinishChange(finished);
+    }
+
+    var gradientOptions = [
+        { 
+            0.25: "rgba(0, 0, 255, 1)",
+            0.55: "rgba(0, 255, 0, 1)",
+            0.85: "rgba(255, 255, 0, 1)",
+            1.0: "rgba(255, 0, 0, 1)"
+        },
+        {
+          '0': 'Black',
+          '0.5': 'Aqua',
+          '1': 'White'
+        },
+        {
+            '0.0': 'blue',
+            '1': 'red'
+        },
+        {
+            '0.0': 'rgb(0, 0, 0)',
+            '0.6': 'rgb(24, 53, 103)',
+            '0.75': 'rgb(46, 100, 158)',
+            '0.9': 'rgb(23, 173, 203)',
+            '1.0': 'rgb(0, 250, 250)'
+        },
+        {
+            '0': 'Navy',
+            '0.25': 'Blue',
+            '0.5': 'Green',
+            '0.75': 'Yellow',
+            '1': 'Red'
+        },
+        {
+            '0': 'Black',
+            '0.33': 'DarkRed',
+            '0.66': 'Yellow',
+            '1': 'White'
+        },
+        {
+            '0': 'Black',
+            '0.4': 'Purple',
+            '0.6': 'Red',
+            '0.8': 'Yellow',
+            '1': 'White'
+        },
+        {
+            '0': 'Red',
+            '0.66': 'Yellow',
+            '1': 'White'
+        },
+        {
+            '0': 'Navy', '0.25': 'Navy',
+            '0.26': 'Green',
+            '0.5': 'Green',
+            '0.51': 'Yellow',
+            '0.75': 'Yellow',
+            '0.76': 'Red',
+            '1': 'Red'
+        },
+        {
+            '0.00': 'rgb(255,0,255)',
+            '0.25': 'rgb(0,0,255)',
+            '0.50': 'rgb(0,255,0)',
+            '0.75': 'rgb(255,255,0)',
+            '1.00': 'rgb(255,0,0)'
+        },
+        { 
+            0: "yellow",
+            1.0: "red"
+        },
+        { 
+            0: "white",
+            1.0: "blue"
+        },
+        { 
+            0: "green",
+            1.0: "rgb(0, 255, 255)"
+        }
+    ];
+
+    switch (options.draw) {
+        case 'simple':
+            gui.addColor(options, 'fillStyle').onChange(finished);
+            gui.add(options, 'globalCompositeOperation', {
+                '默认': 'source-over',
+                '高亮': 'lighter'
+            }).onFinishChange(finished);
+
+            gui.add(options, 'lineWidth', 0, 10).onFinishChange(finished);
+            gui.addColor(options, 'strokeStyle').onChange(finished);
+            gui.add(options, 'symbol', {
+                '圆形': 'circle',
+                '矩形': 'rect'
+            }).onFinishChange(finished);
+            gui.add(options, 'shadowBlur', 0, 100).onFinishChange(finished);
+            gui.addColor(options, 'shadowColor').onChange(finished);
+            break;
+        case 'bubble':
+            gui.addColor(options, 'fillStyle').onChange(finished);
+            // gui.addColor(options, 'shadowColor').onChange(finished);
+            // gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
+            gui.add(options, 'lineWidth', 0, 10).onFinishChange(finished);
+            gui.addColor(options, 'strokeStyle').onChange(finished);
+            gui.add(options, 'maxSize', 35, 100).onFinishChange(finished);
+            gui.add(options, 'max', 1, 500).onFinishChange(finished);
+            break;
+        case 'heatmap':
+            gui.add(options, 'maxOpacity', 0, 1).onFinishChange(finished);
+            gui.addGradient(options, 'gradient', gradientOptions).onFinishChange(finished);
+            gui.add(options, 'max', 1, 500).onFinishChange(finished);
+            break;
+        case 'grid':
+        case 'honeycomb':
+        case 'intensity':
+            gui.add(options, 'lineWidth', 0, 10).onFinishChange(finished);
+            gui.addColor(options, 'strokeStyle').onChange(finished);
+            gui.add(options, 'max', 1, 1000).onFinishChange(finished);
+            gui.addGradient(options, 'gradient', gradientOptions).onFinishChange(finished);
+            break;
+    }
+
+}
+
+$('input[name="optiontype"]').bind('click', function () {
+    optiontype = $('input[name="optiontype"]:checked').val();
+    initGui();
+});
+
+</script>
+	
+</body>
+</html>

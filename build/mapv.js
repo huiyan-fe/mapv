@@ -1026,6 +1026,48 @@
       }
   };
 
+  /**
+   * 获取当前列的最大值
+   */
+  DataSet.prototype.getMax = function (columnName) {
+      var data = this._data;
+
+      if (!data || data.length <= 0) {
+          return;
+      }
+
+      var max = data[0][columnName];
+
+      for (var i = 1; i < data.length; i++) {
+          if (data[i][columnName] > max) {
+              max = data[i][columnName];
+          }
+      }
+
+      return max;
+  };
+
+  /**
+   * 获取当前列的最小值
+   */
+  DataSet.prototype.getMin = function (columnName) {
+      var data = this._data;
+
+      if (!data || data.length <= 0) {
+          return;
+      }
+
+      var min = data[0][columnName];
+
+      for (var i = 1; i < data.length; i++) {
+          if (data[i][columnName] < min) {
+              min = data[i][columnName];
+          }
+      }
+
+      return min;
+  };
+
   var pathSimple = {
       drawDataSet: function drawDataSet(context, dataSet, options) {
 
@@ -1039,11 +1081,16 @@
       draw: function draw(context, data, options) {
           var type = data.geometry.type;
           var coordinates = data.geometry._coordinates || data.geometry.coordinates;
+          var symbol = options.symbol || 'circle';
           switch (type) {
               case 'Point':
                   var size = data._size || data.size || options._size || options.size || 5;
                   context.moveTo(data.x, data.y);
-                  context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
+                  if (options.symbol === 'rect') {
+                      context.rect(coordinates[0] - size / 2, coordinates[1] - size / 2, size, size);
+                  } else {
+                      context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
+                  }
                   break;
               case 'LineString':
                   for (var j = 0; j < coordinates.length; j++) {
@@ -1099,32 +1146,24 @@
           }
 
           // console.log(data);
-
-          for (var i = 0, len = data.length; i < len; i++) {
-
-              var item = data[i];
-
+          if (options.bigData) {
               context.save();
-
-              if (item.fillStyle) {
-                  context.fillStyle = item.fillStyle;
-              }
-
-              if (item.strokeStyle) {
-                  context.strokeStyle = item.strokeStyle;
-              }
-
-              var type = item.geometry.type;
-
               context.beginPath();
 
-              pathSimple.draw(context, item, options);
+              for (var i = 0, len = data.length; i < len; i++) {
+
+                  var item = data[i];
+
+                  pathSimple.draw(context, item, options);
+              };
+
+              var type = options.bigData;
 
               if (type == 'Point' || type == 'Polygon' || type == 'MultiPolygon') {
 
                   context.fill();
 
-                  if (item.strokeStyle || options.strokeStyle) {
+                  if ((item.strokeStyle || options.strokeStyle) && options.lineWidth) {
                       context.stroke();
                   }
               } else if (type == 'LineString') {
@@ -1132,7 +1171,41 @@
               }
 
               context.restore();
-          };
+          } else {
+              for (var i = 0, len = data.length; i < len; i++) {
+
+                  var item = data[i];
+
+                  context.save();
+
+                  if (item.fillStyle) {
+                      context.fillStyle = item.fillStyle;
+                  }
+
+                  if (item.strokeStyle) {
+                      context.strokeStyle = item.strokeStyle;
+                  }
+
+                  var type = item.geometry.type;
+
+                  context.beginPath();
+
+                  pathSimple.draw(context, item, options);
+
+                  if (type == 'Point' || type == 'Polygon' || type == 'MultiPolygon') {
+
+                      context.fill();
+
+                      if ((item.strokeStyle || options.strokeStyle) && options.lineWidth) {
+                          context.stroke();
+                      }
+                  } else if (type == 'LineString') {
+                      context.stroke();
+                  }
+
+                  context.restore();
+              };
+          }
 
           context.restore();
       }
@@ -1337,14 +1410,14 @@
               });
 
               context.beginPath();
-              context.rect(gridKey[0] * size + .5 + offset.x, gridKey[1] * size + .5 + offset.y, size - 1, size - 1);
+              context.rect(gridKey[0] * size + .5 + offset.x, gridKey[1] * size + .5 + offset.y, size, size);
               context.fillStyle = intensity.getColor(grids[gridKey]);
               context.fill();
               if (options.showText) {
                   context.fillStyle = 'white';
-                  context.fillText(grids[gridKey], gridKey[0] * size + .5 + offset.x + size / 2 - 1, gridKey[1] * size + .5 + offset.y + size / 2 - 1);
+                  context.fillText(grids[gridKey], gridKey[0] * size + .5 + offset.x + size / 2, gridKey[1] * size + .5 + offset.y + size / 2);
               }
-              if (options.strokeStyle || options.lineWidth) {
+              if (options.strokeStyle && options.lineWidth) {
                   context.stroke();
               }
           }
@@ -1446,7 +1519,7 @@
 
               context.fillStyle = intensity.getColor(count);
               context.fill();
-              if (options.strokeStyle || options.lineWidth) {
+              if (options.strokeStyle && options.lineWidth) {
                   context.stroke();
               }
           }
@@ -2043,6 +2116,27 @@
   };
 
   /**
+   * 根据DataSet自动生成对应的splitList
+   */
+  Category.prototype.generateByDataSet = function (dataSet) {
+      var colors = ['rgba(255, 255, 0, 0.8)', 'rgba(253, 98, 104, 0.8)', 'rgba(255, 146, 149, 0.8)', 'rgba(255, 241, 193, 0.8)', 'rgba(110, 176, 253, 0.8)', 'rgba(52, 139, 251, 0.8)', 'rgba(17, 102, 252, 0.8)'];
+      var data = dataSet.get();
+      this.splitList = {};
+      var count = 0;
+      for (var i = 0; i < data.length; i++) {
+          if (this.splitList[data[i].count] === undefined) {
+              this.splitList[data[i].count] = colors[count];
+              count++;
+          }
+          if (count >= colors.length - 1) {
+              break;
+          }
+      }
+
+      this.splitList['other'] = colors[colors.length - 1];
+  };
+
+  /**
    * @author kyle / http://nikai.us/
    */
 
@@ -2085,6 +2179,37 @@
       }
 
       return value;
+  };
+
+  /**
+   * 根据DataSet自动生成对应的splitList
+   */
+  Choropleth.prototype.generateByDataSet = function (dataSet) {
+
+      var min = dataSet.getMin('count');
+      var max = dataSet.getMax('count');
+
+      this.generateByMinMax(min, max);
+  };
+
+  /**
+   * 根据DataSet自动生成对应的splitList
+   */
+  Choropleth.prototype.generateByMinMax = function (min, max) {
+      var colors = ['rgba(255, 255, 0, 0.8)', 'rgba(253, 98, 104, 0.8)', 'rgba(255, 146, 149, 0.8)', 'rgba(255, 241, 193, 0.8)', 'rgba(110, 176, 253, 0.8)', 'rgba(52, 139, 251, 0.8)', 'rgba(17, 102, 252, 0.8)'];
+      var splitNum = (max - min) / 7;
+      var index = min;
+      this.splitList = [];
+      var count = 0;
+      while (index < max) {
+          this.splitList.push({
+              start: index,
+              end: index + splitNum,
+              value: colors[count]
+          });
+          count++;
+          index += splitNum;
+      }
   };
 
   /**
@@ -2505,9 +2630,11 @@
               y: 0
           };
 
+          var textKey = options.textKey || 'text';
+
           for (var i = 0, len = data.length; i < len; i++) {
               var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
-              context.fillText(data[i].text, coordinates[0] + offset.x, coordinates[1] + offset.y);
+              context.fillText(data[i][textKey], coordinates[0] + offset.x, coordinates[1] + offset.y);
           };
       }
   };
@@ -2540,6 +2667,8 @@
       if (!(dataSet instanceof DataSet)) {
           dataSet = new DataSet(dataSet);
       }
+
+      this.dataSet = dataSet;
 
       var self = this;
       var data = null;
@@ -2595,7 +2724,8 @@
                       context.beginPath();
                       pathSimple.draw(context, data[i], self.options);
                       if (context.isPointInPath(pixel.x * canvasLayer.devicePixelRatio, pixel.y * canvasLayer.devicePixelRatio)) {
-                          self.options.methods.click(data[i]);
+                          self.options.methods.click(data[i], e);
+                          return;
                       }
                   }
               });
@@ -2776,11 +2906,24 @@
       self.intensity = new Intensity({
           maxSize: self.options.maxSize,
           gradient: self.options.gradient,
-          max: self.options.max
+          max: self.options.max || this.dataSet.getMax('count')
       });
 
       self.category = new Category(self.options.splitList);
       self.choropleth = new Choropleth(self.options.splitList);
+      if (self.options.splitList === undefined) {
+          self.category.generateByDataSet(this.dataSet);
+      }
+
+      if (self.options.zIndex) {
+          this.canvasLayer && this.canvasLayer.setZIndex(self.options.zIndex);
+      }
+
+      if (self.options.splitList === undefined) {
+          var min = self.options.min || this.dataSet.getMin('count');
+          var max = self.options.max || this.dataSet.getMax('count');
+          self.choropleth.generateByMinMax(min, max);
+      }
   };
 
   Layer.prototype.show = function () {
