@@ -158,7 +158,7 @@ map.setMapStyle({
     style: 'light'
 });
 
-var randomCount = 300;
+var randomCount = 1000;
 
 var data = [];
 
@@ -184,8 +184,10 @@ var options = {
     size: 5,
     maxSize: 50,
     maxOpacity: 0.8,
+    globalCompositeOperation: 'source-over',
     globalAlpha: 1,
-    lineWidth: 1,
+    lineWidth: 0,
+    symbol: 'circle',
     unit: 'px',
     gradient: { 
         0.25: "rgba(0, 0, 255, 1)",
@@ -195,8 +197,8 @@ var options = {
     },
     fillStyle: 'rgba(55, 50, 250, 0.6)',
     strokeStyle: 'rgba(55, 50, 250, 0.6)',
-    // shadowColor: 'rgba(55, 50, 250, 0.5)',
-    // shadowBlur: 10
+    shadowColor: 'rgba(55, 50, 250, 0.5)',
+    shadowBlur: 0
 }
 
 var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
@@ -229,16 +231,19 @@ function initGui() {
             draw: '绘制方法',
             unit: '单位',
             size: '大小',
-            fillStyle: '颜色',
+            fillStyle: '填充颜色',
+            globalCompositeOperation: '叠加方式',
             globalAlpha: '图层透明度',
             gradient: '渐变色',
             maxOpacity: '图层透明度',
             shadowColor: '阴影颜色',
             shadowBlur: '阴影大小',
             lineWidth: '线宽',
+            symbol: '形状',
             strokeStyle: '线颜色',
             maxSize: '最大半径值',
             max: '最大阈值',
+            min: '最小阈值',
         }
     });
 
@@ -247,12 +252,12 @@ function initGui() {
     var drawOptions = {
         '普通': 'simple',
         '热力图': 'heatmap',
+        '网格聚类': 'grid',
+        '蜂窝状聚类': 'honeycomb',
+        '颜色渐变': 'intensity',
         '气泡': 'bubble',
         '颜色分类': 'category',
-        '蜂窝状聚类': 'honeycomb',
-        '网格聚类': 'grid',
-        '值区间分类': 'choropleth',
-        '颜色渐变': 'intensity'
+        '值区间分类': 'choropleth'
     }
 
     if (optiontype !== 'point') {
@@ -291,53 +296,122 @@ function initGui() {
         gui.add(options, 'globalAlpha', 0, 1).onFinishChange(finished);
     }
 
+    var gradientOptions = [
+        { 
+            0.25: "rgba(0, 0, 255, 1)",
+            0.55: "rgba(0, 255, 0, 1)",
+            0.85: "rgba(255, 255, 0, 1)",
+            1.0: "rgba(255, 0, 0, 1)"
+        },
+        {
+          '0': 'Black',
+          '0.5': 'Aqua',
+          '1': 'White'
+        },
+        {
+            '0.0': 'blue',
+            '1': 'red'
+        },
+        {
+            '0.0': 'rgb(0, 0, 0)',
+            '0.6': 'rgb(24, 53, 103)',
+            '0.75': 'rgb(46, 100, 158)',
+            '0.9': 'rgb(23, 173, 203)',
+            '1.0': 'rgb(0, 250, 250)'
+        },
+        {
+            '0': 'Navy',
+            '0.25': 'Blue',
+            '0.5': 'Green',
+            '0.75': 'Yellow',
+            '1': 'Red'
+        },
+        {
+            '0': 'Black',
+            '0.33': 'DarkRed',
+            '0.66': 'Yellow',
+            '1': 'White'
+        },
+        {
+            '0': 'Black',
+            '0.4': 'Purple',
+            '0.6': 'Red',
+            '0.8': 'Yellow',
+            '1': 'White'
+        },
+        {
+            '0': 'Red',
+            '0.66': 'Yellow',
+            '1': 'White'
+        },
+        {
+            '0': 'Navy', '0.25': 'Navy',
+            '0.26': 'Green',
+            '0.5': 'Green',
+            '0.51': 'Yellow',
+            '0.75': 'Yellow',
+            '0.76': 'Red',
+            '1': 'Red'
+        },
+        {
+            '0.00': 'rgb(255,0,255)',
+            '0.25': 'rgb(0,0,255)',
+            '0.50': 'rgb(0,255,0)',
+            '0.75': 'rgb(255,255,0)',
+            '1.00': 'rgb(255,0,0)'
+        },
+        { 
+            0: "yellow",
+            1.0: "red"
+        },
+        { 
+            0: "white",
+            1.0: "blue"
+        },
+        { 
+            0: "green",
+            1.0: "rgb(0, 255, 255)"
+        }
+    ];
+
     switch (options.draw) {
         case 'simple':
             gui.addColor(options, 'fillStyle').onChange(finished);
-            // gui.addColor(options, 'shadowColor').onChange(finished);
-            // gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
-            gui.add(options, 'lineWidth', 1, 10).onFinishChange(finished);
+            gui.add(options, 'globalCompositeOperation', {
+                '默认': 'source-over',
+                '高亮': 'lighter'
+            }).onFinishChange(finished);
+
+            gui.add(options, 'lineWidth', 0, 10).onFinishChange(finished);
             gui.addColor(options, 'strokeStyle').onChange(finished);
+            gui.add(options, 'symbol', {
+                '圆形': 'circle',
+                '矩形': 'rect'
+            }).onFinishChange(finished);
+            gui.add(options, 'shadowBlur', 0, 100).onFinishChange(finished);
+            gui.addColor(options, 'shadowColor').onChange(finished);
             break;
         case 'bubble':
             gui.addColor(options, 'fillStyle').onChange(finished);
             // gui.addColor(options, 'shadowColor').onChange(finished);
             // gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
-            gui.add(options, 'lineWidth', 1, 10).onFinishChange(finished);
+            gui.add(options, 'lineWidth', 0, 10).onFinishChange(finished);
             gui.addColor(options, 'strokeStyle').onChange(finished);
             gui.add(options, 'maxSize', 35, 100).onFinishChange(finished);
-            gui.add(options, 'max', 1, 300).onFinishChange(finished);
+            gui.add(options, 'max', 1, 500).onFinishChange(finished);
             break;
         case 'heatmap':
-            // gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
             gui.add(options, 'maxOpacity', 0, 1).onFinishChange(finished);
-            gui.addGradient(options, 'gradient', [
-                { 
-                    0: "yellow",
-                    1.0: "red"
-                },
-                { 
-                    0: "white",
-                    1.0: "blue"
-                },
-                { 
-                    0: "green",
-                    1.0: "rgb(0, 255, 255)"
-                },
-                { 
-                    0.25: "rgba(0, 0, 255, 1)",
-                    0.55: "rgba(0, 255, 0, 1)",
-                    0.85: "rgba(255, 255, 0, 1)",
-                    1.0: "rgba(255, 0, 0, 1)"
-                }
-            ]).onFinishChange(finished);
-            gui.add(options, 'max', 1, 300).onFinishChange(finished);
+            gui.addGradient(options, 'gradient', gradientOptions).onFinishChange(finished);
+            gui.add(options, 'max', 1, 500).onFinishChange(finished);
             break;
         case 'grid':
         case 'honeycomb':
-            gui.add(options, 'lineWidth', 1, 10).onFinishChange(finished);
+        case 'intensity':
+            gui.add(options, 'lineWidth', 0, 10).onFinishChange(finished);
             gui.addColor(options, 'strokeStyle').onChange(finished);
-            gui.add(options, 'max', 1, 300).onFinishChange(finished);
+            gui.add(options, 'max', 1, 1000).onFinishChange(finished);
+            gui.addGradient(options, 'gradient', gradientOptions).onFinishChange(finished);
             break;
     }
 

@@ -67,6 +67,7 @@
             draw: 'simple',
             max: 100,
             size: 5,
+            symbol: 'circle',
             maxSize: 50,
             maxOpacity: 0.8,
             globalAlpha: 1,
@@ -102,6 +103,7 @@
                     unit: '单位',
                     size: '大小',
                     fillStyle: '颜色',
+                    symbol: '形状',
                     globalAlpha: '图层透明度',
                     maxOpacity: '图层透明度',
                     // shadowColor: '阴影颜色',
@@ -156,6 +158,10 @@
                     // gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
                     gui.add(options, 'lineWidth', 1, 10).onFinishChange(finished);
                     gui.addColor(options, 'strokeStyle').onChange(finished);
+                    gui.add(options, 'symbol', {
+                        '圆形': 'circle',
+                        '矩形': 'rect',
+                    }).onFinishChange(finished);
                     break;
                 case 'bubble':
                     gui.addColor(options, 'fillStyle').onChange(finished);
