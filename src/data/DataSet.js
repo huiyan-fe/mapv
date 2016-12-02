@@ -210,6 +210,48 @@ DataSet.prototype.initGeometry = function(transferFn) {
     }
 }
 
+/**
+ * 获取当前列的最大值
+ */
+DataSet.prototype.getMax = function(columnName) {
+    var data = this._data;
+
+    if (!data || data.length <= 0) {
+        return;
+    }
+
+    var max = data[0][columnName];
+
+    for (var i = 1; i < data.length; i++) {
+        if (data[i][columnName] > max) {
+            max = data[i][columnName];
+        }
+    }
+
+    return max;
+}
+
+/**
+ * 获取当前列的最小值
+ */
+DataSet.prototype.getMin = function(columnName) {
+    var data = this._data;
+
+    if (!data || data.length <= 0) {
+        return;
+    }
+
+    var min = data[0][columnName];
+
+    for (var i = 1; i < data.length; i++) {
+        if (data[i][columnName] < min) {
+            min = data[i][columnName];
+        }
+    }
+
+    return min;
+}
+
 function deepCopy(obj) {
     var newObj;
     if (typeof obj == 'object') {

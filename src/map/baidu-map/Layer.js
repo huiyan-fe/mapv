@@ -22,6 +22,8 @@ function Layer(map, dataSet, options) {
         dataSet = new DataSet(dataSet);
     }
 
+    this.dataSet = dataSet;
+
     var self = this;
     var data = null;
     options = options || {};
@@ -80,6 +82,7 @@ function Layer(map, dataSet, options) {
                     pathSimple.draw(context, data[i], self.options);
                     if (context.isPointInPath(pixel.x * canvasLayer.devicePixelRatio, pixel.y * canvasLayer.devicePixelRatio)) {
                         self.options.methods.click(data[i], e);
+                        return;
                     }
                 }
             });
@@ -264,11 +267,24 @@ Layer.prototype.init = function(options) {
     self.intensity = new Intensity({
         maxSize: self.options.maxSize,
         gradient: self.options.gradient,
-        max: self.options.max
+        max: self.options.max || this.dataSet.getMax('count')
     });
 
     self.category = new Category(self.options.splitList);
     self.choropleth = new Choropleth(self.options.splitList);
+    if (self.options.splitList === undefined) {
+        self.category.generateByDataSet(this.dataSet);
+    }
+
+    if (self.options.zIndex) {
+        this.canvasLayer && this.canvasLayer.setZIndex(self.options.zIndex);
+    }
+
+    if (self.options.splitList === undefined) {
+        var min = self.options.min || this.dataSet.getMin('count');
+        var max = self.options.max || this.dataSet.getMax('count');
+        self.choropleth.generateByMinMax(min, max);
+    }
 }
 
 Layer.prototype.show = function() {

@@ -97,7 +97,7 @@ export default {
 
             context.fillStyle = intensity.getColor(count);
             context.fill();
-            if (options.strokeStyle || options.lineWidth) {
+            if (options.strokeStyle && options.lineWidth) {
                 context.stroke();
             }
         }

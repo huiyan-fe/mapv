@@ -38,14 +38,14 @@ export default {
             });
 
             context.beginPath();
-            context.rect(gridKey[0] * size + .5 + offset.x, gridKey[1] * size + .5 + offset.y, size - 1, size - 1);
+            context.rect(gridKey[0] * size + .5 + offset.x, gridKey[1] * size + .5 + offset.y, size, size);
             context.fillStyle = intensity.getColor(grids[gridKey]);
             context.fill();
             if (options.showText) {
                 context.fillStyle = 'white';
-                context.fillText(grids[gridKey], gridKey[0] * size + .5 + offset.x + size / 2 -1, gridKey[1] * size + .5 + offset.y + size / 2 -1);
+                context.fillText(grids[gridKey], gridKey[0] * size + .5 + offset.x + size / 2, gridKey[1] * size + .5 + offset.y + size / 2);
             }
-            if (options.strokeStyle || options.lineWidth) {
+            if (options.strokeStyle && options.lineWidth) {
                 context.stroke();
             }
         }

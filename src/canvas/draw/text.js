@@ -22,9 +22,11 @@ export default {
             y: 0
         };
 
+        var textKey = options.textKey || 'text';
+
         for (var i = 0, len = data.length; i < len; i++) {
             var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
-            context.fillText(data[i].text, coordinates[0] + offset.x, coordinates[1] + offset.y)
+            context.fillText(data[i][textKey], coordinates[0] + offset.x, coordinates[1] + offset.y)
         };
     }
 }

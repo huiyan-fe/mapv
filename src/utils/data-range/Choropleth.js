@@ -50,4 +50,36 @@ Choropleth.prototype.get = function (count) {
 
 }
 
+/**
+ * 根据DataSet自动生成对应的splitList
+ */
+Choropleth.prototype.generateByDataSet = function (dataSet) {
+
+    var min = dataSet.getMin('count');
+    var max = dataSet.getMax('count');
+
+    this.generateByMinMax(min, max);
+    
+}
+
+/**
+ * 根据DataSet自动生成对应的splitList
+ */
+Choropleth.prototype.generateByMinMax = function (min, max) {
+    var colors = ['rgba(255, 255, 0, 0.8)', 'rgba(253, 98, 104, 0.8)', 'rgba(255, 146, 149, 0.8)', 'rgba(255, 241, 193, 0.8)', 'rgba(110, 176, 253, 0.8)', 'rgba(52, 139, 251, 0.8)', 'rgba(17, 102, 252, 0.8)'];
+    var splitNum = (max - min) / 7;
+    var index = min;
+    this.splitList = [];
+    var count = 0;
+    while (index < max) {
+        this.splitList.push({
+            start: index,
+            end: index + splitNum,
+            value: colors[count]
+        });
+        count++;
+        index += splitNum;
+    }
+}
+
 export default Choropleth;

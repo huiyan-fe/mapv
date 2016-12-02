@@ -83,7 +83,12 @@ function Animator(callback, options) {
     this.options.maxDelta = 0.2;
     this.options.loop = options.loop === undefined ? true : options.loop;
 
-    this.steps(options.steps);
+    options.stepsRange = options.stepsRange || {
+        start: 0,
+        end: 100
+    };
+
+    this.steps(options.stepsRange.start || 0, options.stepsRange.end || 100);
     if (options.stepsRange && options.stepsRange.start !== undefined && options.stepsRange.end !== undefined) {
         this.stepsRange(options.stepsRange.start, options.stepsRange.end);
     }
@@ -146,9 +151,8 @@ Animator.prototype = {
         return this;
     },
 
-    steps: function(_) {
-        this.options.steps = _;
-        this._defaultStepsRange = new AnimatorStepsRange(0, _);
+    steps: function(start, end) {
+        this._defaultStepsRange = new AnimatorStepsRange(start, end);
         return this.rescale();
     },
 

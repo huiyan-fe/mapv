@@ -24,7 +24,7 @@ export default {
                 var size = data._size || data.size || options._size || options.size || 5;
                 context.moveTo(data.x, data.y);
                 if (options.symbol === 'rect') {
-                    context.rect(coordinates[0], coordinates[1], size, size);
+                    context.rect(coordinates[0] - size / 2, coordinates[1] - size / 2, size, size);
                 } else {
                     context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
                 }

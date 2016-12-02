@@ -35,7 +35,7 @@ export default {
 
                 context.fill();
 
-                if (item.strokeStyle || options.strokeStyle) {
+                if ((item.strokeStyle || options.strokeStyle) && options.lineWidth) {
                     context.stroke();
                 }
             } else if (type == 'LineString') {
@@ -68,7 +68,7 @@ export default {
 
                     context.fill();
 
-                    if (item.strokeStyle || options.strokeStyle) {
+                    if ((item.strokeStyle || options.strokeStyle) && options.lineWidth) {
                         context.stroke();
                     }
                 } else if (type == 'LineString') {
