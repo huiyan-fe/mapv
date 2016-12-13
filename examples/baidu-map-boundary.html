@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="../build/mapv.js"></script>
+
+    <script type="text/javascript">
+
+        // 百度地图API功能
+        var map = new BMap.Map("map", {
+            enableMapClick: false
+        });    // 创建Map实例
+        map.centerAndZoom(new BMap.Point(116.402831,39.928879), 12);  // 初始化地图,设置中心点坐标和地图级别
+        map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+
+        map.setMapStyle({
+            styleJson: [
+                {
+                    "featureType": "all",
+                    "elementType": "all",
+                    "stylers": {
+                        "lightness": 61,
+                        "saturation": -100
+                    }
+                }
+            ]
+        });
+
+
+        var citys = {
+            '大兴区':203,
+            '石景山区':97,
+            '西城区':276,
+            '门头沟区':16,
+            '朝阳区':1122,
+            '东城区':204,
+            '怀柔区':56,
+            '海淀区':558,
+            '昌平区':306,
+            '通州区':223,
+            '平谷区':57,
+            '丰台区':428,
+            '密云县':103,
+            '顺义区':130,
+            '房山区':123,
+            '延庆县':27,
+        }
+
+        var options = {
+            gradient: {
+                0: 'yellow',
+                1: 'red'
+            },
+            max: 1000,
+            globalAlpha: 0.8,
+            draw: 'intensity'
+        }
+
+        var textOptions = {
+                draw: 'text',
+                font: '14px Arial',
+                fillStyle: 'blue',
+                shadowColor: 'white',
+                shadowBlue: 20,
+                zIndex: 11,
+                shadowBlur: 10
+            }
+
+        var data = [];
+        var textData = [];
+        var dataSet = new mapv.DataSet(data);
+        var textDataSet = new mapv.DataSet(textData);
+
+        var bdary = new BMap.Boundary();
+        function getBoundary(city, count) {
+            bdary.get(city, function(rs){       //获取行政区域
+
+                var coordinates = [];
+                var sum = [0, 0];
+                var pointCount = 0;
+
+                for (var i = 0; i < rs.boundaries.length; i++) {
+                    var boundaries = rs.boundaries[i].split(';');
+                    var polygon = [];
+                    for (var j = 0; j < boundaries.length; j++) {
+                        var item = boundaries[j].split(',');
+                        polygon.push(item);
+                        sum[0] += parseFloat(item[0]);
+                        sum[1] += parseFloat(item[1]);
+                        pointCount++;
+                    }
+                    coordinates.push(polygon);
+                }    
+
+                for (var i = 0; i < polygon.length; i++) {
+                    count[0] += polygon[i]
+                }
+
+                textData.push(
+                    {
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [sum[0] / pointCount, sum[1] / pointCount]
+                        },
+                        text: city + ':' + count
+                    }
+                );
+
+                data.push({
+                    geometry: {
+                        type: 'Polygon',
+                        coordinates: coordinates
+                    },
+                    count: count
+                });
+
+                dataSet.set(data);
+                textDataSet.set(textData);
+
+            });   
+        }
+
+
+        var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+        var mapvLayer = new mapv.baiduMapLayer(map, textDataSet, textOptions);
+
+        var i = 0;
+        for (var key in citys) {
+            i++;
+            (function (key, i) {
+            setTimeout(function(){
+                getBoundary(key, citys[key]);
+            }, 50 * i);
+            })(key, i);
+        }
+
+
+    </script>
+	
+</body>
+</html>

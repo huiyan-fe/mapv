@@ -232,6 +232,27 @@ DataSet.prototype.getMax = function(columnName) {
 }
 
 /**
+ * 获取当前列的总和
+ */
+DataSet.prototype.getSum = function(columnName) {
+    var data = this._data;
+
+    if (!data || data.length <= 0) {
+        return;
+    }
+
+    var sum = 0;
+
+    for (var i = 0; i < data.length; i++) {
+        if (data[i][columnName]) {
+            sum += parseFloat(data[i][columnName]);
+        }
+    }
+
+    return sum;
+}
+
+/**
  * 获取当前列的最小值
  */
 DataSet.prototype.getMin = function(columnName) {
