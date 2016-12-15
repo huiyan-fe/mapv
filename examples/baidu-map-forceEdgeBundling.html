@@ -257,9 +257,12 @@
             size: 1.5,
             animation: {
                 type: 'time',
-                steps: 100,
+                stepsRange: {
+                    start: 0,
+                    end: 100
+                },
                 trails: 1,
-                duration: 5
+                duration: 5,
             },
             draw: 'simple'
         }
