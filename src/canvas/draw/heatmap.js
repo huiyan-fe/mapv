@@ -119,12 +119,12 @@ function draw(context, dataSet, options) {
     var data = dataSet.get();
 
     context.save();
-    console.time('drawGray')
+    //console.time('drawGray')
     drawGray(context, data, options);
-    console.timeEnd('drawGray');
+    //console.timeEnd('drawGray');
     // return false;
     if (!options.absolute) {
-        console.time('changeColor');
+        //console.time('changeColor');
         var colored = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
         colorize(colored.data, utilsColorPalette.getImageData({
             defaultGradient: options.gradient || { 
@@ -134,7 +134,7 @@ function draw(context, dataSet, options) {
                 1.0: "rgba(255, 0, 0, 1)"
             }
         }), options);
-        console.timeEnd('changeColor');
+        //console.timeEnd('changeColor');
         context.putImageData(colored, 0, 0);
 
         context.restore();

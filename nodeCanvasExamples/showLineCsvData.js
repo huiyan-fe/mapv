@@ -4,7 +4,7 @@ var fs = require("fs");
 var width = 1300;
 var height = 800;
 var center = [121.489723, 31.248408];
-var zoom = 10;
+var zoom = 8;
 //var center = [118.489723, 31.248408];
 
 var Canvas = require('canvas')

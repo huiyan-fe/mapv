@@ -184,9 +184,13 @@
 
             rs = rs.split("\n");
             console.log(rs.length);
+            var maxLength = 0;
             for (var i = 0; i < rs.length; i++) {
                 var item = rs[i].split(',');
                 var coordinates = [];
+                if (item.length > maxLength) {
+                    maxLength = item.length;
+                }
                 for (j = 0; j < item.length; j += 2) {
                     coordinates.push([item[j], item[j + 1]]);
                     timeData.push({
@@ -202,8 +206,7 @@
                     geometry: {
                         type: 'LineString',
                         coordinates: coordinates
-                    },
-                    count: 30 * Math.random()
+                    }
                 });
                 
             }
@@ -233,9 +236,9 @@
                 animation: {
                     stepsRange: {
                         start: 0,
-                        end: 100
+                        end: 100 
                     },
-                    trails: 1,
+                    trails: 3,
                     duration: 5,
                 },
                 draw: 'simple'

@@ -15,7 +15,17 @@ import Intensity from "../../utils/data-range/Intensity";
 import Category from "../../utils/data-range/Category";
 import Choropleth from "../../utils/data-range/Choropleth";
 import Animator from "../../utils/animation/Animator";
+import TWEEN from "../../utils/animation/Tween";
 import pathSimple from "../../canvas/path/simple";
+
+if (typeof window !== 'undefined') {
+    requestAnimationFrame(animate);
+}
+
+function animate(time) {
+    requestAnimationFrame(animate);
+    TWEEN.update(time);
+}
 
 function Layer(map, dataSet, options) {
     if (!(dataSet instanceof DataSet)) {
@@ -28,10 +38,10 @@ function Layer(map, dataSet, options) {
     var data = null;
     options = options || {};
 
+    self.map = map;
+
     self.init(options);
     self.argCheck(options);
-
-    self.map = map;
 
     var canvasLayer = this.canvasLayer = new CanvasLayer({
         map: map,
@@ -90,6 +100,7 @@ Layer.prototype._canvasUpdate = function(time) {
 
     if (self.isEnabledTime()) {
         if (time === undefined) {
+            clear(context);
             return;
         }
         context.save();
@@ -287,30 +298,41 @@ Layer.prototype.init = function(options) {
     var animationOptions = self.options.animation;
 
     if (self.options.draw == 'time' || self.isEnabledTime()) {
-        if (!self.animator) {
-            self.animator = new Animator(function(time) {
-                self._canvasUpdate(time);
-            }, {
-                steps: animationOptions.steps || 100,
-                stepsRange: animationOptions.stepsRange || 100,
-                animationDuration: animationOptions.duration || 10
-            });
+        //if (!self.animator) {
+            if (!animationOptions.stepsRange) {
+                animationOptions.stepsRange = {
+                    start: this.dataSet.getMin('time') || 0,
+                    end: this.dataSet.getMax('time') || 0
+                }
+            }
 
-            map.addEventListener('movestart', function() {
+            var steps = { step: animationOptions.stepsRange.start };
+            self.animator = new TWEEN.Tween(steps)
+                .onUpdate(function() {
+                    self._canvasUpdate(this.step);
+                })
+                .repeat(Infinity);
+
+            self.map.addEventListener('movestart', function() {
                 if (self.isEnabledTime() && self.animator) {
-                    self.animator.pause();
+                    self.animator.stop();
                 }
             });
 
-            map.addEventListener('moveend', function() {
+            self.map.addEventListener('moveend', function() {
                 if (self.isEnabledTime() && self.animator) {
                     self.animator.start();
                 }
             });
-        }
+        //}
+
+        var duration = animationOptions.duration * 1000 || 5000;
+
+        self.animator.to({ step: animationOptions.stepsRange.end }, duration);
         self.animator.start();
+
     } else {
-        self.animator && self.animator.pause();
+        self.animator && self.animator.stop();
     }
 }
 

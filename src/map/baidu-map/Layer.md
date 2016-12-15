@@ -269,5 +269,8 @@ dataSet中添加字段
 ### mapvLayer.update({
     options: {} // 修改配置
 }); 
+### mapvLayer.setOptions({
+    size: 1
+}); // 重新设置配置
 ### mapvLayer.show(); // 显示图层
 ### mapvLayer.hide(); // 删除图层
