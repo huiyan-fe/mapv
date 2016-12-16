@@ -54,6 +54,7 @@ map.setMapStyle({
     shadowBlur: 35,  // 投影模糊级数
     shadowOffsetX: 0,
     shadowOffsetY: 0,
+    context: '2d', // 可选2d和webgl，webgl目前只支持画simple模式的点和线
     lineCap: 'butt',
     lineJoin: 'miter',
     miterLimit: 10,

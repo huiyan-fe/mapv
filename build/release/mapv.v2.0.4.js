@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, function (exports) { 'use strict';
 
-	var version = "2.0.3";
+	var version = "2.0.4";
 
 	var classCallCheck = function (instance, Constructor) {
 	  if (!(instance instanceof Constructor)) {
