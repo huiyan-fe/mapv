@@ -33,6 +33,10 @@ var config = {
             pic: 'qianxi.jpg'
         },
         {
+            url: 'nyc-taxi.html',
+            pic: 'nyc-taxi.jpg'
+        },
+        {
             url: 'csv-car.html',
             pic: 'csv-car.jpg'
         },
