@@ -735,7 +735,7 @@
 	 */
 
 	function clear (context) {
-	    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+	    context && context.clearRect && context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 	    //context.canvas.width = context.canvas.width;
 	    //context.canvas.height = context.canvas.height;
 	}
@@ -895,9 +895,9 @@
 	    // var data = deepCopy(this._data);
 	    var data = this._data;
 
-	    //console.timeEnd('copy data time')
+	    // console.timeEnd('copy data time')
 
-	    //console.time('transferCoordinate time')
+	    // console.time('transferCoordinate time')
 
 	    var start = new Date();
 
@@ -912,10 +912,10 @@
 	    }
 
 	    if (args.transferCoordinate) {
-	        data = this.transferCoordinate(data, args.transferCoordinate);
+	        data = this.transferCoordinate(data, args.transferCoordinate, args.fromColumn, args.toColumn);
 	    }
 
-	    //console.timeEnd('transferCoordinate time')
+	    // console.timeEnd('transferCoordinate time')
 
 	    return data;
 	};
@@ -949,7 +949,10 @@
 	/**
 	 * transfer coordinate.
 	 */
-	DataSet.prototype.transferCoordinate = function (data, transferFn) {
+	DataSet.prototype.transferCoordinate = function (data, transferFn, fromColumn, toColumnName) {
+
+	    toColumnName = toColumnName || '_coordinates';
+	    fromColumn = fromColumn || 'coordinates';
 
 	    for (var i = 0; i < data.length; i++) {
 
@@ -958,18 +961,18 @@
 	        if (data[i].geometry) {
 
 	            if (data[i].geometry.type === 'Point') {
-	                var coordinates = data[i].geometry.coordinates;
-	                data[i].geometry._coordinates = transferFn(coordinates);
+	                var coordinates = data[i].geometry[fromColumn];
+	                data[i].geometry[toColumnName] = transferFn(coordinates);
 	            }
 
 	            if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'MultiPolygon') {
 
-	                var coordinates = data[i].geometry.coordinates;
+	                var coordinates = data[i].geometry[fromColumn];
 
 	                if (data[i].geometry.type === 'Polygon') {
 
 	                    var newCoordinates = getPolygon(coordinates);
-	                    data[i].geometry._coordinates = newCoordinates;
+	                    data[i].geometry[toColumnName] = newCoordinates;
 	                } else if (data[i].geometry.type === 'MultiPolygon') {
 	                    var newCoordinates = [];
 	                    for (var c = 0; c < coordinates.length; c++) {
@@ -978,17 +981,17 @@
 	                        newCoordinates.push(polygon);
 	                    }
 
-	                    data[i].geometry._coordinates = newCoordinates;
+	                    data[i].geometry[toColumnName] = newCoordinates;
 	                }
 	            }
 
 	            if (data[i].geometry.type === 'LineString') {
-	                var coordinates = data[i].geometry.coordinates;
+	                var coordinates = data[i].geometry[fromColumn];
 	                var newCoordinates = [];
 	                for (var j = 0; j < coordinates.length; j++) {
 	                    newCoordinates.push(transferFn(coordinates[j]));
 	                }
-	                data[i].geometry._coordinates = newCoordinates;
+	                data[i].geometry[toColumnName] = newCoordinates;
 	            }
 	        }
 	    }
@@ -3182,6 +3185,7 @@
 	function CanvasLayer(options) {
 	    this.options = options || {};
 	    this.paneName = this.options.paneName || 'labelPane';
+	    this.context = this.options.context || '2d';
 	    this.zIndex = this.options.zIndex || 0;
 	    this.mixBlendMode = this.options.mixBlendMode || null;
 	    this._map = options.map;
@@ -3198,7 +3202,7 @@
 	    CanvasLayer.prototype.initialize = function (map) {
 	        this._map = map;
 	        var canvas = this.canvas = document.createElement("canvas");
-	        canvas.style.cssText = "position:absolute;" + "left:0;" + "top:0;" + "z-index:" + this.zIndex + ";";
+	        canvas.style.cssText = "position:absolute;" + "left:0;" + "top:0;" + "z-index:" + this.zIndex + ";user-select:none;";
 	        canvas.style.mixBlendMode = this.mixBlendMode;
 	        this.adjustSize();
 	        map.getPanes()[this.paneName].appendChild(canvas);
@@ -3218,7 +3222,9 @@
 
 	        canvas.width = size.width * devicePixelRatio;
 	        canvas.height = size.height * devicePixelRatio;
-	        canvas.getContext('2d').scale(devicePixelRatio, devicePixelRatio);
+	        if (this.context == '2d') {
+	            canvas.getContext(this.context).scale(devicePixelRatio, devicePixelRatio);
+	        }
 
 	        canvas.style.width = size.width + "px";
 	        canvas.style.height = size.height + "px";
@@ -3269,6 +3275,193 @@
 	        return this.zIndex;
 	    };
 	}
+
+	function draw$1(gl, data, options) {
+
+	    if (!data) {
+	        return;
+	    }
+
+	    var vs, fs, vs_s, fs_s;
+
+	    vs = gl.createShader(gl.VERTEX_SHADER);
+	    fs = gl.createShader(gl.FRAGMENT_SHADER);
+
+	    vs_s = ['attribute vec4 a_Position;', 'void main() {', 'gl_Position = a_Position;', 'gl_PointSize = 30.0;', '}'].join('');
+
+	    fs_s = ['precision mediump float;', 'uniform vec4 u_FragColor;', 'void main() {', 'gl_FragColor = u_FragColor;', '}'].join('');
+
+	    var program = gl.createProgram();
+	    gl.shaderSource(vs, vs_s);
+	    gl.compileShader(vs);
+	    gl.shaderSource(fs, fs_s);
+	    gl.compileShader(fs);
+	    gl.attachShader(program, vs);
+	    gl.attachShader(program, fs);
+	    gl.linkProgram(program);
+	    gl.useProgram(program);
+
+	    gl.enable(gl.BLEND);
+	    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+
+	    //gl.clearColor(0.0, 0.0, 1.0, 1.0);
+	    gl.clear(gl.COLOR_BUFFER_BIT);
+
+	    var halfCanvasWidth = gl.canvas.width / 2;
+	    var halfCanvasHeight = gl.canvas.height / 2;
+
+	    // Create a buffer object
+	    var vertexBuffer = gl.createBuffer();
+	    // Bind the buffer object to target
+	    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+
+	    var a_Position = gl.getAttribLocation(program, 'a_Position');
+	    // Assign the buffer object to a_Position variable
+	    gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+
+	    // Enable the assignment to a_Position variable
+	    gl.enableVertexAttribArray(a_Position);
+
+	    var uFragColor = gl.getUniformLocation(program, 'u_FragColor');
+
+	    var tmpCanvas = document.createElement('canvas');
+	    var tmpCtx = tmpCanvas.getContext('2d');
+	    tmpCanvas.width = 1;
+	    tmpCanvas.height = 1;
+	    tmpCtx.fillStyle = options.strokeStyle || 'red';
+	    tmpCtx.fillRect(0, 0, 1, 1);
+	    var colored = tmpCtx.getImageData(0, 0, 1, 1).data;
+
+	    gl.uniform4f(uFragColor, colored[0] / 255, colored[1] / 255, colored[2] / 255, colored[3] / 255);
+
+	    gl.lineWidth(options.lineWidth || 1);
+
+	    for (var i = 0, len = data.length; i < len; i++) {
+	        var _geometry = data[i].geometry._coordinates;
+
+	        var verticesData = [];
+
+	        for (var j = 0; j < _geometry.length; j++) {
+	            var item = _geometry[j];
+
+	            var x = (item[0] - halfCanvasWidth) / halfCanvasWidth;
+	            var y = (halfCanvasHeight - item[1]) / halfCanvasHeight;
+	            verticesData.push(x, y);
+	        }
+	        var vertices = new Float32Array(verticesData);
+	        // Write date into the buffer object
+	        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+	        gl.drawArrays(gl.LINE_STRIP, 0, _geometry.length);
+	    }
+	};
+
+	var line = {
+	    draw: draw$1
+	};
+
+	function draw$2(gl, data, options) {
+
+	    if (!data) {
+	        return;
+	    }
+
+	    var vs, fs, vs_s, fs_s;
+
+	    vs = gl.createShader(gl.VERTEX_SHADER);
+	    fs = gl.createShader(gl.FRAGMENT_SHADER);
+
+	    vs_s = ['attribute vec4 a_Position;', 'attribute float a_PointSize;', 'void main() {', 'gl_Position = a_Position;', 'gl_PointSize = a_PointSize;', '}'].join('');
+
+	    fs_s = ['precision mediump float;', 'uniform vec4 u_FragColor;', 'void main() {', 'gl_FragColor = u_FragColor;', '}'].join('');
+
+	    var program = gl.createProgram();
+	    gl.shaderSource(vs, vs_s);
+	    gl.compileShader(vs);
+	    gl.shaderSource(fs, fs_s);
+	    gl.compileShader(fs);
+	    gl.attachShader(program, vs);
+	    gl.attachShader(program, fs);
+	    gl.linkProgram(program);
+	    gl.useProgram(program);
+
+	    var a_Position = gl.getAttribLocation(program, 'a_Position');
+
+	    var a_PointSize = gl.getAttribLocation(program, 'a_PointSize');
+
+	    var uFragColor = gl.getUniformLocation(program, 'u_FragColor');
+
+	    //gl.clearColor(0.0, 0.0, 1.0, 1.0);
+	    gl.clear(gl.COLOR_BUFFER_BIT);
+
+	    var halfCanvasWidth = gl.canvas.width / 2;
+	    var halfCanvasHeight = gl.canvas.height / 2;
+
+	    var verticesData = [];
+	    var count = 0;
+	    for (var i = 0; i < data.length; i++) {
+	        var item = data[i].geometry._coordinates;
+
+	        var x = (item[0] - halfCanvasWidth) / halfCanvasWidth;
+	        var y = (halfCanvasHeight - item[1]) / halfCanvasHeight;
+
+	        if (x < -1 || x > 1 || y < -1 || y > 1) {
+	            continue;
+	        }
+	        verticesData.push(x, y);
+	        count++;
+	    }
+
+	    var vertices = new Float32Array(verticesData);
+	    var n = count; // The number of vertices
+
+	    // Create a buffer object
+	    var vertexBuffer = gl.createBuffer();
+	    if (!vertexBuffer) {
+	        console.log('Failed to create the buffer object');
+	        return -1;
+	    }
+
+	    // Bind the buffer object to target
+	    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+	    // Write date into the buffer object
+	    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+	    // Assign the buffer object to a_Position variable
+	    gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+
+	    // Enable the assignment to a_Position variable
+	    gl.enableVertexAttribArray(a_Position);
+
+	    gl.vertexAttrib1f(a_PointSize, options._size);
+
+	    var tmpCanvas = document.createElement('canvas');
+	    var tmpCtx = tmpCanvas.getContext('2d');
+	    tmpCanvas.width = 1;
+	    tmpCanvas.height = 1;
+	    tmpCtx.fillStyle = options.fillStyle;
+	    tmpCtx.fillRect(0, 0, 1, 1);
+	    var colored = tmpCtx.getImageData(0, 0, 1, 1).data;
+
+	    gl.uniform4f(uFragColor, colored[0] / 255, colored[1] / 255, colored[2] / 255, colored[3] / 255);
+	    gl.drawArrays(gl.POINTS, 0, n);
+	};
+
+	var point = {
+	    draw: draw$2
+	};
+
+	var webglDrawSimple = {
+	    draw: function draw(gl, dataSet, options) {
+	        var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
+	        if (data.length > 0) {
+	            if (data[0].geometry.type == "LineString") {
+	                line.draw(gl, data, options);
+	            } else {
+	                point.draw(gl, data, options);
+	            }
+	        }
+	    }
+	};
 
 	var drawText = {
 	    draw: function draw(context, dataSet, options) {
@@ -3345,8 +3538,11 @@
 	    self.init(options);
 	    self.argCheck(options);
 
+	    self.transferToMercator();
+
 	    var canvasLayer = this.canvasLayer = new CanvasLayer({
 	        map: map,
+	        context: this.context,
 	        paneName: options.paneName,
 	        mixBlendMode: options.mixBlendMode,
 	        zIndex: options.zIndex,
@@ -3364,7 +3560,7 @@
 	            map.setDefaultCursor("default");
 	            map.addEventListener('click', function (e) {
 	                var pixel = e.pixel;
-	                var context = canvasLayer.canvas.getContext('2d');
+	                var context = canvasLayer.canvas.getContext(self.context);
 	                var data = dataSet.get();
 	                for (var i = 0; i < data.length; i++) {
 	                    context.beginPath();
@@ -3378,6 +3574,23 @@
 	        }
 	    }
 	}
+
+	// 经纬度左边转换为墨卡托坐标
+	Layer.prototype.transferToMercator = function () {
+	    var projection = map.getMapType().getProjection();
+
+	    if (this.options.coordType !== 'bd09mc') {
+	        var data = this.dataSet.get();
+	        data = this.dataSet.transferCoordinate(data, function (coordinates) {
+	            var pixel = projection.lngLatToPoint({
+	                lng: coordinates[0],
+	                lat: coordinates[1]
+	            });
+	            return [pixel.x, pixel.y];
+	        }, 'coordinates', 'coordinates_mercator');
+	        this.dataSet.set(data);
+	    }
+	};
 
 	Layer.prototype._canvasUpdate = function (time) {
 	    if (!this.canvasLayer) {
@@ -3397,37 +3610,48 @@
 	    var nwMc = new BMap.Pixel(mcCenter.x - map.getSize().width / 2 * zoomUnit, mcCenter.y + map.getSize().height / 2 * zoomUnit); //左上角墨卡托坐标
 
 	    //console.time('update')
-	    var context = this.canvasLayer.canvas.getContext("2d");
+	    var context = this.canvasLayer.canvas.getContext(self.context);
 
 	    if (self.isEnabledTime()) {
 	        if (time === undefined) {
 	            clear(context);
 	            return;
 	        }
-	        context.save();
-	        context.globalCompositeOperation = 'destination-out';
-	        context.fillStyle = 'rgba(0, 0, 0, .1)';
-	        context.fillRect(0, 0, context.canvas.width, context.canvas.height);
-	        context.restore();
+	        if (this.context == '2d') {
+	            context.save();
+	            context.globalCompositeOperation = 'destination-out';
+	            context.fillStyle = 'rgba(0, 0, 0, .1)';
+	            context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+	            context.restore();
+	        }
 	    } else {
 	        clear(context);
 	    }
 
-	    for (var key in self.options) {
-	        context[key] = self.options[key];
+	    if (this.context == '2d') {
+	        for (var key in self.options) {
+	            context[key] = self.options[key];
+	        }
+	    } else {
+	        context.clear(context.COLOR_BUFFER_BIT);
 	    }
 
+	    var scale = 1;
+	    if (this.context != '2d') {
+	        scale = this.canvasLayer.devicePixelRatio;
+	    }
 	    var dataGetOptions = {
+	        fromColumn: self.options.coordType == 'bd09mc' ? 'coordinates' : 'coordinates_mercator',
 	        transferCoordinate: function transferCoordinate(coordinate) {
 
-	            if (self.options.coordType == 'bd09mc') {
-	                var x = (coordinate[0] - nwMc.x) / zoomUnit;
-	                var y = (nwMc.y - coordinate[1]) / zoomUnit;
-	                return [x, y];
-	            }
+	            // if (self.options.coordType == 'bd09mc') {
+	            var x = (coordinate[0] - nwMc.x) / zoomUnit * scale;
+	            var y = (nwMc.y - coordinate[1]) / zoomUnit * scale;
+	            return [x, y];
+	            // }
 
-	            var pixel = map.pointToPixel(new BMap.Point(coordinate[0], coordinate[1]));
-	            return [pixel.x, pixel.y];
+	            // var pixel = map.pointToPixel(new BMap.Point(coordinate[0], coordinate[1]));
+	            // return [pixel.x, pixel.y];
 	        }
 	    };
 
@@ -3538,7 +3762,11 @@
 	            context.restore();
 	            break;
 	        default:
-	            drawSimple.draw(context, data, self.options);
+	            if (self.options.context == "webgl") {
+	                webglDrawSimple.draw(self.canvasLayer.canvas.getContext('webgl'), data, self.options);
+	            } else {
+	                drawSimple.draw(context, data, self.options);
+	            }
 	    }
 	    //console.timeEnd('draw');
 
@@ -3567,6 +3795,8 @@
 	    var self = this;
 
 	    self.options = options;
+
+	    this.context = self.options.context || '2d';
 
 	    self.intensity = new Intensity({
 	        maxSize: self.options.maxSize,
@@ -3677,7 +3907,7 @@
 	        textBaseline: 'alphabetic'
 	    };
 	    var self = this;
-	    var ctx = self.canvasLayer.canvas.getContext("2d");
+	    var ctx = self.canvasLayer.canvas.getContext(self.context);
 	    for (var i in conf) {
 	        ctx[i] = conf[i];
 	    }

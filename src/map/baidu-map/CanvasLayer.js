@@ -12,6 +12,7 @@
 function CanvasLayer(options) {
     this.options = options || {};
     this.paneName = this.options.paneName || 'labelPane';
+    this.context = this.options.context  || '2d';
     this.zIndex = this.options.zIndex || 0;
     this.mixBlendMode = this.options.mixBlendMode || null;
     this._map = options.map;
@@ -28,7 +29,7 @@ if (global.BMap) {
     CanvasLayer.prototype.initialize = function(map) {
         this._map = map;
         var canvas = this.canvas = document.createElement("canvas");
-        canvas.style.cssText = "position:absolute;" + "left:0;" + "top:0;" + "z-index:" + this.zIndex + ";";
+        canvas.style.cssText = "position:absolute;" + "left:0;" + "top:0;" + "z-index:" + this.zIndex + ";user-select:none;";
         canvas.style.mixBlendMode = this.mixBlendMode;
         this.adjustSize();
         map.getPanes()[this.paneName].appendChild(canvas);
@@ -48,7 +49,9 @@ if (global.BMap) {
 
         canvas.width = size.width * devicePixelRatio;
         canvas.height = size.height * devicePixelRatio;
-        canvas.getContext('2d').scale(devicePixelRatio, devicePixelRatio);
+        if (this.context == '2d') {
+            canvas.getContext(this.context).scale(devicePixelRatio, devicePixelRatio);
+        }
 
         canvas.style.width = size.width + "px";
         canvas.style.height = size.height + "px";

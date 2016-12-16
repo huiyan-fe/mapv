@@ -76,9 +76,9 @@ DataSet.prototype.get = function(args) {
     // var data = deepCopy(this._data);
     var data = this._data;
 
-    //console.timeEnd('copy data time')
+    // console.timeEnd('copy data time')
 
-    //console.time('transferCoordinate time')
+    // console.time('transferCoordinate time')
 
     var start = new Date();
 
@@ -93,10 +93,10 @@ DataSet.prototype.get = function(args) {
     }
 
     if (args.transferCoordinate) {
-        data = this.transferCoordinate(data, args.transferCoordinate);
+        data = this.transferCoordinate(data, args.transferCoordinate, args.fromColumn, args.toColumn);
     }
 
-    //console.timeEnd('transferCoordinate time')
+    // console.timeEnd('transferCoordinate time')
 
     return data;
 
@@ -131,7 +131,10 @@ DataSet.prototype.update = function(args) {};
 /**
  * transfer coordinate.
  */
-DataSet.prototype.transferCoordinate = function(data, transferFn) {
+DataSet.prototype.transferCoordinate = function(data, transferFn, fromColumn, toColumnName) {
+
+    toColumnName = toColumnName || '_coordinates';
+    fromColumn = fromColumn || 'coordinates';
 
     for (var i = 0; i < data.length; i++) {
 
@@ -140,18 +143,18 @@ DataSet.prototype.transferCoordinate = function(data, transferFn) {
         if (data[i].geometry) {
 
             if (data[i].geometry.type === 'Point') {
-                var coordinates = data[i].geometry.coordinates;
-                data[i].geometry._coordinates = transferFn(coordinates);
+                var coordinates = data[i].geometry[fromColumn];
+                data[i].geometry[toColumnName] = transferFn(coordinates);
             }
 
             if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'MultiPolygon') {
 
-                var coordinates = data[i].geometry.coordinates;
+                var coordinates = data[i].geometry[fromColumn];
 
                 if (data[i].geometry.type === 'Polygon') {
 
                     var newCoordinates = getPolygon(coordinates);
-                    data[i].geometry._coordinates = newCoordinates;
+                    data[i].geometry[toColumnName] = newCoordinates;
 
                 } else if (data[i].geometry.type === 'MultiPolygon') {
                     var newCoordinates = [];
@@ -161,18 +164,18 @@ DataSet.prototype.transferCoordinate = function(data, transferFn) {
                         newCoordinates.push(polygon);
                     }
 
-                    data[i].geometry._coordinates = newCoordinates;
+                    data[i].geometry[toColumnName] = newCoordinates;
                 }
 
             }
 
             if (data[i].geometry.type === 'LineString') {
-                var coordinates = data[i].geometry.coordinates;
+                var coordinates = data[i].geometry[fromColumn];
                 var newCoordinates = [];
                 for (var j = 0; j < coordinates.length; j++) {
                     newCoordinates.push(transferFn(coordinates[j]));
                 }
-                data[i].geometry._coordinates = newCoordinates;
+                data[i].geometry[toColumnName] = newCoordinates;
             }
         }
     }

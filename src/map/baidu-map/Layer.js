@@ -6,6 +6,7 @@ import CanvasLayer from "./CanvasLayer";
 import clear from "../../canvas/clear";
 import drawHeatmap from "../../canvas/draw/heatmap";
 import drawSimple from "../../canvas/draw/simple";
+import webglDrawSimple from "../../webgl/draw/simple";
 import drawGrid from "../../canvas/draw/grid";
 import drawHoneycomb from "../../canvas/draw/honeycomb";
 import drawText from "../../canvas/draw/text";
@@ -43,8 +44,11 @@ function Layer(map, dataSet, options) {
     self.init(options);
     self.argCheck(options);
 
+    self.transferToMercator();
+
     var canvasLayer = this.canvasLayer = new CanvasLayer({
         map: map,
+        context: this.context,
         paneName: options.paneName,
         mixBlendMode: options.mixBlendMode,
         zIndex: options.zIndex,
@@ -62,7 +66,7 @@ function Layer(map, dataSet, options) {
             map.setDefaultCursor("default");
             map.addEventListener('click', function(e) {
                 var pixel = e.pixel;
-                var context = canvasLayer.canvas.getContext('2d');
+                var context = canvasLayer.canvas.getContext(self.context);
                 var data = dataSet.get();
                 for (var i = 0; i < data.length; i++) {
                     context.beginPath();
@@ -76,6 +80,23 @@ function Layer(map, dataSet, options) {
         }
     }
 
+}
+
+// 经纬度左边转换为墨卡托坐标
+Layer.prototype.transferToMercator = function() {
+    var projection = map.getMapType().getProjection();
+
+    if (this.options.coordType !== 'bd09mc') {
+        var data = this.dataSet.get();
+        data = this.dataSet.transferCoordinate(data, function(coordinates) {
+            var pixel = projection.lngLatToPoint({
+                lng: coordinates[0],
+                lat: coordinates[1]
+            });
+            return [pixel.x, pixel.y];
+        }, 'coordinates', 'coordinates_mercator');
+        this.dataSet.set(data);
+    }
 }
 
 Layer.prototype._canvasUpdate = function(time) {
@@ -96,37 +117,48 @@ Layer.prototype._canvasUpdate = function(time) {
     var nwMc = new BMap.Pixel(mcCenter.x - (map.getSize().width / 2) * zoomUnit, mcCenter.y + (map.getSize().height / 2) * zoomUnit); //左上角墨卡托坐标
 
     //console.time('update')
-    var context = this.canvasLayer.canvas.getContext("2d");
+    var context = this.canvasLayer.canvas.getContext(self.context);
 
     if (self.isEnabledTime()) {
         if (time === undefined) {
             clear(context);
             return;
         }
-        context.save();
-        context.globalCompositeOperation = 'destination-out';
-        context.fillStyle = 'rgba(0, 0, 0, .1)';
-        context.fillRect(0, 0, context.canvas.width, context.canvas.height);
-        context.restore();
+        if (this.context == '2d') {
+            context.save();
+            context.globalCompositeOperation = 'destination-out';
+            context.fillStyle = 'rgba(0, 0, 0, .1)';
+            context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+            context.restore();
+        }
     } else {
         clear(context);
     }
 
-    for (var key in self.options) {
-        context[key] = self.options[key];
+    if (this.context == '2d') {
+        for (var key in self.options) {
+            context[key] = self.options[key];
+        }
+    } else {
+        context.clear(context.COLOR_BUFFER_BIT);
     }
 
+    var scale = 1;
+    if (this.context != '2d') {
+        scale = this.canvasLayer.devicePixelRatio;
+    }
     var dataGetOptions = {
+        fromColumn: self.options.coordType == 'bd09mc' ? 'coordinates' : 'coordinates_mercator',
         transferCoordinate: function(coordinate) {
 
-            if (self.options.coordType == 'bd09mc') {
-                var x = (coordinate[0] - nwMc.x) / zoomUnit;
-                var y = (nwMc.y - coordinate[1]) / zoomUnit;
+            // if (self.options.coordType == 'bd09mc') {
+                var x = (coordinate[0] - nwMc.x) / zoomUnit * scale;
+                var y = (nwMc.y - coordinate[1]) / zoomUnit * scale;
                 return [x, y];
-            }
+            // }
 
-            var pixel = map.pointToPixel(new BMap.Point(coordinate[0], coordinate[1]));
-            return [pixel.x, pixel.y];
+            // var pixel = map.pointToPixel(new BMap.Point(coordinate[0], coordinate[1]));
+            // return [pixel.x, pixel.y];
         }
     }
 
@@ -240,7 +272,11 @@ Layer.prototype._canvasUpdate = function(time) {
             context.restore();
             break;
         default:
-            drawSimple.draw(context, data, self.options);
+            if (self.options.context == "webgl") {
+                webglDrawSimple.draw(self.canvasLayer.canvas.getContext('webgl'), data, self.options);
+            } else {
+                drawSimple.draw(context, data, self.options);
+            }
     }
     //console.timeEnd('draw');
 
@@ -272,6 +308,8 @@ Layer.prototype.init = function(options) {
     var self = this;
 
     self.options = options;
+
+    this.context = self.options.context || '2d';
 
     self.intensity = new Intensity({
         maxSize: self.options.maxSize,
@@ -386,7 +424,7 @@ Layer.prototype.set = function(obj) {
         textBaseline: 'alphabetic'
     }
     var self = this;
-    var ctx = self.canvasLayer.canvas.getContext("2d");
+    var ctx = self.canvasLayer.canvas.getContext(self.context);
     for (var i in conf) {
         ctx[i] = conf[i];
     }

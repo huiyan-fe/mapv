@@ -1,12 +1,8 @@
-function drawWebglPoint () {
-
-    var data = this.getLayer().getData();
+function draw (gl, data, options) {
 
     if (!data) {
         return;
     }
-
-    var gl = this.getCtx();
 
     var vs, fs, vs_s, fs_s;
 
@@ -55,10 +51,10 @@ function drawWebglPoint () {
     var verticesData = [];
     var count = 0;
     for (var i = 0; i < data.length; i++) {
-        var item = data[i];
+        var item = data[i].geometry._coordinates;
 
-        var x = (item.px - halfCanvasWidth) / halfCanvasWidth;
-        var y = (halfCanvasHeight - item.py) / halfCanvasHeight;
+        var x = (item[0]- halfCanvasWidth) / halfCanvasWidth;
+        var y = (halfCanvasHeight - item[1]) / halfCanvasHeight;
 
         if (x < -1 || x > 1 || y < -1 || y > 1) {
             continue;
@@ -88,13 +84,13 @@ function drawWebglPoint () {
     // Enable the assignment to a_Position variable
     gl.enableVertexAttribArray(a_Position);
 
-    gl.vertexAttrib1f(a_PointSize, this.getRadius());
+    gl.vertexAttrib1f(a_PointSize, options._size);
 
     var tmpCanvas = document.createElement('canvas');
     var tmpCtx = tmpCanvas.getContext('2d');
     tmpCanvas.width = 1;
     tmpCanvas.height = 1;
-    tmpCtx.fillStyle = this.getDrawOptions().fillStyle;
+    tmpCtx.fillStyle = options.fillStyle;
     tmpCtx.fillRect(0, 0, 1, 1);
     var colored = tmpCtx.getImageData(0, 0, 1, 1).data;
 
@@ -105,3 +101,7 @@ function drawWebglPoint () {
         colored[3] / 255);
     gl.drawArrays(gl.POINTS, 0, n);
 };
+
+export default {
+    draw: draw
+}

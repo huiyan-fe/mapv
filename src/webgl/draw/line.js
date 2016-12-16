@@ -1,11 +1,8 @@
-function drawWebglPolyline () {
-    var data = this.getLayer().getData();
+function draw(gl, data, options) {
 
     if (!data) {
         return;
     }
-
-    var gl = this.getCtx();
 
     var vs, fs, vs_s, fs_s;
 
@@ -65,7 +62,7 @@ function drawWebglPolyline () {
     var tmpCtx = tmpCanvas.getContext('2d');
     tmpCanvas.width = 1;
     tmpCanvas.height = 1;
-    tmpCtx.fillStyle = this.getDrawOptions().strokeStyle || 'red';
+    tmpCtx.fillStyle = options.strokeStyle || 'red';
     tmpCtx.fillRect(0, 0, 1, 1);
     var colored = tmpCtx.getImageData(0, 0, 1, 1).data;
 
@@ -75,15 +72,15 @@ function drawWebglPolyline () {
         colored[2] / 255,
         colored[3] / 255);
 
-    gl.lineWidth(this.getDrawOptions().lineWidth || 1);
+    gl.lineWidth(options.lineWidth || 1);
 
     for (var i = 0, len = data.length; i < len; i++) {
-        var geo = data[i].pgeo;
+        var _geometry = data[i].geometry._coordinates;
 
         var verticesData = [];
 
-        for (var j = 0; j < geo.length; j++) {
-            var item = geo[j];
+        for (var j = 0; j < _geometry.length; j++) {
+            var item = _geometry[j];
 
             var x = (item[0] - halfCanvasWidth) / halfCanvasWidth;
             var y = (halfCanvasHeight - item[1]) / halfCanvasHeight;
@@ -92,6 +89,11 @@ function drawWebglPolyline () {
         var vertices = new Float32Array(verticesData);
         // Write date into the buffer object
         gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-        gl.drawArrays(gl.LINE_STRIP, 0, geo.length);
+        gl.drawArrays(gl.LINE_STRIP, 0, _geometry.length);
     }
+
 };
+
+export default {
+    draw: draw
+}
