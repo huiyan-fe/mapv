@@ -45,6 +45,9 @@ function Layer(map, dataSet, options) {
     self.argCheck(options);
 
     self.transferToMercator();
+    this.dataSet.on('change', function() {
+        self.transferToMercator();
+    });
 
     var canvasLayer = this.canvasLayer = new CanvasLayer({
         map: map,
@@ -84,7 +87,7 @@ function Layer(map, dataSet, options) {
 
 // 经纬度左边转换为墨卡托坐标
 Layer.prototype.transferToMercator = function() {
-    var projection = map.getMapType().getProjection();
+    var projection = this.map.getMapType().getProjection();
 
     if (this.options.coordType !== 'bd09mc') {
         var data = this.dataSet.get();
@@ -95,7 +98,7 @@ Layer.prototype.transferToMercator = function() {
             });
             return [pixel.x, pixel.y];
         }, 'coordinates', 'coordinates_mercator');
-        this.dataSet.set(data);
+        this.dataSet._set(data);
     }
 }
 
@@ -165,7 +168,7 @@ Layer.prototype._canvasUpdate = function(time) {
 
     if (time !== undefined) {
         dataGetOptions.filter = function(item) {
-            var trails = animationOptions.trails || 5;
+            var trails = animationOptions.trails || 10;
             if (time && item.time > (time - trails) && item.time < time) {
                 return true;
             } else {

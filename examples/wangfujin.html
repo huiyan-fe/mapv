@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        #panel {
+            position:absolute;
+            left: 10px;
+            top: 10px;
+            background:rgba(0, 0, 0, 0.5);
+            color: #fff;
+            font-size: 38px;
+            padding: 10px;
+        }
+        #loading {
+            position:absolute;
+            left: 50%;
+            top: 100px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+    <div id='panel'></div>
+    <div id='loading'>加载中。。</div>
+
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="../build/mapv.js"></script>
+
+    <script type="text/javascript">
+
+        // 百度地图API功能
+        var map = new BMap.Map("map", {
+            enableMapClick: false
+        });    // 创建Map实例
+        map.centerAndZoom(new BMap.Point(116.417471,39.92361), 16);  // 初始化地图,设置中心点坐标和地图级别
+        map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+
+        map.setMapStyle({
+            style: 'grayscale'
+        });
+
+        $.get('data/wangfujin.csv', function(csvstr) {
+
+
+            var dataSet = mapv.csv.getDataSet(csvstr);
+            dataSet.initGeometry();
+            var data = dataSet.get();
+            for (var i = 0; i < data.length; i++) {
+                var time = data[i].time;
+                data[i].time = new Date(time.substr(0, 4) + '-' + time.substr(4, 2) + '-' + time.substr(6, 2) + ' ' + time.substr(8, 2) + ':' + time.substr(10, 2) + ':' + time.substr(12, 2)).getTime();
+            }
+
+            dataSet.set(data);
+
+            var options = {
+                size: 90,
+                unit: 'm',
+                gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
+                max: dataSet.getMax('count'),
+                animation: {
+                    type: 'time',
+                    /*
+                    stepsRange: {
+                        start: 0,
+                        end: 100
+                    },
+                    */
+                    trails: 29 * 60 * 1000,
+                    duration: 15,
+                },
+                updateCallback: function(e) {
+                    var time = new Date(e);
+                    $('#panel').html("时间" + time.getFullYear() + '年' + (time.getMonth() + 1)+ '月' + time.getDate() + '日' + time.getHours() + ':' + time.getMinutes());
+                },
+                coordType: 'bd09mc',
+                draw: 'heatmap'
+            }
+
+            var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+            $('#loading').hide();
+
+        });
+
+    </script>
+	
+</body>
+</html>

@@ -54,6 +54,10 @@ DataSet.prototype.add = function(data, senderId) {
     if (Array.isArray(data)) {
         // Array
         for (var i = 0, len = data.length; i < len; i++) {
+            if (data[i].time && data[i].time.length == 14 && data[i].time.substr(0, 2) == '20') {
+                var time = data[i].time;
+                data[i].time = new Date(time.substr(0, 4) + '-' + time.substr(4, 2) + '-' + time.substr(6, 2) + ' ' + time.substr(8, 2) + ':' + time.substr(10, 2) + ':' + time.substr(12, 2)).getTime();
+            }
             this._data.push(data[i]);
         }
     } else if (data instanceof Object) {
@@ -106,9 +110,16 @@ DataSet.prototype.get = function(args) {
  * set data.
  */
 DataSet.prototype.set = function(data) {
+    this._set(data);
+    this._trigger('change');
+}
+
+/**
+ * set data.
+ */
+DataSet.prototype._set = function(data) {
     this.clear();
     this.add(data);
-    this._trigger('change');
 }
 
 /**
@@ -223,11 +234,12 @@ DataSet.prototype.getMax = function(columnName) {
         return;
     }
 
-    var max = data[0][columnName];
+    var max = parseFloat(data[0][columnName]);
 
     for (var i = 1; i < data.length; i++) {
-        if (data[i][columnName] > max) {
-            max = data[i][columnName];
+        var value = parseFloat(data[i][columnName]);
+        if (value > max) {
+            max = value;
         }
     }
 
@@ -265,11 +277,12 @@ DataSet.prototype.getMin = function(columnName) {
         return;
     }
 
-    var min = data[0][columnName];
+    var min = parseFloat(data[0][columnName]);
 
     for (var i = 1; i < data.length; i++) {
-        if (data[i][columnName] < min) {
-            min = data[i][columnName];
+        var value = parseFloat(data[i][columnName]);
+        if (value < min) {
+            min = value;
         }
     }
 
