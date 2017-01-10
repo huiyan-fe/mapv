@@ -9,8 +9,8 @@ import pathSimple from "../path/simple";
 function createCircle(size) {
 
     if (typeof document === 'undefined') {
-        var Canvas = require('canvas');
-        var circle = new Canvas();
+        // var Canvas = require('canvas');
+        // var circle = new Canvas();
     } else {
         var circle = document.createElement('canvas');
     }

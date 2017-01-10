@@ -64,41 +64,67 @@ function Layer(map, dataSet, options) {
         canvasLayer.draw();
     });
 
-    if (self.options.methods) {
-        if (self.options.methods.click) {
-            map.setDefaultCursor("default");
-            map.addEventListener('click', function(e) {
-                var pixel = e.pixel;
-                var context = canvasLayer.canvas.getContext(self.context);
-                var data = dataSet.get();
-                for (var i = 0; i < data.length; i++) {
-                    context.beginPath();
-                    pathSimple.draw(context, data[i], self.options);
-                    if (context.isPointInPath(pixel.x * canvasLayer.devicePixelRatio, pixel.y * canvasLayer.devicePixelRatio)) {
-                        self.options.methods.click(data[i], e);
-                        return;
-                    }
-                }
-            });
-        }
-        if (self.options.methods.mousemove) {
-            map.addEventListener('mousemove', function(e) {
-                var pixel = e.pixel;
-                var context = canvasLayer.canvas.getContext(self.context);
-                var data = dataSet.get();
-                for (var i = 0; i < data.length; i++) {
-                    context.beginPath();
-                    pathSimple.draw(context, data[i], self.options);
-                    if (context.isPointInPath(pixel.x * canvasLayer.devicePixelRatio, pixel.y * canvasLayer.devicePixelRatio)) {
-                        self.options.methods.mousemove(data[i], e);
-                        return;
-                    }
-                }
-                self.options.methods.mousemove(null, e);
-            });
+    this.clickEvent = this.clickEvent.bind(this);
+    this.mousemoveEvent = this.mousemoveEvent.bind(this);
+
+    this.bindEvent();
+
+}
+
+Layer.prototype.clickEvent = function(e) {
+    var pixel = e.pixel;
+    var context = this.canvasLayer.canvas.getContext(this.context);
+    var data = this.dataSet.get();
+    for (var i = 0; i < data.length; i++) {
+        context.beginPath();
+        pathSimple.draw(context, data[i], this.options);
+        if (context.isPointInPath(pixel.x * this.canvasLayer.devicePixelRatio, pixel.y * this.canvasLayer.devicePixelRatio)) {
+            this.options.methods.click(data[i], e);
+            return;
         }
     }
+}
 
+Layer.prototype.mousemoveEvent = function(e) {
+    var pixel = e.pixel;
+    var context = this.canvasLayer.canvas.getContext(this.context);
+    var data = this.dataSet.get();
+    for (var i = 0; i < data.length; i++) {
+        context.beginPath();
+        pathSimple.draw(context, data[i], this.options);
+        if (context.isPointInPath(pixel.x * this.canvasLayer.devicePixelRatio, pixel.y * this.canvasLayer.devicePixelRatio)) {
+            this.options.methods.mousemove(data[i], e);
+            return;
+        }
+    }
+    this.options.methods.mousemove(null, e);
+}
+
+Layer.prototype.bindEvent = function(e) {
+    var map = this.map;
+
+    if (this.options.methods) {
+        if (this.options.methods.click) {
+            map.setDefaultCursor("default");
+            map.addEventListener('click', this.clickEvent);
+        }
+        if (this.options.methods.mousemove) {
+            map.addEventListener('mousemove', this.mousemoveEvent);
+        }
+    }
+}
+
+Layer.prototype.unbindEvent = function(e) {
+    var map = this.map;
+
+    if (this.options.methods) {
+        if (this.options.methods.click) {
+            map.removeEventListener('click', this.clickEvent);
+        }
+        if (this.options.methods.mousemove) {
+            map.removeEventListener('mousemove', this.mousemoveEvent);
+        }
+    }
 }
 
 // 经纬度左边转换为墨卡托坐标
@@ -400,6 +426,11 @@ Layer.prototype.show = function() {
 
 Layer.prototype.hide = function() {
     this.map.removeOverlay(this.canvasLayer);
+}
+
+Layer.prototype.destroy = function() {
+    this.unbindEvent();
+    this.hide();
 }
 
 /**

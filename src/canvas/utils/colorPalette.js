@@ -6,8 +6,8 @@ export default {
     getImageData: function(config) {
         var gradientConfig = config.gradient || config.defaultGradient;
         if (typeof document === 'undefined') {
-            var Canvas = require('canvas');
-            var paletteCanvas = new Canvas(256, 1);
+            // var Canvas = require('canvas');
+            // var paletteCanvas = new Canvas(256, 1);
         } else {
             var paletteCanvas = document.createElement('canvas');
         }
