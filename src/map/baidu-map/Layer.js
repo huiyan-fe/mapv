@@ -81,6 +81,22 @@ function Layer(map, dataSet, options) {
                 }
             });
         }
+        if (self.options.methods.mousemove) {
+            map.addEventListener('mousemove', function(e) {
+                var pixel = e.pixel;
+                var context = canvasLayer.canvas.getContext(self.context);
+                var data = dataSet.get();
+                for (var i = 0; i < data.length; i++) {
+                    context.beginPath();
+                    pathSimple.draw(context, data[i], self.options);
+                    if (context.isPointInPath(pixel.x * canvasLayer.devicePixelRatio, pixel.y * canvasLayer.devicePixelRatio)) {
+                        self.options.methods.mousemove(data[i], e);
+                        return;
+                    }
+                }
+                self.options.methods.mousemove(null, e);
+            });
+        }
     }
 
 }
@@ -150,6 +166,7 @@ Layer.prototype._canvasUpdate = function(time) {
     if (this.context != '2d') {
         scale = this.canvasLayer.devicePixelRatio;
     }
+
     var dataGetOptions = {
         fromColumn: self.options.coordType == 'bd09mc' ? 'coordinates' : 'coordinates_mercator',
         transferCoordinate: function(coordinate) {
@@ -199,14 +216,14 @@ Layer.prototype._canvasUpdate = function(time) {
 
             if (self.options.draw == 'intensity') {
                 if (data[i].geometry.type === 'LineString') {
-                    data[i].strokeStyle = self.intensity.getColor(item.count);
+                    data[i].strokeStyle = item.strokeStyle || self.intensity.getColor(item.count);
                 } else {
-                    data[i].fillStyle = self.intensity.getColor(item.count);
+                    data[i].fillStyle = item.fillStyle || self.intensity.getColor(item.count);
                 }
             } else if (self.options.draw == 'category') {
-                data[i].fillStyle = self.category.get(item.count);
+                data[i].fillStyle = item.fillStyle || self.category.get(item.count);
             } else if (self.options.draw == 'choropleth') {
-                data[i].fillStyle = self.choropleth.get(item.count);
+                data[i].fillStyle = item.fillStyle || self.choropleth.get(item.count);
             }
         }
 
