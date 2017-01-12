@@ -17,6 +17,7 @@ function Intensity(options) {
         1.0: "rgba(255, 0, 0, 1)"
     };
     this.maxSize = options.maxSize || 35;
+    this.minSize = options.minSize || 0;
     this.max = options.max || 100;
     this.initPalette();
 
@@ -76,12 +77,13 @@ Intensity.prototype.getSize = function (value) {
     var size = 0;
     var max = this.max;
     var maxSize = this.maxSize;
+    var minSize = this.minSize;
 
     if (value > max) {
         value = max;
     }
 
-    size = value / max * maxSize;
+    size = minSize + value / max * (maxSize - minSize);
 
     return size;
 

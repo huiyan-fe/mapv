@@ -359,6 +359,7 @@ Layer.prototype.init = function(options) {
 
     self.intensity = new Intensity({
         maxSize: self.options.maxSize,
+        minSize: self.options.minSize,
         gradient: self.options.gradient,
         max: self.options.max || this.dataSet.getMax('count')
     });
