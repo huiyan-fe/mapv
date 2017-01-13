@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, function (exports) { 'use strict';
 
-	var version = "2.0.8";
+	var version = "2.0.5";
 
 	var classCallCheck = function (instance, Constructor) {
 	  if (!(instance instanceof Constructor)) {
@@ -155,7 +155,6 @@
 	        1.0: "rgba(255, 0, 0, 1)"
 	    };
 	    this.maxSize = options.maxSize || 35;
-	    this.minSize = options.minSize || 0;
 	    this.max = options.max || 100;
 	    this.initPalette();
 	}
@@ -165,8 +164,8 @@
 	    var gradient = this.gradient;
 
 	    if (typeof document === 'undefined') {
-	        // var Canvas = require('canvas');
-	        // var paletteCanvas = new Canvas(256, 1);
+	        var Canvas = require('canvas');
+	        var paletteCanvas = new Canvas(256, 1);
 	    } else {
 	        var paletteCanvas = document.createElement('canvas');
 	    }
@@ -212,13 +211,12 @@
 	    var size = 0;
 	    var max = this.max;
 	    var maxSize = this.maxSize;
-	    var minSize = this.minSize;
 
 	    if (value > max) {
 	        value = max;
 	    }
 
-	    size = minSize + value / max * (maxSize - minSize);
+	    size = value / max * maxSize;
 
 	    return size;
 	};
@@ -1258,8 +1256,8 @@
 	    getImageData: function getImageData(config) {
 	        var gradientConfig = config.gradient || config.defaultGradient;
 	        if (typeof document === 'undefined') {
-	            // var Canvas = require('canvas');
-	            // var paletteCanvas = new Canvas(256, 1);
+	            var Canvas = require('canvas');
+	            var paletteCanvas = new Canvas(256, 1);
 	        } else {
 	            var paletteCanvas = document.createElement('canvas');
 	        }
@@ -1283,8 +1281,8 @@
 	function createCircle(size) {
 
 	    if (typeof document === 'undefined') {
-	        // var Canvas = require('canvas');
-	        // var circle = new Canvas();
+	        var Canvas = require('canvas');
+	        var circle = new Canvas();
 	    } else {
 	        var circle = document.createElement('canvas');
 	    }
@@ -3578,67 +3576,41 @@
 	        canvasLayer.draw();
 	    });
 
-	    this.clickEvent = this.clickEvent.bind(this);
-	    this.mousemoveEvent = this.mousemoveEvent.bind(this);
-
-	    this.bindEvent();
-	}
-
-	Layer.prototype.clickEvent = function (e) {
-	    var pixel = e.pixel;
-	    var context = this.canvasLayer.canvas.getContext(this.context);
-	    var data = this.dataSet.get();
-	    for (var i = 0; i < data.length; i++) {
-	        context.beginPath();
-	        pathSimple.draw(context, data[i], this.options);
-	        if (context.isPointInPath(pixel.x * this.canvasLayer.devicePixelRatio, pixel.y * this.canvasLayer.devicePixelRatio)) {
-	            this.options.methods.click(data[i], e);
-	            return;
-	        }
-	    }
-	};
-
-	Layer.prototype.mousemoveEvent = function (e) {
-	    var pixel = e.pixel;
-	    var context = this.canvasLayer.canvas.getContext(this.context);
-	    var data = this.dataSet.get();
-	    for (var i = 0; i < data.length; i++) {
-	        context.beginPath();
-	        pathSimple.draw(context, data[i], this.options);
-	        if (context.isPointInPath(pixel.x * this.canvasLayer.devicePixelRatio, pixel.y * this.canvasLayer.devicePixelRatio)) {
-	            this.options.methods.mousemove(data[i], e);
-	            return;
-	        }
-	    }
-	    this.options.methods.mousemove(null, e);
-	};
-
-	Layer.prototype.bindEvent = function (e) {
-	    var map = this.map;
-
-	    if (this.options.methods) {
-	        if (this.options.methods.click) {
+	    if (self.options.methods) {
+	        if (self.options.methods.click) {
 	            map.setDefaultCursor("default");
-	            map.addEventListener('click', this.clickEvent);
+	            map.addEventListener('click', function (e) {
+	                var pixel = e.pixel;
+	                var context = canvasLayer.canvas.getContext(self.context);
+	                var data = dataSet.get();
+	                for (var i = 0; i < data.length; i++) {
+	                    context.beginPath();
+	                    pathSimple.draw(context, data[i], self.options);
+	                    if (context.isPointInPath(pixel.x * canvasLayer.devicePixelRatio, pixel.y * canvasLayer.devicePixelRatio)) {
+	                        self.options.methods.click(data[i], e);
+	                        return;
+	                    }
+	                }
+	            });
 	        }
-	        if (this.options.methods.mousemove) {
-	            map.addEventListener('mousemove', this.mousemoveEvent);
+	        if (self.options.methods.mousemove) {
+	            map.addEventListener('mousemove', function (e) {
+	                var pixel = e.pixel;
+	                var context = canvasLayer.canvas.getContext(self.context);
+	                var data = dataSet.get();
+	                for (var i = 0; i < data.length; i++) {
+	                    context.beginPath();
+	                    pathSimple.draw(context, data[i], self.options);
+	                    if (context.isPointInPath(pixel.x * canvasLayer.devicePixelRatio, pixel.y * canvasLayer.devicePixelRatio)) {
+	                        self.options.methods.mousemove(data[i], e);
+	                        return;
+	                    }
+	                }
+	                self.options.methods.mousemove(null, e);
+	            });
 	        }
 	    }
-	};
-
-	Layer.prototype.unbindEvent = function (e) {
-	    var map = this.map;
-
-	    if (this.options.methods) {
-	        if (this.options.methods.click) {
-	            map.removeEventListener('click', this.clickEvent);
-	        }
-	        if (this.options.methods.mousemove) {
-	            map.removeEventListener('mousemove', this.mousemoveEvent);
-	        }
-	    }
-	};
+	}
 
 	// 经纬度左边转换为墨卡托坐标
 	Layer.prototype.transferToMercator = function () {
@@ -3866,7 +3838,6 @@
 
 	    self.intensity = new Intensity({
 	        maxSize: self.options.maxSize,
-	        minSize: self.options.minSize,
 	        gradient: self.options.gradient,
 	        max: self.options.max || this.dataSet.getMax('count')
 	    });
@@ -3931,11 +3902,6 @@
 
 	Layer.prototype.hide = function () {
 	    this.map.removeOverlay(this.canvasLayer);
-	};
-
-	Layer.prototype.destroy = function () {
-	    this.unbindEvent();
-	    this.hide();
 	};
 
 	/**

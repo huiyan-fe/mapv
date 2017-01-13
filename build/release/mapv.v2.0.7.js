@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, function (exports) { 'use strict';
 
-	var version = "2.0.8";
+	var version = "2.0.7";
 
 	var classCallCheck = function (instance, Constructor) {
 	  if (!(instance instanceof Constructor)) {
@@ -155,7 +155,6 @@
 	        1.0: "rgba(255, 0, 0, 1)"
 	    };
 	    this.maxSize = options.maxSize || 35;
-	    this.minSize = options.minSize || 0;
 	    this.max = options.max || 100;
 	    this.initPalette();
 	}
@@ -212,13 +211,12 @@
 	    var size = 0;
 	    var max = this.max;
 	    var maxSize = this.maxSize;
-	    var minSize = this.minSize;
 
 	    if (value > max) {
 	        value = max;
 	    }
 
-	    size = minSize + value / max * (maxSize - minSize);
+	    size = value / max * maxSize;
 
 	    return size;
 	};
@@ -3866,7 +3864,6 @@
 
 	    self.intensity = new Intensity({
 	        maxSize: self.options.maxSize,
-	        minSize: self.options.minSize,
 	        gradient: self.options.gradient,
 	        max: self.options.max || this.dataSet.getMax('count')
 	    });
