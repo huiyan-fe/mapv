@@ -83,6 +83,8 @@ Layer.prototype.clickEvent = function(e) {
             return;
         }
     }
+
+    this.options.methods.click(null, e);
 }
 
 Layer.prototype.mousemoveEvent = function(e) {
@@ -482,6 +484,14 @@ Layer.prototype.set = function(obj) {
     }
     self.init(obj.options);
     self.canvasLayer.draw();
+}
+
+Layer.prototype.getLegend = function(options) {
+    var draw = this.options.draw;
+    var legend = null;
+    if (self.options.draw == 'intensity' || self.options.draw == 'heatmap') {
+        return this.intensity.getLegend(options);
+    } 
 }
 
 export default Layer;

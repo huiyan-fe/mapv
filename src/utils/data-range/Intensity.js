@@ -20,7 +20,6 @@ function Intensity(options) {
     this.minSize = options.minSize || 0;
     this.max = options.max || 100;
     this.initPalette();
-
 }
 
 Intensity.prototype.initPalette = function () {
@@ -88,5 +87,31 @@ Intensity.prototype.getSize = function (value) {
     return size;
 
 }
+
+Intensity.prototype.getLegend = function (options) {
+    var gradient = this.gradient;
+
+    var paletteCanvas = document.createElement('canvas');
+
+    var width = options.width || 20;
+    var height = options.height || 180;
+
+    paletteCanvas.width = width;
+    paletteCanvas.height = height;
+
+    var paletteCtx = paletteCanvas.getContext('2d');
+
+    var lineGradient = paletteCtx.createLinearGradient(0, 0, 0, height);
+
+    for (var key in gradient) {
+        lineGradient.addColorStop(parseFloat(key), gradient[key]);
+    }
+
+    paletteCtx.fillStyle = lineGradient;
+    paletteCtx.fillRect(0, 0, width, height);
+
+    return paletteCanvas;
+}
+
 
 export default Intensity;

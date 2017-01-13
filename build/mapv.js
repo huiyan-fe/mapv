@@ -223,6 +223,31 @@
 	    return size;
 	};
 
+	Intensity.prototype.getLegend = function (options) {
+	    var gradient = this.gradient;
+
+	    var paletteCanvas = document.createElement('canvas');
+
+	    var width = options.width || 20;
+	    var height = options.height || 180;
+
+	    paletteCanvas.width = width;
+	    paletteCanvas.height = height;
+
+	    var paletteCtx = paletteCanvas.getContext('2d');
+
+	    var lineGradient = paletteCtx.createLinearGradient(0, 0, 0, height);
+
+	    for (var key in gradient) {
+	        lineGradient.addColorStop(parseFloat(key), gradient[key]);
+	    }
+
+	    paletteCtx.fillStyle = lineGradient;
+	    paletteCtx.fillRect(0, 0, width, height);
+
+	    return paletteCanvas;
+	};
+
 	function Flate(container) {
 
 	    this.container = container;
@@ -3596,6 +3621,8 @@
 	            return;
 	        }
 	    }
+
+	    this.options.methods.click(null, e);
 	};
 
 	Layer.prototype.mousemoveEvent = function (e) {
@@ -3985,6 +4012,14 @@
 	    }
 	    self.init(obj.options);
 	    self.canvasLayer.draw();
+	};
+
+	Layer.prototype.getLegend = function (options) {
+	    var draw = this.options.draw;
+	    var legend = null;
+	    if (self.options.draw == 'intensity' || self.options.draw == 'heatmap') {
+	        return this.intensity.getLegend(options);
+	    }
 	};
 
 	/**
