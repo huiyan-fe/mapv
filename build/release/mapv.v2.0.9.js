@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, function (exports) { 'use strict';
 
-	var version = "2.0.10";
+	var version = "2.0.8";
 
 	var classCallCheck = function (instance, Constructor) {
 	  if (!(instance instanceof Constructor)) {
@@ -236,7 +236,7 @@
 
 	    var paletteCtx = paletteCanvas.getContext('2d');
 
-	    var lineGradient = paletteCtx.createLinearGradient(0, height, 0, 0);
+	    var lineGradient = paletteCtx.createLinearGradient(0, 0, 0, height);
 
 	    for (var key in gradient) {
 	        lineGradient.addColorStop(parseFloat(key), gradient[key]);

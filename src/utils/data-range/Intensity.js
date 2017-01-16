@@ -101,7 +101,7 @@ Intensity.prototype.getLegend = function (options) {
 
     var paletteCtx = paletteCanvas.getContext('2d');
 
-    var lineGradient = paletteCtx.createLinearGradient(0, 0, 0, height);
+    var lineGradient = paletteCtx.createLinearGradient(0, height, 0, 0);
 
     for (var key in gradient) {
         lineGradient.addColorStop(parseFloat(key), gradient[key]);
