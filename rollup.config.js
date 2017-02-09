@@ -5,7 +5,7 @@ export default {
 	format: 'umd',
 	moduleName: 'mapv',
 	plugins: [babel({
-        presets: [ 'es2015-rollup' ]
-    })],
+		runtimeHelpers: true
+	})],
 	dest: 'build/mapv.js'
 }
