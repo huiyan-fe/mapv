@@ -6,6 +6,204 @@
 
 var version = "2.0.10";
 
+var Camera = function Camera(gl) {
+
+    this.gl = gl;
+    this.radius = 30;
+
+    this.lon = 90;
+    this.lat = 45;
+
+    var canvas = gl.canvas;
+
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    var pMatrix = mat4.create();
+    mat4.perspective(pMatrix, 45, canvas.width / canvas.height, 1, 1000.0);
+    gl.uniformMatrix4fv(gl.uPMatrix, false, pMatrix);
+
+    this.computerXYZ();
+    this.render();
+    this.init();
+};
+
+Camera.prototype.init = function () {
+    this.drag();
+};
+
+Camera.prototype.render = function () {
+    var mvMatrix = mat4.create();
+    mat4.lookAt(mvMatrix, [this.x, this.y, this.z], [0, 0, 0], [0, 0, 1]);
+    this.mvMatrix = mvMatrix;
+};
+
+Camera.prototype.drag = function () {
+    var self = this;
+    var canvas = this.gl.canvas;
+
+    var startX = 0;
+    var startY = 0;
+    var startLon = 0;
+    var startLat = 0;
+    var canDrag = false;
+
+    canvas.addEventListener('mousedown', function (e) {
+        startX = e.offsetX;
+        startY = e.offsetY;
+        startLon = self.lon;
+        startLat = self.lat;
+        canDrag = true;
+    });
+
+    window.addEventListener('mousemove', function (e) {
+        if (canDrag) {
+            var dX = e.offsetX - startX;
+            var dY = e.offsetY - startY;
+            var dLon = dX / 1;
+            var dLat = dY / 1;
+            self.lon = (startLon + dLon) % 360;
+            self.lat = startLat + dLat;
+            self.lat = self.lat > 90 ? 90 : self.lat;
+            self.lat = self.lat < -90 ? -90 : self.lat;
+            self.computerXYZ();
+            self.render();
+        }
+    });
+
+    window.addEventListener('mouseup', function (e) {
+        startX = 0;
+        startY = 0;
+        canDrag = false;
+    });
+};
+
+Camera.prototype.computerXYZ = function () {
+    var self = this;
+    self.z = self.radius * Math.sin(self.lat * Math.PI / 180);
+    var smallRadius = self.radius * Math.cos(self.lat * Math.PI / 180);
+    self.x = smallRadius * Math.cos(self.lon * Math.PI / 180);
+    self.y = -smallRadius * Math.sin(self.lon * Math.PI / 180);
+};
+
+//get the context
+function getWebGLContext(canvas, err) {
+    // bind err
+    if (canvas.addEventListener) {
+        canvas.addEventListener("webglcontextcreationerror", function (event) {
+            err(event.statusMessage);
+        }, false);
+    }
+    //create context
+    var names = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
+    var context = null;
+    for (var ii = 0; ii < names.length; ++ii) {
+        try {
+            context = canvas.getContext(names[ii], err);
+        } catch (e) {}
+        if (context) {
+            break;
+        }
+    }
+    return context;
+}
+
+//init shader
+function initShaders(gl, vshader, fshader) {
+    var program = createProgram(gl, vshader, fshader);
+    if (!program) {
+        console.log('Failed to create program');
+        return false;
+    }
+    gl.useProgram(program);
+    gl.program = program;
+
+    // init shader variable
+    gl.uPMatrix = gl.getUniformLocation(program, "uPMatrix");
+    gl.uMVMatrix = gl.getUniformLocation(program, "uMVMatrix");
+
+    gl.aPosition = gl.getAttribLocation(gl.program, 'aPosition');
+    gl.aColor = gl.getAttribLocation(gl.program, 'aColor');
+    return true;
+}
+
+//create program
+function createProgram(gl, vshader, fshader) {
+    console.log('create');
+    // Create shader object
+    var vertexShader = loadShader(gl, gl.VERTEX_SHADER, vshader);
+    var fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fshader);
+    if (!vertexShader || !fragmentShader) {
+        return null;
+    }
+    // Create a program object
+    var program = gl.createProgram();
+    if (!program) {
+        return null;
+    }
+    // Attach the shader objects
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    // Link the program object
+    gl.linkProgram(program);
+    // Check the result of linking
+    var linked = gl.getProgramParameter(program, gl.LINK_STATUS);
+    if (!linked) {
+        var error = gl.getProgramInfoLog(program);
+        console.log('Failed to link program: ' + error);
+        gl.deleteProgram(program);
+        gl.deleteShader(fragmentShader);
+        gl.deleteShader(vertexShader);
+        return null;
+    }
+    return program;
+}
+
+//loadShader
+function loadShader(gl, type, source) {
+    // Create shader object
+    var shader = gl.createShader(type);
+    if (shader == null) {
+        console.log('unable to create shader');
+        return null;
+    }
+    // Set the shader program
+    gl.shaderSource(shader, source);
+    // Compile the shader
+    gl.compileShader(shader);
+    // Check the result of compilation
+    var compiled = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+    if (!compiled) {
+        var error = gl.getShaderInfoLog(shader);
+        console.log('Failed to compile shader: ' + error);
+        gl.deleteShader(shader);
+        return null;
+    }
+    return shader;
+}
+
+function colorTransform(colorStr) {
+    var color = [0, 0, 0];
+    if (typeof colorStr == 'string') {
+        if (colorStr.indexOf('#') !== -1) {
+            var _color = colorStr.substring(1);
+            if (_color.length == 3) {
+                color = [];
+                for (var i = 0; i < _color.length; i++) {
+                    var key = _color.charAt(i);
+                    color.push(parseInt(key + key, 16) / 255);
+                }
+            } else if (_color.length == 6) {
+                color = [];
+                for (var i = 0; i < _color.length; i += 2) {
+                    var key = _color.charAt(i);
+                    var key2 = _color.charAt(i + 1);
+                    color.push(parseInt(key + key2, 16) / 255);
+                }
+            }
+        }
+    }
+    return color;
+}
+
 var classCallCheck = function (instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -28,6 +226,263 @@ var createClass = function () {
     if (staticProps) defineProperties(Constructor, staticProps);
     return Constructor;
   };
+}();
+
+var Plane = function () {
+    function Plane(GL, obj) {
+        classCallCheck(this, Plane);
+
+        this.GL = GL;
+        this.gl = GL.gl;
+        this.obj = obj = obj || {};
+        this.width = obj.width || 10.0;
+        this.height = obj.height || 10.0;
+        this.operate = [];
+        this.opearteID = 0;
+        this.opearteBuild = {};
+        var color = this.color = colorTransform(obj.color);
+
+        this.verticesColors = new Float32Array([-this.width / 2, +this.height / 2, 0.0, color[0], color[1], color[2], +this.width / 2, +this.height / 2, 0.0, color[0], color[1], color[2], +this.width / 2, -this.height / 2, 0.0, color[0], color[1], color[2], -this.width / 2, -this.height / 2, 0.0, color[0], color[1], color[2]]);
+
+        this.indices = new Uint8Array([0, 1, 2, 0, 2, 3]);
+    }
+
+    createClass(Plane, [{
+        key: 'translate',
+        value: function translate(x, y, z) {
+            var id = this.opearteID = this.opearteID;
+            this.operate.push({
+                id: id++,
+                name: 'translate',
+                value: [x || 0, y || 0, z || 0]
+            });
+            return this;
+        }
+
+        // useage
+        // rotate(30,'x')
+        // rotate(30,'y')
+        // rotate(30,'z')
+        // rotate(30,[1,1,0])
+
+    }, {
+        key: 'rotate',
+        value: function rotate(rad, axis) {
+            var _axis = null;
+            if (axis instanceof Array && axis.length == 3) {
+                _axis = axis;
+            } else {
+                switch (axis) {
+                    case 'x':
+                        _axis = [1, 0, 0];
+                        break;
+                    case 'y':
+                        _axis = [0, 1, 0];
+                        break;
+                    case 'z':
+                        _axis = [0, 0, 1];
+                        break;
+                }
+            }
+
+            if (_axis) {
+                var id = this.opearteID = this.opearteID;
+                this.operate.push({
+                    id: id++,
+                    name: 'rotate',
+                    value: [rad, _axis]
+                });
+            }
+            return this;
+        }
+    }, {
+        key: 'scale',
+        value: function scale(x, y, z) {
+            var id = this.opearteID = this.opearteID;
+            this.operate.push({
+                id: id++,
+                name: 'scale',
+                value: [x || 1, y || 1, z || 1]
+            });
+            return this;
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var gl = this.gl;
+            var mvMatrix = this.GL.camera.mvMatrix;
+
+            // 顶点/颜色缓冲区操作
+            var vertexColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, this.verticesColors, gl.STATIC_DRAW);
+            //
+            var FSIZE = this.verticesColors.BYTES_PER_ELEMENT;
+            //
+            gl.vertexAttribPointer(gl.aPosition, 3, gl.FLOAT, false, FSIZE * 6, 0);
+            gl.enableVertexAttribArray(gl.aPosition);
+            //
+            gl.vertexAttribPointer(gl.aColor, 3, gl.FLOAT, false, FSIZE * 6, FSIZE * 3);
+            gl.enableVertexAttribArray(gl.aColor);
+
+            // 顶点索引缓冲区
+            var indexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW);
+
+            // set mv
+            if (this.opearteBuild.ID === this.opearteID && this.opearteBuild.start === mvMatrix.toString()) {
+                mvMatrix = this.opearteBuild.result;
+            } else {
+                var start = mvMatrix.toString();
+                for (var i in this.operate) {
+                    var type = this.operate[i].name;
+                    var value = this.operate[i].value;
+                    switch (type) {
+                        case 'translate':
+                            var mvNMatrix = mat4.create();
+                            mat4.translate(mvNMatrix, mvMatrix, value);
+                            mvMatrix = mvNMatrix;
+                            break;
+                        case 'rotate':
+                            // console.log(mvMatrix)
+                            var mvNMatrix = mat4.create();
+                            mat4.rotate(mvNMatrix, mvMatrix, value[0], value[1]);
+                            mvMatrix = mvNMatrix;
+                            break;
+                        case 'scale':
+                            var mvNMatrix = mat4.create();
+                            mat4.scale(mvNMatrix, mvMatrix, value);
+                            mvMatrix = mvNMatrix;
+                            break;
+                    }
+                }
+                this.opearteBuild = {
+                    ID: this.opearteID,
+                    result: mvMatrix,
+                    start: start
+                };
+                // console.log(mvNMatrix)
+            }
+
+            gl.uniformMatrix4fv(this.gl.uMVMatrix, false, mvMatrix);
+
+            gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_BYTE, 0);
+        }
+    }]);
+    return Plane;
+}();
+
+var Wall = function () {
+    function Wall(GL, obj) {
+        classCallCheck(this, Wall);
+
+        console.log(obj.path);
+        this.GL = GL;
+        this.gl = GL.gl;
+        this.obj = obj = obj || {};
+        this.width = obj.thickness || 0.20;
+        this.height = obj.height || 3.0;
+
+        this.operate = [];
+        this.opearteID = 0;
+        this.opearteBuild = {};
+        var color = this.color = colorTransform(obj.color);
+
+        this.verticesColors = new Float32Array([-this.width / 2, +this.height / 2, 0.10, color[0], color[1], color[2], +this.width / 2, +this.height / 2, 0.10, color[0], color[1], color[2], +this.width / 2, -this.height / 2, 0.10, color[0], color[1], color[2], -this.width / 2, -this.height / 2, 0.10, color[0], color[1], color[2]]);
+
+        this.indices = new Uint8Array([0, 1, 2, 0, 2, 3]);
+
+        for (var i = 0; i < obj.path.length; i += 2) {
+            if (i === 0) {}
+            console.log(i);
+        }
+    }
+
+    createClass(Wall, [{
+        key: 'render',
+        value: function render() {
+            var gl = this.gl;
+            var mvMatrix = this.GL.camera.mvMatrix;
+
+            // 顶点/颜色缓冲区操作
+            var vertexColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, this.verticesColors, gl.STATIC_DRAW);
+            //
+            var FSIZE = this.verticesColors.BYTES_PER_ELEMENT;
+            //
+            gl.vertexAttribPointer(gl.aPosition, 3, gl.FLOAT, false, FSIZE * 6, 0);
+            gl.enableVertexAttribArray(gl.aPosition);
+            //
+            gl.vertexAttribPointer(gl.aColor, 3, gl.FLOAT, false, FSIZE * 6, FSIZE * 3);
+            gl.enableVertexAttribArray(gl.aColor);
+
+            // 顶点索引缓冲区
+            var indexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW);
+
+            gl.uniformMatrix4fv(this.gl.uMVMatrix, false, mvMatrix);
+
+            gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_BYTE, 0);
+        }
+    }]);
+    return Wall;
+}();
+
+var VSHADER_SOURCE = 'attribute vec4 aPosition;\n' + 'attribute vec4 aColor;\n' + 'uniform mat4 uMVMatrix;\n' + 'uniform mat4 uPMatrix;\n' + 'varying vec4 vColor;\n' + 'void main() {\n' + '  gl_Position = uPMatrix * uMVMatrix * aPosition;\n' + '  vColor = aColor;\n' + '}\n';
+
+var FSHADER_SOURCE = '#ifdef GL_ES\n' + 'precision mediump float;\n' + '#endif\n' + 'varying vec4 vColor;\n' + 'void main() {\n' + '  gl_FragColor = vColor;\n' + '}\n';
+
+var GL = function () {
+    function GL(dom) {
+        classCallCheck(this, GL);
+
+        var self = this;
+
+        var renderList = this.renderList = [];
+
+        var canvas = document.getElementById(dom);
+
+        var gl = this.gl = getWebGLContext(canvas);
+
+        initShaders(gl, VSHADER_SOURCE, FSHADER_SOURCE);
+
+        gl.enable(gl.DEPTH_TEST);
+
+        gl.clearColor(0.98, 0.98, 0.98, 1.0);
+
+        //init camear
+        self.camera = new Camera(this.gl);
+
+        function draw() {
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            for (var i in renderList) {
+                renderList[i].render();
+            }
+            requestAnimationFrame(draw);
+        }
+
+        requestAnimationFrame(draw);
+    }
+
+    createClass(GL, [{
+        key: 'Plane',
+        value: function Plane$$1(obj) {
+            var plane = new Plane(this, obj);
+            this.renderList.push(plane);
+            return plane;
+        }
+    }, {
+        key: 'Wall',
+        value: function Wall$$1(obj) {
+            var wall = new Wall(this, obj);
+            this.renderList.push(wall);
+            return wall;
+        }
+    }]);
+    return GL;
 }();
 
 var X = function () {
@@ -855,35 +1310,6 @@ Event.prototype._trigger = function (event, params, senderId) {
  * @author kyle / http://nikai.us/
  */
 
-/**
- * DataSet
- *
- * A data set can:
- * - add/remove/update data
- * - gives triggers upon changes in the data
- * - can  import/export data in various data formats
- * @param {Array} [data]    Optional array with initial data
- * the field geometry is like geojson, it can be:
- * {
- *     "type": "Point",
- *     "coordinates": [125.6, 10.1]
- * }
- * {
- *     "type": "LineString",
- *     "coordinates": [
- *         [102.0, 0.0], [103.0, 1.0], [104.0, 0.0], [105.0, 1.0]
- *     ]
- * }
- * {
- *     "type": "Polygon",
- *     "coordinates": [
- *         [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],
- *           [100.0, 1.0], [100.0, 0.0] ]
- *     ]
- * }
- * @param {Object} [options]   Available options:
- * 
- */
 function DataSet(data, options) {
 
     this._options = options || {};
@@ -3235,6 +3661,18 @@ var MapHelper = function () {
     return MapHelper;
 }();
 
+// function MapHelper(dom, type, opt) {
+//     var map = new BMap.Map(dom, {
+//         enableMapClick: false
+//     });
+//     map.centerAndZoom(new BMap.Point(106.962497, 38.208726), 5);
+//     map.enableScrollWheelZoom(true);
+
+//     map.setMapStyle({
+//         style: 'light'
+//     });
+// }
+
 /**
  * 一直覆盖在当前地图视野的Canvas对象
  *
@@ -4835,6 +5273,7 @@ var csv = {
 };
 
 exports.version = version;
+exports.Three = GL;
 exports.x = X;
 exports.X = X;
 exports.Flate = Flate;

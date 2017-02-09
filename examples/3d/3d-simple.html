@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>WebGL DEMO</title>
+    <style>
+        body,
+        html {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="webgl" width="1000" height="1000"></canvas>
+    <script type="text/javascript" src="../../src/3d/engine/matrix.js"></script>
+    <script type="text/javascript" src="../../build/mapv.js"></script>
+    <script>
+        var GL = mapv.Three;
+        //
+        var gl = new GL('webgl');
+
+        var plane = gl.Plane({
+            width: 100,
+            height: 100,
+            color: '#eee'
+        })
+
+        var plane2 = gl.Plane({
+                width: 5,
+                height: 5,
+                color: '#ddd'
+            })
+            .translate(0, 0, -2)
+            .scale(2, 2, 2)
+
+        var plane3 = gl.Plane({
+                width: 2,
+                height: 2,
+                color: '#f00'
+            })
+            .translate(0, 0, -4)
+            .rotate(45 * Math.PI / 180, [1, 1, 0])
+
+        var wall = gl.Wall({
+            path: [
+                [-4, 0],
+                [4, 0]
+            ],
+            color: '#ccc'
+        })
+    </script>
+</body>
+
+</html>
