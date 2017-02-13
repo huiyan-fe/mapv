@@ -58,6 +58,11 @@ map.setMapStyle({
     lineCap: 'butt',
     lineJoin: 'miter',
     miterLimit: 10,
+    methods: { // 一些事件回调函数
+        click: function (item) { // 点击事件，返回对应点击元素的对象值
+            console.log(item);
+        }
+    },
     animation: {
         type: 'time', // 按时间展示动画
         stepsRange: { // 动画时间范围,time字段中值
