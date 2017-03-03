@@ -1,39 +1,28 @@
+import {initShaders, getColorData} from './util';
+
+var vs_s = [
+    'attribute vec4 a_Position;',
+    'void main() {',
+    'gl_Position = a_Position;',
+    'gl_PointSize = 30.0;',
+    '}'
+].join('');
+
+var fs_s = [
+    'precision mediump float;',
+    'uniform vec4 u_FragColor;',
+    'void main() {',
+    'gl_FragColor = u_FragColor;',
+    '}'
+].join('');
+
 function draw(gl, data, options) {
 
     if (!data) {
         return;
     }
 
-    var vs, fs, vs_s, fs_s;
-
-    vs = gl.createShader(gl.VERTEX_SHADER);
-    fs = gl.createShader(gl.FRAGMENT_SHADER);
-
-    vs_s = [
-        'attribute vec4 a_Position;',
-        'void main() {',
-        'gl_Position = a_Position;',
-        'gl_PointSize = 30.0;',
-        '}'
-    ].join('');
-
-    fs_s = [
-        'precision mediump float;',
-        'uniform vec4 u_FragColor;',
-        'void main() {',
-        'gl_FragColor = u_FragColor;',
-        '}'
-    ].join('');
-
-    var program = gl.createProgram();
-    gl.shaderSource(vs, vs_s);
-    gl.compileShader(vs);
-    gl.shaderSource(fs, fs_s);
-    gl.compileShader(fs);
-    gl.attachShader(program, vs);
-    gl.attachShader(program, fs);
-    gl.linkProgram(program);
-    gl.useProgram(program);
+    var program = initShaders(gl, vs_s, fs_s)
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
@@ -58,13 +47,7 @@ function draw(gl, data, options) {
 
     var uFragColor = gl.getUniformLocation(program, 'u_FragColor');
 
-    var tmpCanvas = document.createElement('canvas');
-    var tmpCtx = tmpCanvas.getContext('2d');
-    tmpCanvas.width = 1;
-    tmpCanvas.height = 1;
-    tmpCtx.fillStyle = options.strokeStyle || 'red';
-    tmpCtx.fillRect(0, 0, 1, 1);
-    var colored = tmpCtx.getImageData(0, 0, 1, 1).data;
+    var colored = getColorData(options.strokeStyle || 'red')
 
     gl.uniform4f(uFragColor,
         colored[0] / 255,

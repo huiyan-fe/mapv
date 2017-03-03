@@ -13,6 +13,11 @@ export {default as canvasDrawHeatmap} from "./src/canvas/draw/heatmap";
 export {default as canvasDrawGrid} from "./src/canvas/draw/grid";
 export {default as canvasDrawHoneycomb} from "./src/canvas/draw/honeycomb";
 
+export {default as webglDrawSimple} from "./src/webgl/draw/simple";
+export {default as webglDrawPoint} from "./src/webgl/draw/point";
+export {default as webglDrawLine} from "./src/webgl/draw/line";
+export {default as webglDrawPolygon} from "./src/webgl/draw/polygon";
+
 export {default as utilCityCenter} from "./src/utils/cityCenter";
 export {default as utilCurve} from "./src/utils/curve";
 export {default as utilForceEdgeBundling} from "./src/utils/forceEdgeBundling";
