@@ -50,6 +50,7 @@ map.setMapStyle({
     lineWidth: 4, // 描边宽度
     globalAlpha: 1, // 透明度
     globalCompositeOperation: 'lighter', // 颜色叠加方式
+    coordType: 'bd09ll', // 可选百度墨卡托坐标类型bd09mc和百度经纬度坐标类型bd09ll(默认)
     shadowColor: 'rgba(255, 255, 255, 1)', // 投影颜色
     shadowBlur: 35,  // 投影模糊级数
     shadowOffsetX: 0,
