@@ -50,6 +50,7 @@ map.setMapStyle({
     lineWidth: 4, // 描边宽度
     globalAlpha: 1, // 透明度
     globalCompositeOperation: 'lighter', // 颜色叠加方式
+    coordType: 'bd09ll', // 可选百度墨卡托坐标类型bd09mc和百度经纬度坐标类型bd09ll(默认)
     shadowColor: 'rgba(255, 255, 255, 1)', // 投影颜色
     shadowBlur: 35,  // 投影模糊级数
     shadowOffsetX: 0,
@@ -58,6 +59,11 @@ map.setMapStyle({
     lineCap: 'butt',
     lineJoin: 'miter',
     miterLimit: 10,
+    methods: { // 一些事件回调函数
+        click: function (item) { // 点击事件，返回对应点击元素的对象值
+            console.log(item);
+        }
+    },
     animation: {
         type: 'time', // 按时间展示动画
         stepsRange: { // 动画时间范围,time字段中值

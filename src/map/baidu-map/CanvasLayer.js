@@ -15,6 +15,7 @@ function CanvasLayer(options) {
     this.context = this.options.context  || '2d';
     this.zIndex = this.options.zIndex || 0;
     this.mixBlendMode = this.options.mixBlendMode || null;
+    this.enableMassClear = this.options.enableMassClear;
     this._map = options.map;
     this._lastDrawTime = null;
     this.show();

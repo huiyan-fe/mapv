@@ -54,6 +54,7 @@ function Layer(map, dataSet, options) {
         context: this.context,
         paneName: options.paneName,
         mixBlendMode: options.mixBlendMode,
+        enableMassClear: options.enableMassClear,
         zIndex: options.zIndex,
         update: function() {
             self._canvasUpdate();
