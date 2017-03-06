@@ -1,7 +1,7 @@
 export {version} from "./build/version"
 
 // for experimental 3d
-export {default as Three} from "./src/3d/engine/gl"
+export {default as Three} from "./src/3d/three/index.js"
 export {default as x} from "./src/3d/index"
 export {default as X} from "./src/3d/index"
 export {default as Flate} from "./src/3d/map/Flate"

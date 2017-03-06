@@ -3,7 +3,7 @@ function getWebGLContext(canvas, err) {
    // bind err
    if (canvas.addEventListener) {
        canvas.addEventListener("webglcontextcreationerror", function(event) {
-           err(event.statusMessage);
+           console.log(event.statusMessage);
        }, false);
    }
    //create context
