@@ -6,15 +6,19 @@
     <title>WebGL DEMO</title>
     <style>
         body,
-        html {
+        html,
+        #webgl {
+            margin: 0;
+            padding: 0;
             height: 100%;
             width: 100%;
+            overflow: hidden;
         }
     </style>
 </head>
 
 <body>
-    <canvas id="webgl" width="1000" height="1000"></canvas>
+    <div id="webgl"></div>
     <script type="text/javascript" src="../../src/3d/engine/matrix.js"></script>
     <script type="text/javascript" src="../../build/mapv.js"></script>
     <script>

@@ -1,7 +1,7 @@
 var Camera = function (gl) {
 
     this.gl = gl;
-    this.radius = 30;
+    this.radius = 400;
 
     this.lon = 90;
     this.lat = 45;
@@ -10,7 +10,7 @@ var Camera = function (gl) {
 
     gl.viewport(0, 0, canvas.width, canvas.height);
     var pMatrix = mat4.create();
-    mat4.perspective(pMatrix, 45, canvas.width / canvas.height, 1, 1000.0);
+    mat4.perspective(pMatrix, 45, canvas.width / canvas.height, 1, 100000.0);
     gl.uniformMatrix4fv(gl.uPMatrix, false, pMatrix);
 
     this.computerXYZ();
@@ -44,6 +44,14 @@ Camera.prototype.drag = function () {
         startLon = self.lon;
         startLat = self.lat;
         canDrag = true;
+    });
+
+    canvas.addEventListener('mousewheel', function (e) {
+        self.radius -= event.deltaY;
+        self.radius = Math.max(10, self.radius);
+        self.radius = Math.min(100000, self.radius);
+        self.computerXYZ();
+        self.render();
     });
 
     window.addEventListener('mousemove', function (e) {

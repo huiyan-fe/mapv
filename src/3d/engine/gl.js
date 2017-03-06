@@ -18,15 +18,21 @@ class GL {
 
         var renderList = this.renderList = [];
 
-        var canvas = document.getElementById(dom);
+        var Dom = document.getElementById(dom);
+        var DomSty = getComputedStyle(Dom);
+
+        var canvas = document.createElement('canvas');
+        canvas.height = parseInt(DomSty.height);
+        canvas.width = parseInt(DomSty.width);
+        Dom.appendChild(canvas);
 
         var gl = this.gl = getWebGLContext(canvas);
 
         initShaders(gl, VSHADER_SOURCE, FSHADER_SOURCE);
 
         gl.enable(gl.DEPTH_TEST);
-
-        gl.clearColor(0.98, 0.98, 0.98, 1.0);
+        gl.clearColor(0, 0, 0, 1.0);
+        // gl.clearColor(0.98, 0.98, 0.98, 1.0);
 
         //init camear
         self.camera = new Camera(this.gl);

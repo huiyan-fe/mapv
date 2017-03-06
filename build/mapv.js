@@ -9,7 +9,7 @@ var version = "2.0.10";
 var Camera = function Camera(gl) {
 
     this.gl = gl;
-    this.radius = 30;
+    this.radius = 400;
 
     this.lon = 90;
     this.lat = 45;
@@ -18,7 +18,7 @@ var Camera = function Camera(gl) {
 
     gl.viewport(0, 0, canvas.width, canvas.height);
     var pMatrix = mat4.create();
-    mat4.perspective(pMatrix, 45, canvas.width / canvas.height, 1, 1000.0);
+    mat4.perspective(pMatrix, 45, canvas.width / canvas.height, 1, 100000.0);
     gl.uniformMatrix4fv(gl.uPMatrix, false, pMatrix);
 
     this.computerXYZ();
@@ -52,6 +52,14 @@ Camera.prototype.drag = function () {
         startLon = self.lon;
         startLat = self.lat;
         canDrag = true;
+    });
+
+    canvas.addEventListener('mousewheel', function (e) {
+        self.radius -= event.deltaY;
+        self.radius = Math.max(10, self.radius);
+        self.radius = Math.min(100000, self.radius);
+        self.computerXYZ();
+        self.render();
     });
 
     window.addEventListener('mousemove', function (e) {
@@ -443,15 +451,21 @@ var GL = function () {
 
         var renderList = this.renderList = [];
 
-        var canvas = document.getElementById(dom);
+        var Dom = document.getElementById(dom);
+        var DomSty = getComputedStyle(Dom);
+
+        var canvas = document.createElement('canvas');
+        canvas.height = parseInt(DomSty.height);
+        canvas.width = parseInt(DomSty.width);
+        Dom.appendChild(canvas);
 
         var gl = this.gl = getWebGLContext(canvas);
 
         initShaders(gl, VSHADER_SOURCE, FSHADER_SOURCE);
 
         gl.enable(gl.DEPTH_TEST);
-
-        gl.clearColor(0.98, 0.98, 0.98, 1.0);
+        gl.clearColor(0, 0, 0, 1.0);
+        // gl.clearColor(0.98, 0.98, 0.98, 1.0);
 
         //init camear
         self.camera = new Camera(this.gl);
@@ -2055,7 +2069,7 @@ function createShader(gl, src, type) {
     return shader;
 }
 
-function initShaders(gl, vs_source, fs_source) {
+function initShaders$1(gl, vs_source, fs_source) {
 
     var vertexShader = createShader(gl, vs_source, gl.VERTEX_SHADER);
     var fragmentShader = createShader(gl, fs_source, gl.FRAGMENT_SHADER);
@@ -2091,7 +2105,7 @@ function draw$1(gl, data, options) {
         return;
     }
 
-    var program = initShaders(gl, vs_s, fs_s);
+    var program = initShaders$1(gl, vs_s, fs_s);
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
@@ -2155,7 +2169,7 @@ function draw$2(gl, data, options) {
         return;
     }
 
-    var program = initShaders(gl, vs_s$1, fs_s$1);
+    var program = initShaders$1(gl, vs_s$1, fs_s$1);
 
     var a_Position = gl.getAttribLocation(program, 'a_Position');
 
@@ -2864,7 +2878,7 @@ function draw$3(gl, data, options) {
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-    var program = initShaders(gl, vs_s$2, fs_s$2);
+    var program = initShaders$1(gl, vs_s$2, fs_s$2);
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
