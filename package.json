@@ -1,6 +1,6 @@
 {
   "name": "mapv",
-  "version": "2.0.10",
+  "version": "2.0.11",
   "description": "a library of geography visualization",
   "main": "build/mapv.js",
   "scripts": {
@@ -9,6 +9,7 @@
     "build": "npm run pre && rollup -c",
     "pre": "mkdir -p build && mkdir -p build/release && node -e 'process.stdout.write(\"export var version = \\\"\" + require(\"./package.json\").version + \"\\\";\\n\");' > build/version.js",
     "dev": "npm run pre && rollup -c -w",
+    "dev3d": "npm run pre && rollup -c rollup.config.3d.js -w",
     "test": "npm run dev"
   },
   "repository": {

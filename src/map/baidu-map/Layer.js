@@ -15,7 +15,6 @@ import DataSet from "../../data/DataSet";
 import Intensity from "../../utils/data-range/Intensity";
 import Category from "../../utils/data-range/Category";
 import Choropleth from "../../utils/data-range/Choropleth";
-import Animator from "../../utils/animation/Animator";
 import TWEEN from "../../utils/animation/Tween";
 import pathSimple from "../../canvas/path/simple";
 
@@ -403,6 +402,7 @@ Layer.prototype.init = function(options) {
 
             self.map.addEventListener('movestart', function() {
                 if (self.isEnabledTime() && self.animator) {
+                    steps.step = animationOptions.stepsRange.start;
                     self.animator.stop();
                 }
             });

@@ -280,4 +280,5 @@ dataSet中添加字段
     size: 1
 }); // 重新设置配置
 ### mapvLayer.show(); // 显示图层
-### mapvLayer.hide(); // 删除图层
+### mapvLayer.hide(); // 隐藏图层
+### mapvLayer.destroy(); // 销毁当前图层
