@@ -228,6 +228,7 @@
             var dataSet = new mapv.DataSet(data1);
             var options = {
                 fillStyle: 'rgba(200, 200, 0, 0.8)',
+                bigData: 'Point',
                 size: 0.7,
                 draw: 'simple',
             }
@@ -237,6 +238,7 @@
             var options = {
                 fillStyle: 'rgba(255, 250, 0, 0.8)',
                 size: 0.7,
+                bigData: 'Point',
                 draw: 'simple',
             }
             var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
@@ -245,6 +247,7 @@
             var options = {
                 fillStyle: 'rgba(255, 250, 250, 0.6)',
                 size: 0.7,
+                bigData: 'Point',
                 draw: 'simple',
             }
             var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
@@ -254,6 +257,7 @@
                 fillStyle: 'rgba(255, 250, 250, 0.9)',
                 size: 1.1,
                 draw: 'simple',
+                bigData: 'Point',
                 animation: {
                     stepsRange: {
                         start: 0,
