@@ -5,21 +5,16 @@
 import utilsColorPalette from "../utils/colorPalette";
 import Intensity from "../../utils/data-range/Intensity";
 import pathSimple from "../path/simple";
+import Canvas from "../../utils/Canvas";
 
 function createCircle(size) {
 
-    if (typeof document === 'undefined') {
-        // var Canvas = require('canvas');
-        // var circle = new Canvas();
-    } else {
-        var circle = document.createElement('canvas');
-    }
-    var context = circle.getContext('2d');
     var shadowBlur = size / 2;
     var r2 = size + shadowBlur;
     var offsetDistance = 10000;
 
-    circle.width = circle.height = r2 * 2;
+    var circle = new Canvas(r2 * 2, r2 * 2);
+    var context = circle.getContext('2d');
 
     context.shadowBlur = shadowBlur;
     context.shadowColor = 'black';

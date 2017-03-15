@@ -560,6 +560,30 @@ var drawSimple = {
     }
 };
 
+function Canvas(width, height) {
+
+    var canvas;
+
+    if (typeof document === 'undefined') {
+
+        var Canvas = require('canvas');
+        canvas = new Canvas(width, height);
+    } else {
+
+        var canvas = document.createElement('canvas');
+
+        if (width) {
+            canvas.width = width;
+        }
+
+        if (height) {
+            canvas.height = height;
+        }
+    }
+
+    return canvas;
+}
+
 /**
  * @author kyle / http://nikai.us/
  */
@@ -567,16 +591,8 @@ var drawSimple = {
 var utilsColorPalette = {
     getImageData: function getImageData(config) {
         var gradientConfig = config.gradient || config.defaultGradient;
-        if (typeof document === 'undefined') {
-            // var Canvas = require('canvas');
-            // var paletteCanvas = new Canvas(256, 1);
-        } else {
-            var paletteCanvas = document.createElement('canvas');
-        }
-        var paletteCtx = paletteCanvas.getContext('2d');
-
-        paletteCanvas.width = 256;
-        paletteCanvas.height = 1;
+        var canvas = new Canvas(256, 1);
+        var paletteCtx = canvas.getContext('2d');
 
         var gradient = paletteCtx.createLinearGradient(0, 0, 256, 1);
         for (var key in gradientConfig) {
@@ -618,17 +634,9 @@ Intensity.prototype.initPalette = function () {
 
     var gradient = this.gradient;
 
-    if (typeof document === 'undefined') {
-        // var Canvas = require('canvas');
-        // var paletteCanvas = new Canvas(256, 1);
-    } else {
-        var paletteCanvas = document.createElement('canvas');
-    }
+    var canvas = new Canvas(256, 1);
 
-    paletteCanvas.width = 256;
-    paletteCanvas.height = 1;
-
-    var paletteCtx = this.paletteCtx = paletteCanvas.getContext('2d');
+    var paletteCtx = this.paletteCtx = canvas.getContext('2d');
 
     var lineGradient = paletteCtx.createLinearGradient(0, 0, 256, 1);
 
@@ -686,15 +694,12 @@ Intensity.prototype.getSize = function (value) {
 Intensity.prototype.getLegend = function (options) {
     var gradient = this.gradient;
 
-    var paletteCanvas = document.createElement('canvas');
-
     var width = options.width || 20;
     var height = options.height || 180;
 
-    paletteCanvas.width = width;
-    paletteCanvas.height = height;
+    var canvas = new Canvas(width, height);
 
-    var paletteCtx = paletteCanvas.getContext('2d');
+    var paletteCtx = canvas.getContext('2d');
 
     var lineGradient = paletteCtx.createLinearGradient(0, height, 0, 0);
 
@@ -705,7 +710,7 @@ Intensity.prototype.getLegend = function (options) {
     paletteCtx.fillStyle = lineGradient;
     paletteCtx.fillRect(0, 0, width, height);
 
-    return paletteCanvas;
+    return canvas;
 };
 
 /**
@@ -714,18 +719,12 @@ Intensity.prototype.getLegend = function (options) {
 
 function createCircle(size) {
 
-    if (typeof document === 'undefined') {
-        // var Canvas = require('canvas');
-        // var circle = new Canvas();
-    } else {
-        var circle = document.createElement('canvas');
-    }
-    var context = circle.getContext('2d');
     var shadowBlur = size / 2;
     var r2 = size + shadowBlur;
     var offsetDistance = 10000;
 
-    circle.width = circle.height = r2 * 2;
+    var circle = new Canvas(r2 * 2, r2 * 2);
+    var context = circle.getContext('2d');
 
     context.shadowBlur = shadowBlur;
     context.shadowColor = 'black';

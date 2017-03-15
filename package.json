@@ -4,7 +4,7 @@
   "description": "a library of geography visualization",
   "main": "build/mapv.js",
   "scripts": {
-    "publish": "VERSION=`node -e 'console.log(require(\"./package.json\").version)'` && cp build/mapv.js build/release/mapv.v${VERSION}.js && uglifyjs build/release/mapv.v${VERSION}.js -c drop_console -m -o build/release/mapv.v${VERSION}.min.js",
+    "publish": "npm run mini",
     "mini": "npm run build && uglifyjs build/mapv.js -c -m -o build/mapv.min.js",
     "build": "npm run pre && rollup -c",
     "pre": "mkdir -p build && mkdir -p build/release && node -e 'process.stdout.write(\"export var version = \\\"\" + require(\"./package.json\").version + \"\\\";\\n\");' > build/version.js",

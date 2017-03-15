@@ -2,6 +2,8 @@
  * @author kyle / http://nikai.us/
  */
 
+import Canvas from "../Canvas";
+
 /**
  * Category
  * @param {Object} [options]   Available options:
@@ -26,17 +28,9 @@ Intensity.prototype.initPalette = function () {
 
     var gradient = this.gradient;
 
-    if (typeof document === 'undefined') {
-        // var Canvas = require('canvas');
-        // var paletteCanvas = new Canvas(256, 1);
-    } else {
-        var paletteCanvas = document.createElement('canvas');
-    }
+    var canvas = new Canvas(256, 1);
 
-    paletteCanvas.width = 256;
-    paletteCanvas.height = 1;
-
-    var paletteCtx = this.paletteCtx = paletteCanvas.getContext('2d');
+    var paletteCtx = this.paletteCtx = canvas.getContext('2d');
 
     var lineGradient = paletteCtx.createLinearGradient(0, 0, 256, 1);
 
@@ -97,15 +91,13 @@ Intensity.prototype.getSize = function (value) {
 Intensity.prototype.getLegend = function (options) {
     var gradient = this.gradient;
 
-    var paletteCanvas = document.createElement('canvas');
 
     var width = options.width || 20;
     var height = options.height || 180;
 
-    paletteCanvas.width = width;
-    paletteCanvas.height = height;
+    var canvas = new Canvas(width, height);
 
-    var paletteCtx = paletteCanvas.getContext('2d');
+    var paletteCtx = canvas.getContext('2d');
 
     var lineGradient = paletteCtx.createLinearGradient(0, height, 0, 0);
 
@@ -116,7 +108,7 @@ Intensity.prototype.getLegend = function (options) {
     paletteCtx.fillStyle = lineGradient;
     paletteCtx.fillRect(0, 0, width, height);
 
-    return paletteCanvas;
+    return canvas;
 }
 
 
