@@ -630,6 +630,18 @@ function Intensity(options) {
     this.initPalette();
 }
 
+Intensity.prototype.setMax = function (max) {
+    this.max = max || 100;
+};
+
+Intensity.prototype.setMaxSize = function (maxSize) {
+    this.maxSize = maxSize || 35;
+};
+
+Intensity.prototype.setMinSize = function (minSize) {
+    this.minSize = minSize || 0;
+};
+
 Intensity.prototype.initPalette = function () {
 
     var gradient = this.gradient;
