@@ -29,7 +29,18 @@ export default {
             if (data[i].geometry) {
                 var icon = data[i].icon || options.icon;
                 var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
-                context.drawImage(icon, coordinates[0] - icon.width / 2 + offset.x, coordinates[1] - icon.height / 2 + offset.y);
+                var x = coordinates[0] - icon.width / 2 + offset.x;
+                var y = coordinates[1] - icon.height / 2 + offset.y;
+                if (data[i].deg) {
+                    context.save();
+                    context.translate(x, y);
+                    context.rotate(data[i].deg * Math.PI / 180);
+                    context.translate(-x, -y);
+                }
+                context.drawImage(icon, x, y);
+                if (data[i].deg) {
+                    context.restore();
+                }
             }
 
         };
