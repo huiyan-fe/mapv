@@ -61,7 +61,7 @@
                         type: 'Point',
                         coordinates: [cityCenter.lng - 2 + Math.random() * 4, cityCenter.lat - 2 + Math.random() * 4]
                     },
-                    deg: 90 * Math.random(),
+                    deg: 360 * Math.random(),
                     icon: img
                 });
             }
@@ -71,6 +71,11 @@
                 draw: 'icon'
             }
 
+            var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+            var options = {
+                draw: 'simple'
+            }
             var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
         }
     </script>
