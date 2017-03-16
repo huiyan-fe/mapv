@@ -23,9 +23,18 @@ var intensity = new mapv.utilDataRangeIntensity({
 ```javascript
     var size = intensity.getSize(count);
 ```
-
 ### getColor
 根据权重值获取对应的颜色
 ```javascript
     var size = intensity.getColor(count);
+```
+### setMax
+修改最大权重值
+```javascript
+    intensity.setMax(100);
+```
+### setMaxSize
+修改最大半径值
+```javascript
+    intensity.setMaxSize(100);
 ```
