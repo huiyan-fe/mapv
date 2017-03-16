@@ -5,6 +5,10 @@ var config = {
             pic: 'baidu-map-point-simple.jpg'
         },
         {
+            url: 'qianxi-time.html',
+            pic: 'qianxi-time.jpg'
+        },
+        {
             url: 'baidu-map-point-heatmap-time.html',
             pic: 'baidu-map-point-heatmap-time.gif'
         },
