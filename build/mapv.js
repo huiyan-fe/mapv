@@ -3718,15 +3718,15 @@ var drawIcon = {
             if (data[i].geometry) {
                 var icon = data[i].icon || options.icon;
                 var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
-                var x = coordinates[0] - icon.width / 2 + offset.x;
-                var y = coordinates[1] - icon.height / 2 + offset.y;
+                var x = coordinates[0];
+                var y = coordinates[1];
                 if (data[i].deg) {
                     context.save();
                     context.translate(x, y);
                     context.rotate(data[i].deg * Math.PI / 180);
                     context.translate(-x, -y);
                 }
-                context.drawImage(icon, x, y);
+                context.drawImage(icon, x - icon.width / 2 + offset.x, y - icon.height / 2 + offset.y);
                 if (data[i].deg) {
                     context.restore();
                 }
