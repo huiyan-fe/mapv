@@ -10,7 +10,7 @@ var version = "2.0.11";
  * @author kyle / http://nikai.us/
  */
 
-var clear$1 = function (context) {
+var clear = function (context) {
     context && context.clearRect && context.clearRect(0, 0, context.canvas.width, context.canvas.height);
     //context.canvas.width = context.canvas.width;
     //context.canvas.height = context.canvas.height;
@@ -3824,31 +3824,12 @@ var BaseLayer = function () {
         key: "drawContext",
         value: function drawContext(context, dataSet, options, nwPixel) {
             var self = this;
-
-            if (self.options.unit == 'm' && self.options.size) {
-                self.options._size = self.options.size / zoomUnit;
-            } else {
-                self.options._size = self.options.size;
-            }
-
             switch (self.options.draw) {
                 case 'heatmap':
                     drawHeatmap.draw(context, dataSet, self.options);
                     break;
                 case 'grid':
                 case 'honeycomb':
-                    /*
-                    if (data.length <= 0) {
-                        break;
-                    }
-                     var minx = data[0].geometry.coordinates[0];
-                    var maxy = data[0].geometry.coordinates[1];
-                    for (var i = 1; i < data.length; i++) {
-                        minx = Math.min(data[i].geometry.coordinates[0], minx);
-                        maxy = Math.max(data[i].geometry.coordinates[1], maxy);
-                    }
-                    var nwPixel = map.pointToPixel(new BMap.Point(minx, maxy));
-                    */
                     self.options.offset = {
                         x: nwPixel.x,
                         y: nwPixel.y
@@ -3869,7 +3850,7 @@ var BaseLayer = function () {
                     context.save();
                     context.fillStyle = self.options.fillStyle || 'rgba(0, 0, 0, 0.5)';
                     context.fillRect(0, 0, context.canvas.width, context.canvas.height);
-                    drawSimple.draw(context, data, self.options);
+                    drawSimple.draw(context, dataSet, self.options);
                     context.beginPath();
                     pathSimple.drawDataSet(context, dataSet, self.options);
                     context.clip();
@@ -4149,7 +4130,7 @@ var Layer = function (_BaseLayer) {
 
             if (self.isEnabledTime()) {
                 if (time === undefined) {
-                    clear$1(context);
+                    clear(context);
                     return;
                 }
                 if (this.context == '2d') {
@@ -4160,7 +4141,7 @@ var Layer = function (_BaseLayer) {
                     context.restore();
                 }
             } else {
-                clear$1(context);
+                clear(context);
             }
 
             if (this.context == '2d') {
@@ -4206,6 +4187,13 @@ var Layer = function (_BaseLayer) {
             this.processData(data);
 
             var nwPixel = map.pointToPixel(new BMap.Point(0, 0));
+
+            if (self.options.unit == 'm' && self.options.size) {
+                self.options._size = self.options.size / zoomUnit;
+            } else {
+                self.options._size = self.options.size;
+            }
+
             this.drawContext(context, data, self.options, nwPixel);
 
             //console.timeEnd('draw');
@@ -4882,7 +4870,7 @@ var Layer$2 = function (_BaseLayer) {
 
             if (self.isEnabledTime()) {
                 if (time === undefined) {
-                    clear$1(context);
+                    clear(context);
                     return;
                 }
                 if (this.context == '2d') {
@@ -4893,7 +4881,7 @@ var Layer$2 = function (_BaseLayer) {
                     context.restore();
                 }
             } else {
-                clear$1(context);
+                clear(context);
             }
 
             if (this.context == '2d') {
@@ -4942,7 +4930,6 @@ var Layer$2 = function (_BaseLayer) {
             }
 
             // get data from data set
-            console.log(1111, self.dataSet.get());
             var data = self.dataSet.get(dataGetOptions);
 
             this.processData(data);
@@ -4953,220 +4940,13 @@ var Layer$2 = function (_BaseLayer) {
                 x: (worldPoint.x - offset.x) * scale,
                 y: (worldPoint.y - offset.y) * scale
             };
-            this.drawContext(context, new DataSet(data), self.options, pixel);
 
-            //console.timeEnd('draw');
-
-            //console.timeEnd('update')
-            self.options.updateCallback && self.options.updateCallback(time);
-        }
-    }, {
-        key: "init",
-        value: function init(options) {
-
-            var self = this;
-
-            self.options = options;
-
-            this.initDataRange(options);
-
-            this.context = self.options.context || '2d';
-
-            if (self.options.zIndex) {
-                this.canvasLayer && this.canvasLayer.setZIndex(self.options.zIndex);
-            }
-
-            this.initAnimator();
-        }
-    }, {
-        key: "addAnimatorEvent",
-        value: function addAnimatorEvent() {
-            this.map.addListener('movestart', this.animatorMovestartEvent.bind(this));
-            this.map.addListener('moveend', this.animatorMoveendEvent.bind(this));
-        }
-    }, {
-        key: "show",
-        value: function show() {
-            this.map.addOverlay(this.canvasLayer);
-        }
-    }, {
-        key: "hide",
-        value: function hide() {
-            this.map.removeOverlay(this.canvasLayer);
-        }
-    }, {
-        key: "draw",
-        value: function draw() {
-            self.canvasLayer.draw();
-        }
-    }]);
-    return Layer;
-}(BaseLayer);
-
-/**
- * @author kyle / http://nikai.us/
- */
-
-var Layer$4 = function (_BaseLayer) {
-    inherits(Layer, _BaseLayer);
-
-    function Layer(map, dataSet, options) {
-        classCallCheck(this, Layer);
-
-        var _this = possibleConstructorReturn(this, (Layer.__proto__ || Object.getPrototypeOf(Layer)).call(this, map, dataSet, options));
-
-        var self = _this;
-        var data = null;
-        options = options || {};
-
-        self.init(options);
-        self.argCheck(options);
-
-        var BigPointLayer = L.CanvasLayer.extend({
-
-            render: function render() {
-
-                self._canvasUpdate();
-
-                this.redraw();
-            }
-        });
-
-        var canvasLayer = _this.canvasLayer = new BigPointLayer();
-        canvasLayer.addTo(map);
-
-        _this.clickEvent = _this.clickEvent.bind(_this);
-        _this.mousemoveEvent = _this.mousemoveEvent.bind(_this);
-        _this.bindEvent();
-        return _this;
-    }
-
-    createClass(Layer, [{
-        key: "clickEvent",
-        value: function clickEvent(e) {
-            var pixel = e.pixel;
-            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "clickEvent", this).call(this, pixel, e);
-        }
-    }, {
-        key: "mousemoveEvent",
-        value: function mousemoveEvent(e) {
-            var pixel = e.pixel;
-            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "mousemoveEvent", this).call(this, pixel, e);
-        }
-    }, {
-        key: "bindEvent",
-        value: function bindEvent(e) {
-            var map = this.map;
-
-            if (this.options.methods) {
-                if (this.options.methods.click) {
-                    map.setDefaultCursor("default");
-                    map.addListener('click', this.clickEvent);
-                }
-                if (this.options.methods.mousemove) {
-                    map.addListener('mousemove', this.mousemoveEvent);
-                }
-            }
-        }
-    }, {
-        key: "unbindEvent",
-        value: function unbindEvent(e) {
-            var map = this.map;
-
-            if (this.options.methods) {
-                if (this.options.methods.click) {
-                    map.removeListener('click', this.clickEvent);
-                }
-                if (this.options.methods.mousemove) {
-                    map.removeListener('mousemove', this.mousemoveEvent);
-                }
-            }
-        }
-    }, {
-        key: "getContext",
-        value: function getContext() {
-            return this.canvasLayer.canvas.getContext(this.context);
-        }
-    }, {
-        key: "_canvasUpdate",
-        value: function _canvasUpdate(time) {
-            if (!this.canvasLayer) {
-                return;
-            }
-
-            var self = this;
-
-            var animationOptions = self.options.animation;
-
-            var context = this.getContext();
-
-            if (self.isEnabledTime()) {
-                if (time === undefined) {
-                    clear$1(context);
-                    return;
-                }
-                if (this.context == '2d') {
-                    context.save();
-                    context.globalCompositeOperation = 'destination-out';
-                    context.fillStyle = 'rgba(0, 0, 0, .1)';
-                    context.fillRect(0, 0, context.canvas.width, context.canvas.height);
-                    context.restore();
-                }
+            if (self.options.unit == 'm' && self.options.size) {
+                self.options._size = self.options.size / zoomUnit;
             } else {
-                clear$1(context);
+                self.options._size = self.options.size;
             }
 
-            if (this.context == '2d') {
-                for (var key in self.options) {
-                    context[key] = self.options[key];
-                }
-            } else {
-                context.clear(context.COLOR_BUFFER_BIT);
-            }
-
-            if (self.options.minZoom && map.getZoom() < self.options.minZoom || self.options.maxZoom && map.getZoom() > self.options.maxZoom) {
-                return;
-            }
-
-            var scale = 1;
-            if (this.context != '2d') {
-                scale = this.canvasLayer.devicePixelRatio;
-            }
-
-            var map = this.map;
-            var mapProjection = map.getProjection();
-            var scale = Math.pow(2, map.zoom) * resolutionScale;
-            var offset = mapProjection.fromLatLngToPoint(this.canvasLayer.getTopLeft());
-            var dataGetOptions = {
-                //fromColumn: self.options.coordType == 'bd09mc' ? 'coordinates' : 'coordinates_mercator',
-                transferCoordinate: function transferCoordinate(coordinate) {
-                    // get center from the map (projected)
-                    var point = map.latLngToContainerPoint(new L.LatLng(coordinate[1], coordinate[0]));
-                    return [pixel.x, pixel.y];
-                }
-            };
-
-            if (time !== undefined) {
-                dataGetOptions.filter = function (item) {
-                    var trails = animationOptions.trails || 10;
-                    if (time && item.time > time - trails && item.time < time) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                };
-            }
-
-            var data = self.dataSet.get(dataGetOptions);
-
-            this.processData(data);
-
-            var latLng = new google.maps.LatLng(0, 0);
-            var worldPoint = mapProjection.fromLatLngToPoint(latLng);
-            var pixel = {
-                x: (worldPoint.x - offset.x) * scale,
-                y: (worldPoint.y - offset.y) * scale
-            };
             this.drawContext(context, new DataSet(data), self.options, pixel);
 
             //console.timeEnd('draw');
@@ -5339,7 +5119,7 @@ var csv = {
 };
 
 exports.version = version;
-exports.canvasClear = clear$1;
+exports.canvasClear = clear;
 exports.canvasResolutionScale = resolutionScale$1;
 exports.canvasDrawSimple = drawSimple;
 exports.canvasDrawHeatmap = drawHeatmap;
@@ -5360,7 +5140,6 @@ exports.baiduMapCanvasLayer = CanvasLayer;
 exports.baiduMapLayer = Layer;
 exports.googleMapCanvasLayer = CanvasLayer$2;
 exports.googleMapLayer = Layer$2;
-exports.leafletMapLayer = Layer$4;
 exports.DataSet = DataSet;
 exports.geojson = geojson;
 exports.csv = csv;

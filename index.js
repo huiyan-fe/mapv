@@ -33,7 +33,8 @@ export {default as baiduMapLayer} from "./src/map/baidu-map/Layer";
 export {default as googleMapCanvasLayer} from "./src/map/google-map/CanvasLayer";
 export {default as googleMapLayer} from "./src/map/google-map/Layer";
 
-export {default as leafletMapLayer} from "./src/map/leaflet-map/Layer";
+// under test
+// export {default as leafletMapLayer} from "./src/map/leaflet-map/Layer";
 
 export {default as DataSet} from "./src/data/DataSet";
 export {default as geojson} from "./src/data/geojson";

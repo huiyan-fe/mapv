@@ -183,6 +183,13 @@ class Layer extends BaseLayer{
         this.processData(data);
 
         var nwPixel = map.pointToPixel(new BMap.Point(0, 0));
+
+        if (self.options.unit == 'm' && self.options.size) {
+            self.options._size = self.options.size / zoomUnit;
+        } else {
+            self.options._size = self.options.size;
+        }
+
         this.drawContext(context, data, self.options, nwPixel);
 
         //console.timeEnd('draw');

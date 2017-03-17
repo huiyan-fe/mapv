@@ -151,7 +151,6 @@ class Layer extends BaseLayer{
         }
 
         // get data from data set
-        console.log(1111, self.dataSet.get());
         var data = self.dataSet.get(dataGetOptions);
 
         this.processData(data);
@@ -162,6 +161,14 @@ class Layer extends BaseLayer{
             x: (worldPoint.x - offset.x) * scale,
             y: (worldPoint.y - offset.y) * scale,
         }
+
+
+        if (self.options.unit == 'm' && self.options.size) {
+            self.options._size = self.options.size / zoomUnit;
+        } else {
+            self.options._size = self.options.size;
+        }
+
         this.drawContext(context, new DataSet(data), self.options, pixel);
 
         //console.timeEnd('draw');

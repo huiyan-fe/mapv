@@ -15,6 +15,7 @@ import drawHoneycomb from "../canvas/draw/honeycomb";
 import drawText from "../canvas/draw/text";
 import drawIcon from "../canvas/draw/icon";
 import pathSimple from "../canvas/path/simple";
+import clear from "../canvas/clear";
 
 if (typeof window !== 'undefined') {
     requestAnimationFrame(animate);
@@ -142,32 +143,12 @@ class BaseLayer {
 
     drawContext(context, dataSet, options, nwPixel) {
         var self = this;
-
-        if (self.options.unit == 'm' && self.options.size) {
-            self.options._size = self.options.size / zoomUnit;
-        } else {
-            self.options._size = self.options.size;
-        }
-
         switch (self.options.draw) {
             case 'heatmap':
                 drawHeatmap.draw(context, dataSet, self.options);
                 break;
             case 'grid':
             case 'honeycomb':
-                /*
-                if (data.length <= 0) {
-                    break;
-                }
-
-                var minx = data[0].geometry.coordinates[0];
-                var maxy = data[0].geometry.coordinates[1];
-                for (var i = 1; i < data.length; i++) {
-                    minx = Math.min(data[i].geometry.coordinates[0], minx);
-                    maxy = Math.max(data[i].geometry.coordinates[1], maxy);
-                }
-                var nwPixel = map.pointToPixel(new BMap.Point(minx, maxy));
-                */
                 self.options.offset = {
                     x: nwPixel.x,
                     y: nwPixel.y
@@ -188,7 +169,7 @@ class BaseLayer {
                 context.save();
                 context.fillStyle = self.options.fillStyle || 'rgba(0, 0, 0, 0.5)';
                 context.fillRect(0, 0, context.canvas.width, context.canvas.height);
-                drawSimple.draw(context, data, self.options);
+                drawSimple.draw(context, dataSet, self.options);
                 context.beginPath();
                 pathSimple.drawDataSet(context, dataSet, self.options); 
                 context.clip();

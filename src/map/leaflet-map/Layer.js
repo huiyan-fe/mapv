@@ -1,4 +1,5 @@
 /**
+ * test
  * @author kyle / http://nikai.us/
  */
 
@@ -153,12 +154,14 @@ class Layer extends BaseLayer{
 
         this.processData(data);
 
-        var latLng = new google.maps.LatLng(0, 0);
-        var worldPoint = mapProjection.fromLatLngToPoint(latLng);
-        var pixel = {
-            x: (worldPoint.x - offset.x) * scale,
-            y: (worldPoint.y - offset.y) * scale,
+        if (self.options.unit == 'm' && self.options.size) {
+            self.options._size = self.options.size / zoomUnit;
+        } else {
+            self.options._size = self.options.size;
         }
+
+        var pixel = {x: 0, y: 0};
+
         this.drawContext(context, new DataSet(data), self.options, pixel);
 
         //console.timeEnd('draw');
