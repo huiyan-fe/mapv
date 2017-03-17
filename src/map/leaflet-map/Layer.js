@@ -3,7 +3,6 @@
  */
 
 import BaseLayer from "../BaseLayer";
-import CanvasLayer from "./CanvasLayer";
 import clear from "../../canvas/clear";
 import DataSet from "../../data/DataSet";
 import TWEEN from "../../utils/Tween";
@@ -21,16 +20,20 @@ class Layer extends BaseLayer{
         self.init(options);
         self.argCheck(options);
 
-        var canvasLayerOptions = {
-            map: map,
-            animate: false,
-            updateHandler: function() {
-                self._canvasUpdate();
-            },
-            resolutionScale: resolutionScale
-        };
+        var BigPointLayer = L.CanvasLayer.extend({
 
-        var canvasLayer = this.canvasLayer = new CanvasLayer(canvasLayerOptions);
+          render: function() {
+
+
+            self._canvasUpdate();
+
+            this.redraw();
+
+          }
+        });
+
+        var canvasLayer = this.canvasLayer = new BigPointLayer();
+        canvasLayer.addTo(map);
 
         this.clickEvent = this.clickEvent.bind(this);
         this.mousemoveEvent = this.mousemoveEvent.bind(this);
@@ -129,12 +132,8 @@ class Layer extends BaseLayer{
         var dataGetOptions = {
             //fromColumn: self.options.coordType == 'bd09mc' ? 'coordinates' : 'coordinates_mercator',
             transferCoordinate: function(coordinate) {
-                var latLng = new google.maps.LatLng(coordinate[1], coordinate[0]);
-                var worldPoint = mapProjection.fromLatLngToPoint(latLng);
-                var pixel = {
-                    x: (worldPoint.x - offset.x) * scale,
-                    y: (worldPoint.y - offset.y) * scale,
-                }
+                // get center from the map (projected)
+                var point = map.latLngToContainerPoint(new L.LatLng(coordinate[1], coordinate[0]));
                 return [pixel.x, pixel.y];
             }
         }
@@ -150,8 +149,6 @@ class Layer extends BaseLayer{
             }
         }
 
-        // get data from data set
-        console.log(1111, self.dataSet.get());
         var data = self.dataSet.get(dataGetOptions);
 
         this.processData(data);

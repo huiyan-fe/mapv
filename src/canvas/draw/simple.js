@@ -7,7 +7,9 @@ import DataSet from "../../data/DataSet";
 
 export default {
     draw: function(context, dataSet, options) {
+
         var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
+
         // console.log('xxxx',options)
         context.save();
 

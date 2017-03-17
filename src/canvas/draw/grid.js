@@ -3,13 +3,14 @@
  */
 
 import Intensity from "../../utils/data-range/Intensity";
+import DataSet from "../../data/DataSet";
 
 export default {
     draw: function(context, dataSet, options) {
 
         context.save();
 
-        var data = dataSet.get();
+        var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
 
         var grids = {};
 

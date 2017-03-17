@@ -3,6 +3,7 @@
  */
 
 import Intensity from "../../utils/data-range/Intensity";
+import DataSet from "../../data/DataSet";
 
 function hex_corner(center, size, i) {
     var angle_deg = 60 * i + 30;
@@ -15,7 +16,7 @@ export default {
 
         context.save();
 
-        var data = dataSet.get();
+        var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
 
         for (var key in options) {
             context[key] = options[key];

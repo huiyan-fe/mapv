@@ -53,6 +53,8 @@ map.setMapStyle({
     coordType: 'bd09ll', // 可选百度墨卡托坐标类型bd09mc和百度经纬度坐标类型bd09ll(默认)
     shadowColor: 'rgba(255, 255, 255, 1)', // 投影颜色
     shadowBlur: 35,  // 投影模糊级数
+    updateCallback: function (time) { // 重绘回调函数，如果是时间动画、返回当前帧的时间
+    },
     shadowOffsetX: 0,
     shadowOffsetY: 0,
     context: '2d', // 可选2d和webgl，webgl目前只支持画simple模式的点和线

@@ -4,10 +4,13 @@
  */
 
 import pathSimple from "../path/simple";
+import DataSet from "../../data/DataSet";
 
 export default {
     draw: function (context, dataSet, options) {
-        var data = dataSet.get();
+
+        var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
+
         context.fillStyle = 'white';
         context.textAlign = 'center';
         context.textBaseline = 'middle';

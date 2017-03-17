@@ -6,6 +6,7 @@ import utilsColorPalette from "../utils/colorPalette";
 import Intensity from "../../utils/data-range/Intensity";
 import pathSimple from "../path/simple";
 import Canvas from "../../utils/Canvas";
+import DataSet from "../../data/DataSet";
 
 function createCircle(size) {
 
@@ -111,7 +112,7 @@ function draw(context, dataSet, options) {
 
     options = options || {};
 
-    var data = dataSet.get();
+    var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
 
     context.save();
     //console.time('drawGray')
