@@ -64,6 +64,9 @@ map.setMapStyle({
     methods: { // 一些事件回调函数
         click: function (item) { // 点击事件，返回对应点击元素的对象值
             console.log(item);
+        },
+        mousemove: function(item) { // 鼠标移动事件，对应鼠标经过的元素对象值
+            console.log(item);
         }
     },
     animation: {
@@ -226,6 +229,7 @@ dataSet中加count字段，代表权重，根据上面配置用以计算它实�
     rotate: '90', // 图片旋转角度
     width: 10, // 规定图像的宽度
     height: 10, // 规定图像的高度
+    size: 10, // 添加点击事件时候可以用来设置点击范围
     sx: 10, // 开始剪切的 x 坐标位置
     sy: 10, // 开始剪切的 y 坐标位置
     swidth: 10, // 被剪切图像的宽度
