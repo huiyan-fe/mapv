@@ -30,13 +30,13 @@ export default {
             grids[gridKey] += ~~(data[i].count || 1);
         }
 
+        var intensity = new Intensity({
+            max: options.max || 100,
+            gradient: options.gradient
+        });
+
         for (var gridKey in grids) {
             gridKey = gridKey.split(",");
-
-            var intensity = new Intensity({
-                max: options.max || 100,
-                gradient: options.gradient
-            });
 
             context.beginPath();
             context.rect(gridKey[0] * size + .5 + offset.x, gridKey[1] * size + .5 + offset.y, size, size);

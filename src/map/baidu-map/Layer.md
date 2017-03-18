@@ -223,12 +223,20 @@ dataSet中加count字段，代表权重，根据上面配置用以计算它实�
 ```js
 {
     draw: 'icon',
+    rotate: '90', // 图片旋转角度
+    width: 10, // 规定图像的宽度
+    height: 10, // 规定图像的高度
+    sx: 10, // 开始剪切的 x 坐标位置
+    sy: 10, // 开始剪切的 y 坐标位置
+    swidth: 10, // 被剪切图像的宽度
+    sheight: 10, // 被剪切图像的高度
 }
 ```
 dataSet中添加字段
 ```js
 {
-    icon: Image // 加载好的Image对象
+    icon: Image, // 加载好的Image对象
+    rotate: '90', // 图片旋转角度
 }
 ```
 

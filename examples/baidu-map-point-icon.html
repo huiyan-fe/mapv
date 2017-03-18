@@ -68,15 +68,21 @@
             var dataSet = new mapv.DataSet(data);
 
             var options = {
-                draw: 'icon'
+                draw: 'icon',
+                // width: 50,
+                // height: 50,
+                // sx: 10,
+                // sy: 10,
+                // swidth: 50,
+                // sheight: 50,
             }
 
             var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
 
-            var options = {
-                draw: 'simple'
-            }
-            var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+            // var options = {
+            //     draw: 'simple'
+            // }
+            // var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
         }
     </script>
 

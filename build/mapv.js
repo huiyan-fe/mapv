@@ -954,13 +954,13 @@ var drawGrid = {
             grids[gridKey] += ~~(data[i].count || 1);
         }
 
+        var intensity = new Intensity({
+            max: options.max || 100,
+            gradient: options.gradient
+        });
+
         for (var gridKey in grids) {
             gridKey = gridKey.split(",");
-
-            var intensity = new Intensity({
-                max: options.max || 100,
-                gradient: options.gradient
-            });
 
             context.beginPath();
             context.rect(gridKey[0] * size + .5 + offset.x, gridKey[1] * size + .5 + offset.y, size, size);
@@ -3671,18 +3671,31 @@ var drawIcon = {
         for (var i = 0, len = data.length; i < len; i++) {
 
             if (data[i].geometry) {
+                var deg = data[i].deg || options.deg;
                 var icon = data[i].icon || options.icon;
                 var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
                 var x = coordinates[0];
                 var y = coordinates[1];
-                if (data[i].deg) {
+                if (deg) {
                     context.save();
                     context.translate(x, y);
-                    context.rotate(data[i].deg * Math.PI / 180);
+                    context.rotate(deg * Math.PI / 180);
                     context.translate(-x, -y);
                 }
-                context.drawImage(icon, x - icon.width / 2 + offset.x, y - icon.height / 2 + offset.y);
-                if (data[i].deg) {
+                var width = options.width || icon.width;
+                var height = options.height || icon.height;
+                x = x - width / 2 + offset.x;
+                y = y - height / 2 + offset.y;
+                if (options.sx && options.sy && options.swidth && options.sheight && options.width && options.height) {
+                    context.drawImage(icon, options.sx, options.sy, options.swidth, options.sheight, x, y, options.width, options.height);
+                } else if (options.width && options.height) {
+                    console.log(11);
+                    context.drawImage(icon, x, y, options.width, options.height);
+                } else {
+                    context.drawImage(icon, x, y);
+                }
+
+                if (deg) {
                     context.restore();
                 }
             }
