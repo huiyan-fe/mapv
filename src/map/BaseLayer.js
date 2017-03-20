@@ -221,7 +221,7 @@ class BaseLayer {
     /**
      * obj.options
      */
-    update(obj) {
+    update(obj, isDraw) {
         var self = this;
         var _options = obj.options;
         var options = self.options;
@@ -229,7 +229,9 @@ class BaseLayer {
             options[i] = _options[i];
         }
         self.init(options);
-        self.draw();
+        if (isDraw !== false) {
+            self.draw();
+        }
     }
 
     setOptions(options) {

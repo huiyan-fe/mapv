@@ -38,15 +38,14 @@ export default {
                     context.rotate(deg * Math.PI / 180);
                     context.translate(-x, -y);
                 }
-                var width = options.width || icon.width;
-                var height = options.height || icon.height;
+                var width = options._width || options.width|| icon.width;
+                var height = options._height || options.height || icon.height;
                 x = x - width / 2 + offset.x;
                 y = y - height / 2 + offset.y;
                 if (options.sx && options.sy && options.swidth && options.sheight && options.width && options.height) {
-                    context.drawImage(icon, options.sx, options.sy, options.swidth, options.sheight, x, y, options.width, options.height);
+                    context.drawImage(icon, options.sx, options.sy, options.swidth, options.sheight, x, y, width, height);
                 } else if (options.width && options.height) {
-                    console.log(11);
-                    context.drawImage(icon, x, y, options.width, options.height);
+                    context.drawImage(icon, x, y, width, height);
                 } else {
                     context.drawImage(icon, x, y);
                 }

@@ -3682,15 +3682,14 @@ var drawIcon = {
                     context.rotate(deg * Math.PI / 180);
                     context.translate(-x, -y);
                 }
-                var width = options.width || icon.width;
-                var height = options.height || icon.height;
+                var width = options._width || options.width || icon.width;
+                var height = options._height || options.height || icon.height;
                 x = x - width / 2 + offset.x;
                 y = y - height / 2 + offset.y;
                 if (options.sx && options.sy && options.swidth && options.sheight && options.width && options.height) {
-                    context.drawImage(icon, options.sx, options.sy, options.swidth, options.sheight, x, y, options.width, options.height);
+                    context.drawImage(icon, options.sx, options.sy, options.swidth, options.sheight, x, y, width, height);
                 } else if (options.width && options.height) {
-                    console.log(11);
-                    context.drawImage(icon, x, y, options.width, options.height);
+                    context.drawImage(icon, x, y, width, height);
                 } else {
                     context.drawImage(icon, x, y);
                 }
@@ -3920,7 +3919,7 @@ var BaseLayer = function () {
 
     }, {
         key: "update",
-        value: function update(obj) {
+        value: function update(obj, isDraw) {
             var self = this;
             var _options = obj.options;
             var options = self.options;
@@ -3928,7 +3927,9 @@ var BaseLayer = function () {
                 options[i] = _options[i];
             }
             self.init(options);
-            self.draw();
+            if (isDraw !== false) {
+                self.draw();
+            }
         }
     }, {
         key: "setOptions",
@@ -4201,10 +4202,20 @@ var Layer = function (_BaseLayer) {
 
             var nwPixel = map.pointToPixel(new BMap.Point(0, 0));
 
-            if (self.options.unit == 'm' && self.options.size) {
-                self.options._size = self.options.size / zoomUnit;
+            if (self.options.unit == 'm') {
+                if (self.options.size) {
+                    self.options._size = self.options.size / zoomUnit;
+                }
+                if (self.options.width) {
+                    self.options._width = self.options.width / zoomUnit;
+                }
+                if (self.options.height) {
+                    self.options._height = self.options.height / zoomUnit;
+                }
             } else {
                 self.options._size = self.options.size;
+                self.options._height = self.options.height;
+                self.options._width = self.options.width;
             }
 
             this.drawContext(context, data, self.options, nwPixel);
