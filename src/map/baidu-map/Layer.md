@@ -133,6 +133,13 @@ dataSet中加count字段，代表权重，根据上面配置用以计算它的�
 {
     draw: 'grid',
     size: 40,
+    label: { // 网格中显示累加的值总和
+        show: true,
+        fillStyle: 'white',
+        shadowColor: 'yellow',
+        font: '20px Arial',
+        shadowBlur: 10,
+    },
     gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
 }
 ```
@@ -143,6 +150,13 @@ dataSet中加count字段，代表权重，根据上面配置用以计算它的�
 {
     draw: 'honeycomb',
     size: 40,
+    label: { // 网格中显示累加的值总和
+        show: true,
+        fillStyle: 'white',
+        shadowColor: 'yellow',
+        font: '20px Arial',
+        shadowBlur: 10,
+    },
     gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
 }
 ```
