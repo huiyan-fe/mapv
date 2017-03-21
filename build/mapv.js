@@ -966,12 +966,32 @@ var drawGrid = {
             context.rect(gridKey[0] * size + .5 + offset.x, gridKey[1] * size + .5 + offset.y, size, size);
             context.fillStyle = intensity.getColor(grids[gridKey]);
             context.fill();
-            if (options.showText) {
-                context.fillStyle = 'white';
-                context.fillText(grids[gridKey], gridKey[0] * size + .5 + offset.x + size / 2, gridKey[1] * size + .5 + offset.y + size / 2);
-            }
             if (options.strokeStyle && options.lineWidth) {
                 context.stroke();
+            }
+        }
+
+        if (options.label && options.label.show !== false) {
+
+            context.fillStyle = options.label.fillStyle || 'white';
+
+            if (options.label.font) {
+                context.font = options.label.font;
+            }
+
+            if (options.label.shadowColor) {
+                context.shadowColor = options.label.shadowColor;
+            }
+
+            if (options.label.shadowBlur) {
+                context.shadowBlur = options.label.shadowBlur;
+            }
+
+            for (var gridKey in grids) {
+                gridKey = gridKey.split(",");
+                var text = grids[gridKey];
+                var textWidth = context.measureText(text).width;
+                context.fillText(text, gridKey[0] * size + .5 + offset.x + size / 2 - textWidth / 2, gridKey[1] * size + .5 + offset.y + size / 2 + 5);
             }
         }
 
@@ -1073,11 +1093,41 @@ var drawHoneycomb = {
             for (var i = 0; i < item.length; i++) {
                 count += item[i].count || 1;
             }
+            item.count = count;
 
             context.fillStyle = intensity.getColor(count);
             context.fill();
             if (options.strokeStyle && options.lineWidth) {
                 context.stroke();
+            }
+        }
+
+        if (options.label && options.label.show !== false) {
+
+            context.fillStyle = options.label.fillStyle || 'white';
+
+            if (options.label.font) {
+                context.font = options.label.font;
+            }
+
+            if (options.label.shadowColor) {
+                context.shadowColor = options.label.shadowColor;
+            }
+
+            if (options.label.shadowBlur) {
+                context.shadowBlur = options.label.shadowBlur;
+            }
+
+            for (var key in binsById) {
+                var item = binsById[key];
+                var text = item.count;
+                if (text < 0) {
+                    text = text.toFixed(2);
+                } else {
+                    text = ~~text;
+                }
+                var textWidth = context.measureText(text).width;
+                context.fillText(text, item.x + offset.x - textWidth / 2, item.y + offset.y + 5);
             }
         }
 
