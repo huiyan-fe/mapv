@@ -69,6 +69,7 @@ function draw(gl, data, options) {
             var y = (halfCanvasHeight - item[1]) / halfCanvasHeight;
             verticesData.push(x, y);
         }
+
         var vertices = new Float32Array(verticesData);
         // Write date into the buffer object
         gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
