@@ -336,43 +336,33 @@ DataSet.prototype.transferCoordinate = function (data, transferFn, fromColumn, t
 
     for (var i = 0; i < data.length; i++) {
 
-        var item = data[i];
-
-        if (data[i].geometry) {
-
-            if (data[i].geometry.type === 'Point') {
-                var coordinates = data[i].geometry[fromColumn];
-                data[i].geometry[toColumnName] = transferFn(coordinates);
-            }
-
-            if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'MultiPolygon') {
-
-                var coordinates = data[i].geometry[fromColumn];
-
-                if (data[i].geometry.type === 'Polygon') {
-
-                    var newCoordinates = getPolygon(coordinates);
-                    data[i].geometry[toColumnName] = newCoordinates;
-                } else if (data[i].geometry.type === 'MultiPolygon') {
-                    var newCoordinates = [];
-                    for (var c = 0; c < coordinates.length; c++) {
-                        var polygon = coordinates[c];
-                        var polygon = getPolygon(polygon);
-                        newCoordinates.push(polygon);
-                    }
-
-                    data[i].geometry[toColumnName] = newCoordinates;
-                }
-            }
-
-            if (data[i].geometry.type === 'LineString') {
-                var coordinates = data[i].geometry[fromColumn];
+        var geometry = data[i].geometry;
+        var coordinates = geometry[fromColumn];
+        switch (geometry.type) {
+            case 'Point':
+                geometry[toColumnName] = transferFn(coordinates);
+                break;
+            case 'LineString':
                 var newCoordinates = [];
                 for (var j = 0; j < coordinates.length; j++) {
                     newCoordinates.push(transferFn(coordinates[j]));
                 }
-                data[i].geometry[toColumnName] = newCoordinates;
-            }
+                geometry[toColumnName] = newCoordinates;
+                break;
+            case 'Polygon':
+                var newCoordinates = getPolygon(coordinates);
+                geometry[toColumnName] = newCoordinates;
+                break;
+            case 'MultiPolygon':
+                var newCoordinates = [];
+                for (var c = 0; c < coordinates.length; c++) {
+                    var polygon = coordinates[c];
+                    var polygon = getPolygon(polygon);
+                    newCoordinates.push(polygon);
+                }
+
+                geometry[toColumnName] = newCoordinates;
+                break;
         }
     }
 
@@ -393,11 +383,14 @@ DataSet.prototype.transferCoordinate = function (data, transferFn, fromColumn, t
 };
 
 DataSet.prototype.initGeometry = function (transferFn) {
+
     if (transferFn) {
+
         this._data.forEach(function (item) {
             item.geometry = transferFn(item);
         });
     } else {
+
         this._data.forEach(function (item) {
             if (!item.geometry && item.lng && item.lat) {
                 item.geometry = {
@@ -1221,6 +1214,7 @@ function draw$1(gl, data, options) {
             var y = (halfCanvasHeight - item[1]) / halfCanvasHeight;
             verticesData.push(x, y);
         }
+
         var vertices = new Float32Array(verticesData);
         // Write date into the buffer object
         gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
@@ -4078,9 +4072,6 @@ var Layer = function (_BaseLayer) {
         self.init(options);
         self.argCheck(options);
         self.transferToMercator();
-        _this.dataSet.on('change', function () {
-            self.transferToMercator();
-        });
 
         var canvasLayer = _this.canvasLayer = new CanvasLayer({
             map: map,
@@ -4095,6 +4086,7 @@ var Layer = function (_BaseLayer) {
         });
 
         dataSet.on('change', function () {
+            self.transferToMercator();
             canvasLayer.draw();
         });
 

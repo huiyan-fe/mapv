@@ -46,11 +46,14 @@ Mapv使用canvas开发，支持现在被称为“现代”浏览器, 通常兼�
     npm run publish
 
 ## 谁在使用
+
 [![百度慧眼](./asset/user/huiyan.png)](http://huiyan.baidu.com)
+
 [![百度交通云](./asset/user/jiaotong.png)](http://jiaotong.baidu.com/)
+
 [![百度地图开放平台](./asset/user/lbsyun.png)](http://lbsyun.baidu.com/)
 
-## Contqct us
+## 联系我们
 邮箱: <a href="mailto:mapv@baidu.com">mapv@baidu.com</a>
 
 QQ群: 321519841

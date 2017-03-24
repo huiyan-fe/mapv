@@ -21,9 +21,6 @@ class Layer extends BaseLayer{
         self.init(options);
         self.argCheck(options);
         self.transferToMercator();
-        this.dataSet.on('change', function() {
-            self.transferToMercator();
-        });
 
         var canvasLayer = this.canvasLayer = new CanvasLayer({
             map: map,
@@ -38,6 +35,7 @@ class Layer extends BaseLayer{
         });
 
         dataSet.on('change', function() {
+            self.transferToMercator();
             canvasLayer.draw();
         });
 

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="UTF-8">
-	<title></title>
+    <meta charset="UTF-8">
+    <title></title>
 
     <style type="text/css">
         html, body {
@@ -37,19 +37,147 @@
         map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
 
         map.setMapStyle({
-            styleJson: [
-                {
-                    "featureType": "all",
-                    "elementType": "all",
+        styleJson: [
+              {
+                   "featureType": "water",
+                   "elementType": "all",
+                   "stylers": {
+                        "color": "#044161"
+                   }
+              },
+              {
+                   "featureType": "land",
+                   "elementType": "all",
+                   "stylers": {
+                        "color": "#004981"
+                   }
+              },
+              {
+                   "featureType": "boundary",
+                   "elementType": "geometry",
+                   "stylers": {
+                        "color": "#064f85"
+                   }
+              },
+              {
+                   "featureType": "railway",
+                   "elementType": "all",
+                   "stylers": {
+                        "visibility": "off"
+                   }
+              },
+              {
+                   "featureType": "highway",
+                   "elementType": "geometry",
+                   "stylers": {
+                        "color": "#004981"
+                   }
+              },
+              {
+                   "featureType": "highway",
+                   "elementType": "geometry.fill",
+                   "stylers": {
+                        "color": "#005b96",
+                        "lightness": 1
+                   }
+              },
+              {
+                   "featureType": "highway",
+                   "elementType": "labels",
+                   "stylers": {
+                        "visibility": "off"
+                   }
+              },
+              {
+                   "featureType": "arterial",
+                   "elementType": "geometry",
+                   "stylers": {
+                        "color": "#004981"
+                   }
+              },
+              {
+                   "featureType": "arterial",
+                   "elementType": "geometry.fill",
+                   "stylers": {
+                        "color": "#00508b"
+                   }
+              },
+              {
+                   "featureType": "poi",
+                   "elementType": "all",
+                   "stylers": {
+                        "visibility": "off"
+                   }
+              },
+              {
+                   "featureType": "green",
+                   "elementType": "all",
+                   "stylers": {
+                        "color": "#056197",
+                        "visibility": "off"
+                   }
+              },
+              {
+                   "featureType": "subway",
+                   "elementType": "all",
+                   "stylers": {
+                        "visibility": "off"
+                   }
+              },
+              {
+                   "featureType": "manmade",
+                   "elementType": "all",
+                   "stylers": {
+                        "visibility": "off"
+                   }
+              },
+              {
+                   "featureType": "local",
+                   "elementType": "all",
+                   "stylers": {
+                       "color": "#115d97",
+                       "visibility": "on"
+                   }
+              },
+              {
+                   "featureType": "arterial",
+                   "elementType": "labels",
+                   "stylers": {
+                        "visibility": "off"
+                   }
+              },
+              {
+                   "featureType": "boundary",
+                   "elementType": "geometry.fill",
+                   "stylers": {
+                        "color": "#029fd4"
+                   }
+              },
+              {
+                   "featureType": "building",
+                   "elementType": "all",
+                   "stylers": {
+                        "color": "#1a5787"
+                   }
+              },
+              {
+                   "featureType": "label",
+                   "elementType": "all",
+                   "stylers": {
+                        "visibility": "off"
+                   }
+              },
+              {
+                    "featureType": "local",
+                    "elementType": "labels",
                     "stylers": {
-                        "lightness": 61,
-                        "saturation": -100
+                        "visibility": "off"
                     }
-                }
-            ]
-        });
+              }
+        ]
+    });
 
-        var randomCount = 3000;
+        var randomCount = 1000;
 
         var data = [];
 
@@ -71,10 +199,12 @@
         var dataSet = new mapv.DataSet(data);
 
         var options = {
-            fillStyle: 'rgba(255, 50, 50, 0.15)',
-            globalCompositeOperation: "lighter",
-            maxSize: 15,
-            max: 30,
+            fillStyle: 'rgba(255, 250, 50, 0.8)',
+            //globalCompositeOperation: "lighter",
+            maxSize: 10,
+          max: 30,
+          shadowBlur: 30,
+          shadowColor: 'rgba(255, 250, 50, 1)',
             animation: {
                 type: 'time',
                 stepsRange: {
@@ -89,6 +219,6 @@
 
         var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
     </script>
-	
+    
 </body>
 </html>

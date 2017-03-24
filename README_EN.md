@@ -45,8 +45,11 @@ You can also download the [latest release](https://github.com/huiyan-fe/mapv/rel
     npm run publish
 
 ## UserList
+
 [![百度慧眼](./asset/user/huiyan.png)](http://huiyan.baidu.com)
+
 [![百度交通云](./asset/user/jiaotong.png)](http://jiaotong.baidu.com/)
+
 [![百度地图开放平台](./asset/user/lbsyun.png)](http://lbsyun.baidu.com/)
 
 ## Contact us
