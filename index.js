@@ -28,6 +28,7 @@ export {default as utilDataRangeChoropleth} from "./src/utils/data-range/Choropl
 export {default as Map} from "./src/map/mapHelper";
 
 export {default as baiduMapCanvasLayer} from "./src/map/baidu-map/CanvasLayer";
+export {default as baiduMapAnimationLayer} from "./src/map/baidu-map/AnimationLayer";
 export {default as baiduMapLayer} from "./src/map/baidu-map/Layer";
 
 export {default as googleMapCanvasLayer} from "./src/map/google-map/CanvasLayer";
