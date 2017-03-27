@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.11";
+var version = "2.0.12";
 
 /**
  * @author kyle / http://nikai.us/
@@ -336,43 +336,33 @@ DataSet.prototype.transferCoordinate = function (data, transferFn, fromColumn, t
 
     for (var i = 0; i < data.length; i++) {
 
-        var item = data[i];
-
-        if (data[i].geometry) {
-
-            if (data[i].geometry.type === 'Point') {
-                var coordinates = data[i].geometry[fromColumn];
-                data[i].geometry[toColumnName] = transferFn(coordinates);
-            }
-
-            if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'MultiPolygon') {
-
-                var coordinates = data[i].geometry[fromColumn];
-
-                if (data[i].geometry.type === 'Polygon') {
-
-                    var newCoordinates = getPolygon(coordinates);
-                    data[i].geometry[toColumnName] = newCoordinates;
-                } else if (data[i].geometry.type === 'MultiPolygon') {
-                    var newCoordinates = [];
-                    for (var c = 0; c < coordinates.length; c++) {
-                        var polygon = coordinates[c];
-                        var polygon = getPolygon(polygon);
-                        newCoordinates.push(polygon);
-                    }
-
-                    data[i].geometry[toColumnName] = newCoordinates;
-                }
-            }
-
-            if (data[i].geometry.type === 'LineString') {
-                var coordinates = data[i].geometry[fromColumn];
+        var geometry = data[i].geometry;
+        var coordinates = geometry[fromColumn];
+        switch (geometry.type) {
+            case 'Point':
+                geometry[toColumnName] = transferFn(coordinates);
+                break;
+            case 'LineString':
                 var newCoordinates = [];
                 for (var j = 0; j < coordinates.length; j++) {
                     newCoordinates.push(transferFn(coordinates[j]));
                 }
-                data[i].geometry[toColumnName] = newCoordinates;
-            }
+                geometry[toColumnName] = newCoordinates;
+                break;
+            case 'Polygon':
+                var newCoordinates = getPolygon(coordinates);
+                geometry[toColumnName] = newCoordinates;
+                break;
+            case 'MultiPolygon':
+                var newCoordinates = [];
+                for (var c = 0; c < coordinates.length; c++) {
+                    var polygon = coordinates[c];
+                    var polygon = getPolygon(polygon);
+                    newCoordinates.push(polygon);
+                }
+
+                geometry[toColumnName] = newCoordinates;
+                break;
         }
     }
 
@@ -393,11 +383,14 @@ DataSet.prototype.transferCoordinate = function (data, transferFn, fromColumn, t
 };
 
 DataSet.prototype.initGeometry = function (transferFn) {
+
     if (transferFn) {
+
         this._data.forEach(function (item) {
             item.geometry = transferFn(item);
         });
     } else {
+
         this._data.forEach(function (item) {
             if (!item.geometry && item.lng && item.lat) {
                 item.geometry = {
@@ -1221,6 +1214,7 @@ function draw$1(gl, data, options) {
             var y = (halfCanvasHeight - item[1]) / halfCanvasHeight;
             verticesData.push(x, y);
         }
+
         var vertices = new Float32Array(verticesData);
         // Write date into the buffer object
         gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
@@ -2884,6 +2878,114 @@ if (global$1.BMap) {
     };
 }
 
+var AnimationLayer = function () {
+    function AnimationLayer(map, dataSet, options) {
+        classCallCheck(this, AnimationLayer);
+
+        this.map = map;
+        this.options = options || {};
+        var canvasLayer = new CanvasLayer({
+            map: map,
+            update: this._canvasUpdate.bind(this)
+        });
+        this.dataSet = dataSet;
+        this.transferToMercator();
+        this.ctx = canvasLayer.canvas.getContext('2d');
+
+        this.start();
+    }
+
+    // 经纬度左边转换为墨卡托坐标
+
+
+    createClass(AnimationLayer, [{
+        key: "transferToMercator",
+        value: function transferToMercator() {
+            var projection = this.map.getMapType().getProjection();
+
+            if (this.options.coordType !== 'bd09mc') {
+                var data = this.dataSet.get();
+                data = this.dataSet.transferCoordinate(data, function (coordinates) {
+                    var pixel = projection.lngLatToPoint({
+                        lng: coordinates[0],
+                        lat: coordinates[1]
+                    });
+                    return [pixel.x, pixel.y];
+                }, 'coordinates', 'coordinates_mercator');
+                this.dataSet._set(data);
+            }
+        }
+    }, {
+        key: "_canvasUpdate",
+        value: function _canvasUpdate() {
+            var ctx = this.ctx;
+            //clear(ctx);
+
+
+            var map = this.map;
+            var zoomUnit = Math.pow(2, 18 - map.getZoom());
+            var projection = map.getMapType().getProjection();
+
+            var mcCenter = projection.lngLatToPoint(map.getCenter());
+            var nwMc = new BMap.Pixel(mcCenter.x - map.getSize().width / 2 * zoomUnit, mcCenter.y + map.getSize().height / 2 * zoomUnit); //左上角墨卡托坐标
+
+            var dataGetOptions = {
+                fromColumn: this.options.coordType == 'bd09mc' ? 'coordinates' : 'coordinates_mercator',
+                transferCoordinate: function transferCoordinate(coordinate) {
+                    var x = (coordinate[0] - nwMc.x) / zoomUnit;
+                    var y = (nwMc.y - coordinate[1]) / zoomUnit;
+                    return [x, y];
+                }
+            };
+            var data = this.dataSet.get(dataGetOptions);
+
+            ctx.save();
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fillStyle = 'rgba(0, 0, 0, .1)';
+            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.restore();
+
+            for (var i = 0; i < data.length; i++) {
+                ctx.beginPath();
+                var maxSize = data[i].size || this.options.size;
+                var minSize = data[i].minSize || this.options.minSize || 0;
+                if (data[i]._size === undefined) {
+                    data[i]._size = minSize;
+                }
+                ctx.arc(data[i].geometry._coordinates[0], data[i].geometry._coordinates[1], data[i]._size, 0, Math.PI * 2, true);
+                ctx.closePath();
+
+                data[i]._size++;
+
+                if (data[i]._size > maxSize) {
+                    data[i]._size = minSize;
+                }
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = data[i].strokeStyle || options.strokeStyle || 'yellow';
+                ctx.stroke();
+            }
+        }
+    }, {
+        key: "animate",
+        value: function animate() {
+            this._canvasUpdate();
+            this.timeout = setTimeout(this.animate.bind(this), 100);
+        }
+    }, {
+        key: "start",
+        value: function start() {
+            this.stop();
+            this.animate();
+        }
+    }, {
+        key: "stop",
+        value: function stop() {
+            clearTimeout(this.timeout);
+        }
+    }]);
+    return AnimationLayer;
+}();
+
 /**
  * Tween.js - Licensed under the MIT license
  * https://github.com/tweenjs/tween.js
@@ -4078,9 +4180,6 @@ var Layer = function (_BaseLayer) {
         self.init(options);
         self.argCheck(options);
         self.transferToMercator();
-        _this.dataSet.on('change', function () {
-            self.transferToMercator();
-        });
 
         var canvasLayer = _this.canvasLayer = new CanvasLayer({
             map: map,
@@ -4095,6 +4194,7 @@ var Layer = function (_BaseLayer) {
         });
 
         dataSet.on('change', function () {
+            self.transferToMercator();
             canvasLayer.draw();
         });
 
@@ -5211,6 +5311,7 @@ exports.utilDataRangeCategory = Category;
 exports.utilDataRangeChoropleth = Choropleth;
 exports.Map = MapHelper;
 exports.baiduMapCanvasLayer = CanvasLayer;
+exports.baiduMapAnimationLayer = AnimationLayer;
 exports.baiduMapLayer = Layer;
 exports.googleMapCanvasLayer = CanvasLayer$2;
 exports.googleMapLayer = Layer$2;
