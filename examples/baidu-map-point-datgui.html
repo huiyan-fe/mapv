@@ -28,7 +28,7 @@
     <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
     <script type="text/javascript" src="../build/mapv.js"></script>
-    <script type="text/javascript" src="js/dat.gui.js"></script>
+    <script type="text/javascript" src="http://huiyan-fe.github.io/dat.gui/build/dat.gui.min.js"></script>
 
     <script type="text/javascript">
 
@@ -57,10 +57,9 @@
                     type: 'Point',
                     coordinates: [cityCenter.lng - 2 + Math.random() * 4, cityCenter.lat - 2 + Math.random() * 4]
                 },
-                count: 30 * Math.random()
+                count: 100 * Math.random()
             });
         }
-        console.log(data)
         var dataSet = new mapv.DataSet(data);
 
         var options = {
@@ -73,6 +72,12 @@
             globalAlpha: 1,
             lineWidth: 1,
             unit: 'px',
+            gradient: { 
+                0.25: "rgba(0, 0, 255, 1)",
+                0.55: "rgba(0, 255, 0, 1)",
+                0.85: "rgba(255, 255, 0, 1)",
+                1.0: "rgba(255, 0, 0, 1)"
+            },
             fillStyle: 'rgba(55, 50, 250, 0.6)',
             strokeStyle: 'rgba(55, 50, 250, 0.6)',
             // shadowColor: 'rgba(55, 50, 250, 0.5)',
@@ -92,6 +97,84 @@
             initGui();
         };
 
+        var gradientOptions = [
+            { 
+                0.25: "rgba(0, 0, 255, 1)",
+                0.55: "rgba(0, 255, 0, 1)",
+                0.85: "rgba(255, 255, 0, 1)",
+                1.0: "rgba(255, 0, 0, 1)"
+            },
+            {
+              '0': 'Black',
+              '0.5': 'Aqua',
+              '1': 'White'
+            },
+            {
+                '0.0': 'blue',
+                '1': 'red'
+            },
+            {
+                '0.0': 'rgb(0, 0, 0)',
+                '0.6': 'rgb(24, 53, 103)',
+                '0.75': 'rgb(46, 100, 158)',
+                '0.9': 'rgb(23, 173, 203)',
+                '1.0': 'rgb(0, 250, 250)'
+            },
+            {
+                '0': 'Navy',
+                '0.25': 'Blue',
+                '0.5': 'Green',
+                '0.75': 'Yellow',
+                '1': 'Red'
+            },
+            {
+                '0': 'Black',
+                '0.33': 'DarkRed',
+                '0.66': 'Yellow',
+                '1': 'White'
+            },
+            {
+                '0': 'Black',
+                '0.4': 'Purple',
+                '0.6': 'Red',
+                '0.8': 'Yellow',
+                '1': 'White'
+            },
+            {
+                '0': 'Red',
+                '0.66': 'Yellow',
+                '1': 'White'
+            },
+            {
+                '0': 'Navy', '0.25': 'Navy',
+                '0.26': 'Green',
+                '0.5': 'Green',
+                '0.51': 'Yellow',
+                '0.75': 'Yellow',
+                '0.76': 'Red',
+                '1': 'Red'
+            },
+            {
+                '0.00': 'rgb(255,0,255)',
+                '0.25': 'rgb(0,0,255)',
+                '0.50': 'rgb(0,255,0)',
+                '0.75': 'rgb(255,255,0)',
+                '1.00': 'rgb(255,0,0)'
+            },
+            { 
+                0: "yellow",
+                1.0: "red"
+            },
+            { 
+                0: "white",
+                1.0: "blue"
+            },
+            { 
+                0: "green",
+                1.0: "rgb(0, 255, 255)"
+            }
+        ];
+
         var gui;
 
         function initGui() {
@@ -108,6 +191,7 @@
                     maxOpacity: '图层透明度',
                     // shadowColor: '阴影颜色',
                     // shadowBlur: '阴影大小',
+                    gradient: '渐变色',
                     lineWidth: '线宽',
                     strokeStyle: '线颜色',
                     maxSize: '最大半径值',
@@ -178,10 +262,12 @@
                     gui.add(options, 'maxOpacity', 0, 1).onFinishChange(finished);
                     break;
                 case 'grid':
+                case 'intensity':
                 case 'honeycomb':
                     gui.add(options, 'max', 1, 300).onFinishChange(finished);
                     gui.add(options, 'lineWidth', 1, 10).onFinishChange(finished);
                     gui.addColor(options, 'strokeStyle').onChange(finished);
+                    gui.addGradient(options, 'gradient', gradientOptions).onFinishChange(finished);
                     break;
             }
             
