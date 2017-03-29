@@ -25,7 +25,9 @@ export default {
                 if (options.symbol === 'rect') {
                     context.rect(coordinates[0] - size / 2, coordinates[1] - size / 2, size, size);
                 } else {
-                    context.moveTo(coordinates[0], coordinates[1]);
+                    if (options.bigData === 'Point') {
+                        context.moveTo(coordinates[0], coordinates[1]);
+                    }
                     context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
                 }
                 break;

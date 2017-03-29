@@ -107,14 +107,14 @@ class BaseLayer {
 
                 if (self.options.draw == 'intensity') {
                     if (data[i].geometry.type === 'LineString') {
-                        data[i].strokeStyle = item.strokeStyle || self.intensity.getColor(item.count);
+                        data[i].strokeStyle = self.intensity.getColor(item.count);
                     } else {
-                        data[i].fillStyle = item.fillStyle || self.intensity.getColor(item.count);
+                        data[i].fillStyle = self.intensity.getColor(item.count);
                     }
                 } else if (self.options.draw == 'category') {
-                    data[i].fillStyle = item.fillStyle || self.category.get(item.count);
+                    data[i].fillStyle = self.category.get(item.count);
                 } else if (self.options.draw == 'choropleth') {
-                    data[i].fillStyle = item.fillStyle || self.choropleth.get(item.count);
+                    data[i].fillStyle = self.choropleth.get(item.count);
                 }
             }
 

@@ -65,8 +65,6 @@ function drawGray(context, dataSet, options) {
 
     var data = dataSet;
 
-
-
     var dataOrderByAlpha = {};
 
     data.forEach(function(item, index) {
@@ -83,6 +81,7 @@ function drawGray(context, dataSet, options) {
         if (!options.withoutAlpha) {
             context.globalAlpha = i;
         }
+        context.strokeStyle = color.getColor(i * max);
         _data.forEach(function(item, index) {
             if (!item.geometry) {
                 return;
@@ -95,14 +94,17 @@ function drawGray(context, dataSet, options) {
                 context.globalAlpha = count / max;
                 context.drawImage(circle, coordinates[0] - circle.width / 2, coordinates[1] - circle.height / 2);
             } else if (type === 'LineString') {
+                var count = item.count === undefined ? 1 : item.count;
+                context.globalAlpha = count / max;
+                context.beginPath();
                 pathSimple.draw(context, item, options);
+                // console.warn(i, i * max, color.getColor(i * max))
+                context.stroke();
             } else if (type === 'Polygon') {
 
             }
         });
-        // console.warn(i, i * max, color.getColor(i * max))
-        context.strokeStyle = color.getColor(i * max);
-        context.stroke();
+
     }
 }
 

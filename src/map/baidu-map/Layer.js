@@ -217,6 +217,10 @@ class Layer extends BaseLayer{
             this.canvasLayer && this.canvasLayer.setZIndex(self.options.zIndex);
         }
 
+        if (self.options.max) {
+            this.intensity.setMax(self.options.max);
+        }
+
         this.initAnimator();
         
     }
@@ -235,7 +239,7 @@ class Layer extends BaseLayer{
     }
 
     draw() {
-        self.canvasLayer.draw();
+        this.canvasLayer.draw();
     }
 }
 

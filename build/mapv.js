@@ -491,7 +491,9 @@ var pathSimple = {
                 if (options.symbol === 'rect') {
                     context.rect(coordinates[0] - size / 2, coordinates[1] - size / 2, size, size);
                 } else {
-                    context.moveTo(coordinates[0], coordinates[1]);
+                    if (options.bigData === 'Point') {
+                        context.moveTo(coordinates[0], coordinates[1]);
+                    }
                     context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
                 }
                 break;
@@ -862,6 +864,7 @@ function drawGray(context, dataSet, options) {
         if (!options.withoutAlpha) {
             context.globalAlpha = i;
         }
+        context.strokeStyle = color.getColor(i * max);
         _data.forEach(function (item, index) {
             if (!item.geometry) {
                 return;
@@ -874,12 +877,14 @@ function drawGray(context, dataSet, options) {
                 context.globalAlpha = count / max;
                 context.drawImage(circle, coordinates[0] - circle.width / 2, coordinates[1] - circle.height / 2);
             } else if (type === 'LineString') {
+                var count = item.count === undefined ? 1 : item.count;
+                context.globalAlpha = count / max;
+                context.beginPath();
                 pathSimple.draw(context, item, options);
+                // console.warn(i, i * max, color.getColor(i * max))
+                context.stroke();
             } else if (type === 'Polygon') {}
         });
-        // console.warn(i, i * max, color.getColor(i * max))
-        context.strokeStyle = color.getColor(i * max);
-        context.stroke();
     }
 }
 
@@ -2884,12 +2889,17 @@ var AnimationLayer = function () {
 
         this.map = map;
         this.options = options || {};
+        this.dataSet = dataSet;
         var canvasLayer = new CanvasLayer({
             map: map,
             update: this._canvasUpdate.bind(this)
         });
-        this.dataSet = dataSet;
         this.transferToMercator();
+        var self = this;
+        dataSet.on('change', function () {
+            self.transferToMercator();
+            canvasLayer.draw();
+        });
         this.ctx = canvasLayer.canvas.getContext('2d');
 
         this.start();
@@ -2919,9 +2929,10 @@ var AnimationLayer = function () {
         key: "_canvasUpdate",
         value: function _canvasUpdate() {
             var ctx = this.ctx;
+            if (!ctx) {
+                return;
+            }
             //clear(ctx);
-
-
             var map = this.map;
             var zoomUnit = Math.pow(2, 18 - map.getZoom());
             var projection = map.getMapType().getProjection();
@@ -2929,15 +2940,32 @@ var AnimationLayer = function () {
             var mcCenter = projection.lngLatToPoint(map.getCenter());
             var nwMc = new BMap.Pixel(mcCenter.x - map.getSize().width / 2 * zoomUnit, mcCenter.y + map.getSize().height / 2 * zoomUnit); //左上角墨卡托坐标
 
+            clear(ctx);
+
             var dataGetOptions = {
                 fromColumn: this.options.coordType == 'bd09mc' ? 'coordinates' : 'coordinates_mercator',
                 transferCoordinate: function transferCoordinate(coordinate) {
+                    if (!coordinate) {
+                        return;
+                    }
                     var x = (coordinate[0] - nwMc.x) / zoomUnit;
                     var y = (nwMc.y - coordinate[1]) / zoomUnit;
                     return [x, y];
                 }
             };
-            var data = this.dataSet.get(dataGetOptions);
+
+            this.data = this.dataSet.get(dataGetOptions);
+
+            this.drawAnimation();
+        }
+    }, {
+        key: "drawAnimation",
+        value: function drawAnimation() {
+            var ctx = this.ctx;
+            var data = this.data;
+            if (!data) {
+                return;
+            }
 
             ctx.save();
             ctx.globalCompositeOperation = 'destination-out';
@@ -2945,31 +2973,76 @@ var AnimationLayer = function () {
             ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
             ctx.restore();
 
+            if (this.options.shadowColor) {
+                ctx.shadowColor = this.options.shadowColor;
+            }
+            if (this.options.shadowBlur) {
+                ctx.shadowBlur = this.options.shadowBlur;
+            }
+            if (this.options.globalCompositeOperation) {
+                ctx.globalCompositeOperation = this.options.globalCompositeOperation;
+            }
+
+            var options = this.options;
             for (var i = 0; i < data.length; i++) {
-                ctx.beginPath();
-                var maxSize = data[i].size || this.options.size;
-                var minSize = data[i].minSize || this.options.minSize || 0;
-                if (data[i]._size === undefined) {
-                    data[i]._size = minSize;
-                }
-                ctx.arc(data[i].geometry._coordinates[0], data[i].geometry._coordinates[1], data[i]._size, 0, Math.PI * 2, true);
-                ctx.closePath();
+                if (data[i].geometry.type === 'Point') {
+                    ctx.beginPath();
+                    var maxSize = data[i].size || this.options.size;
+                    var minSize = data[i].minSize || this.options.minSize || 0;
+                    if (data[i]._size === undefined) {
+                        data[i]._size = minSize;
+                    }
+                    ctx.arc(data[i].geometry._coordinates[0], data[i].geometry._coordinates[1], data[i]._size, 0, Math.PI * 2, true);
+                    ctx.closePath();
 
-                data[i]._size++;
+                    data[i]._size++;
 
-                if (data[i]._size > maxSize) {
-                    data[i]._size = minSize;
+                    if (data[i]._size > maxSize) {
+                        data[i]._size = minSize;
+                    }
+                    ctx.lineWidth = 1;
+                    ctx.strokeStyle = data[i].strokeStyle || options.strokeStyle || 'yellow';
+                    ctx.stroke();
+                    var fillStyle = data[i].fillStyle || options.fillStyle;
+                    if (fillStyle) {
+                        ctx.fillStyle = fillStyle;
+                        ctx.fill();
+                    }
+                } else if (data[i].geometry.type === 'LineString') {
+                    ctx.beginPath();
+                    var size = data[i].size || this.options.size || 5;
+                    var minSize = data[i].minSize || this.options.minSize || 0;
+                    if (data[i]._index === undefined) {
+                        data[i]._index = 0;
+                    }
+                    var index = data[i]._index;
+                    ctx.arc(data[i].geometry._coordinates[index][0], data[i].geometry._coordinates[index][1], size, 0, Math.PI * 2, true);
+                    ctx.closePath();
+
+                    data[i]._index++;
+
+                    if (data[i]._index >= data[i].geometry._coordinates.length) {
+                        data[i]._index = 0;
+                    }
+
+                    ctx.lineWidth = options.lineWidth || 1;
+                    var strokeStyle = data[i].strokeStyle || options.strokeStyle;
+                    var fillStyle = data[i].fillStyle || options.fillStyle || 'yellow';
+                    ctx.fillStyle = fillStyle;
+                    ctx.fill();
+                    if (strokeStyle) {
+                        ctx.strokeStyle = strokeStyle;
+                        ctx.stroke();
+                    }
                 }
-                ctx.lineWidth = 1;
-                ctx.strokeStyle = data[i].strokeStyle || options.strokeStyle || 'yellow';
-                ctx.stroke();
             }
         }
     }, {
         key: "animate",
         value: function animate() {
-            this._canvasUpdate();
-            this.timeout = setTimeout(this.animate.bind(this), 100);
+            this.drawAnimation();
+            var animateTime = this.options.animateTime || 100;
+            this.timeout = setTimeout(this.animate.bind(this), animateTime);
         }
     }, {
         key: "start",
@@ -3953,14 +4026,14 @@ var BaseLayer = function () {
 
                     if (self.options.draw == 'intensity') {
                         if (data[i].geometry.type === 'LineString') {
-                            data[i].strokeStyle = item.strokeStyle || self.intensity.getColor(item.count);
+                            data[i].strokeStyle = self.intensity.getColor(item.count);
                         } else {
-                            data[i].fillStyle = item.fillStyle || self.intensity.getColor(item.count);
+                            data[i].fillStyle = self.intensity.getColor(item.count);
                         }
                     } else if (self.options.draw == 'category') {
-                        data[i].fillStyle = item.fillStyle || self.category.get(item.count);
+                        data[i].fillStyle = self.category.get(item.count);
                     } else if (self.options.draw == 'choropleth') {
-                        data[i].fillStyle = item.fillStyle || self.choropleth.get(item.count);
+                        data[i].fillStyle = self.choropleth.get(item.count);
                     }
                 }
             }
@@ -4388,6 +4461,10 @@ var Layer = function (_BaseLayer) {
                 this.canvasLayer && this.canvasLayer.setZIndex(self.options.zIndex);
             }
 
+            if (self.options.max) {
+                this.intensity.setMax(self.options.max);
+            }
+
             this.initAnimator();
         }
     }, {
@@ -4409,7 +4486,7 @@ var Layer = function (_BaseLayer) {
     }, {
         key: "draw",
         value: function draw() {
-            self.canvasLayer.draw();
+            this.canvasLayer.draw();
         }
     }]);
     return Layer;

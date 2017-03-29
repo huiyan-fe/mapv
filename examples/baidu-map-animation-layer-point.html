@@ -191,22 +191,18 @@
                     coordinates: [cityCenter.lng - 2 + Math.random() * 4, cityCenter.lat - 2 + Math.random() * 4]
                 },
                 //minSize: 5,
-                size: 30 * Math.random() + 5 
+                size: 25 * Math.random() + 5 
             });
         }
 
         var dataSet = new mapv.DataSet(data);
 
         var options = {
-            fillStyle: 'rgba(255, 50, 50, 0.6)',
-            shadowColor: 'rgba(255, 50, 50, 1)',
-            shadowBlur: 30,
+            //fillStyle: 'rgba(255, 250, 50, 0.3)',
+            strokeStyle: 'rgba(255, 250, 50, 0.6)',
+            shadowColor: 'rgba(255, 250, 50, 1)',
+            shadowBlur: 80,
             globalCompositeOperation: 'lighter',
-            methods: {
-                click: function (item) {
-                    console.log(item);
-                }
-            },
             draw: 'simple'
         }
 
