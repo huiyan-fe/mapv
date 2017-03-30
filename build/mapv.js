@@ -650,28 +650,6 @@ function Canvas(width, height) {
  * @author kyle / http://nikai.us/
  */
 
-var utilsColorPalette = {
-    getImageData: function getImageData(config) {
-        var gradientConfig = config.gradient || config.defaultGradient;
-        var canvas = new Canvas(256, 1);
-        var paletteCtx = canvas.getContext('2d');
-
-        var gradient = paletteCtx.createLinearGradient(0, 0, 256, 1);
-        for (var key in gradientConfig) {
-            gradient.addColorStop(parseFloat(key), gradientConfig[key]);
-        }
-
-        paletteCtx.fillStyle = gradient;
-        paletteCtx.fillRect(0, 0, 256, 1);
-
-        return paletteCtx.getImageData(0, 0, 256, 1).data;
-    }
-};
-
-/**
- * @author kyle / http://nikai.us/
- */
-
 /**
  * Category
  * @param {Object} [options]   Available options:
@@ -735,6 +713,13 @@ Intensity.prototype.getColor = function (value) {
 };
 
 Intensity.prototype.getImageData = function (value) {
+
+    var imageData = this.paletteCtx.getImageData(0, 0, 256, 1).data;
+
+    if (value === undefined) {
+        return imageData;
+    }
+
     var max = this.max;
     var min = this.min;
 
@@ -747,8 +732,6 @@ Intensity.prototype.getImageData = function (value) {
     }
 
     var index = Math.floor((value - min) / (max - min) * (256 - 1)) * 4;
-
-    var imageData = this.paletteCtx.getImageData(0, 0, 256, 1).data;
 
     return [imageData[index], imageData[index + 1], imageData[index + 2], imageData[index + 3]];
 };
@@ -845,6 +828,7 @@ function colorize(pixels, gradient, options) {
 function drawGray(context, dataSet, options) {
 
     var max = options.max || 100;
+    var min = options.min || 0;
     // console.log(max)
     var size = options._size;
     if (size == undefined) {
@@ -854,9 +838,10 @@ function drawGray(context, dataSet, options) {
         }
     }
 
-    var color = new Intensity({
+    var intensity = new Intensity({
         gradient: options.gradient,
-        max: max
+        max: max,
+        min: min
     });
 
     var circle = createCircle(size);
@@ -879,7 +864,7 @@ function drawGray(context, dataSet, options) {
         if (!options.withoutAlpha) {
             context.globalAlpha = i;
         }
-        context.strokeStyle = color.getColor(i * max);
+        context.strokeStyle = intensity.getColor(i * max);
         _data.forEach(function (item, index) {
             if (!item.geometry) {
                 return;
@@ -896,7 +881,6 @@ function drawGray(context, dataSet, options) {
                 context.globalAlpha = count / max;
                 context.beginPath();
                 pathSimple.draw(context, item, options);
-                // console.warn(i, i * max, color.getColor(i * max))
                 context.stroke();
             } else if (type === 'Polygon') {}
         });
@@ -912,26 +896,27 @@ function draw(context, dataSet, options) {
     var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
 
     context.save();
+
+    var intensity = new Intensity({
+        gradient: options.gradient
+    });
+
     //console.time('drawGray')
     drawGray(context, data, options);
+
     //console.timeEnd('drawGray');
     // return false;
     if (!options.absolute) {
         //console.time('changeColor');
         var colored = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
-        colorize(colored.data, utilsColorPalette.getImageData({
-            defaultGradient: options.gradient || {
-                0.25: "rgba(0, 0, 255, 1)",
-                0.55: "rgba(0, 255, 0, 1)",
-                0.85: "rgba(255, 255, 0, 1)",
-                1.0: "rgba(255, 0, 0, 1)"
-            }
-        }), options);
+        colorize(colored.data, intensity.getImageData(), options);
         //console.timeEnd('changeColor');
         context.putImageData(colored, 0, 0);
 
         context.restore();
     }
+
+    intensity = null;
 }
 
 var drawHeatmap = {

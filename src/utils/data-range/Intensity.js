@@ -69,6 +69,13 @@ Intensity.prototype.getColor = function (value) {
 }
 
 Intensity.prototype.getImageData = function (value) {
+
+    var imageData = this.paletteCtx.getImageData(0, 0, 256, 1).data;
+
+    if (value === undefined) {
+        return imageData;
+    }
+
     var max = this.max;
     var min = this.min;
 
@@ -81,8 +88,6 @@ Intensity.prototype.getImageData = function (value) {
     }
 
     var index = Math.floor((value - min) / (max - min) * (256 - 1)) * 4;
-
-    var imageData = this.paletteCtx.getImageData(0, 0, 256, 1).data;
 
     return [imageData[index], imageData[index + 1], imageData[index + 2], imageData[index + 3]];
 }

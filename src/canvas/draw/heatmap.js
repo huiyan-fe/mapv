@@ -2,7 +2,6 @@
  * @author kyle / http://nikai.us/
  */
 
-import utilsColorPalette from "../utils/colorPalette";
 import Intensity from "../../utils/data-range/Intensity";
 import pathSimple from "../path/simple";
 import Canvas from "../../utils/Canvas";
@@ -47,6 +46,7 @@ function colorize(pixels, gradient, options) {
 function drawGray(context, dataSet, options) {
 
     var max = options.max || 100;
+    var min = options.min || 0;
     // console.log(max)
     var size = options._size;
     if (size == undefined) {
@@ -56,10 +56,11 @@ function drawGray(context, dataSet, options) {
         }
     }
 
-    var color = new Intensity({
+    var intensity = new Intensity({
         gradient: options.gradient,
-        max: max
-    })
+        max: max,
+        min: min
+    });
 
     var circle = createCircle(size);
 
@@ -81,7 +82,7 @@ function drawGray(context, dataSet, options) {
         if (!options.withoutAlpha) {
             context.globalAlpha = i;
         }
-        context.strokeStyle = color.getColor(i * max);
+        context.strokeStyle = intensity.getColor(i * max);
         _data.forEach(function(item, index) {
             if (!item.geometry) {
                 return;
@@ -98,7 +99,6 @@ function drawGray(context, dataSet, options) {
                 context.globalAlpha = count / max;
                 context.beginPath();
                 pathSimple.draw(context, item, options);
-                // console.warn(i, i * max, color.getColor(i * max))
                 context.stroke();
             } else if (type === 'Polygon') {
 
@@ -117,26 +117,27 @@ function draw(context, dataSet, options) {
     var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
 
     context.save();
+
+    var intensity = new Intensity({
+        gradient: options.gradient
+    });
+
     //console.time('drawGray')
     drawGray(context, data, options);
+
     //console.timeEnd('drawGray');
     // return false;
     if (!options.absolute) {
         //console.time('changeColor');
         var colored = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
-        colorize(colored.data, utilsColorPalette.getImageData({
-            defaultGradient: options.gradient || { 
-                0.25: "rgba(0, 0, 255, 1)",
-                0.55: "rgba(0, 255, 0, 1)",
-                0.85: "rgba(255, 255, 0, 1)",
-                1.0: "rgba(255, 0, 0, 1)"
-            }
-        }), options);
+        colorize(colored.data, intensity.getImageData(), options);
         //console.timeEnd('changeColor');
         context.putImageData(colored, 0, 0);
 
         context.restore();
     }
+
+    intensity = null;
 }
 
 export default {
