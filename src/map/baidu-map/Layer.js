@@ -221,6 +221,10 @@ class Layer extends BaseLayer{
             this.intensity.setMax(self.options.max);
         }
 
+        if (self.options.min) {
+            this.intensity.setMin(self.options.min);
+        }
+
         this.initAnimator();
         
     }

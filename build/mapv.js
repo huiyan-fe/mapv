@@ -689,11 +689,16 @@ function Intensity(options) {
     this.maxSize = options.maxSize || 35;
     this.minSize = options.minSize || 0;
     this.max = options.max || 100;
+    this.min = options.min || 0;
     this.initPalette();
 }
 
-Intensity.prototype.setMax = function (max) {
-    this.max = max || 100;
+Intensity.prototype.setMax = function (value) {
+    this.max = value || 100;
+};
+
+Intensity.prototype.setMin = function (value) {
+    this.min = value || 0;
 };
 
 Intensity.prototype.setMaxSize = function (maxSize) {
@@ -731,12 +736,17 @@ Intensity.prototype.getColor = function (value) {
 
 Intensity.prototype.getImageData = function (value) {
     var max = this.max;
+    var min = this.min;
 
     if (value > max) {
         value = max;
     }
 
-    var index = Math.floor(value / max * (256 - 1)) * 4;
+    if (value < min) {
+        value = min;
+    }
+
+    var index = Math.floor((value - min) / (max - min) * (256 - 1)) * 4;
 
     var imageData = this.paletteCtx.getImageData(0, 0, 256, 1).data;
 
@@ -753,6 +763,7 @@ Intensity.prototype.getSize = function (value) {
 
     var size = 0;
     var max = this.max;
+    var min = this.min;
     var maxSize = this.maxSize;
     var minSize = this.minSize;
 
@@ -760,7 +771,11 @@ Intensity.prototype.getSize = function (value) {
         value = max;
     }
 
-    size = minSize + value / max * (maxSize - minSize);
+    if (value < min) {
+        value = min;
+    }
+
+    size = minSize + (value - min) / (max - min) * (maxSize - minSize);
 
     return size;
 };
@@ -4463,6 +4478,10 @@ var Layer = function (_BaseLayer) {
 
             if (self.options.max) {
                 this.intensity.setMax(self.options.max);
+            }
+
+            if (self.options.min) {
+                this.intensity.setMin(self.options.min);
             }
 
             this.initAnimator();
