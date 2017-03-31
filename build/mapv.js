@@ -650,28 +650,6 @@ function Canvas(width, height) {
  * @author kyle / http://nikai.us/
  */
 
-var utilsColorPalette = {
-    getImageData: function getImageData(config) {
-        var gradientConfig = config.gradient || config.defaultGradient;
-        var canvas = new Canvas(256, 1);
-        var paletteCtx = canvas.getContext('2d');
-
-        var gradient = paletteCtx.createLinearGradient(0, 0, 256, 1);
-        for (var key in gradientConfig) {
-            gradient.addColorStop(parseFloat(key), gradientConfig[key]);
-        }
-
-        paletteCtx.fillStyle = gradient;
-        paletteCtx.fillRect(0, 0, 256, 1);
-
-        return paletteCtx.getImageData(0, 0, 256, 1).data;
-    }
-};
-
-/**
- * @author kyle / http://nikai.us/
- */
-
 /**
  * Category
  * @param {Object} [options]   Available options:
@@ -689,11 +667,16 @@ function Intensity(options) {
     this.maxSize = options.maxSize || 35;
     this.minSize = options.minSize || 0;
     this.max = options.max || 100;
+    this.min = options.min || 0;
     this.initPalette();
 }
 
-Intensity.prototype.setMax = function (max) {
-    this.max = max || 100;
+Intensity.prototype.setMax = function (value) {
+    this.max = value || 100;
+};
+
+Intensity.prototype.setMin = function (value) {
+    this.min = value || 0;
 };
 
 Intensity.prototype.setMaxSize = function (maxSize) {
@@ -730,15 +713,25 @@ Intensity.prototype.getColor = function (value) {
 };
 
 Intensity.prototype.getImageData = function (value) {
+
+    var imageData = this.paletteCtx.getImageData(0, 0, 256, 1).data;
+
+    if (value === undefined) {
+        return imageData;
+    }
+
     var max = this.max;
+    var min = this.min;
 
     if (value > max) {
         value = max;
     }
 
-    var index = Math.floor(value / max * (256 - 1)) * 4;
+    if (value < min) {
+        value = min;
+    }
 
-    var imageData = this.paletteCtx.getImageData(0, 0, 256, 1).data;
+    var index = Math.floor((value - min) / (max - min) * (256 - 1)) * 4;
 
     return [imageData[index], imageData[index + 1], imageData[index + 2], imageData[index + 3]];
 };
@@ -753,6 +746,7 @@ Intensity.prototype.getSize = function (value) {
 
     var size = 0;
     var max = this.max;
+    var min = this.min;
     var maxSize = this.maxSize;
     var minSize = this.minSize;
 
@@ -760,7 +754,11 @@ Intensity.prototype.getSize = function (value) {
         value = max;
     }
 
-    size = minSize + value / max * (maxSize - minSize);
+    if (value < min) {
+        value = min;
+    }
+
+    size = minSize + (value - min) / (max - min) * (maxSize - minSize);
 
     return size;
 };
@@ -830,6 +828,7 @@ function colorize(pixels, gradient, options) {
 function drawGray(context, dataSet, options) {
 
     var max = options.max || 100;
+    var min = options.min || 0;
     // console.log(max)
     var size = options._size;
     if (size == undefined) {
@@ -839,9 +838,10 @@ function drawGray(context, dataSet, options) {
         }
     }
 
-    var color = new Intensity({
+    var intensity = new Intensity({
         gradient: options.gradient,
-        max: max
+        max: max,
+        min: min
     });
 
     var circle = createCircle(size);
@@ -864,7 +864,7 @@ function drawGray(context, dataSet, options) {
         if (!options.withoutAlpha) {
             context.globalAlpha = i;
         }
-        context.strokeStyle = color.getColor(i * max);
+        context.strokeStyle = intensity.getColor(i * max);
         _data.forEach(function (item, index) {
             if (!item.geometry) {
                 return;
@@ -881,7 +881,6 @@ function drawGray(context, dataSet, options) {
                 context.globalAlpha = count / max;
                 context.beginPath();
                 pathSimple.draw(context, item, options);
-                // console.warn(i, i * max, color.getColor(i * max))
                 context.stroke();
             } else if (type === 'Polygon') {}
         });
@@ -897,26 +896,27 @@ function draw(context, dataSet, options) {
     var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
 
     context.save();
+
+    var intensity = new Intensity({
+        gradient: options.gradient
+    });
+
     //console.time('drawGray')
     drawGray(context, data, options);
+
     //console.timeEnd('drawGray');
     // return false;
     if (!options.absolute) {
         //console.time('changeColor');
         var colored = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
-        colorize(colored.data, utilsColorPalette.getImageData({
-            defaultGradient: options.gradient || {
-                0.25: "rgba(0, 0, 255, 1)",
-                0.55: "rgba(0, 255, 0, 1)",
-                0.85: "rgba(255, 255, 0, 1)",
-                1.0: "rgba(255, 0, 0, 1)"
-            }
-        }), options);
+        colorize(colored.data, intensity.getImageData(), options);
         //console.timeEnd('changeColor');
         context.putImageData(colored, 0, 0);
 
         context.restore();
     }
+
+    intensity = null;
 }
 
 var drawHeatmap = {
@@ -3846,10 +3846,7 @@ var drawText = {
     draw: function draw(context, dataSet, options) {
 
         var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
-
-        context.fillStyle = 'white';
-        context.textAlign = 'center';
-        context.textBaseline = 'middle';
+        context.save();
 
         // set from options
         for (var key in options) {
@@ -3861,14 +3858,91 @@ var drawText = {
             y: 0
         };
 
+        var rects = [];
+
+        var size = options._size || options.size;
+        if (size) {
+            context.font = "bold " + size + "px Arial";
+        } else {
+            size = 12;
+        }
+
         var textKey = options.textKey || 'text';
 
-        for (var i = 0, len = data.length; i < len; i++) {
-            var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
-            context.fillText(data[i][textKey], coordinates[0] + offset.x, coordinates[1] + offset.y);
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+
+        if (options.avoid) {
+            // 标注避让
+            for (var i = 0, len = data.length; i < len; i++) {
+                var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
+                var x = coordinates[0] + offset.x;
+                var y = coordinates[1] + offset.y;
+                var text = data[i][textKey];
+                var textWidth = context.measureText(text).width;
+
+                // 根据文本宽度和高度调整x，y位置，使得绘制文本时候坐标点在文本中心点，这个计算出的是左上角坐标
+                var px = x - textWidth / 2;
+                var py = y - size / 2;
+
+                var rect = {
+                    sw: {
+                        x: px,
+                        y: py + size
+                    },
+                    ne: {
+                        x: px + textWidth,
+                        y: py
+                    }
+                };
+
+                if (!hasOverlay(rects, rect)) {
+                    rects.push(rect);
+                    px = px + textWidth / 2;
+                    py = py + size / 2;
+                    context.fillText(text, px, py);
+                }
+            }
+        } else {
+            for (var i = 0, len = data.length; i < len; i++) {
+                var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
+                var x = coordinates[0] + offset.x;
+                var y = coordinates[1] + offset.y;
+                var text = data[i][textKey];
+                context.fillText(text, x, y);
+            }
+        }
+
+        context.restore();
+    }
+
+};
+
+/*
+ *  当前文字区域和已有的文字区域是否有重叠部分
+ */
+function hasOverlay(rects, overlay) {
+    for (var i = 0; i < rects.length; i++) {
+        if (isRectOverlay(rects[i], overlay)) {
+            return true;
         }
     }
-};
+    return false;
+}
+
+//判断2个矩形是否有重叠部分
+function isRectOverlay(rect1, rect2) {
+    //minx、miny 2个矩形右下角最小的x和y
+    //maxx、maxy 2个矩形左上角最大的x和y
+    var minx = Math.min(rect1.ne.x, rect2.ne.x);
+    var miny = Math.min(rect1.sw.y, rect2.sw.y);
+    var maxx = Math.max(rect1.sw.x, rect2.sw.x);
+    var maxy = Math.max(rect1.ne.y, rect2.ne.y);
+    if (minx > maxx && miny > maxy) {
+        return true;
+    }
+    return false;
+}
 
 /**
  * @author Mofei Zhu<mapv@zhuwenlong.com>
@@ -4463,6 +4537,10 @@ var Layer = function (_BaseLayer) {
 
             if (self.options.max) {
                 this.intensity.setMax(self.options.max);
+            }
+
+            if (self.options.min) {
+                this.intensity.setMin(self.options.min);
             }
 
             this.initAnimator();
