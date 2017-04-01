@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.12";
+var version = "2.0.13";
 
 /**
  * @author kyle / http://nikai.us/
@@ -193,6 +193,35 @@ var possibleConstructorReturn = function (self, call) {
  * @author kyle / http://nikai.us/
  */
 
+/**
+ * DataSet
+ *
+ * A data set can:
+ * - add/remove/update data
+ * - gives triggers upon changes in the data
+ * - can  import/export data in various data formats
+ * @param {Array} [data]    Optional array with initial data
+ * the field geometry is like geojson, it can be:
+ * {
+ *     "type": "Point",
+ *     "coordinates": [125.6, 10.1]
+ * }
+ * {
+ *     "type": "LineString",
+ *     "coordinates": [
+ *         [102.0, 0.0], [103.0, 1.0], [104.0, 0.0], [105.0, 1.0]
+ *     ]
+ * }
+ * {
+ *     "type": "Polygon",
+ *     "coordinates": [
+ *         [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],
+ *           [100.0, 1.0], [100.0, 0.0] ]
+ *     ]
+ * }
+ * @param {Object} [options]   Available options:
+ * 
+ */
 function DataSet(data, options) {
 
     this._options = options || {};
@@ -621,6 +650,11 @@ function Canvas(width, height) {
  * @author kyle / http://nikai.us/
  */
 
+/**
+ * Category
+ * @param {Object} [options]   Available options:
+ *                             {Object} gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"}
+ */
 function Intensity(options) {
 
     options = options || {};
@@ -2752,18 +2786,6 @@ var MapHelper = function () {
     }]);
     return MapHelper;
 }();
-
-// function MapHelper(dom, type, opt) {
-//     var map = new BMap.Map(dom, {
-//         enableMapClick: false
-//     });
-//     map.centerAndZoom(new BMap.Point(106.962497, 38.208726), 5);
-//     map.enableScrollWheelZoom(true);
-
-//     map.setMapStyle({
-//         style: 'light'
-//     });
-// }
 
 /**
  * 一直覆盖在当前地图视野的Canvas对象
