@@ -267,6 +267,7 @@ dataSet中添加字段
     draw: 'text',
     fillStyle: 'white',
     textAlign: 'center',
+    avoid: true, // 开启文本标注避让
     textBaseline: 'middle',
     offset: { // 文本便宜值
         x: 0,

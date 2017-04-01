@@ -193,35 +193,6 @@ var possibleConstructorReturn = function (self, call) {
  * @author kyle / http://nikai.us/
  */
 
-/**
- * DataSet
- *
- * A data set can:
- * - add/remove/update data
- * - gives triggers upon changes in the data
- * - can  import/export data in various data formats
- * @param {Array} [data]    Optional array with initial data
- * the field geometry is like geojson, it can be:
- * {
- *     "type": "Point",
- *     "coordinates": [125.6, 10.1]
- * }
- * {
- *     "type": "LineString",
- *     "coordinates": [
- *         [102.0, 0.0], [103.0, 1.0], [104.0, 0.0], [105.0, 1.0]
- *     ]
- * }
- * {
- *     "type": "Polygon",
- *     "coordinates": [
- *         [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],
- *           [100.0, 1.0], [100.0, 0.0] ]
- *     ]
- * }
- * @param {Object} [options]   Available options:
- * 
- */
 function DataSet(data, options) {
 
     this._options = options || {};
@@ -650,11 +621,6 @@ function Canvas(width, height) {
  * @author kyle / http://nikai.us/
  */
 
-/**
- * Category
- * @param {Object} [options]   Available options:
- *                             {Object} gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"}
- */
 function Intensity(options) {
 
     options = options || {};
@@ -785,6 +751,10 @@ Intensity.prototype.getLegend = function (options) {
     return canvas;
 };
 
+var global$1 = typeof window === 'undefined' ? {} : window;
+
+var devicePixelRatio = global$1.devicePixelRatio;
+
 /**
  * @author kyle / http://nikai.us/
  */
@@ -845,6 +815,8 @@ function drawGray(context, dataSet, options) {
     });
 
     var circle = createCircle(size);
+    var circleHalfWidth = circle.width / 2;
+    var circleHalfHeight = circle.height / 2;
 
     var data = dataSet;
 
@@ -875,7 +847,7 @@ function drawGray(context, dataSet, options) {
             if (type === 'Point') {
                 var count = item.count === undefined ? 1 : item.count;
                 context.globalAlpha = count / max;
-                context.drawImage(circle, coordinates[0] - circle.width / 2, coordinates[1] - circle.height / 2);
+                context.drawImage(circle, coordinates[0] - circleHalfWidth, coordinates[1] - circleHalfHeight);
             } else if (type === 'LineString') {
                 var count = item.count === undefined ? 1 : item.count;
                 context.globalAlpha = count / max;
@@ -890,6 +862,9 @@ function drawGray(context, dataSet, options) {
 function draw(context, dataSet, options) {
     var strength = options.strength || 0.3;
     context.strokeStyle = 'rgba(0,0,0,' + strength + ')';
+    var shadowCanvas = new Canvas(context.canvas.width, context.canvas.height);
+    var shadowContext = shadowCanvas.getContext('2d');
+    shadowContext.scale(devicePixelRatio, devicePixelRatio);
 
     options = options || {};
 
@@ -902,13 +877,13 @@ function draw(context, dataSet, options) {
     });
 
     //console.time('drawGray')
-    drawGray(context, data, options);
+    drawGray(shadowContext, data, options);
 
     //console.timeEnd('drawGray');
     // return false;
     if (!options.absolute) {
         //console.time('changeColor');
-        var colored = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
+        var colored = shadowContext.getImageData(0, 0, context.canvas.width, context.canvas.height);
         colorize(colored.data, intensity.getImageData(), options);
         //console.timeEnd('changeColor');
         context.putImageData(colored, 0, 0);
@@ -917,6 +892,7 @@ function draw(context, dataSet, options) {
     }
 
     intensity = null;
+    shadowCanvas = null;
 }
 
 var drawHeatmap = {
@@ -2777,6 +2753,18 @@ var MapHelper = function () {
     return MapHelper;
 }();
 
+// function MapHelper(dom, type, opt) {
+//     var map = new BMap.Map(dom, {
+//         enableMapClick: false
+//     });
+//     map.centerAndZoom(new BMap.Point(106.962497, 38.208726), 5);
+//     map.enableScrollWheelZoom(true);
+
+//     map.setMapStyle({
+//         style: 'light'
+//     });
+// }
+
 /**
  * 一直覆盖在当前地图视野的Canvas对象
  *
@@ -2800,9 +2788,9 @@ function CanvasLayer(options) {
     this.show();
 }
 
-var global$1 = typeof window === 'undefined' ? {} : window;
+var global$3 = typeof window === 'undefined' ? {} : window;
 
-if (global$1.BMap) {
+if (global$3.BMap) {
 
     CanvasLayer.prototype = new BMap.Overlay();
 
@@ -2825,7 +2813,7 @@ if (global$1.BMap) {
         var size = this._map.getSize();
         var canvas = this.canvas;
 
-        var devicePixelRatio = this.devicePixelRatio = global$1.devicePixelRatio;
+        var devicePixelRatio = this.devicePixelRatio = global$3.devicePixelRatio;
 
         canvas.width = size.width * devicePixelRatio;
         canvas.height = size.height * devicePixelRatio;
@@ -4749,9 +4737,9 @@ function CanvasLayer$2(opt_options) {
   }
 }
 
-var global$2 = typeof window === 'undefined' ? {} : window;
+var global$4 = typeof window === 'undefined' ? {} : window;
 
-if (global$2.google && global$2.google.maps) {
+if (global$4.google && global$4.google.maps) {
 
   CanvasLayer$2.prototype = new google.maps.OverlayView();
 
@@ -4792,8 +4780,8 @@ if (global$2.google && global$2.google.maps) {
    * @return {number} The browser-defined id for the requested callback.
    * @private
    */
-  CanvasLayer$2.prototype.requestAnimFrame_ = global$2.requestAnimationFrame || global$2.webkitRequestAnimationFrame || global$2.mozRequestAnimationFrame || global$2.oRequestAnimationFrame || global$2.msRequestAnimationFrame || function (callback) {
-    return global$2.setTimeout(callback, 1000 / 60);
+  CanvasLayer$2.prototype.requestAnimFrame_ = global$4.requestAnimationFrame || global$4.webkitRequestAnimationFrame || global$4.mozRequestAnimationFrame || global$4.oRequestAnimationFrame || global$4.msRequestAnimationFrame || function (callback) {
+    return global$4.setTimeout(callback, 1000 / 60);
   };
 
   /**
@@ -4805,7 +4793,7 @@ if (global$2.google && global$2.google.maps) {
    * @param {number=} requestId The id of the frame request to cancel.
    * @private
    */
-  CanvasLayer$2.prototype.cancelAnimFrame_ = global$2.cancelAnimationFrame || global$2.webkitCancelAnimationFrame || global$2.mozCancelAnimationFrame || global$2.oCancelAnimationFrame || global$2.msCancelAnimationFrame || function (requestId) {};
+  CanvasLayer$2.prototype.cancelAnimFrame_ = global$4.cancelAnimationFrame || global$4.webkitCancelAnimationFrame || global$4.mozCancelAnimationFrame || global$4.oCancelAnimationFrame || global$4.msCancelAnimationFrame || function (requestId) {};
 
   /**
    * Sets any options provided. See CanvasLayerOptions for more information.
@@ -4972,7 +4960,7 @@ if (global$2.google && global$2.google.maps) {
 
     // cease canvas update callbacks
     if (this.requestAnimationFrameId_) {
-      this.cancelAnimFrame_.call(global$2, this.requestAnimationFrameId_);
+      this.cancelAnimFrame_.call(global$4, this.requestAnimationFrameId_);
       this.requestAnimationFrameId_ = null;
     }
   };
@@ -5097,7 +5085,7 @@ if (global$2.google && global$2.google.maps) {
    */
   CanvasLayer$2.prototype.scheduleUpdate = function () {
     if (this.isAdded_ && !this.requestAnimationFrameId_) {
-      this.requestAnimationFrameId_ = this.requestAnimFrame_.call(global$2, this.requestUpdateFunction_);
+      this.requestAnimationFrameId_ = this.requestAnimFrame_.call(global$4, this.requestUpdateFunction_);
     }
   };
 }

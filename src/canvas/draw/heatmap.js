@@ -6,6 +6,7 @@ import Intensity from "../../utils/data-range/Intensity";
 import pathSimple from "../path/simple";
 import Canvas from "../../utils/Canvas";
 import DataSet from "../../data/DataSet";
+import {devicePixelRatio} from "../../utils/window";
 
 function createCircle(size) {
 
@@ -63,6 +64,8 @@ function drawGray(context, dataSet, options) {
     });
 
     var circle = createCircle(size);
+    var circleHalfWidth = circle.width / 2;
+    var circleHalfHeight = circle.height / 2;
 
     var data = dataSet;
 
@@ -93,7 +96,7 @@ function drawGray(context, dataSet, options) {
             if (type === 'Point') {
                 var count = item.count === undefined ? 1 : item.count;
                 context.globalAlpha = count / max;
-                context.drawImage(circle, coordinates[0] - circle.width / 2, coordinates[1] - circle.height / 2);
+                context.drawImage(circle, coordinates[0] - circleHalfWidth, coordinates[1] - circleHalfHeight);
             } else if (type === 'LineString') {
                 var count = item.count === undefined ? 1 : item.count;
                 context.globalAlpha = count / max;
@@ -111,6 +114,9 @@ function drawGray(context, dataSet, options) {
 function draw(context, dataSet, options) {
     var strength = options.strength || 0.3;
     context.strokeStyle = 'rgba(0,0,0,' + strength + ')';
+    var shadowCanvas = new Canvas(context.canvas.width, context.canvas.height);
+    var shadowContext = shadowCanvas.getContext('2d');
+    shadowContext.scale(devicePixelRatio, devicePixelRatio);
 
     options = options || {};
 
@@ -123,13 +129,13 @@ function draw(context, dataSet, options) {
     });
 
     //console.time('drawGray')
-    drawGray(context, data, options);
+    drawGray(shadowContext, data, options);
 
     //console.timeEnd('drawGray');
     // return false;
     if (!options.absolute) {
         //console.time('changeColor');
-        var colored = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
+        var colored = shadowContext.getImageData(0, 0, context.canvas.width, context.canvas.height);
         colorize(colored.data, intensity.getImageData(), options);
         //console.timeEnd('changeColor');
         context.putImageData(colored, 0, 0);
@@ -138,6 +144,7 @@ function draw(context, dataSet, options) {
     }
 
     intensity = null;
+    shadowCanvas = null;
 }
 
 export default {
