@@ -190,6 +190,7 @@
                     type: 'Point',
                     coordinates: [cityCenter.lng - 2 + Math.random() * 4, cityCenter.lat - 2 + Math.random() * 4]
                 },
+                count: parseInt(4 * Math.random()),
                 //minSize: 5,
                 size: 25 * Math.random() + 5 
             });
@@ -202,8 +203,15 @@
             strokeStyle: 'rgba(255, 250, 50, 0.6)',
             shadowColor: 'rgba(255, 250, 50, 1)',
             shadowBlur: 80,
+            styleType: 'stroke',
             globalCompositeOperation: 'lighter',
-            draw: 'simple'
+            splitList: { 
+                other: 'white',
+                1: 'blue',
+                2: 'yellow',
+                3: 'red'
+            },
+            draw: 'category'
         }
 
         var layer = new mapv.baiduMapAnimationLayer(map, dataSet, options);
