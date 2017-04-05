@@ -1,12 +1,19 @@
 
 import clear from "../../canvas/clear";
+import BaseLayer from "../BaseLayer";
 import CanvasLayer from "./CanvasLayer";
 
-class AnimationLayer{
+class AnimationLayer extends BaseLayer{
     constructor (map, dataSet, options) {
+
+        super(map, dataSet, options);
+
         this.map = map;
         this.options = options || {};
         this.dataSet = dataSet;
+
+        this.init(options);
+
         var canvasLayer = new CanvasLayer({
             map: map,
             update: this._canvasUpdate.bind(this)
@@ -20,6 +27,29 @@ class AnimationLayer{
         this.ctx = canvasLayer.canvas.getContext('2d');
 
         this.start();
+    }
+
+    init(options) {
+
+        var self = this;
+        self.options = options;
+        this.initDataRange(options);
+        this.context = self.options.context || '2d';
+
+        if (self.options.zIndex) {
+            this.canvasLayer && this.canvasLayer.setZIndex(self.options.zIndex);
+        }
+
+        if (self.options.max) {
+            this.intensity.setMax(self.options.max);
+        }
+
+        if (self.options.min) {
+            this.intensity.setMin(self.options.min);
+        }
+
+        this.initAnimator();
+        
     }
 
     // 经纬度左边转换为墨卡托坐标
@@ -68,6 +98,8 @@ class AnimationLayer{
 
         this.data = this.dataSet.get(dataGetOptions);
 
+        this.processData(this.data);
+
         this.drawAnimation();
     }
 
@@ -84,12 +116,19 @@ class AnimationLayer{
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         ctx.restore();
 
+        ctx.save();
         if (this.options.shadowColor) {
             ctx.shadowColor = this.options.shadowColor;
         }
+
         if (this.options.shadowBlur) {
             ctx.shadowBlur = this.options.shadowBlur;
         }
+
+        if (this.options.globalAlpha) {
+            ctx.globalAlpha = this.options.globalAlpha;
+        }
+
         if (this.options.globalCompositeOperation) {
             ctx.globalCompositeOperation = this.options.globalCompositeOperation;
         }
@@ -147,6 +186,7 @@ class AnimationLayer{
                 }
             }
         }
+        ctx.restore();
     }
 
     animate() {

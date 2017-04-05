@@ -105,16 +105,18 @@ class BaseLayer {
                     data[i]._size = undefined;
                 } 
 
+                var styleType = 'fillStyle';
+
+                if (data[i].geometry.type === 'LineString' || self.options.styleType === 'stroke') {
+                    styleType = 'strokeStyle';
+                }
+
                 if (self.options.draw == 'intensity') {
-                    if (data[i].geometry.type === 'LineString') {
-                        data[i].strokeStyle = self.intensity.getColor(item.count);
-                    } else {
-                        data[i].fillStyle = self.intensity.getColor(item.count);
-                    }
+                    data[i][styleType] = self.intensity.getColor(item.count);
                 } else if (self.options.draw == 'category') {
-                    data[i].fillStyle = self.category.get(item.count);
+                    data[i][styleType] = self.category.get(item.count);
                 } else if (self.options.draw == 'choropleth') {
-                    data[i].fillStyle = self.choropleth.get(item.count);
+                    data[i][styleType] = self.choropleth.get(item.count);
                 }
             }
 
