@@ -105,10 +105,10 @@ class BaseLayer {
                     data[i]._size = undefined;
                 } 
 
-                var styleType = 'fillStyle';
+                var styleType = '_fillStyle';
 
                 if (data[i].geometry.type === 'LineString' || self.options.styleType === 'stroke') {
-                    styleType = 'strokeStyle';
+                    styleType = '_strokeStyle';
                 }
 
                 if (self.options.draw == 'intensity') {

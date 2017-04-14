@@ -34,6 +34,7 @@ import Event from "../utils/Event";
  * 
  */
 function DataSet(data, options) {
+    Event.bind(this)();
 
     this._options = options || {};
     this._data = []; // map with data indexed by id
@@ -45,7 +46,7 @@ function DataSet(data, options) {
 
 }
 
-DataSet.prototype = new Event();
+DataSet.prototype = Event.prototype;
 
 /**
  * Add data.
@@ -137,7 +138,29 @@ DataSet.prototype.remove = function(args) {};
 /**
  * update data.
  */
-DataSet.prototype.update = function(args) {};
+DataSet.prototype.update = function(cbk, condition) {
+
+    var data = this._data;
+
+    var item = null;
+    for (var i = 0; i < data.length; i++) {
+        if (condition) {
+            var flag = true;
+            for (var key in condition) {
+                if (data[i][key] != condition[key]) {
+                    flag = false;
+                }
+            }
+            if (flag) {
+                cbk && cbk(data[i]);
+            }
+        } else {
+            cbk && cbk(data[i]);
+        }
+    }
+
+    this._trigger('change');
+};
 
 /**
  * transfer coordinate.

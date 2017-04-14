@@ -52,12 +52,12 @@ export default {
 
                 context.save();
 
-                if (item.fillStyle) {
-                    context.fillStyle = item.fillStyle;
+                if (item.fillStyle || item._fillStyle) {
+                    context.fillStyle = item.fillStyle || item._fillStyle;
                 }
 
-                if (item.strokeStyle) {
-                    context.strokeStyle = item.strokeStyle;
+                if (item.strokeStyle || item._strokeStyle) {
+                    context.strokeStyle = item.strokeStyle || item._strokeStyle;
                 }
 
                 var type = item.geometry.type;

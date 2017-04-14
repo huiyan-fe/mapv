@@ -151,9 +151,9 @@ class AnimationLayer extends BaseLayer{
                     data[i]._size = minSize;
                 }
                 ctx.lineWidth = 1;
-                ctx.strokeStyle = data[i].strokeStyle || options.strokeStyle || 'yellow';
+                ctx.strokeStyle = data[i].strokeStyle || data[i]._strokeStyle || options.strokeStyle || 'yellow';
                 ctx.stroke();
-                var fillStyle = data[i].fillStyle || options.fillStyle;
+                var fillStyle = data[i].fillStyle || data[i]._fillStyle || options.fillStyle;
                 if (fillStyle) {
                     ctx.fillStyle = fillStyle;
                     ctx.fill();

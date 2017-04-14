@@ -223,6 +223,7 @@ var possibleConstructorReturn = function (self, call) {
  * 
  */
 function DataSet(data, options) {
+    Event.bind(this)();
 
     this._options = options || {};
     this._data = []; // map with data indexed by id
@@ -233,7 +234,7 @@ function DataSet(data, options) {
     }
 }
 
-DataSet.prototype = new Event();
+DataSet.prototype = Event.prototype;
 
 /**
  * Add data.
@@ -324,7 +325,29 @@ DataSet.prototype.remove = function (args) {};
 /**
  * update data.
  */
-DataSet.prototype.update = function (args) {};
+DataSet.prototype.update = function (cbk, condition) {
+
+    var data = this._data;
+
+    var item = null;
+    for (var i = 0; i < data.length; i++) {
+        if (condition) {
+            var flag = true;
+            for (var key in condition) {
+                if (data[i][key] != condition[key]) {
+                    flag = false;
+                }
+            }
+            if (flag) {
+                cbk && cbk(data[i]);
+            }
+        } else {
+            cbk && cbk(data[i]);
+        }
+    }
+
+    this._trigger('change');
+};
 
 /**
  * transfer coordinate.
@@ -589,12 +612,12 @@ var drawSimple = {
 
                 context.save();
 
-                if (item.fillStyle) {
-                    context.fillStyle = item.fillStyle;
+                if (item.fillStyle || item._fillStyle) {
+                    context.fillStyle = item.fillStyle || item._fillStyle;
                 }
 
-                if (item.strokeStyle) {
-                    context.strokeStyle = item.strokeStyle;
+                if (item.strokeStyle || item._strokeStyle) {
+                    context.strokeStyle = item.strokeStyle || item._strokeStyle;
                 }
 
                 var type = item.geometry.type;
@@ -2069,6 +2092,19 @@ function getCenter(g) {
 }
 
 var cityCenter = {
+    getProvinceNameByCityName: function getProvinceNameByCityName(name) {
+        var provinces = citycenter.provinces;
+        for (var i = 0; i < provinces.length; i++) {
+            var provinceName = provinces[i].n;
+            var cities = provinces[i].cities;
+            for (var j = 0; j < cities.length; j++) {
+                if (cities[j].n == name) {
+                    return provinceName;
+                }
+            }
+        }
+        return null;
+    },
     getCenterByCityName: function getCenterByCityName(name) {
         for (var i = 0; i < citycenter.municipalities.length; i++) {
             if (citycenter.municipalities[i].n == name) {
@@ -3703,8 +3739,13 @@ var drawText = {
 
         var textKey = options.textKey || 'text';
 
-        context.textAlign = 'center';
-        context.textBaseline = 'middle';
+        if (!options.textAlign) {
+            context.textAlign = 'center';
+        }
+
+        if (!options.textBaseline) {
+            context.textBaseline = 'middle';
+        }
 
         if (options.avoid) {
             // 标注避让
@@ -3932,10 +3973,10 @@ var BaseLayer = function () {
                         data[i]._size = undefined;
                     }
 
-                    var styleType = 'fillStyle';
+                    var styleType = '_fillStyle';
 
                     if (data[i].geometry.type === 'LineString' || self.options.styleType === 'stroke') {
-                        styleType = 'strokeStyle';
+                        styleType = '_strokeStyle';
                     }
 
                     if (self.options.draw == 'intensity') {
@@ -4302,9 +4343,9 @@ var AnimationLayer = function (_BaseLayer) {
                         data[i]._size = minSize;
                     }
                     ctx.lineWidth = 1;
-                    ctx.strokeStyle = data[i].strokeStyle || options.strokeStyle || 'yellow';
+                    ctx.strokeStyle = data[i].strokeStyle || data[i]._strokeStyle || options.strokeStyle || 'yellow';
                     ctx.stroke();
-                    var fillStyle = data[i].fillStyle || options.fillStyle;
+                    var fillStyle = data[i].fillStyle || data[i]._fillStyle || options.fillStyle;
                     if (fillStyle) {
                         ctx.fillStyle = fillStyle;
                         ctx.fill();

@@ -33,8 +33,13 @@ export default {
 
         var textKey = options.textKey || 'text';
 
-        context.textAlign = 'center';
-        context.textBaseline = 'middle';
+        if (!options.textAlign) {
+            context.textAlign = 'center';
+        }
+
+        if (!options.textBaseline) {
+            context.textBaseline = 'middle';
+        }
 
         if (options.avoid) { // 标注避让
             for (var i = 0, len = data.length; i < len; i++) {
