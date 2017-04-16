@@ -18,17 +18,31 @@
             height: 100%;
         }
 
+        #dragzone {
+            position: absolute;
+            left: 5px;
+            top: 5px;
+            padding: 10px;
+            width: 120px;
+            font-size: 12px;
+            height: 30px;
+            line-height: 30px;
+            background: rgba(255, 255, 55, 0.8);
+            border: 1px dashed #999;
+        }
+
 
     </style>
 </head>
 <body>
 
     <div id="map"></div>
+    <div id="dragzone">数据csv文件拖放到此</div>
 
     <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
     <script type="text/javascript" src="../build/mapv.js"></script>
-    <script type="text/javascript" src="http://huiyan-fe.github.io/dat.gui/build/dat.gui.min.js"></script>
+    <script type="text/javascript" src="js/dat.gui.min.js"></script>
 
     <script type="text/javascript">
 
@@ -63,8 +77,9 @@
         var dataSet = new mapv.DataSet(data);
 
         var options = {
-            draw: 'simple',
+            draw: 'heatmap',
             max: 100,
+            coordType: 'bd09mc',
             size: 5,
             symbol: 'circle',
             maxSize: 50,
@@ -253,18 +268,18 @@
                     // gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
                     gui.add(options, 'lineWidth', 1, 10).onFinishChange(finished);
                     gui.addColor(options, 'strokeStyle').onChange(finished);
-                    gui.add(options, 'max', 1, 300).onFinishChange(finished);
+                    gui.add(options, 'max', 1, 1000).onFinishChange(finished);
                     gui.add(options, 'maxSize', 35, 100).onFinishChange(finished);
                     break;
                 case 'heatmap':
                     // gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
-                    gui.add(options, 'max', 1, 300).onFinishChange(finished);
+                    gui.add(options, 'max', 1, 1000).onFinishChange(finished);
                     gui.add(options, 'maxOpacity', 0, 1).onFinishChange(finished);
                     break;
                 case 'grid':
                 case 'intensity':
                 case 'honeycomb':
-                    gui.add(options, 'max', 1, 300).onFinishChange(finished);
+                    gui.add(options, 'max', 1, 1000).onFinishChange(finished);
                     gui.add(options, 'lineWidth', 1, 10).onFinishChange(finished);
                     gui.addColor(options, 'strokeStyle').onChange(finished);
                     gui.addGradient(options, 'gradient', gradientOptions).onFinishChange(finished);
@@ -272,6 +287,33 @@
             }
             
         }
+
+    function dragHandle(event) {
+        var info = "",
+            files, i, len;
+        event.preventDefault();
+        if(event.type == "drop") {
+            files = event.dataTransfer.files;
+            var fr = new FileReader() ;
+
+            fr.readAsText(files[0]);
+
+            fr.onload = function() {
+                var rs = this.result;
+
+                var newDataSet = mapv.csv.getDataSet(rs);
+                newDataSet.initGeometry();
+                dataSet.set(newDataSet.get());
+
+            }
+        }
+    }
+
+    var dropTargetEle = document.getElementById("dragzone");
+    dropTargetEle.addEventListener("dragenter", dragHandle, false);
+    dropTargetEle.addEventListener("dragover", dragHandle, false);
+    dropTargetEle.addEventListener("drop", dragHandle, false);
+
 
     </script>
 	
