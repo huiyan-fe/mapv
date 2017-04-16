@@ -53,6 +53,12 @@
         map.centerAndZoom(new BMap.Point(105.403119, 38.028658), 5);  // 初始化地图,设置中心点坐标和地图级别
         map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
 
+
+        var pt = new BMap.Point(127.733142,21.226515);
+        var myIcon = new BMap.Icon("images/nanhai.png", new BMap.Size(85, 124));
+        var marker2 = new BMap.Marker(pt,{icon:myIcon});  // 创建标注
+        map.addOverlay(marker2);
+
         map.setMapStyle({
             styleJson: [
           {
