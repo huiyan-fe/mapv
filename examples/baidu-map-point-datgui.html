@@ -21,7 +21,7 @@
         #dragzone {
             position: absolute;
             left: 5px;
-            top: 5px;
+            top: 30px;
             padding: 10px;
             width: 120px;
             font-size: 12px;
@@ -31,6 +31,12 @@
             border: 1px dashed #999;
         }
 
+        #panel {
+            position: absolute;
+            left: 5px;
+            top: 5px;
+        }
+
 
     </style>
 </head>
@@ -38,6 +44,10 @@
 
     <div id="map"></div>
     <div id="dragzone">数据csv文件拖放到此</div>
+    <div id="panel">
+        <input type="text" id="keyword" value="北京市,河北省,天津市"/>
+        <input type="button" value="查看边界" id="boundaryBtn"/>
+    </div>
 
     <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
@@ -86,7 +96,8 @@
                 //strokeStyle: '#999',
                 strokeStyle: 'rgba(255, 255, 255, 1)',
                 lineWidth: 1,
-                zIndex: 1,
+                zIndex: -2,
+                paneName: 'mapPane',
                 draw: 'simple'
             }
 
@@ -119,7 +130,7 @@
             coordType: 'bd09mc',
             size: 5,
             symbol: 'circle',
-            zIndex: 2,
+            zIndex: -1,
             maxSize: 50,
             maxOpacity: 0.8,
             globalAlpha: 1,
@@ -352,6 +363,31 @@
     dropTargetEle.addEventListener("dragenter", dragHandle, false);
     dropTargetEle.addEventListener("dragover", dragHandle, false);
     dropTargetEle.addEventListener("drop", dragHandle, false);
+
+    $('#boundaryBtn').bind('click', function () {
+        var val = $("#keyword").val().split(',');
+        for (var i= 0; i < val.length; i++) {
+            getBoundary(val[i]);
+        }
+    });
+
+    function getBoundary(city){       
+        var bdary = new BMap.Boundary();
+        bdary.get(city, function(rs){       //获取行政区域
+            var count = rs.boundaries.length; //行政区域的点有多少个
+            if (count === 0) {
+                alert('未能获取当前输入行政区域');
+                return ;
+            }
+            var pointArray = [];
+            for (var i = 0; i < count; i++) {
+                var ply = new BMap.Polygon(rs.boundaries[i], {strokeWeight: 0, strokeStyle: 'dashed', strokeOpacity: '0', fillOpacity: '0.3', fillColor: 'red', strokeColor: "yellow"}); //建立多边形覆盖物
+                map.addOverlay(ply);  //添加覆盖物
+                pointArray = pointArray.concat(ply.getPath());
+            }    
+        });   
+    }
+
 
 
     </script>
