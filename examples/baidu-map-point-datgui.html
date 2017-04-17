@@ -130,7 +130,7 @@
             coordType: 'bd09mc',
             size: 5,
             symbol: 'circle',
-            zIndex: -1,
+            zIndex: 1,
             maxSize: 50,
             maxOpacity: 0.8,
             globalAlpha: 1,
@@ -381,7 +381,7 @@
             }
             var pointArray = [];
             for (var i = 0; i < count; i++) {
-                var ply = new BMap.Polygon(rs.boundaries[i], {strokeWeight: 0, strokeStyle: 'dashed', strokeOpacity: '0', fillOpacity: '0.3', fillColor: 'red', strokeColor: "yellow"}); //建立多边形覆盖物
+                var ply = new BMap.Polygon(rs.boundaries[i], {strokeWeight: 0, strokeStyle: 'dashed', strokeOpacity: '0', fillOpacity: '0.5', fillColor: 'red', strokeColor: "yellow"}); //建立多边形覆盖物
                 map.addOverlay(ply);  //添加覆盖物
                 pointArray = pointArray.concat(ply.getPath());
             }    
