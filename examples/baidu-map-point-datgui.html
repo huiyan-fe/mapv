@@ -47,6 +47,7 @@
     <div id="panel">
         <input type="text" id="keyword" value="北京市,河北省,天津市"/>
         <input type="button" value="查看边界" id="boundaryBtn"/>
+        <input type="button" value="切换底图" id="switchMap"/>
     </div>
 
     <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script>
@@ -71,19 +72,38 @@
         var marker2 = new BMap.Marker(pt,{icon:myIcon});  // 创建标注
         map.addOverlay(marker2);
 
-        map.setMapStyle({
-            styleJson: [
-          {
-                    "featureType": "all",
-                    "elementType": "all",
-                    "stylers": {
-                              "visibility": "off"
+        function setNullStyle() {
+            map.setMapStyle({
+                styleJson: [
+              {
+                        "featureType": "all",
+                        "elementType": "all",
+                        "stylers": {
+                                  "visibility": "off"
+                        }
+              }
+            ]
+            });
+            map.getContainer().style.background = '#fff';
+        }
+        function setGrayStyle() {
+            map.setMapStyle({
+                styleJson: [
+                    {
+                        "featureType": "all",
+                        "elementType": "all",
+                        "stylers": {
+                            "lightness": 61,
+                            "saturation": -100
+                        }
                     }
-          }
-        ]
-        });
-        map.getContainer().style.background = '#fff';
+                ]
+            });
+        }
+        setNullStyle();
+        
 
+        var chinaLayer = null;
         $.get('data/china.json', function(geojson) {
 
             var dataSet = mapv.geojson.getDataSet(geojson);
@@ -101,7 +121,7 @@
                 draw: 'simple'
             }
 
-            var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+            chinaLayer = new mapv.baiduMapLayer(map, dataSet, options);
 
         });
 
@@ -389,6 +409,17 @@
     }
 
 
+    var isChina = true;
+    $('#switchMap').bind('click', function() {
+        isChina = !isChina;
+        if (isChina) {
+            setNullStyle();
+            chinaLayer.show();
+        } else {
+            setGrayStyle();
+            chinaLayer.hide();
+        }
+    });
 
     </script>
 	
