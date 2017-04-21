@@ -96,7 +96,150 @@
                             "lightness": 61,
                             "saturation": -100
                         }
+                    },
+                    {
+                        "featureType": "all",
+                        "elementType": "labels",
+                        "stylers": {
+                                  "visibility": "off"
+                        }
                     }
+                ]
+            });
+        }
+        function setDarkStyle() {
+            map.setMapStyle({
+                styleJson: [{
+                    featureType: 'water',
+                    elementType: 'all',
+                    stylers: {
+                        color: '#044161'
+                    }
+                }, {
+                    featureType: 'land',
+                    elementType: 'all',
+                    stylers: {
+                        color: '#091934'
+                    }
+                }, {
+                    featureType: 'boundary',
+                    elementType: 'geometry',
+                    stylers: {
+                        color: '#064f85'
+                    }
+                }, {
+                    featureType: 'railway',
+                    elementType: 'all',
+                    stylers: {
+                        visibility: 'off'
+                    }
+                }, {
+                    featureType: 'highway',
+                    elementType: 'geometry',
+                    stylers: {
+                        color: '#004981'
+                    }
+                }, {
+                    featureType: 'highway',
+                    elementType: 'geometry.fill',
+                    stylers: {
+                        color: '#005b96',
+                        lightness: 1
+                    }
+                }, {
+                    featureType: 'highway',
+                    elementType: 'labels',
+                    stylers: {
+                        visibility: 'on'
+                    }
+                }, {
+                    featureType: 'arterial',
+                    elementType: 'geometry',
+                    stylers: {
+                        color: '#004981',
+                        lightness: -39
+                    }
+                }, {
+                    featureType: 'arterial',
+                    elementType: 'geometry.fill',
+                    stylers: {
+                        color: '#00508b'
+                    }
+                }, {
+                    featureType: 'poi',
+                    elementType: 'all',
+                    stylers: {
+                        visibility: 'off'
+                    }
+                }, {
+                    featureType: 'green',
+                    elementType: 'all',
+                    stylers: {
+                        color: '#056197',
+                        visibility: 'off'
+                    }
+                }, {
+                    featureType: 'subway',
+                    elementType: 'all',
+                    stylers: {
+                        visibility: 'off'
+                    }
+                }, {
+                    featureType: 'manmade',
+                    elementType: 'all',
+                    stylers: {
+                        visibility: 'off'
+                    }
+                }, {
+                    featureType: 'local',
+                    elementType: 'all',
+                    stylers: {
+                        visibility: 'off'
+                    }
+                }, {
+                    featureType: 'arterial',
+                    elementType: 'labels',
+                    stylers: {
+                        visibility: 'off'
+                    }
+                }, {
+                    featureType: 'boundary',
+                    elementType: 'geometry.fill',
+                    stylers: {
+                        color: '#029fd4'
+                    }
+                }, {
+                    featureType: 'building',
+                    elementType: 'all',
+                    stylers: {
+                        color: '#1a5787'
+                    }
+                }, {
+                    featureType: 'label',
+                    elementType: 'all',
+                    stylers: {
+                        visibility: 'off'
+                    }
+                }, {
+                    featureType: 'poi',
+                    elementType: 'labels.text.fill',
+                    stylers: {
+                        color: '#ffffff'
+                    }
+                }, {
+                    featureType: 'poi',
+                    elementType: 'labels.text.stroke',
+                    stylers: {
+                        color: '#1e1c1c'
+                    }
+                },
+                {
+                    "featureType": "all",
+                    "elementType": "labels",
+                    "stylers": {
+                              "visibility": "off"
+                    }
+                }
                 ]
             });
         }
@@ -154,7 +297,7 @@
             maxSize: 50,
             maxOpacity: 0.8,
             globalAlpha: 1,
-            lineWidth: 1,
+            lineWidth: 0,
             unit: 'px',
             gradient: { 
                 0.25: "rgba(0, 0, 255, 1)",
@@ -308,9 +451,9 @@
             if (options.draw !== 'bubble') {
 
                 if (options.unit == 'm') {
-                    gui.add(options, 'size', 1, 200000).onFinishChange(finished);
+                    gui.add(options, 'size', 0.1, 200000).onFinishChange(finished);
                 } else {
-                    gui.add(options, 'size', 1, 100).onFinishChange(finished);
+                    gui.add(options, 'size', 0.1, 100).onFinishChange(finished);
                 }
 
             }
@@ -366,15 +509,27 @@
             files = event.dataTransfer.files;
             var fr = new FileReader() ;
 
+
             fr.readAsText(files[0]);
 
             fr.onload = function() {
                 var rs = this.result;
-
-                var newDataSet = mapv.csv.getDataSet(rs);
-                newDataSet.initGeometry();
-                dataSet.set(newDataSet.get());
-
+                if (rs[0] == '[' && rs[rs.length - 1] == ']') {
+                    rs = JSON.parse(rs);
+                    rs = rs.map(function (item) {
+                        return {
+                            geometry: {
+                                type: 'Point',
+                                coordinates: [item.x, item.y]
+                            }
+                        }
+                    });
+                    dataSet.set(rs);
+                } else {
+                    var newDataSet = mapv.csv.getDataSet(rs);
+                    newDataSet.initGeometry();
+                    dataSet.set(newDataSet.get());
+                }
             }
         }
     }
@@ -409,14 +564,20 @@
     }
 
 
-    var isChina = true;
+    var isChina = 1;
     $('#switchMap').bind('click', function() {
-        isChina = !isChina;
-        if (isChina) {
+        isChina++;
+        if (isChina > 3) {
+            isChina = 1;
+        }
+        if (isChina == 1) {
             setNullStyle();
             chinaLayer.show();
-        } else {
+        } else if (isChina == 2) {
             setGrayStyle();
+            chinaLayer.hide();
+        } else {
+            setDarkStyle();
             chinaLayer.hide();
         }
     });
