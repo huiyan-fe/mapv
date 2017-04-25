@@ -1,6 +1,6 @@
 import Obj from './OBJ.js';
 
-class Plane extends Obj {
+class Path extends Obj {
     constructor(GL, obj) {
         super(GL, obj);
 
@@ -21,7 +21,7 @@ class Plane extends Obj {
         var mvMatrix = this.GL.camera.mvMatrix;
 
         // 顶点/颜色缓冲区操作
-        var vertexColorBuffer = gl.createBuffer();
+        var vertexColorBuffer = this.gl.ubuffer || gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.verticesColors, gl.STATIC_DRAW);
         //
@@ -32,15 +32,18 @@ class Plane extends Obj {
         //
         gl.vertexAttribPointer(gl.aColor, 3, gl.FLOAT, false, FSIZE * 6, FSIZE * 3);
         gl.enableVertexAttribArray(gl.aColor);
+        vertexColorBuffer = null;
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
+
 
         // set mv
         this.updateOpearte();
         //
 
-        gl.uniformMatrix4fv(this.gl.uMVMatrix, false, mvMatrix);
+        gl.uniformMatrix4fv(this.gl.uMVMatrix, false, this.opearteBuild.result);
         gl.drawArrays(gl.LINE_STRIP, 0, this.verticesColors.length / 6);
     }
 
 }
 
-export default Plane;
+export default Path;

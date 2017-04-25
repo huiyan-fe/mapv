@@ -27,6 +27,59 @@
         var gl = new GL('webgl');
 
 
+        var data = [];
+
+        var citys = ["北京", "天津", "上海", "重庆", "石家庄", "太原", "呼和浩特", "哈尔滨", "长春", "沈阳", "济南", "南京", "合肥", "杭州", "南昌", "福州",
+            "郑州", "武汉", "长沙", "广州", "南宁", "西安", "银川", "兰州", "西宁", "乌鲁木齐", "成都", "贵阳", "昆明", "拉萨", "海口"
+        ];
+
+        // 构造数据
+        for (var i = 0; i < 200; i++) {
+            var cityCenter = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
+            data.push({
+                geometry: {
+                    type: 'Point',
+                    coordinates: [cityCenter.lng - 2 + Math.random() * 4, cityCenter.lat - 2 + Math.random() *
+                        4
+                    ]
+                },
+                count: 30 * Math.random()
+            });
+        }
+        // color 
+        var canvas = document.createElement('canvas');
+        canvas.height = 1;
+        canvas.width = 255;
+        canvas.style.position = 'absolute';
+        canvas.style.top = 0;
+        canvas.style.zIndex = 10000;
+        var ctx = canvas.getContext('2d');
+        var grandient = ctx.createLinearGradient(0, 0, 255, 0);
+        grandient.addColorStop(1.0, "rgb(0,0,255)");
+        grandient.addColorStop(0.75, "rgb(0,255,0)");
+        grandient.addColorStop(0.5, "yellow");
+        grandient.addColorStop(.25, "rgb(255,0,0)");
+        ctx.fillStyle = grandient;
+        ctx.fillRect(0, 0, 255, 10);
+        var imgData = ctx.getImageData(0, 0, 255, 1).data;
+
+        function colorFormat(num) {
+            return ('0' + num.toString(16)).slice(-2);
+        }
+
+
+        data.forEach((item) => {
+            var present = Math.max(0, Math.round(item.count / 30 * 255) - 1);
+            gl.Cuboid({
+                pos: [item.geometry.coordinates[0] * 100, item.geometry.coordinates[1] * 100],
+                size: {
+                    width: 10 * item.count / 30 + 10,
+                    height: 10 * item.count / 30 + 10,
+                    length: item.count * 50 + 10
+                },
+                color: `#${colorFormat(imgData[present])}${colorFormat(imgData[present+1])}${colorFormat(imgData[present+2])}`
+            })
+        })
     </script>
 </body>
 

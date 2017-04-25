@@ -13,8 +13,11 @@ var conf = {
 var Camera = function Camera(gl) {
 
     this.gl = gl;
-    this.radius = 400;
+    // this.radius = 100;
+    // this.lon = 0;
+    // this.lat = 0;
 
+    this.radius = 4000;
     this.lon = 90;
     this.lat = 45;
 
@@ -94,7 +97,6 @@ Camera.prototype.drag = function () {
                 self.lat = Math.min(90, self.lat);
                 self.lat = Math.max(-90, self.lat);
                 self.lat = Math.max(10, self.lat);
-                // console.log(self.lat, self.lon)
             } else {
                 self.transX = startTransX - dX * conf.longitudeLatitudeScale / 10;
                 self.transY = startTransY + dY * conf.longitudeLatitudeScale / 10;
@@ -305,209 +307,6 @@ var possibleConstructorReturn = function (self, call) {
   return call && (typeof call === "object" || typeof call === "function") ? call : self;
 };
 
-var Plane = function () {
-    function Plane(GL, obj) {
-        classCallCheck(this, Plane);
-
-        this.GL = GL;
-        this.gl = GL.gl;
-        this.obj = obj = obj || {};
-        this.width = obj.width || 10.0;
-        this.height = obj.height || 10.0;
-        this.operate = [];
-        this.opearteID = 0;
-        this.opearteBuild = {};
-        var color = this.color = colorTransform(obj.color);
-
-        this.verticesColors = new Float32Array([-this.width / 2, +this.height / 2, 0.0, color[0], color[1], color[2], +this.width / 2, +this.height / 2, 0.0, color[0], color[1], color[2], +this.width / 2, -this.height / 2, 0.0, color[0], color[1], color[2], -this.width / 2, -this.height / 2, 0.0, color[0], color[1], color[2]]);
-
-        this.indices = new Uint8Array([0, 1, 2, 0, 2, 3]);
-    }
-
-    createClass(Plane, [{
-        key: 'translate',
-        value: function translate(x, y, z) {
-            var id = this.opearteID = this.opearteID;
-            this.operate.push({
-                id: id++,
-                name: 'translate',
-                value: [x || 0, y || 0, z || 0]
-            });
-            return this;
-        }
-
-        // useage
-        // rotate(30,'x')
-        // rotate(30,'y')
-        // rotate(30,'z')
-        // rotate(30,[1,1,0])
-
-    }, {
-        key: 'rotate',
-        value: function rotate(rad, axis) {
-            var _axis = null;
-            if (axis instanceof Array && axis.length == 3) {
-                _axis = axis;
-            } else {
-                switch (axis) {
-                    case 'x':
-                        _axis = [1, 0, 0];
-                        break;
-                    case 'y':
-                        _axis = [0, 1, 0];
-                        break;
-                    case 'z':
-                        _axis = [0, 0, 1];
-                        break;
-                }
-            }
-
-            if (_axis) {
-                var id = this.opearteID = this.opearteID;
-                this.operate.push({
-                    id: id++,
-                    name: 'rotate',
-                    value: [rad, _axis]
-                });
-            }
-            return this;
-        }
-    }, {
-        key: 'scale',
-        value: function scale(x, y, z) {
-            var id = this.opearteID = this.opearteID;
-            this.operate.push({
-                id: id++,
-                name: 'scale',
-                value: [x || 1, y || 1, z || 1]
-            });
-            return this;
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var gl = this.gl;
-            var mvMatrix = this.GL.camera.mvMatrix;
-
-            // 顶点/颜色缓冲区操作
-            var vertexColorBuffer = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
-            gl.bufferData(gl.ARRAY_BUFFER, this.verticesColors, gl.STATIC_DRAW);
-            //
-            var FSIZE = this.verticesColors.BYTES_PER_ELEMENT;
-            //
-            gl.vertexAttribPointer(gl.aPosition, 3, gl.FLOAT, false, FSIZE * 6, 0);
-            gl.enableVertexAttribArray(gl.aPosition);
-            //
-            gl.vertexAttribPointer(gl.aColor, 3, gl.FLOAT, false, FSIZE * 6, FSIZE * 3);
-            gl.enableVertexAttribArray(gl.aColor);
-
-            // 顶点索引缓冲区
-            var indexBuffer = gl.createBuffer();
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW);
-
-            // set mv
-            if (this.opearteBuild.ID === this.opearteID && this.opearteBuild.start === mvMatrix.toString()) {
-                mvMatrix = this.opearteBuild.result;
-            } else {
-                var start = mvMatrix.toString();
-                for (var i in this.operate) {
-                    var type = this.operate[i].name;
-                    var value = this.operate[i].value;
-                    switch (type) {
-                        case 'translate':
-                            var mvNMatrix = mat4.create();
-                            mat4.translate(mvNMatrix, mvMatrix, value);
-                            mvMatrix = mvNMatrix;
-                            break;
-                        case 'rotate':
-                            // console.log(mvMatrix)
-                            var mvNMatrix = mat4.create();
-                            mat4.rotate(mvNMatrix, mvMatrix, value[0], value[1]);
-                            mvMatrix = mvNMatrix;
-                            break;
-                        case 'scale':
-                            var mvNMatrix = mat4.create();
-                            mat4.scale(mvNMatrix, mvMatrix, value);
-                            mvMatrix = mvNMatrix;
-                            break;
-                    }
-                }
-                this.opearteBuild = {
-                    ID: this.opearteID,
-                    result: mvMatrix,
-                    start: start
-                };
-                // console.log(mvNMatrix)
-            }
-
-            gl.uniformMatrix4fv(this.gl.uMVMatrix, false, mvMatrix);
-
-            gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_BYTE, 0);
-        }
-    }]);
-    return Plane;
-}();
-
-var Wall = function () {
-    function Wall(GL, obj) {
-        classCallCheck(this, Wall);
-
-        console.log(obj.path);
-        this.GL = GL;
-        this.gl = GL.gl;
-        this.obj = obj = obj || {};
-        this.width = obj.thickness || 0.20;
-        this.height = obj.height || 3.0;
-
-        this.operate = [];
-        this.opearteID = 0;
-        this.opearteBuild = {};
-        var color = this.color = colorTransform(obj.color);
-
-        this.verticesColors = new Float32Array([-this.width / 2, +this.height / 2, 0.10, color[0], color[1], color[2], +this.width / 2, +this.height / 2, 0.10, color[0], color[1], color[2], +this.width / 2, -this.height / 2, 0.10, color[0], color[1], color[2], -this.width / 2, -this.height / 2, 0.10, color[0], color[1], color[2]]);
-
-        this.indices = new Uint8Array([0, 1, 2, 0, 2, 3]);
-
-        for (var i = 0; i < obj.path.length; i += 2) {
-            if (i === 0) {}
-            console.log(i);
-        }
-    }
-
-    createClass(Wall, [{
-        key: 'render',
-        value: function render() {
-            var gl = this.gl;
-            var mvMatrix = this.GL.camera.mvMatrix;
-
-            // 顶点/颜色缓冲区操作
-            var vertexColorBuffer = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
-            gl.bufferData(gl.ARRAY_BUFFER, this.verticesColors, gl.STATIC_DRAW);
-            //
-            var FSIZE = this.verticesColors.BYTES_PER_ELEMENT;
-            //
-            gl.vertexAttribPointer(gl.aPosition, 3, gl.FLOAT, false, FSIZE * 6, 0);
-            gl.enableVertexAttribArray(gl.aPosition);
-            //
-            gl.vertexAttribPointer(gl.aColor, 3, gl.FLOAT, false, FSIZE * 6, FSIZE * 3);
-            gl.enableVertexAttribArray(gl.aColor);
-
-            // 顶点索引缓冲区
-            var indexBuffer = gl.createBuffer();
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW);
-
-            gl.uniformMatrix4fv(this.gl.uMVMatrix, false, mvMatrix);
-
-            gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_BYTE, 0);
-        }
-    }]);
-    return Wall;
-}();
-
 var OBJ = function () {
     function OBJ(GL, obj) {
         classCallCheck(this, OBJ);
@@ -598,7 +397,6 @@ var OBJ = function () {
                             mvMatrix = mvNMatrix;
                             break;
                         case 'rotate':
-                            // console.log(mvMatrix)
                             var mvNMatrix = mat4.create();
                             mat4.rotate(mvNMatrix, mvMatrix, value[0], value[1]);
                             mvMatrix = mvNMatrix;
@@ -621,7 +419,7 @@ var OBJ = function () {
     return OBJ;
 }();
 
-var Plane$1 = function (_Obj) {
+var Plane = function (_Obj) {
     inherits(Plane, _Obj);
 
     function Plane(GL, obj) {
@@ -633,16 +431,73 @@ var Plane$1 = function (_Obj) {
         _this.height = obj.height || 10.0;
 
         var color = _this.color;
-        var paths = obj.path;
-        _this.verticesColors = [];
-        paths.forEach(function (point) {
-            _this.verticesColors = _this.verticesColors.concat(point.concat(color));
-        });
-        _this.verticesColors = new Float32Array(_this.verticesColors);
+
+        _this.verticesColors = new Float32Array([-_this.width / 2, +_this.height / 2, 0.0, color[0], color[1], color[2], +_this.width / 2, +_this.height / 2, 0.0, color[0], color[1], color[2], +_this.width / 2, -_this.height / 2, 0.0, color[0], color[1], color[2], -_this.width / 2, -_this.height / 2, 0.0, color[0], color[1], color[2]]);
+
+        _this.indices = new Uint8Array([0, 1, 2, 0, 2, 3]);
         return _this;
     }
 
     createClass(Plane, [{
+        key: 'render',
+        value: function render() {
+            var gl = this.gl;
+            var mvMatrix = this.GL.camera.mvMatrix;
+
+            // 顶点/颜色缓冲区操作
+            var vertexColorBuffer = this.gl.ubuffer || gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, this.verticesColors, gl.STATIC_DRAW);
+            //
+            var FSIZE = this.verticesColors.BYTES_PER_ELEMENT;
+            //
+            gl.vertexAttribPointer(gl.aPosition, 3, gl.FLOAT, false, FSIZE * 6, 0);
+            gl.enableVertexAttribArray(gl.aPosition);
+            //
+            gl.vertexAttribPointer(gl.aColor, 3, gl.FLOAT, false, FSIZE * 6, FSIZE * 3);
+            gl.enableVertexAttribArray(gl.aColor);
+
+            // 顶点索引缓冲区
+            var indexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW);
+
+            // set mv
+            this.updateOpearte();
+            //
+            gl.uniformMatrix4fv(this.gl.uMVMatrix, false, this.opearteBuild.result);
+            gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_BYTE, 0);
+        }
+    }]);
+    return Plane;
+}(OBJ);
+
+var Wall = function () {
+    function Wall(GL, obj) {
+        classCallCheck(this, Wall);
+
+        this.GL = GL;
+        this.gl = GL.gl;
+        this.obj = obj = obj || {};
+        this.width = obj.thickness || 0.20;
+        this.height = obj.height || 3.0;
+
+        this.operate = [];
+        this.opearteID = 0;
+        this.opearteBuild = {};
+        var color = this.color = colorTransform(obj.color);
+
+        this.verticesColors = new Float32Array([-this.width / 2, +this.height / 2, 0.10, color[0], color[1], color[2], +this.width / 2, +this.height / 2, 0.10, color[0], color[1], color[2], +this.width / 2, -this.height / 2, 0.10, color[0], color[1], color[2], -this.width / 2, -this.height / 2, 0.10, color[0], color[1], color[2]]);
+
+        this.indices = new Uint8Array([0, 1, 2, 0, 2, 3]);
+
+        for (var i = 0; i < obj.path.length; i += 2) {
+            if (i === 0) {}
+            console.log(i);
+        }
+    }
+
+    createClass(Wall, [{
         key: 'render',
         value: function render() {
             var gl = this.gl;
@@ -661,15 +516,135 @@ var Plane$1 = function (_Obj) {
             gl.vertexAttribPointer(gl.aColor, 3, gl.FLOAT, false, FSIZE * 6, FSIZE * 3);
             gl.enableVertexAttribArray(gl.aColor);
 
+            // 顶点索引缓冲区
+            var indexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW);
+
+            gl.uniformMatrix4fv(this.gl.uMVMatrix, false, mvMatrix);
+
+            gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_BYTE, 0);
+        }
+    }]);
+    return Wall;
+}();
+
+var Path = function (_Obj) {
+    inherits(Path, _Obj);
+
+    function Path(GL, obj) {
+        classCallCheck(this, Path);
+
+        var _this = possibleConstructorReturn(this, (Path.__proto__ || Object.getPrototypeOf(Path)).call(this, GL, obj));
+
+        _this.width = obj.width || 10.0;
+        _this.height = obj.height || 10.0;
+
+        var color = _this.color;
+        var paths = obj.path;
+        _this.verticesColors = [];
+        paths.forEach(function (point) {
+            _this.verticesColors = _this.verticesColors.concat(point.concat(color));
+        });
+        _this.verticesColors = new Float32Array(_this.verticesColors);
+        return _this;
+    }
+
+    createClass(Path, [{
+        key: 'render',
+        value: function render() {
+            var gl = this.gl;
+            var mvMatrix = this.GL.camera.mvMatrix;
+
+            // 顶点/颜色缓冲区操作
+            var vertexColorBuffer = this.gl.ubuffer || gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, this.verticesColors, gl.STATIC_DRAW);
+            //
+            var FSIZE = this.verticesColors.BYTES_PER_ELEMENT;
+            //
+            gl.vertexAttribPointer(gl.aPosition, 3, gl.FLOAT, false, FSIZE * 6, 0);
+            gl.enableVertexAttribArray(gl.aPosition);
+            //
+            gl.vertexAttribPointer(gl.aColor, 3, gl.FLOAT, false, FSIZE * 6, FSIZE * 3);
+            gl.enableVertexAttribArray(gl.aColor);
+            vertexColorBuffer = null;
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
+
             // set mv
             this.updateOpearte();
             //
 
-            gl.uniformMatrix4fv(this.gl.uMVMatrix, false, mvMatrix);
+            gl.uniformMatrix4fv(this.gl.uMVMatrix, false, this.opearteBuild.result);
             gl.drawArrays(gl.LINE_STRIP, 0, this.verticesColors.length / 6);
         }
     }]);
-    return Plane;
+    return Path;
+}(OBJ);
+
+var Path$1 = function (_Obj) {
+    inherits(Path, _Obj);
+
+    function Path(GL, obj) {
+        classCallCheck(this, Path);
+
+        var _this = possibleConstructorReturn(this, (Path.__proto__ || Object.getPrototypeOf(Path)).call(this, GL, obj));
+
+        var width = _this.width = obj.size.width || 10.0;
+        var height = _this.height = obj.size.height || 10.0;
+
+        var paths = obj.path;
+
+        var posX = obj.pos[0];
+        var posY = obj.pos[1];
+        var length = obj.size.length;
+        var color = _this.color = colorTransform(obj.color);
+        _this.verticesColors = new Float32Array([posX - width / 2, posY - height / 2, 0, color[0], color[1], color[2], posX + width / 2, posY - height / 2, 0, color[0], color[1], color[2], posX + width / 2, posY + height / 2, 0, color[0], color[1], color[2], posX - width / 2, posY + height / 2, 0, color[0], color[1], color[2], posX - width / 2, posY - height / 2, length, color[0], color[1], color[2], posX + width / 2, posY - height / 2, length, color[0], color[1], color[2], posX + width / 2, posY + height / 2, length, color[0], color[1], color[2], posX - width / 2, posY + height / 2, length, color[0], color[1], color[2]]);
+        _this.indices = new Uint8Array([3, 0, 2, 1, 5, 6, 4, 7, 0, 3, 2, 7, 6, 4, 5, 0, 1]);
+
+        // this.verticesColors = new Float32Array([-this.width / 2, +this.height / 2, 0.0, color[0], color[1], color[2], +this.width / 2, +this.height / 2, 0.0, color[0], color[1], color[2], +this.width / 2, -this.height / 2, 0.0, color[0], color[1], color[2], -this.width / 2, -this.height / 2, 0.0, color[0], color[1], color[2]]);
+
+        // this.indices = new Uint8Array([
+        //     0, 1, 2, 0, 2, 3,
+        // ]);
+        return _this;
+    }
+
+    createClass(Path, [{
+        key: 'render',
+        value: function render() {
+            var gl = this.gl;
+            var mvMatrix = this.GL.camera.mvMatrix;
+
+            // 顶点/颜色缓冲区操作
+            var vertexColorBuffer = this.gl.ubuffer;
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, this.verticesColors, gl.STATIC_DRAW);
+
+            //
+            var FSIZE = this.verticesColors.BYTES_PER_ELEMENT;
+            //
+            gl.vertexAttribPointer(gl.aPosition, 3, gl.FLOAT, false, FSIZE * 6, 0);
+            gl.enableVertexAttribArray(gl.aPosition);
+            //
+            gl.vertexAttribPointer(gl.aColor, 3, gl.FLOAT, false, FSIZE * 6, FSIZE * 3);
+            gl.enableVertexAttribArray(gl.aColor);
+            gl.bindBuffer(gl.ARRAY_BUFFER, null);
+            // 顶点索引缓冲区
+            var indexBuffer = this.gl.ibuffer;
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+            // set mv
+            this.updateOpearte();
+            //
+            gl.uniformMatrix4fv(this.gl.uMVMatrix, false, this.opearteBuild.result);
+            gl.drawElements(gl.TRIANGLE_STRIP, this.indices.length, gl.UNSIGNED_BYTE, 0);
+        }
+    }]);
+    return Path;
 }(OBJ);
 
 var VSHADER_SOURCE = 'attribute vec4 aPosition;\n' + 'attribute vec4 aColor;\n' + 'uniform mat4 uMVMatrix;\n' + 'uniform mat4 uPMatrix;\n' + 'varying vec4 vColor;\n' + 'void main() {\n' + '  gl_Position = uPMatrix * uMVMatrix * aPosition;\n' + '  vColor = aColor;\n' + '}\n';
@@ -695,6 +670,8 @@ var GL = function () {
         var gl = this.gl = getWebGLContext(canvas);
 
         initShaders(gl, VSHADER_SOURCE, FSHADER_SOURCE);
+        this.gl.ubuffer = gl.createBuffer();
+        this.gl.ibuffer = gl.createBuffer();
 
         gl.enable(gl.DEPTH_TEST);
         gl.clearColor(0, 0, 0, 1.0);
@@ -703,7 +680,7 @@ var GL = function () {
         self.camera = new Camera(this.gl);
 
         function draw() {
-            gl.clear(gl.COLOR_BUFFER_BIT);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
             // console.time('draw')
             for (var i in renderList) {
                 renderList[i].render();
@@ -731,10 +708,17 @@ var GL = function () {
         }
     }, {
         key: 'Path',
-        value: function Path(obj) {
-            var path = new Plane$1(this, obj);
+        value: function Path$$1(obj) {
+            var path = new Path(this, obj);
             this.renderList.push(path);
             return path;
+        }
+    }, {
+        key: 'Cuboid',
+        value: function Cuboid(obj) {
+            var cuboid = new Path$1(this, obj);
+            this.renderList.push(cuboid);
+            return cuboid;
         }
     }]);
     return GL;
@@ -1164,46 +1148,24 @@ china.features.forEach(function (data) {
     };
 });
 
-var Paths = China['安徽'].geomerty[0].map(function (point) {
-    return [point[0], point[1], 0];
-});
-
 var THREE$1 = function THREE(dmo) {
     classCallCheck(this, THREE);
 
     var gl = new GL(dmo);
+
     Object.keys(China).map(function (province) {
         China[province].geomerty.map(function (geo) {
-            var path = geo.map(function (point) {
+            var path = [];
+            path = path.concat(geo.map(function (point) {
                 return [point[0] * 100, point[1] * 100, 0];
-            });
+            }));
             gl.Path({
                 path: path
             });
         });
     });
 
-    gl.Path({
-        path: [[0, 0, 0], [100, 0, 0]],
-        color: '#f00'
-    });
-
-    gl.Path({
-        path: [[0, 0, 0], [0, 100, 0]],
-        color: '#00f'
-    });
-
-    gl.Path({
-        path: [[0, 0, 0], [0, 0, 100]],
-        color: '#0f0'
-    });
-
-    var a = gl.Plane({
-        width: 100,
-        height: 100,
-        color: '#eee'
-    });
-    a.translate(0, 1, 10);
+    return gl;
 };
 
 var X = function () {
@@ -2037,6 +1999,35 @@ Event.prototype._trigger = function (event, params, senderId) {
  * @author kyle / http://nikai.us/
  */
 
+/**
+ * DataSet
+ *
+ * A data set can:
+ * - add/remove/update data
+ * - gives triggers upon changes in the data
+ * - can  import/export data in various data formats
+ * @param {Array} [data]    Optional array with initial data
+ * the field geometry is like geojson, it can be:
+ * {
+ *     "type": "Point",
+ *     "coordinates": [125.6, 10.1]
+ * }
+ * {
+ *     "type": "LineString",
+ *     "coordinates": [
+ *         [102.0, 0.0], [103.0, 1.0], [104.0, 0.0], [105.0, 1.0]
+ *     ]
+ * }
+ * {
+ *     "type": "Polygon",
+ *     "coordinates": [
+ *         [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],
+ *           [100.0, 1.0], [100.0, 0.0] ]
+ *     ]
+ * }
+ * @param {Object} [options]   Available options:
+ * 
+ */
 function DataSet(data, options) {
 
     this._options = options || {};
@@ -5295,18 +5286,6 @@ var MapHelper = function () {
     }]);
     return MapHelper;
 }();
-
-// function MapHelper(dom, type, opt) {
-//     var map = new BMap.Map(dom, {
-//         enableMapClick: false
-//     });
-//     map.centerAndZoom(new BMap.Point(106.962497, 38.208726), 5);
-//     map.enableScrollWheelZoom(true);
-
-//     map.setMapStyle({
-//         style: 'light'
-//     });
-// }
 
 /**
  * 一直覆盖在当前地图视野的Canvas对象

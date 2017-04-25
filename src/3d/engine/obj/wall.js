@@ -4,7 +4,6 @@ import {
 
 class Wall {
     constructor(GL, obj) {
-        console.log(obj.path)
         this.GL = GL;
         this.gl = GL.gl;
         this.obj = obj = obj || {}

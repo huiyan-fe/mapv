@@ -2,6 +2,7 @@ import Camera from './camera';
 import Plane from './obj/plane';
 import Wall from './obj/wall';
 import Path from './obj/path';
+import Cuboid from './obj/cuboid';
 import {
     getWebGLContext,
     initShaders,
@@ -30,15 +31,17 @@ class GL {
         var gl = this.gl = getWebGLContext(canvas);
 
         initShaders(gl, VSHADER_SOURCE, FSHADER_SOURCE);
+        this.gl.ubuffer = gl.createBuffer();
+        this.gl.ibuffer = gl.createBuffer();
 
         gl.enable(gl.DEPTH_TEST);
         gl.clearColor(0, 0, 0, 1.0);
-        
+
         //init camear
         self.camera = new Camera(this.gl);
 
         function draw() {
-            gl.clear(gl.COLOR_BUFFER_BIT);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
             // console.time('draw')
             for (var i in renderList) {
                 renderList[i].render();
@@ -66,6 +69,12 @@ class GL {
         var path = new Path(this, obj);
         this.renderList.push(path);
         return path;
+    }
+
+    Cuboid(obj) {
+        var cuboid = new Cuboid(this, obj);
+        this.renderList.push(cuboid);
+        return cuboid;
     }
 
 }

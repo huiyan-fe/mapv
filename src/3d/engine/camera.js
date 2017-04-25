@@ -3,8 +3,11 @@ import Con from './sys';
 var Camera = function (gl) {
 
     this.gl = gl;
-    this.radius = 400;
+    // this.radius = 100;
+    // this.lon = 0;
+    // this.lat = 0;
 
+    this.radius = 4000
     this.lon = 90;
     this.lat = 45;
 
@@ -46,8 +49,6 @@ Camera.prototype.drag = function () {
     var startLat = 0;
     var canDrag = false;
 
-
-
     canvas.addEventListener('mousewheel', function (e) {
         self.radius -= event.deltaY;
         self.radius = Math.max(10, self.radius);
@@ -86,8 +87,6 @@ Camera.prototype.drag = function () {
                 self.lat = Math.min(90, self.lat);
                 self.lat = Math.max(-90, self.lat);
                 self.lat = Math.max(10, self.lat);
-                // console.log(self.lat, self.lon)
-
             } else {
                 self.transX = (startTransX - dX * Con.longitudeLatitudeScale / 10);
                 self.transY = (startTransY + dY * Con.longitudeLatitudeScale / 10);

@@ -83,7 +83,6 @@ class OBJ {
                         mvMatrix = mvNMatrix;
                         break;
                     case 'rotate':
-                        // console.log(mvMatrix)
                         var mvNMatrix = mat4.create();
                         mat4.rotate(mvNMatrix, mvMatrix, value[0], value[1])
                         mvMatrix = mvNMatrix;
@@ -101,6 +100,7 @@ class OBJ {
                 start: start,
             }
         }
+
     }
 }
 
