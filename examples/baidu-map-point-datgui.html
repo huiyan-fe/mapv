@@ -64,10 +64,12 @@
         map.centerAndZoom(new BMap.Point(105.403119, 38.028658), 5);  // 初始化地图,设置中心点坐标和地图级别
         map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
 
-
         var pt = new BMap.Point(127.733142,21.226515);
-        var myIcon = new BMap.Icon("images/nanhai.png", new BMap.Size(132 / 2, 196 / 2), {
-            imageSize: new BMap.Size(132 / 2, 196 / 2)
+        var jiuduanwidth = 408;
+        var jiuduanheight  = 563;
+        var scale = 4.5;
+        var myIcon = new BMap.Icon("./images/nanhai.png", new BMap.Size(jiuduanwidth / scale, jiuduanheight / scale), {
+            imageSize: new BMap.Size(jiuduanwidth / scale, jiuduanheight / scale)
         });
         var marker2 = new BMap.Marker(pt,{icon:myIcon});  // 创建标注
         map.addOverlay(marker2);

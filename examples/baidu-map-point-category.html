@@ -83,6 +83,13 @@
         }
 
         var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+        var legend = mapvLayer.getLegend();
+
+        legend.style.position = 'absolute';
+        legend.style.left = '10px';
+        legend.style.bottom = '50px';
+        document.body.appendChild(legend);
     </script>
 	
 </body>
