@@ -18,17 +18,42 @@
             height: 100%;
         }
 
+        #dragzone {
+            position: absolute;
+            left: 5px;
+            top: 30px;
+            padding: 10px;
+            width: 120px;
+            font-size: 12px;
+            height: 30px;
+            line-height: 30px;
+            background: rgba(255, 255, 55, 0.8);
+            border: 1px dashed #999;
+        }
+
+        #panel {
+            position: absolute;
+            left: 5px;
+            top: 5px;
+        }
+
 
     </style>
 </head>
 <body>
 
     <div id="map"></div>
+    <div id="dragzone">数据csv文件拖放到此</div>
+    <div id="panel">
+        <input type="text" id="keyword" value="北京市,河北省,天津市"/>
+        <input type="button" value="查看边界" id="boundaryBtn"/>
+        <input type="button" value="切换底图" id="switchMap"/>
+    </div>
 
     <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
     <script type="text/javascript" src="../build/mapv.js"></script>
-    <script type="text/javascript" src="http://huiyan-fe.github.io/dat.gui/build/dat.gui.min.js"></script>
+    <script type="text/javascript" src="js/dat.gui.min.js"></script>
 
     <script type="text/javascript">
 
@@ -39,8 +64,210 @@
         map.centerAndZoom(new BMap.Point(105.403119, 38.028658), 5);  // 初始化地图,设置中心点坐标和地图级别
         map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
 
-        map.setMapStyle({
-            style: 'light'
+        var pt = new BMap.Point(127.733142,21.226515);
+        var jiuduanwidth = 408;
+        var jiuduanheight  = 563;
+        var scale = 4.5;
+        var myIcon = new BMap.Icon("./images/nanhai.png", new BMap.Size(jiuduanwidth / scale, jiuduanheight / scale), {
+            imageSize: new BMap.Size(jiuduanwidth / scale, jiuduanheight / scale)
+        });
+        var marker2 = new BMap.Marker(pt,{icon:myIcon});  // 创建标注
+        map.addOverlay(marker2);
+
+        function setNullStyle() {
+            map.setMapStyle({
+                styleJson: [
+              {
+                        "featureType": "all",
+                        "elementType": "all",
+                        "stylers": {
+                                  "visibility": "off"
+                        }
+              }
+            ]
+            });
+            map.getContainer().style.background = '#fff';
+        }
+        function setGrayStyle() {
+            map.setMapStyle({
+                styleJson: [
+                    {
+                        "featureType": "all",
+                        "elementType": "all",
+                        "stylers": {
+                            "lightness": 61,
+                            "saturation": -100
+                        }
+                    },
+                    {
+                        "featureType": "all",
+                        "elementType": "labels",
+                        "stylers": {
+                                  "visibility": "off"
+                        }
+                    }
+                ]
+            });
+        }
+        function setDarkStyle() {
+            map.setMapStyle({
+                styleJson: [{
+                    featureType: 'water',
+                    elementType: 'all',
+                    stylers: {
+                        color: '#044161'
+                    }
+                }, {
+                    featureType: 'land',
+                    elementType: 'all',
+                    stylers: {
+                        color: '#091934'
+                    }
+                }, {
+                    featureType: 'boundary',
+                    elementType: 'geometry',
+                    stylers: {
+                        color: '#064f85'
+                    }
+                }, {
+                    featureType: 'railway',
+                    elementType: 'all',
+                    stylers: {
+                        visibility: 'off'
+                    }
+                }, {
+                    featureType: 'highway',
+                    elementType: 'geometry',
+                    stylers: {
+                        color: '#004981'
+                    }
+                }, {
+                    featureType: 'highway',
+                    elementType: 'geometry.fill',
+                    stylers: {
+                        color: '#005b96',
+                        lightness: 1
+                    }
+                }, {
+                    featureType: 'highway',
+                    elementType: 'labels',
+                    stylers: {
+                        visibility: 'on'
+                    }
+                }, {
+                    featureType: 'arterial',
+                    elementType: 'geometry',
+                    stylers: {
+                        color: '#004981',
+                        lightness: -39
+                    }
+                }, {
+                    featureType: 'arterial',
+                    elementType: 'geometry.fill',
+                    stylers: {
+                        color: '#00508b'
+                    }
+                }, {
+                    featureType: 'poi',
+                    elementType: 'all',
+                    stylers: {
+                        visibility: 'off'
+                    }
+                }, {
+                    featureType: 'green',
+                    elementType: 'all',
+                    stylers: {
+                        color: '#056197',
+                        visibility: 'off'
+                    }
+                }, {
+                    featureType: 'subway',
+                    elementType: 'all',
+                    stylers: {
+                        visibility: 'off'
+                    }
+                }, {
+                    featureType: 'manmade',
+                    elementType: 'all',
+                    stylers: {
+                        visibility: 'off'
+                    }
+                }, {
+                    featureType: 'local',
+                    elementType: 'all',
+                    stylers: {
+                        visibility: 'off'
+                    }
+                }, {
+                    featureType: 'arterial',
+                    elementType: 'labels',
+                    stylers: {
+                        visibility: 'off'
+                    }
+                }, {
+                    featureType: 'boundary',
+                    elementType: 'geometry.fill',
+                    stylers: {
+                        color: '#029fd4'
+                    }
+                }, {
+                    featureType: 'building',
+                    elementType: 'all',
+                    stylers: {
+                        color: '#1a5787'
+                    }
+                }, {
+                    featureType: 'label',
+                    elementType: 'all',
+                    stylers: {
+                        visibility: 'off'
+                    }
+                }, {
+                    featureType: 'poi',
+                    elementType: 'labels.text.fill',
+                    stylers: {
+                        color: '#ffffff'
+                    }
+                }, {
+                    featureType: 'poi',
+                    elementType: 'labels.text.stroke',
+                    stylers: {
+                        color: '#1e1c1c'
+                    }
+                },
+                {
+                    "featureType": "all",
+                    "elementType": "labels",
+                    "stylers": {
+                              "visibility": "off"
+                    }
+                }
+                ]
+            });
+        }
+        setNullStyle();
+        
+
+        var chinaLayer = null;
+        $.get('data/china.json', function(geojson) {
+
+            var dataSet = mapv.geojson.getDataSet(geojson);
+
+            var options = {
+                fillStyle: 'rgba(218, 218, 218, 1)',
+                //fillStyle: '#1495ff',
+                //fillStyle: 'lightblue',
+                //fillStyle: 'rgba(50, 50, 50, 0.5)',
+                //strokeStyle: '#999',
+                strokeStyle: 'rgba(255, 255, 255, 1)',
+                lineWidth: 1,
+                zIndex: -2,
+                paneName: 'mapPane',
+                draw: 'simple'
+            }
+
+            chinaLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
         });
 
         var randomCount = 300;
@@ -63,14 +290,16 @@
         var dataSet = new mapv.DataSet(data);
 
         var options = {
-            draw: 'simple',
+            draw: 'heatmap',
             max: 100,
+            coordType: 'bd09mc',
             size: 5,
             symbol: 'circle',
+            zIndex: 1,
             maxSize: 50,
             maxOpacity: 0.8,
             globalAlpha: 1,
-            lineWidth: 1,
+            lineWidth: 0,
             unit: 'px',
             gradient: { 
                 0.25: "rgba(0, 0, 255, 1)",
@@ -224,9 +453,9 @@
             if (options.draw !== 'bubble') {
 
                 if (options.unit == 'm') {
-                    gui.add(options, 'size', 1, 200000).onFinishChange(finished);
+                    gui.add(options, 'size', 0.1, 200000).onFinishChange(finished);
                 } else {
-                    gui.add(options, 'size', 1, 100).onFinishChange(finished);
+                    gui.add(options, 'size', 0.1, 100).onFinishChange(finished);
                 }
 
             }
@@ -253,18 +482,19 @@
                     // gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
                     gui.add(options, 'lineWidth', 1, 10).onFinishChange(finished);
                     gui.addColor(options, 'strokeStyle').onChange(finished);
-                    gui.add(options, 'max', 1, 300).onFinishChange(finished);
+                    gui.add(options, 'max', 1, 1000).onFinishChange(finished);
                     gui.add(options, 'maxSize', 35, 100).onFinishChange(finished);
                     break;
                 case 'heatmap':
                     // gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
-                    gui.add(options, 'max', 1, 300).onFinishChange(finished);
+                    gui.add(options, 'max', 1, 1000).onFinishChange(finished);
                     gui.add(options, 'maxOpacity', 0, 1).onFinishChange(finished);
+                    gui.addGradient(options, 'gradient', gradientOptions).onFinishChange(finished);
                     break;
                 case 'grid':
                 case 'intensity':
                 case 'honeycomb':
-                    gui.add(options, 'max', 1, 300).onFinishChange(finished);
+                    gui.add(options, 'max', 1, 1000).onFinishChange(finished);
                     gui.add(options, 'lineWidth', 1, 10).onFinishChange(finished);
                     gui.addColor(options, 'strokeStyle').onChange(finished);
                     gui.addGradient(options, 'gradient', gradientOptions).onFinishChange(finished);
@@ -272,6 +502,87 @@
             }
             
         }
+
+    function dragHandle(event) {
+        var info = "",
+            files, i, len;
+        event.preventDefault();
+        if(event.type == "drop") {
+            files = event.dataTransfer.files;
+            var fr = new FileReader() ;
+
+
+            fr.readAsText(files[0]);
+
+            fr.onload = function() {
+                var rs = this.result;
+                if (rs[0] == '[' && rs[rs.length - 1] == ']') {
+                    rs = JSON.parse(rs);
+                    rs = rs.map(function (item) {
+                        return {
+                            geometry: {
+                                type: 'Point',
+                                coordinates: [item.x, item.y]
+                            }
+                        }
+                    });
+                    dataSet.set(rs);
+                } else {
+                    var newDataSet = mapv.csv.getDataSet(rs);
+                    newDataSet.initGeometry();
+                    dataSet.set(newDataSet.get());
+                }
+            }
+        }
+    }
+
+    var dropTargetEle = document.getElementById("dragzone");
+    dropTargetEle.addEventListener("dragenter", dragHandle, false);
+    dropTargetEle.addEventListener("dragover", dragHandle, false);
+    dropTargetEle.addEventListener("drop", dragHandle, false);
+
+    $('#boundaryBtn').bind('click', function () {
+        var val = $("#keyword").val().split(',');
+        for (var i= 0; i < val.length; i++) {
+            getBoundary(val[i]);
+        }
+    });
+
+    function getBoundary(city){       
+        var bdary = new BMap.Boundary();
+        bdary.get(city, function(rs){       //获取行政区域
+            var count = rs.boundaries.length; //行政区域的点有多少个
+            if (count === 0) {
+                alert('未能获取当前输入行政区域');
+                return ;
+            }
+            var pointArray = [];
+            for (var i = 0; i < count; i++) {
+                var ply = new BMap.Polygon(rs.boundaries[i], {strokeWeight: 0, strokeStyle: 'dashed', strokeOpacity: '0', fillOpacity: '0.5', fillColor: 'red', strokeColor: "yellow"}); //建立多边形覆盖物
+                map.addOverlay(ply);  //添加覆盖物
+                pointArray = pointArray.concat(ply.getPath());
+            }    
+        });   
+    }
+
+
+    var isChina = 1;
+    $('#switchMap').bind('click', function() {
+        isChina++;
+        if (isChina > 3) {
+            isChina = 1;
+        }
+        if (isChina == 1) {
+            setNullStyle();
+            chinaLayer.show();
+        } else if (isChina == 2) {
+            setGrayStyle();
+            chinaLayer.hide();
+        } else {
+            setDarkStyle();
+            chinaLayer.hide();
+        }
+    });
 
     </script>
 	

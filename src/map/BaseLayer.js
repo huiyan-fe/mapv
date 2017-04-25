@@ -88,7 +88,9 @@ class BaseLayer {
         var legend = null;
         if (self.options.draw == 'intensity' || self.options.draw == 'heatmap') {
             return this.intensity.getLegend(options);
-        } 
+        } else if (self.options.draw == 'category') {
+            return this.category.getLegend(options);
+        }
     }
 
     processData(data) {

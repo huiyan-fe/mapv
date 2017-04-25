@@ -82,4 +82,8 @@ Choropleth.prototype.generateByMinMax = function (min, max) {
     }
 }
 
+Choropleth.prototype.getLegend = function (options) {
+    var splitList = this.splitList;
+}
+
 export default Choropleth;
