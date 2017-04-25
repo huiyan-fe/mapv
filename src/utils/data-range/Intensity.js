@@ -2,6 +2,8 @@
  * @author kyle / http://nikai.us/
  */
 
+import Canvas from "../Canvas";
+
 /**
  * Category
  * @param {Object} [options]   Available options:
@@ -19,24 +21,33 @@ function Intensity(options) {
     this.maxSize = options.maxSize || 35;
     this.minSize = options.minSize || 0;
     this.max = options.max || 100;
+    this.min = options.min || 0;
     this.initPalette();
+}
+
+Intensity.prototype.setMax = function (value) {
+    this.max = value || 100;
+}
+
+Intensity.prototype.setMin = function (value) {
+    this.min = value || 0;
+}
+
+Intensity.prototype.setMaxSize = function (maxSize) {
+    this.maxSize = maxSize || 35;
+}
+
+Intensity.prototype.setMinSize = function (minSize) {
+    this.minSize = minSize || 0;
 }
 
 Intensity.prototype.initPalette = function () {
 
     var gradient = this.gradient;
 
-    if (typeof document === 'undefined') {
-        // var Canvas = require('canvas');
-        // var paletteCanvas = new Canvas(256, 1);
-    } else {
-        var paletteCanvas = document.createElement('canvas');
-    }
+    var canvas = new Canvas(256, 1);
 
-    paletteCanvas.width = 256;
-    paletteCanvas.height = 1;
-
-    var paletteCtx = this.paletteCtx = paletteCanvas.getContext('2d');
+    var paletteCtx = this.paletteCtx = canvas.getContext('2d');
 
     var lineGradient = paletteCtx.createLinearGradient(0, 0, 256, 1);
 
@@ -58,15 +69,25 @@ Intensity.prototype.getColor = function (value) {
 }
 
 Intensity.prototype.getImageData = function (value) {
+
+    var imageData = this.paletteCtx.getImageData(0, 0, 256, 1).data;
+
+    if (value === undefined) {
+        return imageData;
+    }
+
     var max = this.max;
+    var min = this.min;
 
     if (value > max) {
         value = max;
     }
 
-    var index = Math.floor(value / max * (256 - 1)) * 4;
+    if (value < min) {
+        value = min;
+    }
 
-    var imageData = this.paletteCtx.getImageData(0, 0, 256, 1).data;
+    var index = Math.floor((value - min) / (max - min) * (256 - 1)) * 4;
 
     return [imageData[index], imageData[index + 1], imageData[index + 2], imageData[index + 3]];
 }
@@ -81,6 +102,7 @@ Intensity.prototype.getSize = function (value) {
 
     var size = 0;
     var max = this.max;
+    var min = this.min;
     var maxSize = this.maxSize;
     var minSize = this.minSize;
 
@@ -88,7 +110,11 @@ Intensity.prototype.getSize = function (value) {
         value = max;
     }
 
-    size = minSize + value / max * (maxSize - minSize);
+    if (value < min) {
+        value = min;
+    }
+
+    size = minSize + (value - min) / (max - min) * (maxSize - minSize);
 
     return size;
 
@@ -97,15 +123,13 @@ Intensity.prototype.getSize = function (value) {
 Intensity.prototype.getLegend = function (options) {
     var gradient = this.gradient;
 
-    var paletteCanvas = document.createElement('canvas');
 
     var width = options.width || 20;
     var height = options.height || 180;
 
-    paletteCanvas.width = width;
-    paletteCanvas.height = height;
+    var canvas = new Canvas(width, height);
 
-    var paletteCtx = paletteCanvas.getContext('2d');
+    var paletteCtx = canvas.getContext('2d');
 
     var lineGradient = paletteCtx.createLinearGradient(0, height, 0, 0);
 
@@ -116,7 +140,7 @@ Intensity.prototype.getLegend = function (options) {
     paletteCtx.fillStyle = lineGradient;
     paletteCtx.fillRect(0, 0, width, height);
 
-    return paletteCanvas;
+    return canvas;
 }
 
 

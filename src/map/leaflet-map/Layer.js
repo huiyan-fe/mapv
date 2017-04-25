@@ -1,9 +1,9 @@
 /**
+ * test
  * @author kyle / http://nikai.us/
  */
 
 import BaseLayer from "../BaseLayer";
-import CanvasLayer from "./CanvasLayer";
 import clear from "../../canvas/clear";
 import DataSet from "../../data/DataSet";
 import TWEEN from "../../utils/Tween";
@@ -20,29 +20,25 @@ class Layer extends BaseLayer{
 
         self.init(options);
         self.argCheck(options);
-        self.transferToMercator();
 
-        var canvasLayer = this.canvasLayer = new CanvasLayer({
-            map: map,
-            context: this.context,
-            paneName: options.paneName,
-            mixBlendMode: options.mixBlendMode,
-            enableMassClear: options.enableMassClear,
-            zIndex: options.zIndex,
-            update: function() {
-                self._canvasUpdate();
-            }
+        var BigPointLayer = L.CanvasLayer.extend({
+
+          render: function() {
+
+
+            self._canvasUpdate();
+
+            this.redraw();
+
+          }
         });
 
-        dataSet.on('change', function() {
-            self.transferToMercator();
-            canvasLayer.draw();
-        });
+        var canvasLayer = this.canvasLayer = new BigPointLayer();
+        canvasLayer.addTo(map);
 
         this.clickEvent = this.clickEvent.bind(this);
         this.mousemoveEvent = this.mousemoveEvent.bind(this);
         this.bindEvent();
-
     }
 
     clickEvent(e) {
@@ -61,10 +57,10 @@ class Layer extends BaseLayer{
         if (this.options.methods) {
             if (this.options.methods.click) {
                 map.setDefaultCursor("default");
-                map.addEventListener('click', this.clickEvent);
+                map.addListener('click', this.clickEvent);
             }
             if (this.options.methods.mousemove) {
-                map.addEventListener('mousemove', this.mousemoveEvent);
+                map.addListener('mousemove', this.mousemoveEvent);
             }
         }
     }
@@ -74,28 +70,11 @@ class Layer extends BaseLayer{
 
         if (this.options.methods) {
             if (this.options.methods.click) {
-                map.removeEventListener('click', this.clickEvent);
+                map.removeListener('click', this.clickEvent);
             }
             if (this.options.methods.mousemove) {
-                map.removeEventListener('mousemove', this.mousemoveEvent);
+                map.removeListener('mousemove', this.mousemoveEvent);
             }
-        }
-    }
-
-    // 经纬度左边转换为墨卡托坐标
-    transferToMercator() {
-        var projection = this.map.getMapType().getProjection();
-
-        if (this.options.coordType !== 'bd09mc') {
-            var data = this.dataSet.get();
-            data = this.dataSet.transferCoordinate(data, function(coordinates) {
-                var pixel = projection.lngLatToPoint({
-                    lng: coordinates[0],
-                    lat: coordinates[1]
-                });
-                return [pixel.x, pixel.y];
-            }, 'coordinates', 'coordinates_mercator');
-            this.dataSet._set(data);
         }
     }
 
@@ -111,14 +90,6 @@ class Layer extends BaseLayer{
         var self = this;
 
         var animationOptions = self.options.animation;
-
-        var map = this.canvasLayer._map;
-
-        var zoomUnit = Math.pow(2, 18 - map.getZoom());
-        var projection = map.getMapType().getProjection();
-
-        var mcCenter = projection.lngLatToPoint(map.getCenter());
-        var nwMc = new BMap.Pixel(mcCenter.x - (map.getSize().width / 2) * zoomUnit, mcCenter.y + (map.getSize().height / 2) * zoomUnit); //左上角墨卡托坐标
 
         var context = this.getContext();
 
@@ -155,12 +126,16 @@ class Layer extends BaseLayer{
             scale = this.canvasLayer.devicePixelRatio;
         }
 
+        var map = this.map;
+        var mapProjection = map.getProjection();
+        var scale = Math.pow(2, map.zoom) * resolutionScale;
+        var offset = mapProjection.fromLatLngToPoint(this.canvasLayer.getTopLeft());
         var dataGetOptions = {
-            fromColumn: self.options.coordType == 'bd09mc' ? 'coordinates' : 'coordinates_mercator',
+            //fromColumn: self.options.coordType == 'bd09mc' ? 'coordinates' : 'coordinates_mercator',
             transferCoordinate: function(coordinate) {
-                var x = (coordinate[0] - nwMc.x) / zoomUnit * scale;
-                var y = (nwMc.y - coordinate[1]) / zoomUnit * scale;
-                return [x, y];
+                // get center from the map (projected)
+                var point = map.latLngToContainerPoint(new L.LatLng(coordinate[1], coordinate[0]));
+                return [pixel.x, pixel.y];
             }
         }
 
@@ -175,30 +150,19 @@ class Layer extends BaseLayer{
             }
         }
 
-        // get data from data set
         var data = self.dataSet.get(dataGetOptions);
 
         this.processData(data);
 
-        var nwPixel = map.pointToPixel(new BMap.Point(0, 0));
-
-        if (self.options.unit == 'm') {
-            if (self.options.size) {
-                self.options._size = self.options.size / zoomUnit;
-            }
-            if (self.options.width) {
-                self.options._width = self.options.width / zoomUnit;
-            }
-            if (self.options.height) {
-                self.options._height = self.options.height / zoomUnit;
-            }
+        if (self.options.unit == 'm' && self.options.size) {
+            self.options._size = self.options.size / zoomUnit;
         } else {
             self.options._size = self.options.size;
-            self.options._height = self.options.height;
-            self.options._width = self.options.width;
         }
 
-        this.drawContext(context, data, self.options, nwPixel);
+        var pixel = {x: 0, y: 0};
+
+        this.drawContext(context, new DataSet(data), self.options, pixel);
 
         //console.timeEnd('draw');
 
@@ -209,29 +173,23 @@ class Layer extends BaseLayer{
     init(options) {
 
         var self = this;
+
         self.options = options;
+
         this.initDataRange(options);
+
         this.context = self.options.context || '2d';
 
         if (self.options.zIndex) {
             this.canvasLayer && this.canvasLayer.setZIndex(self.options.zIndex);
         }
 
-        if (self.options.max) {
-            this.intensity.setMax(self.options.max);
-        }
-
-        if (self.options.min) {
-            this.intensity.setMin(self.options.min);
-        }
-
         this.initAnimator();
-        
     }
 
     addAnimatorEvent() {
-        this.map.addEventListener('movestart', this.animatorMovestartEvent.bind(this));
-        this.map.addEventListener('moveend', this.animatorMoveendEvent.bind(this));
+        this.map.addListener('movestart', this.animatorMovestartEvent.bind(this));
+        this.map.addListener('moveend', this.animatorMoveendEvent.bind(this));
     }
 
     show() {
@@ -243,8 +201,10 @@ class Layer extends BaseLayer{
     }
 
     draw() {
-        this.canvasLayer.draw();
+        self.canvasLayer.draw();
     }
+
 }
+
 
 export default Layer;

@@ -34,6 +34,7 @@ import Event from "../utils/Event";
  * 
  */
 function DataSet(data, options) {
+    Event.bind(this)();
 
     this._options = options || {};
     this._data = []; // map with data indexed by id
@@ -45,7 +46,7 @@ function DataSet(data, options) {
 
 }
 
-DataSet.prototype = new Event();
+DataSet.prototype = Event.prototype;
 
 /**
  * Add data.
@@ -137,7 +138,29 @@ DataSet.prototype.remove = function(args) {};
 /**
  * update data.
  */
-DataSet.prototype.update = function(args) {};
+DataSet.prototype.update = function(cbk, condition) {
+
+    var data = this._data;
+
+    var item = null;
+    for (var i = 0; i < data.length; i++) {
+        if (condition) {
+            var flag = true;
+            for (var key in condition) {
+                if (data[i][key] != condition[key]) {
+                    flag = false;
+                }
+            }
+            if (flag) {
+                cbk && cbk(data[i]);
+            }
+        } else {
+            cbk && cbk(data[i]);
+        }
+    }
+
+    this._trigger('change');
+};
 
 /**
  * transfer coordinate.
@@ -149,46 +172,35 @@ DataSet.prototype.transferCoordinate = function(data, transferFn, fromColumn, to
 
     for (var i = 0; i < data.length; i++) {
 
-        var item = data[i];
-
-        if (data[i].geometry) {
-
-            if (data[i].geometry.type === 'Point') {
-                var coordinates = data[i].geometry[fromColumn];
-                data[i].geometry[toColumnName] = transferFn(coordinates);
-            }
-
-            if (data[i].geometry.type === 'Polygon' || data[i].geometry.type === 'MultiPolygon') {
-
-                var coordinates = data[i].geometry[fromColumn];
-
-                if (data[i].geometry.type === 'Polygon') {
-
-                    var newCoordinates = getPolygon(coordinates);
-                    data[i].geometry[toColumnName] = newCoordinates;
-
-                } else if (data[i].geometry.type === 'MultiPolygon') {
-                    var newCoordinates = [];
-                    for (var c = 0; c < coordinates.length; c++) {
-                        var polygon = coordinates[c];
-                        var polygon = getPolygon(polygon);
-                        newCoordinates.push(polygon);
-                    }
-
-                    data[i].geometry[toColumnName] = newCoordinates;
-                }
-
-            }
-
-            if (data[i].geometry.type === 'LineString') {
-                var coordinates = data[i].geometry[fromColumn];
+        var geometry = data[i].geometry;
+        var coordinates = geometry[fromColumn];
+        switch (geometry.type) {
+            case 'Point':
+                geometry[toColumnName] = transferFn(coordinates);
+                break;
+            case 'LineString':
                 var newCoordinates = [];
                 for (var j = 0; j < coordinates.length; j++) {
                     newCoordinates.push(transferFn(coordinates[j]));
                 }
-                data[i].geometry[toColumnName] = newCoordinates;
-            }
+                geometry[toColumnName] = newCoordinates;
+                break;
+            case 'Polygon':
+                var newCoordinates = getPolygon(coordinates);
+                geometry[toColumnName] = newCoordinates;
+                break;
+            case 'MultiPolygon':
+                var newCoordinates = [];
+                for (var c = 0; c < coordinates.length; c++) {
+                    var polygon = coordinates[c];
+                    var polygon = getPolygon(polygon);
+                    newCoordinates.push(polygon);
+                }
+
+                geometry[toColumnName] = newCoordinates;
+                break;
         }
+
     }
 
     function getPolygon(coordinates) {
@@ -208,11 +220,15 @@ DataSet.prototype.transferCoordinate = function(data, transferFn, fromColumn, to
 };
 
 DataSet.prototype.initGeometry = function(transferFn) {
+
     if (transferFn) {
+
         this._data.forEach(function (item) {
             item.geometry = transferFn(item);
         });
+
     } else {
+
         this._data.forEach(function (item) {
             if (!item.geometry && item.lng && item.lat) {
                 item.geometry = {
@@ -222,6 +238,7 @@ DataSet.prototype.initGeometry = function(transferFn) {
             }
         });
     }
+
 }
 
 /**

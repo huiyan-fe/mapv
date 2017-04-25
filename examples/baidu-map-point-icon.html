@@ -61,16 +61,34 @@
                         type: 'Point',
                         coordinates: [cityCenter.lng - 2 + Math.random() * 4, cityCenter.lat - 2 + Math.random() * 4]
                     },
+                    deg: 360 * Math.random(),
                     icon: img
                 });
             }
             var dataSet = new mapv.DataSet(data);
 
             var options = {
-                draw: 'icon'
+                draw: 'icon',
+                // methods: {
+                //    click: function (item) {
+                //        console.log(item);
+                //     }
+                // },
+                // size: 50,
+                // width: 50,
+                // height: 50,
+                // sx: 10,
+                // sy: 10,
+                // swidth: 50,
+                // sheight: 50,
             }
 
             var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+            // var options = {
+            //     draw: 'simple'
+            // }
+            // var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
         }
     </script>
 

@@ -17,24 +17,13 @@
             width: 100%;
             height: 100%;
         }
-
-        #time {
-            position: absolute;
-            right: 10px;
-            bottom: 10px;
-            color: #fff;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.3);
-        }
     </style>
 </head>
 <body>
 
     <div id="map"></div>
     <canvas id="canvas"></canvas>
-    <div id="time"></div>
 
-    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
     <script type="text/javascript" src="../build/mapv.js"></script>
 
@@ -176,7 +165,7 @@
                 "featureType": "administrative",
                 "elementType": "labels",
                 "stylers": {
-                    "visibility": "on"
+                    "visibility": "off"
                 }
             },{
                 "featureType": "road",
@@ -187,89 +176,50 @@
             }]
         });
 
+        var randomCount = 30;
 
-        $.get('data/weibo.json', function (rs) {
-            console.log(rs);
-            var data1 = [];
-            var data2 = [];
-            var data3 = [];
-            var data4 = [];
-            for (var i = 0; i < rs[0].length; i++) {
-                var geoCoord = rs[0][i].geoCoord;
-                data1.push({
-                    geometry: {
-                        type: 'Point',
-                        coordinates: geoCoord 
-                    }
-                });
-            }
+        var data = [];
 
-            for (var i = 0; i < rs[1].length; i++) {
-                var geoCoord = rs[1][i].geoCoord;
-                data2.push({
-                    geometry: {
-                        type: 'Point',
-                        coordinates: geoCoord 
-                    },
-                    time: Math.random() * 10
-                });
-            }
+        var citys = ["北京","天津","上海","重庆","石家庄","太原","呼和浩特","哈尔滨","长春","沈阳","济南","南京","合肥","杭州","南昌","福州","郑州","武汉","长沙","广州","南宁","西安","银川","兰州","西宁","乌鲁木齐","成都","贵阳","昆明","拉萨","海口"];
 
-            for (var i = 0; i < rs[2].length; i++) {
-                var geoCoord = rs[2][i].geoCoord;
-                data3.push({
-                    geometry: {
-                        type: 'Point',
-                        coordinates: geoCoord 
-                    },
-                });
-            }
+        // 构造数据
+        while (randomCount--) {
+            var cityCenter = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
+            data.push({
+                geometry: {
+                    type: 'Point',
+                    coordinates: [cityCenter.lng - 2 + Math.random() * 4, cityCenter.lat - 2 + Math.random() * 4]
+                },
+                count: parseInt(4 * Math.random()),
+                //minSize: 5,
+                size: 25 * Math.random() + 5 
+            });
+        }
 
-            var dataSet = new mapv.DataSet(data1);
-            var options = {
-                fillStyle: 'rgba(200, 200, 0, 0.8)',
-                bigData: 'Point',
-                size: 0.7,
-                draw: 'simple',
-            }
-            var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+        var dataSet = new mapv.DataSet(data);
 
-            var dataSet = new mapv.DataSet(data2);
-            var options = {
-                fillStyle: 'rgba(255, 250, 0, 0.8)',
-                size: 0.7,
-                bigData: 'Point',
-                draw: 'simple',
-            }
-            var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+        var options = {
+            //fillStyle: 'rgba(255, 250, 50, 0.3)',
+            strokeStyle: 'rgba(255, 250, 50, 0.6)',
+            shadowColor: 'rgba(255, 250, 50, 1)',
+            shadowBlur: 80,
+            styleType: 'stroke',
+            globalCompositeOperation: 'lighter',
+            splitList: { 
+                other: 'white',
+                1: 'blue',
+                2: 'yellow',
+                3: 'red'
+            },
+            draw: 'category'
+        }
 
-            var dataSet = new mapv.DataSet(data3);
-            var options = {
-                fillStyle: 'rgba(255, 250, 250, 0.6)',
-                size: 0.7,
-                bigData: 'Point',
-                draw: 'simple',
-            }
-            var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+        var layer = new mapv.baiduMapAnimationLayer(map, dataSet, options);
 
-            var dataSet = new mapv.DataSet(data2);
-            var options = {
-                fillStyle: 'rgba(255, 250, 250, 0.9)',
-                size: 1.1,
-                draw: 'simple',
-                bigData: 'Point',
-                animation: {
-                    stepsRange: {
-                        start: 0,
-                        end: 10
-                    },
-                    trails: 1,
-                    duration: 6,
-                }
-            }
-            var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
-        });
+        // dataSet.set(data); // 修改数据
 
+        // mapvLayer.show(); // 显示图层
+        // mapvLayer.hide(); // 删除图层
     </script>
 	
 </body>

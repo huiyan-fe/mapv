@@ -2,24 +2,20 @@
  * @author kyle / http://nikai.us/
  */
 
-import utilsColorPalette from "../utils/colorPalette";
 import Intensity from "../../utils/data-range/Intensity";
 import pathSimple from "../path/simple";
+import Canvas from "../../utils/Canvas";
+import DataSet from "../../data/DataSet";
+import {devicePixelRatio} from "../../utils/window";
 
 function createCircle(size) {
 
-    if (typeof document === 'undefined') {
-        // var Canvas = require('canvas');
-        // var circle = new Canvas();
-    } else {
-        var circle = document.createElement('canvas');
-    }
-    var context = circle.getContext('2d');
     var shadowBlur = size / 2;
     var r2 = size + shadowBlur;
     var offsetDistance = 10000;
 
-    circle.width = circle.height = r2 * 2;
+    var circle = new Canvas(r2 * 2, r2 * 2);
+    var context = circle.getContext('2d');
 
     context.shadowBlur = shadowBlur;
     context.shadowColor = 'black';
@@ -51,6 +47,7 @@ function colorize(pixels, gradient, options) {
 function drawGray(context, dataSet, options) {
 
     var max = options.max || 100;
+    var min = options.min || 0;
     // console.log(max)
     var size = options._size;
     if (size == undefined) {
@@ -60,16 +57,17 @@ function drawGray(context, dataSet, options) {
         }
     }
 
-    var color = new Intensity({
+    var intensity = new Intensity({
         gradient: options.gradient,
-        max: max
-    })
+        max: max,
+        min: min
+    });
 
     var circle = createCircle(size);
+    var circleHalfWidth = circle.width / 2;
+    var circleHalfHeight = circle.height / 2;
 
     var data = dataSet;
-
-
 
     var dataOrderByAlpha = {};
 
@@ -87,6 +85,7 @@ function drawGray(context, dataSet, options) {
         if (!options.withoutAlpha) {
             context.globalAlpha = i;
         }
+        context.strokeStyle = intensity.getColor(i * max);
         _data.forEach(function(item, index) {
             if (!item.geometry) {
                 return;
@@ -97,48 +96,55 @@ function drawGray(context, dataSet, options) {
             if (type === 'Point') {
                 var count = item.count === undefined ? 1 : item.count;
                 context.globalAlpha = count / max;
-                context.drawImage(circle, coordinates[0] - circle.width / 2, coordinates[1] - circle.height / 2);
+                context.drawImage(circle, coordinates[0] - circleHalfWidth, coordinates[1] - circleHalfHeight);
             } else if (type === 'LineString') {
+                var count = item.count === undefined ? 1 : item.count;
+                context.globalAlpha = count / max;
+                context.beginPath();
                 pathSimple.draw(context, item, options);
+                context.stroke();
             } else if (type === 'Polygon') {
 
             }
         });
-        // console.warn(i, i * max, color.getColor(i * max))
-        context.strokeStyle = color.getColor(i * max);
-        context.stroke();
+
     }
 }
 
 function draw(context, dataSet, options) {
     var strength = options.strength || 0.3;
     context.strokeStyle = 'rgba(0,0,0,' + strength + ')';
+    var shadowCanvas = new Canvas(context.canvas.width, context.canvas.height);
+    var shadowContext = shadowCanvas.getContext('2d');
+    shadowContext.scale(devicePixelRatio, devicePixelRatio);
 
     options = options || {};
 
-    var data = dataSet.get();
+    var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
 
     context.save();
+
+    var intensity = new Intensity({
+        gradient: options.gradient
+    });
+
     //console.time('drawGray')
-    drawGray(context, data, options);
+    drawGray(shadowContext, data, options);
+
     //console.timeEnd('drawGray');
     // return false;
     if (!options.absolute) {
         //console.time('changeColor');
-        var colored = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
-        colorize(colored.data, utilsColorPalette.getImageData({
-            defaultGradient: options.gradient || { 
-                0.25: "rgba(0, 0, 255, 1)",
-                0.55: "rgba(0, 255, 0, 1)",
-                0.85: "rgba(255, 255, 0, 1)",
-                1.0: "rgba(255, 0, 0, 1)"
-            }
-        }), options);
+        var colored = shadowContext.getImageData(0, 0, context.canvas.width, context.canvas.height);
+        colorize(colored.data, intensity.getImageData(), options);
         //console.timeEnd('changeColor');
         context.putImageData(colored, 0, 0);
 
         context.restore();
     }
+
+    intensity = null;
+    shadowCanvas = null;
 }
 
 export default {

@@ -1,51 +1,50 @@
-# Mapv - 地理信息可视化开源库
+# Mapv - a library of geography visualization
 <a href="http://mapv.baidu.com/">
     <img style="vertical-align: top;" src="./asset/logo.png?raw=true" alt="logo">
 </a>
 
-主页: [http://mapv.baidu.com/](http://mapv.baidu.com/)
+Homepage: [http://mapv.baidu.com/](http://mapv.baidu.com/)
 
-备用主页: [huiyan-fe.github.io/mapv/](huiyan-fe.github.io/mapv/)
+Backup Homepage: [http://huiyan-fe.github.io/mapv/](http://huiyan-fe.github.io/mapv/)
 
-## 简介 [English](https://github.com/huiyan-fe/mapv/blob/master/README_EN.md)
-Mapv 是一款地理信息可视化开源库，可以用来展示大量地理信息数据，点、线、面的数据，每种数据也有不同的展示类型，如直接打点、热力图、网格、聚合等方式展示数据。
-当前是Mapv 2.0的预发布版本，当前api是不稳定的并有可能随时发生变化。
+## Introduction [中文](https://github.com/huiyan-fe/mapv/blob/master/README.md)
+Mapv is a library of geography visualization, it can be used to visualize the big data of point, polyeline and polygon, and it has a different ways, such as simple, heatmap, grid, time and others to display the datas.
+This is the prerelease of Mapv 2.0. This API is unstable and may change at any point prior to the release.
 
-## 示例
+## Examples
 <a href="http://mapv.baidu.com/gallery.html">
     <img style="vertical-align: top;" src="./asset/overview.jpg?raw=true" alt="logo">
 </a>
 
-## 相关文档
-[API 参考](https://github.com/huiyan-fe/mapv/blob/master/API.md)
+## Documents
+[API Reference](https://github.com/huiyan-fe/mapv/blob/master/API.md)
 
-## 支持环境
-Mapv使用canvas开发，支持现在被称为“现代”浏览器, 通常兼容除了IE8及IE以下版本的其他大部分浏览器。
-## 安装使用
+## Supported Environments
+Mapv is develop by canvas, it supports so-called "modern" browsers, which generally means everything except IE8 and older versions.
 
 ## NPM
-如果你使用NPM开发环境，可使用NPM 安装，Mapv 能很好地和诸如 Webpack、Browserify 或 fis 的 CommonJS 模块打包器配合使用。
+If you use npm, you can use npm to install，Mapv can use in CommonJS by Webpack, Browserify or fis.
 
     npm install mapv
 
-## 安装使用
-你可以直接加载官网(mapv.baidu.com)最新的js脚本文件。如:
+## Install And Usage
+You can load directly from mapv.baidu.com. For Examples:
 
     <script src="http://mapv.baidu.com/build/mapv.min.js"></script>
 
-或
+or
 
     <script src="http://huiyan-fe.github.io/mapv/build/mapv.min.js"></script>
 
-你也可以下载[最后发布的版本](https://github.com/huiyan-fe/mapv/releases)。也可以使用示例中的版本。
-### 初始化环境
+You can also download the [latest release](https://github.com/huiyan-fe/mapv/releases). Or can use the version in examples.
+### Initialization environment
     npm install
-### 开发
+### Development
     npm test
-### 发布
+### Publish
     npm run publish
 
-## 谁在使用
+## UserList
 
 [![百度慧眼](./asset/user/huiyan.png)](http://huiyan.baidu.com)
 
@@ -53,12 +52,12 @@ Mapv使用canvas开发，支持现在被称为“现代”浏览器, 通常兼�
 
 [![百度地图开放平台](./asset/user/lbsyun.png)](http://lbsyun.baidu.com/)
 
-## 联系我们
-邮箱: <a href="mailto:mapv@baidu.com">mapv@baidu.com</a>
+## Contact us
+Mail: <a href="mailto:mapv@baidu.com">mapv@baidu.com</a>
 
-QQ群: 321519841
+QQ group: 321519841
 
-## 许可证
+## LICENSE
 Copyright (c) 2016, Baidu, Inc.
 All rights reserved.
 

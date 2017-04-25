@@ -15,6 +15,19 @@ function getCenter(g) {
 }
 
 export default {
+    getProvinceNameByCityName: function(name) {
+        var provinces  = citycenter.provinces;
+        for (var i = 0; i < provinces.length; i++) {
+            var provinceName = provinces[i].n;
+            var cities = provinces[i].cities;
+            for (var j = 0; j < cities.length; j++) {
+                if (cities[j].n == name) {
+                    return provinceName;
+                }
+            }
+        }
+        return null;
+    },
     getCenterByCityName: function(name) {
         for (var i = 0; i < citycenter.municipalities.length; i++) {
             if (citycenter.municipalities[i].n == name) {

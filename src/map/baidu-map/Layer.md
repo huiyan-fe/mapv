@@ -53,6 +53,8 @@ map.setMapStyle({
     coordType: 'bd09ll', // 可选百度墨卡托坐标类型bd09mc和百度经纬度坐标类型bd09ll(默认)
     shadowColor: 'rgba(255, 255, 255, 1)', // 投影颜色
     shadowBlur: 35,  // 投影模糊级数
+    updateCallback: function (time) { // 重绘回调函数，如果是时间动画、返回当前帧的时间
+    },
     shadowOffsetX: 0,
     shadowOffsetY: 0,
     context: '2d', // 可选2d和webgl，webgl目前只支持画simple模式的点和线
@@ -61,6 +63,9 @@ map.setMapStyle({
     miterLimit: 10,
     methods: { // 一些事件回调函数
         click: function (item) { // 点击事件，返回对应点击元素的对象值
+            console.log(item);
+        },
+        mousemove: function(item) { // 鼠标移动事件，对应鼠标经过的元素对象值
             console.log(item);
         }
     },
@@ -128,6 +133,13 @@ dataSet中加count字段，代表权重，根据上面配置用以计算它的�
 {
     draw: 'grid',
     size: 40,
+    label: { // 网格中显示累加的值总和
+        show: true,
+        fillStyle: 'white',
+        shadowColor: 'yellow',
+        font: '20px Arial',
+        shadowBlur: 10,
+    },
     gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
 }
 ```
@@ -138,6 +150,13 @@ dataSet中加count字段，代表权重，根据上面配置用以计算它的�
 {
     draw: 'honeycomb',
     size: 40,
+    label: { // 网格中显示累加的值总和
+        show: true,
+        fillStyle: 'white',
+        shadowColor: 'yellow',
+        font: '20px Arial',
+        shadowBlur: 10,
+    },
     gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
 }
 ```
@@ -158,6 +177,8 @@ dataSet中加count字段，代表权重，根据上面配置用以计算它实�
 ```js
 {
     draw: 'intensity',
+    max: 100, // 最大阈值
+    min: 0, // 最小阈值
     gradient: { // 显示的颜色渐变范围$
         '0': 'blue',$
         '0.6': 'cyan',$
@@ -221,12 +242,21 @@ dataSet中加count字段，代表权重，根据上面配置用以计算它实�
 ```js
 {
     draw: 'icon',
+    rotate: '90', // 图片旋转角度
+    width: 10, // 规定图像的宽度
+    height: 10, // 规定图像的高度
+    size: 10, // 添加点击事件时候可以用来设置点击范围
+    sx: 10, // 开始剪切的 x 坐标位置
+    sy: 10, // 开始剪切的 y 坐标位置
+    swidth: 10, // 被剪切图像的宽度
+    sheight: 10, // 被剪切图像的高度
 }
 ```
 dataSet中添加字段
 ```js
 {
-    icon: Image // 加载好的Image对象
+    icon: Image, // 加载好的Image对象
+    rotate: '90', // 图片旋转角度
 }
 ```
 
@@ -237,6 +267,7 @@ dataSet中添加字段
     draw: 'text',
     fillStyle: 'white',
     textAlign: 'center',
+    avoid: true, // 开启文本标注避让
     textBaseline: 'middle',
     offset: { // 文本便宜值
         x: 0,
@@ -280,4 +311,5 @@ dataSet中添加字段
     size: 1
 }); // 重新设置配置
 ### mapvLayer.show(); // 显示图层
-### mapvLayer.hide(); // 删除图层
+### mapvLayer.hide(); // 隐藏图层
+### mapvLayer.destroy(); // 销毁当前图层
