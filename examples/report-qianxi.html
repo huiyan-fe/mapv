@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="../build/mapv.js"></script>
+
+    <script type="text/javascript">
+
+        // 百度地图API功能
+        var map = new BMap.Map("map", {
+            enableMapClick: false
+        });    // 创建Map实例
+        map.centerAndZoom(new BMap.Point(105.403119, 38.028658), 5);  // 初始化地图,设置中心点坐标和地图级别
+        map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+
+        map.setMapStyle({
+            styleJson: [
+          {
+                    "featureType": "all",
+                    "elementType": "all",
+                    "stylers": {
+                              "visibility": "off"
+                    }
+          }
+        ]
+        });
+        map.getContainer().style.background = '#fff';
+
+        var pt = new BMap.Point(127.733142,21.226515);
+        var jiuduanwidth = 408;
+        var jiuduanheight  = 563;
+        var scale = 4.5;
+        var myIcon = new BMap.Icon("./images/nanhai.png", new BMap.Size(jiuduanwidth / scale, jiuduanheight / scale), {
+            imageSize: new BMap.Size(jiuduanwidth / scale, jiuduanheight / scale)
+        });
+        var marker2 = new BMap.Marker(pt,{icon:myIcon});  // 创建标注
+        map.addOverlay(marker2);
+        marker2.enableDragging();
+
+        $.get('data/china.json', function(geojson) {
+
+            var geojsonOptions = {
+                gradient: {
+                    0: 'rgba(255, 255, 50, 1)',
+                    1: 'rgba(255, 50, 50, 1)'
+                },
+                max: 3,
+                draw: 'intensity'
+            }
+
+            var geojsonDataSet = mapv.geojson.getDataSet(geojson);
+
+            var to = '甘肃';
+
+            var qianxi = new mapv.DataSet([
+                {
+                    from: '陕西',
+                    count: 3,
+                    to: to,
+                },
+                {
+                    from: '青海',
+                    count: 3,
+                    to: to,
+                },
+                {
+                    from: '宁夏',
+                    count: 3,
+                    to: to,
+                },
+                {
+                    from: '四川',
+                    count: 2,
+                    to: to,
+                },
+                {
+                    from: '新疆',
+                    count: 2,
+                    to: to,
+                },
+                {
+                    from: '河南',
+                    count: 2,
+                    to: to,
+                },
+                {
+                    from: '内蒙古',
+                    count: 2,
+                    to: to,
+                },
+                {
+                    from: '北京',
+                    count: 1,
+                    to: to,
+                },
+                {
+                    from: '江苏',
+                    count: 1,
+                    to: to,
+                },
+                {
+                    from: '山东',
+                    count: 1,
+                    to: to,
+                },
+            ]);
+
+            var qianxiData = qianxi.get();
+
+            var lineData = [];
+            var pointData = [];
+            var textData = [];
+            var timeData = [];
+
+            var citys = {}
+
+            for (var i = 0; i < qianxiData.length; i++) {
+                var fromCenter = mapv.utilCityCenter.getCenterByCityName(qianxiData[i].from);
+                var toCenter = mapv.utilCityCenter.getCenterByCityName(qianxiData[i].to);
+                if (!fromCenter || !toCenter) {
+                    continue;
+                }
+                citys[qianxiData[i].from] = qianxiData[i].count;
+                pointData.push(
+                {
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [fromCenter.lng, fromCenter.lat]
+                    },
+                    text: i + 1
+                }
+                );
+                textData.push(
+                {
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [fromCenter.lng, fromCenter.lat]
+                    },
+                    text: qianxiData[i].from
+                }
+                );
+                textData.push(
+                {
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [toCenter.lng, toCenter.lat]
+                    },
+                    text: qianxiData[i].to
+                }
+                );
+
+                var curve = mapv.utilCurve.getPoints([fromCenter, toCenter]);
+
+                for (j = 0; j < curve.length; j++) {
+                    timeData.push({
+                        geometry: {
+                            type: 'Point',
+                            coordinates: curve[j]
+                        },
+                        count: 1,
+                        time: j
+                    });
+                }
+
+                lineData.push({
+                    geometry: {
+                        type: 'LineString',
+                        coordinates: curve
+                        //coordinates: [[fromCenter.lng, fromCenter.lat], [toCenter.lng, toCenter.lat]]
+                    },
+                    count: 30 * Math.random()
+                });
+
+            }
+
+            var data = geojsonDataSet.get({
+                filter: function (item) {
+                    if (item.name == to) {
+                        item.fillStyle = 'rgba(165, 165, 160, 1)';
+                        return true;
+                    }
+
+                    if (!citys[item.name]) {
+                        return false;
+                    }
+
+                    item.count = citys[item.name];
+                    return true;
+                }
+            });
+            var layerDataSet = new mapv.DataSet(data);
+
+            var mapvLayer = new mapv.baiduMapLayer(map, layerDataSet, geojsonOptions);
+
+            var chinaLayer = new mapv.baiduMapLayer(map, geojsonDataSet, {
+                draw: 'simple',
+                lineWidth: 0.8,
+                strokeStyle: 'rgba(255, 255, 255, 1)',
+                fillStyle: 'rgba(218, 218, 218, 1)'
+            });
+
+            var textDataSet = new mapv.DataSet(textData);
+            
+            var textOptions = {
+                draw: 'text',
+                font: '14px Arial',
+                fillStyle: 'black',
+                shadowColor: 'yellow',
+                shadowBlue: 10,
+                offset: {
+                    x: 25,
+                    y: 0
+                },
+                zIndex: 200,
+                shadowBlur: 10
+            }
+
+            var textMapvLayer = new mapv.baiduMapLayer(map, textDataSet, textOptions);
+
+            var lineDataSet = new mapv.DataSet(lineData);
+
+            var lineOptions = {
+                strokeStyle: 'rgba(255, 250, 50, 0.8)',
+                shadowColor: 'rgba(255, 250, 50, 1)',
+                shadowBlur: 20,
+                lineWidth: 2,
+                zIndex: 100,
+                draw: 'simple'
+            }
+
+            var lineLayer = new mapv.baiduMapLayer(map, lineDataSet, lineOptions);
+
+            var pointOptions = {
+                fillStyle: 'rgba(255, 250, 250, 0.5)',
+                strokeStyle: 'rgba(255, 250, 250, 1)',
+                lineWidth: 1,
+                size: 10,
+                zIndex: 300,
+                draw: 'simple'
+            }
+
+            
+            var pointDataSet = new mapv.DataSet(pointData);
+
+            var pointLayer = new mapv.baiduMapLayer(map, pointDataSet, pointOptions);
+
+            var numberLayer = new mapv.baiduMapLayer(map, pointDataSet, {
+                fillStyle: 'black',
+                zIndex: 300,
+                draw: 'text'
+            });
+
+
+            var timeDataSet = new mapv.DataSet(timeData);
+
+            console.log(timeData);
+
+            var timeOptions = {
+                fillStyle: 'rgba(255, 250, 250, 0.5)',
+                zIndex: 150,
+                size: 2.5,
+                animation: {
+                    type: 'time',
+                    stepsRange: {
+                        start: 0,
+                        end: 50
+                    },
+                    trails: 10,
+                    duration: 2,
+                },
+                draw: 'simple'
+            }
+
+            var timeMapvLayer = new mapv.baiduMapLayer(map, timeDataSet, timeOptions);
+
+        });
+
+
+        
+
+    </script>
+	
+</body>
+</html>

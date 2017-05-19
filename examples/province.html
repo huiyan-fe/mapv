@@ -131,6 +131,7 @@
         });
         var marker2 = new BMap.Marker(pt,{icon:myIcon});  // 创建标注
         map.addOverlay(marker2);
+        marker2.enableDragging();
 
         map.setMapStyle({
             styleJson: [
