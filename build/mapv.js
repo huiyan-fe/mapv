@@ -21,7 +21,7 @@ var clear = function (context) {
  */
 
 var resolutionScale$1 = function (context) {
-    var devicePixelRatio = window.devicePixelRatio;
+    var devicePixelRatio = window.devicePixelRatio || 1;
     context.canvas.width = context.canvas.width * devicePixelRatio;
     context.canvas.height = context.canvas.height * devicePixelRatio;
     context.canvas.style.width = context.canvas.width / devicePixelRatio + 'px';
@@ -810,7 +810,7 @@ Intensity.prototype.getLegend = function (options) {
 
 var global$1 = typeof window === 'undefined' ? {} : window;
 
-var devicePixelRatio = global$1.devicePixelRatio;
+var devicePixelRatio = global$1.devicePixelRatio || 1;
 
 /**
  * @author kyle / http://nikai.us/
@@ -2887,7 +2887,7 @@ if (global$3.BMap) {
         var size = this._map.getSize();
         var canvas = this.canvas;
 
-        var devicePixelRatio = this.devicePixelRatio = global$3.devicePixelRatio;
+        var devicePixelRatio = this.devicePixelRatio = global$3.devicePixelRatio || 1;
 
         canvas.width = size.width * devicePixelRatio;
         canvas.height = size.height * devicePixelRatio;
@@ -3969,6 +3969,7 @@ var BaseLayer = function () {
         value: function getLegend(options) {
             var draw = this.options.draw;
             var legend = null;
+            var self = this;
             if (self.options.draw == 'intensity' || self.options.draw == 'heatmap') {
                 return this.intensity.getLegend(options);
             } else if (self.options.draw == 'category') {
@@ -4079,7 +4080,9 @@ var BaseLayer = function () {
             for (var i = 0; i < data.length; i++) {
                 context.beginPath();
                 pathSimple.draw(context, data[i], this.options);
-                if (context.isPointInPath(pixel.x * this.canvasLayer.devicePixelRatio, pixel.y * this.canvasLayer.devicePixelRatio)) {
+                var x = pixel.x * this.canvasLayer.devicePixelRatio;
+                var y = pixel.y * this.canvasLayer.devicePixelRatio;
+                if (context.isPointInPath(x, y) || context.isPointInStroke(x, y)) {
                     return data[i];
                 }
             }

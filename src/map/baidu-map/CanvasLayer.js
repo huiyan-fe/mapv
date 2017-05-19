@@ -46,7 +46,7 @@ if (global.BMap) {
         var size = this._map.getSize();
         var canvas = this.canvas;
 
-        var devicePixelRatio = this.devicePixelRatio = global.devicePixelRatio;
+        var devicePixelRatio = this.devicePixelRatio = global.devicePixelRatio || 1;
 
         canvas.width = size.width * devicePixelRatio;
         canvas.height = size.height * devicePixelRatio;

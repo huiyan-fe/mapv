@@ -86,6 +86,7 @@ class BaseLayer {
     getLegend(options) {
         var draw = this.options.draw;
         var legend = null;
+        var self = this;
         if (self.options.draw == 'intensity' || self.options.draw == 'heatmap') {
             return this.intensity.getLegend(options);
         } else if (self.options.draw == 'category') {
@@ -195,7 +196,9 @@ class BaseLayer {
         for (var i = 0; i < data.length; i++) {
             context.beginPath();
             pathSimple.draw(context, data[i], this.options);
-            if (context.isPointInPath(pixel.x * this.canvasLayer.devicePixelRatio, pixel.y * this.canvasLayer.devicePixelRatio)) {
+            var x = pixel.x * this.canvasLayer.devicePixelRatio;
+            var y = pixel.y * this.canvasLayer.devicePixelRatio;
+            if (context.isPointInPath(x, y) || context.isPointInStroke(x, y)) {
                 return data[i];
             }
         }
