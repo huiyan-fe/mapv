@@ -21,7 +21,7 @@
         #legend {
             position: absolute;
             right: 10px;
-            bottom: 10px;
+            bottom: 20px;
             text-align: center;
         }
 
@@ -363,11 +363,13 @@
 
             gui.add(options, 'draw', {
                 '普通': 'simple', 
+                /*
                 '热力图': 'heatmap',
                 '气泡': 'bubble',
-                '颜色分类': 'category',
                 '蜂窝状聚类': 'honeycomb',
                 '网格聚类': 'grid',
+                */
+                '颜色分类': 'category',
                 '值区间分类': 'choropleth',
                 '颜色渐变': 'intensity'
             }).onFinishChange(function () {
