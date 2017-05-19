@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        #legend {
+            position: absolute;
+            left: 10px;
+            bottom: 50px;
+            text-align: center;
+        }
+
+
+    </style>
+</head>
+<body>
+
+<!--
+[
+          {
+                    "featureType": "all",
+                    "elementType": "all",
+                    "stylers": {}
+          },
+          {
+                    "featureType": "administrative",
+                    "elementType": "labels",
+                    "stylers": {
+                              "visibility": "off"
+                    }
+          },
+          {
+                    "featureType": "0801",
+                    "elementType": "all",
+                    "stylers": {
+                              "color": "#ffffff",
+                              "visibility": "off"
+                    }
+          },
+          {
+                    "featureType": "060101",
+                    "elementType": "all",
+                    "stylers": {
+                              "visibility": "off"
+                    }
+          },
+          {
+                    "featureType": "060102",
+                    "elementType": "all",
+                    "stylers": {
+                              "visibility": "off"
+                    }
+          },
+          {
+                    "featureType": "0802",
+                    "elementType": "all",
+                    "stylers": {
+                              "color": "#acacac",
+                              "visibility": "on"
+                    }
+          },
+          {
+                    "featureType": "water",
+                    "elementType": "all",
+                    "stylers": {
+                              "color": "#ffffff"
+                    }
+          }
+]
+-->
+
+    <div id="map"></div>
+    <div id="legend">
+        <div>高</div>
+        <div id="legendValue"></div>
+        <div>低</div>
+    </div>
+    <div id="container" style="position:absolute;left:0px;top:0;background:rgba(255,255,255,1);padding: 10px 10px 20px;">
+        <div>
+        <textarea type="text" style="width: 300px;height: 80px;margin-top:20px;outline: none;" id="dataInput" placeholder="需要显示的数据格式示例：北京,18,red;天津,15,blue">哈尔滨,181;济南,163;石家庄,158;成都,153;郑州,153;重庆,152;杭州,150;长春,150;西安,149;合肥,148;北京,148;广州,147;沈阳,146;南宁,146;天津,146;乌鲁木齐,146;昆明,145;贵阳,144;汕头,143;上海,143;珠海,143;洛阳,142;惠州,141;大连,141;长沙,141;海口,141;南京,141;武汉,141;青岛,140;太原,139;厦门,139;福州,138;佛山,137;金华,137;南昌,136;扬州,136;徐州,136;东莞,134;南通,131;潍坊,131;泉州,131;温州,131;宁波,131;嘉兴,131;深圳,129;烟台,129;常州,128;苏州,128;无锡,121</textarea>
+        </div>
+        <div>
+        <button onclick="show()">显示</button>
+        <div>
+        排序标签：
+        <button onclick="showNumber()">显示</button>
+        <button onclick="hideNumber()">隐藏</button>
+        <br />
+        文本标签：
+        <button onclick="showText()">显示</button>
+        <button onclick="hideText()">隐藏</button>
+        </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="../build/mapv.js"></script>
+    <script type="text/javascript" src="js/dat.gui.min.js"></script>
+
+    <script type="text/javascript">
+
+        // 百度地图API功能
+        var map = new BMap.Map("map", {
+            enableMapClick: false
+        });    // 创建Map实例
+        map.centerAndZoom(new BMap.Point(105.403119, 38.028658), 5);  // 初始化地图,设置中心点坐标和地图级别
+        map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+
+        var pt = new BMap.Point(127.733142,21.226515);
+        var jiuduanwidth = 408;
+        var jiuduanheight  = 563;
+        var scale = 4.5;
+        var myIcon = new BMap.Icon("./images/nanhai.png", new BMap.Size(jiuduanwidth / scale, jiuduanheight / scale), {
+            imageSize: new BMap.Size(jiuduanwidth / scale, jiuduanheight / scale)
+        });
+        var marker2 = new BMap.Marker(pt,{icon:myIcon});  // 创建标注
+        map.addOverlay(marker2);
+
+        map.setMapStyle({
+            styleJson: [
+              {
+                        "featureType": "all",
+                        "elementType": "all",
+                        "stylers": {
+                                  "lightness": 40,
+                                  "saturation": -100
+                        }
+              },
+              {
+                        "featureType": "administrative",
+                        "elementType": "labels",
+                        "stylers": {
+                                  "visibility": "off"
+                        }
+              },
+              {
+                        "featureType": "0801",
+                        "elementType": "all",
+                        "stylers": {
+                                  "color": "#ffffff"
+                        }
+              },
+              /*
+              {
+                        "featureType": "administrative",
+                        "elementType": "geometry.stroke",
+                        "stylers": {
+                                  "color": "#808080",
+                                  "weight": "1.3",
+                                  "lightness": 6,
+                                  "saturation": 5
+                        }
+              }
+              */
+            ]
+        });
+
+        map.setMapStyle({
+            styleJson: [
+          {
+                    "featureType": "all",
+                    "elementType": "all",
+                    "stylers": {
+                              "lightness": 40,
+                              "saturation": -100
+                    }
+          },
+          {
+                    "featureType": "0801",
+                    "elementType": "all",
+                    "stylers": {
+                              "color": "#ffffff"
+                    }
+          },
+          {
+                    "featureType": "administrative",
+                    "elementType": "labels",
+                    "stylers": {
+                              "visibility": "off"
+                    }
+          },
+          {
+                    "featureType": "0801",
+                    "elementType": "all",
+                    "stylers": {
+                              "visibility": "off"
+                    }
+          },
+          {
+                    "featureType": "060101",
+                    "elementType": "all",
+                    "stylers": {
+                              "visibility": "off"
+                    }
+          },
+          {
+                    "featureType": "060102",
+                    "elementType": "all",
+                    "stylers": {
+                              "visibility": "off"
+                    }
+          }
+]
+        });
+        /*
+        map.setMapStyle({
+            styleJson: [
+              {
+                        "featureType": "all",
+                        "elementType": "all",
+                        "stylers": {
+                                  "color": "#ffffff"
+                        }
+              },
+              {
+                        "featureType": "administrative",
+                        "elementType": "all",
+                        "stylers": {
+                                  "visibility": "off"
+                        }
+              }
+            ]
+        });
+        */
+
+        map.setMapStyle({
+            styleJson: [
+          {
+                    "featureType": "all",
+                    "elementType": "all",
+                    "stylers": {
+                              "visibility": "off"
+                    }
+          }
+        ]
+        });
+        map.getContainer().style.background = '#fff';
+
+        $.get('data/china.json', function(geojson) {
+
+            var dataSet = mapv.geojson.getDataSet(geojson);
+
+            var options = {
+                fillStyle: 'rgba(218, 218, 218, 1)',
+                //fillStyle: '#1495ff',
+                //fillStyle: 'lightblue',
+                //fillStyle: 'rgba(50, 50, 50, 0.5)',
+                //strokeStyle: '#999',
+                strokeStyle: 'rgba(255, 255, 255, 1)',
+                lineWidth: 1,
+                zIndex: 1,
+                draw: 'simple'
+            }
+
+            var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+        });
+
+        /*
+        var bdary = new BMap.Boundary();
+        bdary.get('中国', function(rs){       //获取行政区域
+            var tmpData = [];
+            for (var i = 0; i < rs.boundaries.length; i++) {
+                var coordinates = [];
+                var path = rs.boundaries[i].split(';');
+                for (var j = 0; j < path.length; j++) {
+                    coordinates.push(path[j].split(','));
+                }
+
+                tmpData.push({
+                    geometry: {
+                        type: 'Polygon',
+                        coordinates: [coordinates]
+                    }
+                });
+            }
+
+            var options = {
+                fillStyle: 'rgba(0, 0, 0, 0.2)',
+                zIndex: 1,
+                draw: 'simple'
+            }
+
+            var mapvLayer = new mapv.baiduMapLayer(map, new mapv.DataSet(tmpData), options);
+        });
+*/
+
+    function getBoundary(){       
+        var bdary = new BMap.Boundary();
+        bdary.get("中国", function(rs){       //获取行政区域
+            var count = rs.boundaries.length; //行政区域的点有多少个
+            var pointArray = [];
+            for (var i = 0; i < count; i++) {
+                var ply = new BMap.Polygon(rs.boundaries[i], {strokeWeight: 4, strokeOpacity:1, fillOpacity: 0.01, strokeColor: "#ff0000"}); //建立多边形覆盖物
+                map.addOverlay(ply);  //添加覆盖物
+                pointArray = pointArray.concat(ply.getPath());
+            }    
+        });   
+    }
+
+    //getBoundary();
+
+
+        var randomCount = 300;
+
+        var data = [];
+        var textData = [];
+
+        var citys = ["北京","天津","上海","重庆","石家庄","太原","呼和浩特","哈尔滨","长春","沈阳","济南","南京","合肥","杭州","南昌","福州","郑州","武汉","长沙","广州","南宁","西安","银川","兰州","西宁","乌鲁木齐","成都","贵阳","昆明","拉萨","海口"];
+
+        // 构造数据
+        while (randomCount--) {
+            var city = citys[parseInt(Math.random() * citys.length)];
+            var cityCenter = mapv.utilCityCenter.getCenterByCityName(city);
+            var item = {
+                geometry: {
+                    type: 'Point',
+                    coordinates: [cityCenter.lng - 2 + Math.random() * 4, cityCenter.lat - 2 + Math.random() * 4]
+                },
+                text: city,
+                number: randomCount,
+                count: 30 * Math.random()
+            }
+            data.push(item);
+            textData.push(item);
+        }
+
+        var dataSet = new mapv.DataSet(data);
+        var textSet = new mapv.DataSet(textData);
+
+        var options = {
+            draw: 'simple',
+            max: 100,
+            min: 0,
+            size: 10,
+            symbol: 'circle',
+            maxSize: 50,
+            zIndex: 2,
+            minSize: 1,
+            maxOpacity: 0.8,
+            globalAlpha: 1,
+            lineWidth: 0,
+            gradient: { 
+                0.25: "rgba(0, 0, 255, 1)",
+                0.55: "rgba(0, 255, 0, 1)",
+                0.85: "rgba(255, 255, 0, 1)",
+                1.0: "rgba(255, 0, 0, 1)"
+            },
+            unit: 'px',
+            fillStyle: 'rgba(55, 50, 250, 0.6)',
+            strokeStyle: 'rgba(55, 50, 250, 0.6)',
+            // shadowColor: 'rgba(55, 50, 250, 0.5)',
+            // shadowBlur: 10
+        }
+
+        var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+        var textOptions = {
+            draw: 'text',
+            avoid: true,
+            textAlign: 'left',
+            offset: {
+                x: 9,
+                y: 0
+            },
+            size: 18,
+            zIndex: 2,
+            fillStyle: 'black',
+            shadowBlur: 5
+        }
+
+        var textLayer = new mapv.baiduMapLayer(map, textSet, textOptions);
+
+
+        var textOptions = {
+            draw: 'text',
+            avoid: true,
+            size: 12,
+            zIndex: 2,
+            fillStyle: 'white',
+            textKey: 'number',
+            shadowBlur: 5
+        }
+
+        var textLayer1 = new mapv.baiduMapLayer(map, textSet, textOptions);
+
+        function finished() {
+            mapvLayer.update({
+                options: options 
+            });
+            $('#legendValue').html('');
+            $('#legendValue').append(mapvLayer.getLegend({
+                width: 30,
+                height: 150
+            }));
+        };
+
+        window.onload = function() {
+            initGui();
+        };
+
+        var gradientOptions = [
+            { 
+                0.25: "rgba(0, 0, 255, 1)",
+                0.55: "rgba(0, 255, 0, 1)",
+                0.85: "rgba(255, 255, 0, 1)",
+                1.0: "rgba(255, 0, 0, 1)"
+            },
+            {
+              '0': 'Black',
+              '0.5': 'Aqua',
+              '1': 'White'
+            },
+            {
+                '0.0': 'blue',
+                '1': 'red'
+            },
+            {
+                '0.0': 'rgb(0, 0, 0)',
+                '0.6': 'rgb(24, 53, 103)',
+                '0.75': 'rgb(46, 100, 158)',
+                '0.9': 'rgb(23, 173, 203)',
+                '1.0': 'rgb(0, 250, 250)'
+            },
+            {
+                '0': 'Navy',
+                '0.25': 'Blue',
+                '0.5': 'Green',
+                '0.75': 'Yellow',
+                '1': 'Red'
+            },
+            {
+                '0': 'Black',
+                '0.33': 'DarkRed',
+                '0.66': 'Yellow',
+                '1': 'White'
+            },
+            {
+                '0': 'Black',
+                '0.4': 'Purple',
+                '0.6': 'Red',
+                '0.8': 'Yellow',
+                '1': 'White'
+            },
+            {
+                '0': 'Red',
+                '0.66': 'Yellow',
+                '1': 'White'
+            },
+            {
+                '0': 'Navy', '0.25': 'Navy',
+                '0.26': 'Green',
+                '0.5': 'Green',
+                '0.51': 'Yellow',
+                '0.75': 'Yellow',
+                '0.76': 'Red',
+                '1': 'Red'
+            },
+            {
+                '0.00': 'rgb(255,0,255)',
+                '0.25': 'rgb(0,0,255)',
+                '0.50': 'rgb(0,255,0)',
+                '0.75': 'rgb(255,255,0)',
+                '1.00': 'rgb(255,0,0)'
+            },
+            { 
+                0: "yellow",
+                1.0: "red"
+            },
+            { 
+                0: "white",
+                1.0: "blue"
+            },
+            { 
+                0: "green",
+                1.0: "rgb(0, 255, 255)"
+            },
+            { 
+                0: "green",
+                0.5: "yellow",
+                1.0: "red"
+            },
+            { 
+                0: "lightgreen",
+                1.0: "darkgreen"
+            }
+        ];
+
+        var gui;
+
+        function initGui() {
+            gui && gui.destroy();
+
+            gui = new dat.GUI({
+                nameMap: {
+                    draw: '绘制方法',
+                    unit: '单位',
+                    size: '大小',
+                    fillStyle: '颜色',
+                    symbol: '形状',
+                    globalAlpha: '图层透明度',
+                    maxOpacity: '图层透明度',
+                    // shadowColor: '阴影颜色',
+                    // shadowBlur: '阴影大小',
+                    gradient: '渐变色',
+                    lineWidth: '线宽',
+                    strokeStyle: '线颜色',
+                    maxSize: '最大半径值',
+                    minSize: '最小半径值',
+                    max: '最大阈值',
+                    min: '最小阈值',
+                }
+            });
+
+            gui.add(options, 'draw', {
+                '普通': 'simple', 
+                '热力图': 'heatmap',
+                '气泡': 'bubble',
+                '颜色分类': 'category',
+                '蜂窝状聚类': 'honeycomb',
+                '网格聚类': 'grid',
+                '值区间分类': 'choropleth',
+                '颜色渐变': 'intensity'
+            }).onFinishChange(function () {
+                initGui();
+                finished();
+            });
+
+            gui.add(options, 'unit', {
+                '像素': 'px',
+                '米': 'm'
+            }).onFinishChange(function () {
+                initGui();
+                finished();
+            });
+
+            if (options.draw !== 'bubble') {
+
+                if (options.unit == 'm') {
+                    gui.add(options, 'size', 1, 200000).onFinishChange(finished);
+                } else {
+                    gui.add(options, 'size', 1, 100).onFinishChange(finished);
+                }
+
+            }
+
+            if (options.draw !== 'heatmap') {
+                gui.add(options, 'globalAlpha', 0, 1).onFinishChange(finished);
+            }
+
+            switch (options.draw) {
+                case 'simple':
+                    gui.addColor(options, 'fillStyle').onChange(finished);
+                    // gui.addColor(options, 'shadowColor').onChange(finished);
+                    // gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
+                    gui.add(options, 'lineWidth', 1, 10).onFinishChange(finished);
+                    gui.addColor(options, 'strokeStyle').onChange(finished);
+                    gui.add(options, 'symbol', {
+                        '圆形': 'circle',
+                        '矩形': 'rect',
+                    }).onFinishChange(finished);
+                    break;
+                case 'bubble':
+                    gui.addColor(options, 'fillStyle').onChange(finished);
+                    // gui.addColor(options, 'shadowColor').onChange(finished);
+                    // gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
+                    gui.add(options, 'lineWidth', 1, 10).onFinishChange(finished);
+                    gui.addColor(options, 'strokeStyle').onChange(finished);
+                    gui.add(options, 'max', 1, 500).onFinishChange(finished);
+                    gui.add(options, 'maxSize', 15, 100).onFinishChange(finished);
+                    gui.add(options, 'minSize', 0, 100).onFinishChange(finished);
+                    break;
+                case 'heatmap':
+                    // gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
+                    gui.add(options, 'max', 1, 300).onFinishChange(finished);
+                    gui.add(options, 'maxOpacity', 0, 1).onFinishChange(finished);
+                    break;
+                case 'grid':
+                case 'intensity':
+                case 'honeycomb':
+                    gui.add(options, 'max', 1, 50000).onFinishChange(finished);
+                    gui.add(options, 'min', -100, 50000).onFinishChange(finished);
+                    gui.add(options, 'lineWidth', 1, 10).onFinishChange(finished);
+                    gui.addColor(options, 'strokeStyle').onChange(finished);
+                    gui.addGradient(options, 'gradient', gradientOptions).onFinishChange(finished);
+                    gui.add(options, 'maxSize', 0, 100).onFinishChange(finished);
+                    gui.add(options, 'minSize', 0, 100).onFinishChange(finished);
+                    break;
+            }
+            
+        }
+
+        var intensity = new mapv.utilDataRangeIntensity({
+            max: 100,
+            min: 0,
+            maxSize: 15,
+            minSize: 5
+        });
+
+        function show () {
+            var dataInput = $('#dataInput').val();
+            dataInput = dataInput.split(';');
+            data = [];
+            textData = [];
+            var max = 0;
+            var min = 15;
+            for (var i = 0; i < dataInput.length; i++) {
+                var line = dataInput[i].split(',');
+                if (line[1] > max) {
+                    max = line[1]
+                }
+
+                if (min == undefined) {
+                    min = parseFloat(line[1]);
+                } 
+
+                if (line[1] < min) {
+                    min = parseFloat(line[1]);
+                }
+            }
+            intensity.setMax(max);
+            intensity.setMin(min);
+            options.max = max;
+            options.min = min;
+            for (var i = 0; i < dataInput.length; i++) {
+                var line = dataInput[i].split(',');
+                var cityCenter = mapv.utilCityCenter.getCenterByCityName(line[0]);
+                if (!cityCenter) {
+                    cityCenter = mapv.utilCityCenter.getCenterByCityName(line[0].replace('市', ''));
+                }
+                console.log(line[0], line[0].length, cityCenter);
+                var item = {
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [cityCenter.lng, cityCenter.lat]
+                    },
+                    text: line[0],
+                    number: (i + 1),
+                    fillStyle: line[2]
+                }
+                if (line[1]) {
+                    //item.size = intensity.getSize(line[1]);
+                    item.count = parseFloat(line[1]);
+                }
+                data.push(item);
+                if (line[3] !== 'nolabel') {
+                    textData.push(item);
+                }
+            }
+            dataSet.set(data);
+            textSet.set(textData);
+            finished();
+        }
+
+        function showText() {
+            textLayer.show();
+        }
+
+        function hideText() {
+            textLayer.hide();
+        }
+
+        function showNumber() {
+            textLayer1.show();
+        }
+
+        function hideNumber() {
+            textLayer1.hide();
+        }
+
+
+    </script>
+	
+</body>
+</html>
