@@ -217,12 +217,23 @@
 
             var mapvLayer = new mapv.baiduMapLayer(map, layerDataSet, geojsonOptions);
 
+            var legend = mapvLayer.getLegend({
+                width: 20,
+                height: 180
+            });
+
+            legend.style.position = 'absolute';
+            legend.style.right = '10px';
+            legend.style.bottom = '10px';
+            document.body.appendChild(legend);
+
             var chinaLayer = new mapv.baiduMapLayer(map, geojsonDataSet, {
                 draw: 'simple',
                 lineWidth: 0.8,
                 strokeStyle: 'rgba(255, 255, 255, 1)',
                 fillStyle: 'rgba(218, 218, 218, 1)'
             });
+
 
             var textDataSet = new mapv.DataSet(textData);
             
