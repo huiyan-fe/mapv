@@ -75,6 +75,7 @@
             var geojsonDataSet = mapv.geojson.getDataSet(geojson);
 
             var to = '甘肃';
+            var isShowTo = true;
 
             var qianxi = new mapv.DataSet([
                 {
@@ -199,7 +200,7 @@
 
             var data = geojsonDataSet.get({
                 filter: function (item) {
-                    if (item.name == to) {
+                    if (isShowTo && item.name == to) {
                         item.fillStyle = 'rgba(165, 165, 160, 1)';
                         return true;
                     }
