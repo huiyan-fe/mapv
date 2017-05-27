@@ -35,6 +35,12 @@ export default {
             }
         }
 
+        for (var i = 0; i < citycenter.other.length; i++) {
+            if (citycenter.other[i].n == name) {
+                return getCenter(citycenter.other[i].g);
+            }
+        }
+
         var provinces  = citycenter.provinces;
         for (var i = 0; i < provinces.length; i++) {
             if (provinces[i].n == name) {

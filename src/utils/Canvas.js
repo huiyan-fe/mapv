@@ -5,8 +5,8 @@ function Canvas(width, height) {
 
     if (typeof document === 'undefined') {
 
-        var Canvas = require('canvas');
-        canvas = new Canvas(width, height);
+        // var Canvas = require('canvas');
+        // canvas = new Canvas(width, height);
 
     } else {
 

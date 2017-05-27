@@ -20,8 +20,8 @@
 
         #legend {
             position: absolute;
-            left: 10px;
-            bottom: 50px;
+            right: 10px;
+            bottom: 20px;
             text-align: center;
         }
 
@@ -92,7 +92,7 @@
     </div>
     <div id="container" style="position:absolute;left:0px;top:0;background:rgba(255,255,255,1);padding: 10px 10px 20px;">
         <div>
-        <textarea type="text" style="width: 300px;height: 80px;margin-top:20px;outline: none;" id="dataInput" placeholder="需要显示的数据格式示例：广东,123;福建,123;北京,123;江苏,123">广东,123;福建,123;北京,123;江苏,123</textarea>
+        <textarea type="text" style="width: 300px;height: 80px;margin-top:20px;outline: none;" id="dataInput" placeholder="需要显示的数据格式示例：广东,123;福建,123;北京,123;江苏,123">陕西,3;青海,3;宁夏,3;四川,2;新疆,2;河南,2;内蒙古,2;北京,1;江苏,1;山东,1</textarea>
         </div>
         <div>
         <button onclick="show()">显示</button>
@@ -131,6 +131,7 @@
         });
         var marker2 = new BMap.Marker(pt,{icon:myIcon});  // 创建标注
         map.addOverlay(marker2);
+        marker2.enableDragging();
 
         map.setMapStyle({
             styleJson: [
@@ -190,6 +191,8 @@
             zIndex: 10,
             size: 10,
             fillStyle: 'rgba(255, 250, 250, 0.5)',
+            strokeStyle: 'rgba(255, 250, 250, 1)',
+            lineWidth: 1,
         }
         var mapvLayer = new mapv.baiduMapLayer(map, dataSet, pointOptions);
 
@@ -296,6 +299,14 @@
                 '1': 'Red'
             },
             {
+                '0': 'rgba(55, 55, 255, 0.6)', 
+                '0.3': 'rgba(55, 55, 255, 0.6)',
+                '0.31': 'rgba(55, 255, 50, 0.6)',
+                '0.7': 'rgba(55, 255, 50, 0.6)',
+                '0.71': 'rgba(255, 50, 50, 0.6)',
+                '1': 'rgba(255, 50, 50, 0.6)'
+            },
+            {
                 '0.00': 'rgb(255,0,255)',
                 '0.25': 'rgb(0,0,255)',
                 '0.50': 'rgb(0,255,0)',
@@ -353,11 +364,13 @@
 
             gui.add(options, 'draw', {
                 '普通': 'simple', 
+                /*
                 '热力图': 'heatmap',
                 '气泡': 'bubble',
-                '颜色分类': 'category',
                 '蜂窝状聚类': 'honeycomb',
                 '网格聚类': 'grid',
+                */
+                '颜色分类': 'category',
                 '值区间分类': 'choropleth',
                 '颜色渐变': 'intensity'
             }).onFinishChange(function () {

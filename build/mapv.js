@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.13";
+var version = "2.0.14";
 
 /**
  * @author kyle / http://nikai.us/
@@ -651,8 +651,9 @@ function Canvas(width, height) {
 
     if (typeof document === 'undefined') {
 
-        var Canvas = require('canvas');
-        canvas = new Canvas(width, height);
+        // var Canvas = require('canvas');
+        // canvas = new Canvas(width, height);
+
     } else {
 
         var canvas = document.createElement('canvas');
@@ -2109,6 +2110,12 @@ var cityCenter = {
         for (var i = 0; i < citycenter.municipalities.length; i++) {
             if (citycenter.municipalities[i].n == name) {
                 return getCenter(citycenter.municipalities[i].g);
+            }
+        }
+
+        for (var i = 0; i < citycenter.other.length; i++) {
+            if (citycenter.other[i].n == name) {
+                return getCenter(citycenter.other[i].g);
             }
         }
 
@@ -4224,6 +4231,7 @@ var AnimationLayer = function (_BaseLayer) {
             map: map,
             update: _this._canvasUpdate.bind(_this)
         });
+        _this.canvasLayer = canvasLayer;
         _this.transferToMercator();
         var self = _this;
         dataSet.on('change', function () {
@@ -4418,6 +4426,20 @@ var AnimationLayer = function (_BaseLayer) {
         key: "stop",
         value: function stop() {
             clearTimeout(this.timeout);
+        }
+    }, {
+        key: "unbindEvent",
+        value: function unbindEvent() {}
+    }, {
+        key: "hide",
+        value: function hide() {
+            this.canvasLayer.hide();
+            this.stop();
+        }
+    }, {
+        key: "show",
+        value: function show() {
+            this.start();
         }
     }]);
     return AnimationLayer;

@@ -18,6 +18,7 @@ class AnimationLayer extends BaseLayer{
             map: map,
             update: this._canvasUpdate.bind(this)
         });
+        this.canvasLayer = canvasLayer;
         this.transferToMercator();
         var self = this;
         dataSet.on('change', function() {
@@ -202,6 +203,18 @@ class AnimationLayer extends BaseLayer{
 
     stop() {
         clearTimeout(this.timeout);
+    }
+
+    unbindEvent() {
+    }
+
+    hide() {
+        this.canvasLayer.hide();
+        this.stop();
+    }
+
+    show() {
+        this.start();
     }
 }
 
