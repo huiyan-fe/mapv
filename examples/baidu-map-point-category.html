@@ -24,6 +24,7 @@
     <div id="map"></div>
     <canvas id="canvas"></canvas>
 
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
     <script type="text/javascript" src="../build/mapv.js"></script>
 
@@ -68,6 +69,7 @@
             });
         }
 
+        var allDataSet = new mapv.DataSet(data);
         var dataSet = new mapv.DataSet(data);
 
         var options = {
@@ -89,7 +91,21 @@
         legend.style.position = 'absolute';
         legend.style.left = '10px';
         legend.style.bottom = '50px';
+
         document.body.appendChild(legend);
+
+        $(legend).delegate('div', 'click', function () {
+            var value = $(this).attr('value');
+            var data = allDataSet.get({
+                filter: function (item) {
+                    if (item.count == value) {
+                        return true;
+                    }
+                }
+            });
+            dataSet.set(data);
+        });
+
     </script>
 	
 </body>
