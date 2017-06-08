@@ -490,6 +490,25 @@ DataSet.prototype.getMin = function (columnName) {
     return min;
 };
 
+function hex_corner(center, size, i) {
+    var angle_deg = 60 * i + 30;
+    var angle_rad = Math.PI / 180 * angle_deg;
+    return [center.x + size * Math.cos(angle_rad), center.y + size * Math.sin(angle_rad)];
+}
+
+function draw(context, x, y, size) {
+
+    for (var j = 0; j < 6; j++) {
+
+        var result = hex_corner({
+            x: x,
+            y: y
+        }, size, j);
+
+        context.lineTo(result[0], result[1]);
+    }
+}
+
 /**
  * @author kyle / http://nikai.us/
  */
@@ -504,20 +523,22 @@ var pathSimple = {
             this.draw(context, item, options);
         }
     },
-    draw: function draw(context, data, options) {
+    draw: function draw$$1(context, data, options) {
         var type = data.geometry.type;
         var coordinates = data.geometry._coordinates || data.geometry.coordinates;
         var symbol = options.symbol || 'circle';
         switch (type) {
             case 'Point':
                 var size = data._size || data.size || options._size || options.size || 5;
-                if (options.symbol === 'rect') {
-                    context.rect(coordinates[0] - size / 2, coordinates[1] - size / 2, size, size);
-                } else {
+                if (symbol === 'circle') {
                     if (options.bigData === 'Point') {
                         context.moveTo(coordinates[0], coordinates[1]);
                     }
                     context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
+                } else if (symbol === 'rect') {
+                    context.rect(coordinates[0] - size / 2, coordinates[1] - size / 2, size, size);
+                } else if (symbol === 'honeycomb') {
+                    draw(context, coordinates[0], coordinates[1], size);
                 }
                 break;
             case 'LineString':
@@ -917,7 +938,7 @@ function drawGray(context, dataSet, options) {
     }
 }
 
-function draw(context, dataSet, options) {
+function draw$1(context, dataSet, options) {
     var strength = options.strength || 0.3;
     context.strokeStyle = 'rgba(0,0,0,' + strength + ')';
     var shadowCanvas = new Canvas(context.canvas.width, context.canvas.height);
@@ -954,7 +975,7 @@ function draw(context, dataSet, options) {
 }
 
 var drawHeatmap = {
-    draw: draw
+    draw: draw$1
 };
 
 /**
@@ -1035,7 +1056,7 @@ var drawGrid = {
  * @author kyle / http://nikai.us/
  */
 
-function hex_corner(center, size, i) {
+function hex_corner$1(center, size, i) {
     var angle_deg = 60 * i + 30;
     var angle_rad = Math.PI / 180 * angle_deg;
     return [center.x + size * Math.cos(angle_rad), center.y + size * Math.sin(angle_rad)];
@@ -1059,7 +1080,6 @@ var drawHoneycomb = {
             y: 10
         };
 
-        //
         var r = options._size || options.size || 40;
         r = r / 2 / Math.sin(Math.PI / 3);
         var dx = r * 2 * Math.sin(Math.PI / 3);
@@ -1111,14 +1131,14 @@ var drawHoneycomb = {
 
             for (var j = 0; j < 6; j++) {
 
-                var radius = r;
-
-                var result = hex_corner({
+                var result = hex_corner$1({
                     x: item.x + offset.x,
                     y: item.y + offset.y
-                }, radius, j);
+                }, r, j);
+
                 context.lineTo(result[0], result[1]);
             }
+
             context.closePath();
 
             var count = 0;
@@ -1204,7 +1224,7 @@ var vs_s = ['attribute vec4 a_Position;', 'void main() {', 'gl_Position = a_Posi
 
 var fs_s = ['precision mediump float;', 'uniform vec4 u_FragColor;', 'void main() {', 'gl_FragColor = u_FragColor;', '}'].join('');
 
-function draw$1(gl, data, options) {
+function draw$2(gl, data, options) {
 
     if (!data) {
         return;
@@ -1262,14 +1282,14 @@ function draw$1(gl, data, options) {
 }
 
 var line = {
-    draw: draw$1
+    draw: draw$2
 };
 
 var vs_s$1 = ['attribute vec4 a_Position;', 'attribute float a_PointSize;', 'void main() {', 'gl_Position = a_Position;', 'gl_PointSize = a_PointSize;', '}'].join('');
 
 var fs_s$1 = ['precision mediump float;', 'uniform vec4 u_FragColor;', 'void main() {', 'gl_FragColor = u_FragColor;', '}'].join('');
 
-function draw$2(gl, data, options) {
+function draw$3(gl, data, options) {
 
     if (!data) {
         return;
@@ -1330,7 +1350,7 @@ function draw$2(gl, data, options) {
 }
 
 var point = {
-    draw: draw$2
+    draw: draw$3
 };
 
 function earcut(data, holeIndices, dim) {
@@ -1974,7 +1994,7 @@ var vs_s$2 = ['attribute vec4 a_Position;', 'void main() {', 'gl_Position = a_Po
 
 var fs_s$2 = ['precision mediump float;', 'uniform vec4 u_FragColor;', 'void main() {', 'gl_FragColor = u_FragColor;', '}'].join('');
 
-function draw$3(gl, data, options) {
+function draw$4(gl, data, options) {
 
     if (!data) {
         return;
@@ -2055,7 +2075,7 @@ function draw$3(gl, data, options) {
 }
 
 var polygon = {
-    draw: draw$3
+    draw: draw$4
 };
 
 /**
@@ -2709,7 +2729,7 @@ Category.prototype.getLegend = function (options) {
     container.style.cssText = "background:#fff; padding: 5px; border: 1px solid #ccc;";
     var html = '';
     for (var key in splitList) {
-        html += '<div style="line-height: 19px;"><span style="vertical-align: -2px; display: inline-block; width: 30px;height: 19px;background:' + splitList[key] + ';"></span><span style="margin-left: 3px;">' + key + '<span></div>';
+        html += '<div style="line-height: 19px;" value="' + key + '"><span style="vertical-align: -2px; display: inline-block; width: 30px;height: 19px;background:' + splitList[key] + ';"></span><span style="margin-left: 3px;">' + key + '<span></div>';
     }
     container.innerHTML = html;
     return container;

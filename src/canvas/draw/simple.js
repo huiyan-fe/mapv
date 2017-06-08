@@ -40,6 +40,7 @@ export default {
                 if ((item.strokeStyle || options.strokeStyle) && options.lineWidth) {
                     context.stroke();
                 }
+
             } else if (type == 'LineString') {
                 context.stroke();
             }

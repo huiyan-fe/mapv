@@ -65,7 +65,7 @@ Category.prototype.getLegend = function (options) {
     container.style.cssText = "background:#fff; padding: 5px; border: 1px solid #ccc;";
     var html = '';
     for (var key in splitList) {
-        html += '<div style="line-height: 19px;"><span style="vertical-align: -2px; display: inline-block; width: 30px;height: 19px;background:' + splitList[key] + ';"></span><span style="margin-left: 3px;">' + key + '<span></div>' 
+        html += '<div style="line-height: 19px;" value="' + key + '"><span style="vertical-align: -2px; display: inline-block; width: 30px;height: 19px;background:' + splitList[key] + ';"></span><span style="margin-left: 3px;">' + key + '<span></div>' 
     }
     container.innerHTML = html;
     return container;

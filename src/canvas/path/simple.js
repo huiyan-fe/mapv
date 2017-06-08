@@ -3,6 +3,7 @@
  */
 
 import DataSet from "../../data/DataSet";
+import {draw as drawHoneycomb} from "../shape/honeycomb";
 
 export default {
     drawDataSet: function (context, dataSet, options) {
@@ -22,13 +23,15 @@ export default {
         switch (type) {
             case 'Point':
                 var size = data._size || data.size || options._size || options.size || 5;
-                if (options.symbol === 'rect') {
-                    context.rect(coordinates[0] - size / 2, coordinates[1] - size / 2, size, size);
-                } else {
+                if (symbol === 'circle') {
                     if (options.bigData === 'Point') {
                         context.moveTo(coordinates[0], coordinates[1]);
                     }
                     context.arc(coordinates[0], coordinates[1], size, 0, Math.PI * 2);
+                } else if (symbol === 'rect') {
+                    context.rect(coordinates[0] - size / 2, coordinates[1] - size / 2, size, size);
+                } else if (symbol === 'honeycomb') {
+                    drawHoneycomb(context, coordinates[0], coordinates[1], size);
                 }
                 break;
             case 'LineString':

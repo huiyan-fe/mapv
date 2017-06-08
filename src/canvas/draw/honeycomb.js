@@ -29,7 +29,6 @@ export default {
             y: 10
         }
 
-        //
         var r = options._size || options.size || 40;
         r = r / 2 / Math.sin(Math.PI / 3);
         var dx = r * 2 * Math.sin(Math.PI / 3);
@@ -81,14 +80,15 @@ export default {
 
             for (var j = 0; j < 6; j++) {
 
-                var radius = r;
-
                 var result = hex_corner({
                     x: item.x + offset.x,
                     y: item.y + offset.y
-                }, radius, j);
+                }, r, j);
+
                 context.lineTo(result[0], result[1]);
+
             }
+
             context.closePath();
 
             var count = 0;

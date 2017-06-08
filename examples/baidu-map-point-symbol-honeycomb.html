@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="../build/mapv.js"></script>
+
+    <script type="text/javascript">
+
+        // 百度地图API功能
+        var map = new BMap.Map("map", {
+            enableMapClick: false
+        });    // 创建Map实例
+        map.centerAndZoom(new BMap.Point(116.404, 39.915), 11);  // 初始化地图,设置中心点坐标和地图级别
+        map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+
+        map.setMapStyle({
+            styleJson: [
+                {
+                    "featureType": "all",
+                    "elementType": "all",
+                    "stylers": {
+                        "lightness": 61,
+                        "saturation": -100
+                    }
+                }
+            ]
+        });
+
+        var randomCount = 300;
+
+        var startPoint = [12900858.95, 4864099.79]
+
+        var data = [];
+
+        var size = 2400;
+        var r = size;
+        r = r / 2 / Math.sin(Math.PI / 3);
+        var dx = r * 2 * Math.sin(Math.PI / 3);
+        var dy = r * 1.5;
+
+        for (var i = 0; i < 50; i++) {
+            for (var j = 0; j < 40; j++) {
+                var offset = 0;
+                if (j % 2 == 0) {
+                    offset = dx / 2;
+                }
+                data.push({
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [startPoint[0] + offset + dx * i, startPoint[1] - dy * j]
+                    }
+                });
+            }
+        }
+
+
+        var dataSet = new mapv.DataSet(data);
+
+        var options = {
+            fillStyle: 'rgba(255, 50, 50, 0.4)',
+            shadowColor: 'rgba(255, 50, 50, 1)',
+            shadowBlur: 30,
+            unit: 'm',
+            lineWidth: 1,
+            strokeStyle: 'white',
+            size: r,
+            coordType: 'bd09mc',
+            globalAlpha: 0.7,
+            globalCompositeOperation: 'lighter',
+            symbol: 'honeycomb',
+            draw: 'simple'
+        }
+
+        var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+        // dataSet.set(data); // 修改数据
+
+        // mapvLayer.show(); // 显示图层
+        // mapvLayer.hide(); // 删除图层
+    </script>
+	
+</body>
+</html>
