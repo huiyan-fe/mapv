@@ -5,7 +5,7 @@
 
 主页: [http://mapv.baidu.com/](http://mapv.baidu.com/)
 
-备用主页: [huiyan-fe.github.io/mapv/](huiyan-fe.github.io/mapv/)
+备用主页: [huiyan-fe.github.io/mapv/](http://huiyan-fe.github.io/mapv/)
 
 ## 简介 [English](https://github.com/huiyan-fe/mapv/blob/master/README_EN.md)
 Mapv 是一款地理信息可视化开源库，可以用来展示大量地理信息数据，点、线、面的数据，每种数据也有不同的展示类型，如直接打点、热力图、网格、聚合等方式展示数据。
