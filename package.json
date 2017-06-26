@@ -1,10 +1,10 @@
 {
   "name": "mapv",
-  "version": "2.0.14",
+  "version": "2.0.15",
   "description": "a library of geography visualization",
   "main": "build/mapv.js",
   "scripts": {
-    "publish": "npm run mini",
+    "prepublish": "npm run build && npm run mini",
     "mini": "npm run build && uglifyjs build/mapv.js -c -m -o build/mapv.min.js",
     "build": "npm run pre && rollup -c",
     "pre": "mkdir -p build && mkdir -p build/release && node -e 'process.stdout.write(\"export var version = \\\"\" + require(\"./package.json\").version + \"\\\";\\n\");' > build/version.js",
