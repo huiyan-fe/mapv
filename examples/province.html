@@ -451,6 +451,7 @@
 
         function show () {
             var dataInput = $('#dataInput').val();
+            dataInput = dataInput.replace(/\n|\r/g, '');
             var chinaData = chinaDataSet.get();
             dataInput = dataInput.split(';');
             data = [];
