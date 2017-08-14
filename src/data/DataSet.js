@@ -3,6 +3,7 @@
  */
 
 import Event from "../utils/Event";
+import cityCenter from "../utils/cityCenter";
 
 /**
  * DataSet
@@ -230,10 +231,20 @@ DataSet.prototype.initGeometry = function(transferFn) {
     } else {
 
         this._data.forEach(function (item) {
-            if (!item.geometry && item.lng && item.lat) {
-                item.geometry = {
-                    type: 'Point',
-                    coordinates: [item.lng, item.lat]
+            if (!item.geometry) {
+                if (item.lng && item.lat) {
+                    item.geometry = {
+                        type: 'Point',
+                        coordinates: [item.lng, item.lat]
+                    }
+                } else if (item.city) {
+                    var center = cityCenter.getCenterByCityName(item.city);
+                    if (center) {
+                        item.geometry = {
+                            type: 'Point',
+                            coordinates: [center.lng, center.lat]
+                        }
+                    }
                 }
             }
         });
@@ -304,6 +315,30 @@ DataSet.prototype.getMin = function(columnName) {
     }
 
     return min;
+}
+
+/**
+ * 获取去重的数据
+ */
+DataSet.prototype.getUnique = function(columnName) {
+    var data = this._data;
+
+    if (!data || data.length <= 0) {
+        return;
+    }
+
+    var maps = {};
+
+    for (var i = 1; i < data.length; i++) {
+        maps[data[i][columnName]] = true;
+    }
+
+    var data = [];
+    for (var key in maps) {
+        data.push(key);
+    }
+
+    return data;
 }
 
 function deepCopy(obj) {

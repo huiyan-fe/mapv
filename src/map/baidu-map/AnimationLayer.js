@@ -12,12 +12,14 @@ class AnimationLayer extends BaseLayer{
         this.options = options || {};
         this.dataSet = dataSet;
 
-        this.init(options);
-
         var canvasLayer = new CanvasLayer({
             map: map,
+            zIndex: this.options.zIndex,
             update: this._canvasUpdate.bind(this)
         });
+
+        this.init(this.options);
+
         this.canvasLayer = canvasLayer;
         this.transferToMercator();
         var self = this;

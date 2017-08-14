@@ -40,8 +40,8 @@ Category.prototype.get = function (count) {
 /**
  * 根据DataSet自动生成对应的splitList
  */
-Category.prototype.generateByDataSet = function (dataSet) {
-    var colors = ['rgba(255, 255, 0, 0.8)', 'rgba(253, 98, 104, 0.8)', 'rgba(255, 146, 149, 0.8)', 'rgba(255, 241, 193, 0.8)', 'rgba(110, 176, 253, 0.8)', 'rgba(52, 139, 251, 0.8)', 'rgba(17, 102, 252, 0.8)'];
+Category.prototype.generateByDataSet = function (dataSet, color) {
+    var colors = color || ['rgba(255, 255, 0, 0.8)', 'rgba(253, 98, 104, 0.8)', 'rgba(255, 146, 149, 0.8)', 'rgba(255, 241, 193, 0.8)', 'rgba(110, 176, 253, 0.8)', 'rgba(52, 139, 251, 0.8)', 'rgba(17, 102, 252, 0.8)'];
     var data = dataSet.get();
     this.splitList = {};
     var count = 0;

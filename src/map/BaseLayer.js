@@ -73,7 +73,7 @@ class BaseLayer {
         self.category = new Category(self.options.splitList);
         self.choropleth = new Choropleth(self.options.splitList);
         if (self.options.splitList === undefined) {
-            self.category.generateByDataSet(this.dataSet);
+            self.category.generateByDataSet(this.dataSet, self.options.color);
         }
 
         if (self.options.splitList === undefined) {

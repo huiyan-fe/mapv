@@ -1,10 +1,11 @@
  /**
    * 根据弧线的坐标节点数组
    */
-  function getCurvePoints(points) {
+  function getCurvePoints(points, options) {
+    options = options || {};
     var curvePoints = [];
     for (var i = 0; i < points.length - 1; i++) {
-      var p = getCurveByTwoPoints(points[i], points[i + 1]);
+      var p = getCurveByTwoPoints(points[i], points[i + 1], options.count);
       if (p && p.length > 0) {
         curvePoints = curvePoints.concat(p);
       }
@@ -17,7 +18,7 @@
    * @param Point 起点
    * @param Point 终点
    */
-  function getCurveByTwoPoints(obj1, obj2) {
+  function getCurveByTwoPoints(obj1, obj2, count) {
     if (!obj1 || !obj2) {
       return null;
     }
@@ -34,8 +35,8 @@
 
     var curveCoordinates = [];
 
-    var count = 40; // 曲线是由一些小的线段组成的，这个表示这个曲线所有到的折线的个数
-    var isFuture=false;
+    var count = count || 40; // 曲线是由一些小的线段组成的，这个表示这个曲线所有到的折线的个数
+    var isFuture = false;
     var t, h, h2, lat3, lng3, j, t2;
     var LnArray = [];
     var i = 0;

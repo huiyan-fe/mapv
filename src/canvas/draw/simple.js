@@ -75,6 +75,9 @@ export default {
                         context.stroke();
                     }
                 } else if (type == 'LineString') {
+                    if (item.lineWidth || item._lineWidth) {
+                        context.lineWidth = item.lineWidth || item._lineWidth;
+                    }
                     context.stroke();
                 }
 

@@ -21,7 +21,7 @@
         #dragzone {
             position: absolute;
             left: 5px;
-            top: 30px;
+            top: 40px;
             padding: 10px;
             width: 120px;
             font-size: 12px;
@@ -35,8 +35,15 @@
             position: absolute;
             left: 5px;
             top: 5px;
+            font-size: 12px;
         }
 
+
+        #legend {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+        }
 
     </style>
 </head>
@@ -44,10 +51,14 @@
 
     <div id="map"></div>
     <div id="dragzone">数据csv文件拖放到此</div>
+    <div id="legend">
+    </div>
     <div id="panel">
-        <input type="text" id="keyword" value="北京市,河北省,天津市"/>
-        <input type="button" value="查看边界" id="boundaryBtn"/>
-        <input type="button" value="切换底图" id="switchMap"/>
+        <input type="text" id="keyword" value="北京市,河北省,天津市" />
+        <input type="button" value="查看边界" id="boundaryBtn" />
+        <input type="button" value="切换底图" id="switchMap" />
+        级别:<span id="zoom"></span>
+        <div><a href="data/editor.csv">示例csv下载</a></div>
     </div>
 
     <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script>
@@ -107,6 +118,57 @@
                         }
                     }
                 ]
+            });
+        }
+        function setSubwayStyle() {
+            map.setMapStyle({
+                styleJson: [
+          {
+                    "featureType": "all",
+                    "elementType": "all",
+                    "stylers": {
+                            "lightness": 61,
+                            "saturation": -100
+                    }
+          },
+          {
+                    "featureType": "all",
+                    "elementType": "labels",
+                    "stylers": {
+                              "visibility": "off"
+                    }
+          },
+          {
+                    "featureType": "subway",
+                    "elementType": "all",
+                    "stylers": {
+                              "color": "#666666",
+                              "weight": "0.6",
+                              "lightness": 18,
+                              "saturation": -9,
+                              "visibility": "on"
+                    }
+          },
+          {
+                    "featureType": "subway",
+                    "elementType": "labels.text.fill",
+                    "stylers": {
+                              "color": "#0000ff",
+                              "weight": "4.2",
+                              "lightness": -3,
+                              "saturation": 100,
+                              "visibility": "on"
+                    }
+          },
+          {
+                    "featureType": "subway",
+                    "elementType": "labels.text.stroke",
+                    "stylers": {
+                              "color": "#ffffff",
+                              "visibility": "on"
+                    }
+          }
+        ]
             });
         }
         function setDarkStyle() {
@@ -245,6 +307,148 @@
                 ]
             });
         }
+        function setDarkBlueStyle() {
+            map.setMapStyle({
+                styleJson: [
+                  {
+                       "featureType": "water",
+                       "elementType": "all",
+                       "stylers": {
+                            "color": "#044161"
+                       }
+                  },
+                  {
+                       "featureType": "land",
+                       "elementType": "all",
+                       "stylers": {
+                            "color": "#004981"
+                       }
+                  },
+                  {
+                       "featureType": "boundary",
+                       "elementType": "geometry",
+                       "stylers": {
+                            "color": "#064f85"
+                       }
+                  },
+                  {
+                       "featureType": "railway",
+                       "elementType": "all",
+                       "stylers": {
+                            "visibility": "off"
+                       }
+                  },
+                  {
+                       "featureType": "highway",
+                       "elementType": "geometry",
+                       "stylers": {
+                            "color": "#004981"
+                       }
+                  },
+                  {
+                       "featureType": "highway",
+                       "elementType": "geometry.fill",
+                       "stylers": {
+                            "color": "#005b96",
+                            "lightness": 1
+                       }
+                  },
+                  {
+                       "featureType": "highway",
+                       "elementType": "labels",
+                       "stylers": {
+                            "visibility": "off"
+                       }
+                  },
+                  {
+                       "featureType": "arterial",
+                       "elementType": "geometry",
+                       "stylers": {
+                            "color": "#004981"
+                       }
+                  },
+                  {
+                       "featureType": "arterial",
+                       "elementType": "geometry.fill",
+                       "stylers": {
+                            "color": "#00508b"
+                       }
+                  },
+                  {
+                       "featureType": "poi",
+                       "elementType": "all",
+                       "stylers": {
+                            "visibility": "off"
+                       }
+                  },
+                  {
+                       "featureType": "green",
+                       "elementType": "all",
+                       "stylers": {
+                            "color": "#056197",
+                            "visibility": "off"
+                       }
+                  },
+                  {
+                       "featureType": "subway",
+                       "elementType": "all",
+                       "stylers": {
+                            "visibility": "off"
+                       }
+                  },
+                  {
+                       "featureType": "manmade",
+                       "elementType": "all",
+                       "stylers": {
+                            "visibility": "off"
+                       }
+                  },
+                  {
+                       "featureType": "local",
+                       "elementType": "all",
+                       "stylers": {
+                           "color": "#115d97",
+                           "visibility": "on"
+                       }
+                  },
+                  {
+                       "featureType": "arterial",
+                       "elementType": "labels",
+                       "stylers": {
+                            "visibility": "off"
+                       }
+                  },
+                  {
+                       "featureType": "boundary",
+                       "elementType": "geometry.fill",
+                       "stylers": {
+                            "color": "#029fd4"
+                       }
+                  },
+                  {
+                       "featureType": "building",
+                       "elementType": "all",
+                       "stylers": {
+                            "color": "#1a5787"
+                       }
+                  },
+                  {
+                       "featureType": "label",
+                       "elementType": "all",
+                       "stylers": {
+                            "visibility": "off"
+                       }
+                  },
+                  {
+                        "featureType": "local",
+                        "elementType": "labels",
+                        "stylers": {
+                            "visibility": "off"
+                        }
+                  }
+            ]
+            });
+        }
         setNullStyle();
         
 
@@ -270,55 +474,25 @@
 
         });
 
-        var randomCount = 300;
+        
 
-        var data = [];
-
-        var citys = ["北京","天津","上海","重庆","石家庄","太原","呼和浩特","哈尔滨","长春","沈阳","济南","南京","合肥","杭州","南昌","福州","郑州","武汉","长沙","广州","南宁","西安","银川","兰州","西宁","乌鲁木齐","成都","贵阳","昆明","拉萨","海口"];
-
-        // 构造数据
-        while (randomCount--) {
-            var cityCenter = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
-            data.push({
-                geometry: {
-                    type: 'Point',
-                    coordinates: [cityCenter.lng - 2 + Math.random() * 4, cityCenter.lat - 2 + Math.random() * 4]
-                },
-                count: 100 * Math.random()
-            });
-        }
-        var dataSet = new mapv.DataSet(data);
-
-        var options = {
-            draw: 'heatmap',
-            max: 100,
-            coordType: 'bd09mc',
-            size: 5,
-            symbol: 'circle',
-            zIndex: 1,
-            maxSize: 50,
-            maxOpacity: 0.8,
-            globalAlpha: 1,
-            lineWidth: 0,
-            unit: 'px',
-            gradient: { 
-                0.25: "rgba(0, 0, 255, 1)",
-                0.55: "rgba(0, 255, 0, 1)",
-                0.85: "rgba(255, 255, 0, 1)",
-                1.0: "rgba(255, 0, 0, 1)"
-            },
-            fillStyle: 'rgba(55, 50, 250, 0.6)',
-            strokeStyle: 'rgba(55, 50, 250, 0.6)',
-            // shadowColor: 'rgba(55, 50, 250, 0.5)',
-            // shadowBlur: 10
-        }
-
-        var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+        var mapvLayers = [];
 
         function finished() {
-            mapvLayer.update({
-                options: options 
-            });
+            if (mapvLayers.length > 0) {
+                if (options.splitListText) {
+                    options.splitList = JSON.parse(options.splitListText);
+                }
+
+                var mapvLayer = mapvLayers[mapvLayers.length - 1];
+                mapvLayers[mapvLayers.length - 1].update({
+                    options: options 
+                });
+
+                var legend = mapvLayer.getLegend();
+                $('#legend').html('');
+                $('#legend').append(legend);
+            }
         };
 
         window.onload = function() {
@@ -404,6 +578,37 @@
         ];
 
         var gui;
+        var options = {
+                    draw: 'simple',
+                    max: 100,
+                    coordType: 'bd09ll',
+                    size: 7,
+                    symbol: 'circle',
+                    zIndex: 1,
+                    maxSize: 50,
+                    maxOpacity: 0.8,
+                    globalAlpha: 0.9,
+                    lineWidth: 0,
+                    unit: 'px',
+                    //color: ['#f70000', '#299663', '#4053db', '#a2408d', 'blue'],
+                    color: ['red', 'yellow', 'rgb(0, 250, 0)', 'rgb(0, 255, 255)', 'rgb(0, 50, 255)'],
+                    splitListText: '{"1": "red", "2": "yellow", "3": "rgb(0, 250, 0)"}',
+                    splitList: { 
+                        1: 'rgb(0, 250, 0)',
+                        2: 'yellow',
+                        3: 'red'
+                    },
+                    gradient: { 
+                        0.25: "rgba(0, 0, 255, 1)",
+                        0.55: "rgba(0, 255, 0, 1)",
+                        0.85: "rgba(255, 255, 0, 1)",
+                        1.0: "rgba(255, 0, 0, 1)"
+                    },
+                    fillStyle: 'rgba(256, 50, 50, 0.8)',
+                    strokeStyle: 'rgba(55, 50, 250, 0.6)',
+                    // shadowColor: 'rgba(55, 50, 250, 0.5)',
+                    // shadowBlur: 10
+                }
 
         function initGui() {
             gui && gui.destroy();
@@ -463,6 +668,13 @@
                 gui.add(options, 'globalAlpha', 0, 1).onFinishChange(finished);
             }
 
+            gui.add(options, 'coordType', {
+                '经纬度': 'bd09ll', 
+                '墨卡托': 'bd09mc',
+            }).onFinishChange(function () {
+                finished();
+            });
+
             switch (options.draw) {
                 case 'simple':
                     gui.addColor(options, 'fillStyle').onChange(finished);
@@ -483,6 +695,9 @@
                     gui.addColor(options, 'strokeStyle').onChange(finished);
                     gui.add(options, 'max', 1, 1000).onFinishChange(finished);
                     gui.add(options, 'maxSize', 35, 100).onFinishChange(finished);
+                    break;
+                case 'category':
+                    gui.add(options, 'splitListText').onFinishChange(finished);
                     break;
                 case 'heatmap':
                     // gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
@@ -510,11 +725,15 @@
             files = event.dataTransfer.files;
             var fr = new FileReader() ;
 
-
             fr.readAsText(files[0]);
 
             fr.onload = function() {
                 var rs = this.result;
+                var data = [];
+                var dataSet = new mapv.DataSet(data);
+
+                var mapvLayer = new mapv.baiduMapLayer(map, dataSet, $.extend({}, options));
+                mapvLayers.push(mapvLayer);
                 if (rs[0] == '[' && rs[rs.length - 1] == ']') {
                     rs = JSON.parse(rs);
                     rs = rs.map(function (item) {
@@ -526,6 +745,42 @@
                         }
                     });
                     dataSet.set(rs);
+                } else if (/lng1|lng2|lat1|lat2/.exec(rs)) {
+                    var newDataSet = mapv.csv.getDataSet(rs);
+                    var pointData = [];
+                    newDataSet.initGeometry(function (a) {
+                        pointData.push({
+                            geometry: {
+                                type: 'Point',
+                                coordinates: [a.lng1, a.lat1]
+                            }
+                        });
+
+                        pointData.push({
+                            geometry: {
+                                type: 'Point',
+                                coordinates: [a.lng2, a.lat2]
+                            }
+                        });
+
+                        return { 
+                            type: 'LineString', 
+                            coordinates: [[a.lng1, a.lat1], [a.lng2, a.lat2]]
+                        }
+                    });
+                    dataSet.set(newDataSet.get());
+
+                    var option = {
+                        fillStyle: 'rgba(252, 53, 58, 1)',
+                        coordType: 'bd09mc',
+                        zIndex: 2,
+                        size: 3,
+                        draw: 'simple'
+                    }
+
+                    new mapv.baiduMapLayer(map, new mapv.DataSet(pointData), option);
+
+
                 } else {
                     var newDataSet = mapv.csv.getDataSet(rs);
                     newDataSet.initGeometry();
@@ -568,13 +823,19 @@
     var isChina = 1;
     $('#switchMap').bind('click', function() {
         isChina++;
-        if (isChina > 3) {
+        if (isChina > 4) {
             isChina = 1;
         }
         if (isChina == 1) {
             setNullStyle();
             chinaLayer.show();
         } else if (isChina == 2) {
+            setSubwayStyle();
+            chinaLayer.hide();
+        } else if (isChina == 3) {
+            setDarkBlueStyle();
+            chinaLayer.hide();
+        } else if (isChina == 4) {
             setGrayStyle();
             chinaLayer.hide();
         } else {
@@ -582,6 +843,14 @@
             chinaLayer.hide();
         }
     });
+
+    map.addEventListener('zoomend', showZoom);
+
+    function showZoom() {
+        $('#zoom').html(map.getZoom());
+    }
+
+    showZoom();
 
     </script>
 	

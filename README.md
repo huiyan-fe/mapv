@@ -1,4 +1,4 @@
-# Mapv - 地理信息可视化开源库
+# Mapv - 地理信息可视化开源库 [![npm version](https://img.shields.io/npm/v/mapv.svg)](https://www.npmjs.com/package/mapv)
 <a href="http://mapv.baidu.com/">
     <img style="vertical-align: top;" src="./asset/logo.png?raw=true" alt="logo">
 </a>

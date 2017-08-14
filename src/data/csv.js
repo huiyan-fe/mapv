@@ -88,9 +88,9 @@ export default {
         return( arrData );
     },
 
-    getDataSet: function (csvStr) {
+    getDataSet: function (csvStr, split) {
 
-        var arr = this.CSVToArray(csvStr, ',');
+        var arr = this.CSVToArray(csvStr, split || ',');
 
         var data = [];
 

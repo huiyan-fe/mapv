@@ -112,8 +112,13 @@ function drawGray(context, dataSet, options) {
 }
 
 function draw(context, dataSet, options) {
+    if (context.canvas.width <= 0 || context.canvas.height <= 0) {
+        return;
+    }
+
     var strength = options.strength || 0.3;
     context.strokeStyle = 'rgba(0,0,0,' + strength + ')';
+
     var shadowCanvas = new Canvas(context.canvas.width, context.canvas.height);
     var shadowContext = shadowCanvas.getContext('2d');
     shadowContext.scale(devicePixelRatio, devicePixelRatio);
