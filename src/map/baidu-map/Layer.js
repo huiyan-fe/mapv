@@ -18,6 +18,9 @@ class Layer extends BaseLayer{
         var data = null;
         options = options || {};
 
+        this.clickEvent = this.clickEvent.bind(this);
+        this.mousemoveEvent = this.mousemoveEvent.bind(this);
+
         self.init(options);
         self.argCheck(options);
         self.transferToMercator();
@@ -39,10 +42,6 @@ class Layer extends BaseLayer{
             canvasLayer.draw();
         });
 
-        this.clickEvent = this.clickEvent.bind(this);
-        this.mousemoveEvent = this.mousemoveEvent.bind(this);
-        this.bindEvent();
-
     }
 
     clickEvent(e) {
@@ -56,6 +55,7 @@ class Layer extends BaseLayer{
     }
 
     bindEvent(e) {
+        this.unbindEvent();
         var map = this.map;
 
         if (this.options.methods) {
@@ -226,6 +226,7 @@ class Layer extends BaseLayer{
         }
 
         this.initAnimator();
+        this.bindEvent();
         
     }
 

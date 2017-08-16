@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.16";
+var version = "2.0.17";
 
 /**
  * @author kyle / http://nikai.us/
@@ -4467,6 +4467,9 @@ var Layer = function (_BaseLayer) {
         var data = null;
         options = options || {};
 
+        _this.clickEvent = _this.clickEvent.bind(_this);
+        _this.mousemoveEvent = _this.mousemoveEvent.bind(_this);
+
         self.init(options);
         self.argCheck(options);
         self.transferToMercator();
@@ -4488,10 +4491,6 @@ var Layer = function (_BaseLayer) {
             canvasLayer.draw();
         });
 
-        _this.clickEvent = _this.clickEvent.bind(_this);
-        _this.mousemoveEvent = _this.mousemoveEvent.bind(_this);
-        _this.bindEvent();
-
         return _this;
     }
 
@@ -4510,6 +4509,7 @@ var Layer = function (_BaseLayer) {
     }, {
         key: "bindEvent",
         value: function bindEvent(e) {
+            this.unbindEvent();
             var map = this.map;
 
             if (this.options.methods) {
@@ -4687,6 +4687,7 @@ var Layer = function (_BaseLayer) {
             }
 
             this.initAnimator();
+            this.bindEvent();
         }
     }, {
         key: "addAnimatorEvent",
