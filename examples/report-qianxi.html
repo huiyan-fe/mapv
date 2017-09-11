@@ -75,6 +75,8 @@
             var geojsonDataSet = mapv.geojson.getDataSet(geojson);
 
             var to = '甘肃';
+            // 如是迁出，则填写迁出
+            var showType = '迁入';
             var isShowTo = true;
 
             var qianxi = new mapv.DataSet([
@@ -140,17 +142,23 @@
             var citys = {}
 
             for (var i = 0; i < qianxiData.length; i++) {
-                var fromCenter = mapv.utilCityCenter.getCenterByCityName(qianxiData[i].from);
-                var toCenter = mapv.utilCityCenter.getCenterByCityName(qianxiData[i].to);
+                var fromColumn = showType == '迁入' ? 'from' : 'to';
+                var toColumn = showType == '迁入' ? 'to' : 'from';
+                var fromCenter = mapv.utilCityCenter.getCenterByCityName(qianxiData[i][fromColumn]);
+                var toCenter = mapv.utilCityCenter.getCenterByCityName(qianxiData[i][toColumn]);
                 if (!fromCenter || !toCenter) {
                     continue;
                 }
+
+                var point = 
+
                 citys[qianxiData[i].from] = qianxiData[i].count;
+                var point = showType == '迁入' ? fromCenter : toCenter;
                 pointData.push(
                 {
                     geometry: {
                         type: 'Point',
-                        coordinates: [fromCenter.lng, fromCenter.lat]
+                        coordinates: [point.lng, point.lat]
                     },
                     text: i + 1
                 }
@@ -159,11 +167,12 @@
                 {
                     geometry: {
                         type: 'Point',
-                        coordinates: [fromCenter.lng, fromCenter.lat]
+                        coordinates: [point.lng, point.lat]
                     },
                     text: qianxiData[i].from
                 }
                 );
+                /*
                 textData.push(
                 {
                     geometry: {
@@ -173,6 +182,7 @@
                     text: qianxiData[i].to
                 }
                 );
+                */
 
                 var curve = mapv.utilCurve.getPoints([fromCenter, toCenter]);
 
