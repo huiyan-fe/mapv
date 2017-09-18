@@ -193,8 +193,16 @@
                     "stylers": {
                               "visibility": "off"
                     }
+          },
+          {
+                    "featureType": "background",
+                    "elementType": "all",
+                    "stylers": {
+                              "color": "#ffffff",
+                              "visibility": "on"
+                    }
           }
-        ]
+]
         });
         map.getContainer().style.background = '#fff';
 
@@ -382,7 +390,7 @@
             
             var textOptions = {
                 draw: 'text',
-                font: '12px Arial',
+                font: 'bold 14px Arial',
                 avoid: true,
                 fillStyle: 'black',
                 zIndex: 200,
