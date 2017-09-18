@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="../build/mapv.js"></script>
+    <script type="text/javascript" src="js/dat.gui.min.js"></script>
+
+    <script type="text/javascript">
+        var gui;
+
+        var options = {
+            gradient: {
+                0: 'yellow',
+                1: 'red',
+            }
+        };
+        initGui();
+
+        function initGui() {
+            gui && gui.destroy();
+            gui = new dat.GUI({
+                nameMap: {
+                    draw: '绘制方法',
+                }
+            });
+            
+            var gradientOptions = [
+                { 
+                    0: "#3fcd3c",
+                    0.5: "#f8bf34",
+                    1.0: "#f65e5c"
+                },
+                { 
+                    0: "#8ed46a",
+                    0.5: "#e9fb8a",
+                    1.0: "#ed996d"
+                },
+                { 
+                    0: "#8ed46a",
+                    0.25: "#c9d868",
+                    0.5: "#f1b658",
+                    0.75: "#e9684c",
+                    1: "#e3626d",
+                },
+                { 
+                    0.25: "rgba(0, 0, 255, 1)",
+                    0.55: "rgba(0, 255, 0, 1)",
+                    0.85: "rgba(255, 255, 0, 1)",
+                    1.0: "rgba(255, 0, 0, 1)"
+                },
+                {
+                  '0': 'Black',
+                  '0.5': 'Aqua',
+                  '1': 'White'
+                },
+                {
+                    '0.0': 'blue',
+                    '1': 'red'
+                },
+                {
+                    '0.0': 'rgb(0, 0, 0)',
+                    '0.6': 'rgb(24, 53, 103)',
+                    '0.75': 'rgb(46, 100, 158)',
+                    '0.9': 'rgb(23, 173, 203)',
+                    '1.0': 'rgb(0, 250, 250)'
+                },
+                {
+                    '0': 'Navy',
+                    '0.25': 'Blue',
+                    '0.5': 'Green',
+                    '0.75': 'Yellow',
+                    '1': 'Red'
+                },
+                {
+                    '0': 'Black',
+                    '0.33': 'DarkRed',
+                    '0.66': 'Yellow',
+                    '1': 'White'
+                },
+                {
+                    '0': 'Black',
+                    '0.4': 'Purple',
+                    '0.6': 'Red',
+                    '0.8': 'Yellow',
+                    '1': 'White'
+                },
+                {
+                    '0': 'Red',
+                    '0.66': 'Yellow',
+                    '1': 'White'
+                },
+                {
+                    '0': 'Navy', '0.25': 'Navy',
+                    '0.26': 'Green',
+                    '0.5': 'Green',
+                    '0.51': 'Yellow',
+                    '0.75': 'Yellow',
+                    '0.76': 'Red',
+                    '1': 'Red'
+                },
+                {
+                    '0': 'rgba(55, 55, 255, 0.6)', 
+                    '0.3': 'rgba(55, 55, 255, 0.6)',
+                    '0.31': 'rgba(55, 255, 50, 0.6)',
+                    '0.7': 'rgba(55, 255, 50, 0.6)',
+                    '0.71': 'rgba(255, 50, 50, 0.6)',
+                    '1': 'rgba(255, 50, 50, 0.6)'
+                },
+                {
+                    '0.00': 'rgb(255,0,255)',
+                    '0.25': 'rgb(0,0,255)',
+                    '0.50': 'rgb(0,255,0)',
+                    '0.75': 'rgb(255,255,0)',
+                    '1.00': 'rgb(255,0,0)'
+                },
+                { 
+                    0: "yellow",
+                    1.0: "red"
+                },
+                { 
+                    0: "white",
+                    1.0: "blue"
+                },
+                { 
+                    0: "green",
+                    1.0: "rgb(0, 255, 255)"
+                },
+                { 
+                    0: "green",
+                    0.5: "yellow",
+                    1.0: "red"
+                },
+                { 
+                    0: "lightgreen",
+                    1.0: "darkgreen"
+                },
+                { 
+                    0: "lightgreen",
+                    1.0: "darkgreen"
+                }
+            ];
+
+            gui.addGradient(options, 'gradient', gradientOptions).onFinishChange(finished);
+        }
+
+        function finished() {
+            mapvLayer.update({
+                options: {
+                    gradient: options.gradient
+                }
+            });
+        }
+
+
+
+
+        // 百度地图API功能
+        var map = new BMap.Map("map", {
+            enableMapClick: false
+        });    // 创建Map实例
+        map.centerAndZoom(new BMap.Point(105.403119, 38.028658), 5);  // 初始化地图,设置中心点坐标和地图级别
+        map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+
+        map.setMapStyle({
+            styleJson: [
+          {
+                    "featureType": "all",
+                    "elementType": "all",
+                    "stylers": {
+                              "visibility": "off"
+                    }
+          }
+        ]
+        });
+        map.getContainer().style.background = '#fff';
+
+        var pt = new BMap.Point(127.733142,21.226515);
+        var jiuduanwidth = 408;
+        var jiuduanheight  = 563;
+        var scale = 4.5;
+        var myIcon = new BMap.Icon("./images/nanhai.png", new BMap.Size(jiuduanwidth / scale, jiuduanheight / scale), {
+            imageSize: new BMap.Size(jiuduanwidth / scale, jiuduanheight / scale)
+        });
+        var marker2 = new BMap.Marker(pt,{icon:myIcon});  // 创建标注
+        map.addOverlay(marker2);
+        marker2.enableDragging();
+
+        var mapvLayer = null;
+        $.get('data/china.json', function(geojson) {
+
+            var geojsonOptions = {
+                zIndex: 3,
+                max: 3,
+                draw: 'simple'
+            }
+
+            var geojsonDataSet = mapv.geojson.getDataSet(geojson);
+
+            var to = '甘肃';
+            // 如是迁出，则填写迁出
+            var showType = '迁入';
+            var isShowTo = true;
+
+            var qianxi = new mapv.DataSet([
+                {
+                    from: '上海',
+                    to: '苏州',
+                    count: 3,
+                },
+                {
+                    from: '保定',
+                    to: '北京',
+                    count: 3,
+                },
+                {
+                    from: '廊坊',
+                    to: '北京',
+                    count: 3,
+                },
+                {
+                    from: '北京',
+                    to: '天津',
+                    count: 2,
+                },
+                {
+                    from: '重庆',
+                    to: '成都',
+                    count: 2,
+                },
+                {
+                    from: '张家口',
+                    to: '北京',
+                    count: 2,
+                },
+                {
+                    from: '上海',
+                    to: '杭州',
+                    count: 2,
+                },
+                {
+                    from: '南通',
+                    to: '上海',
+                    count: 1,
+                },
+                {
+                    from: '承德',
+                    to: '北京',
+                    count: 1,
+                },
+                {
+                    from: '上海',
+                    to: '嘉兴',
+                    count: 1,
+                },
+            ]);
+
+            var qianxiData = qianxi.get();
+
+            var lineData = [];
+            var pointData = [];
+            var textData = [];
+            var timeData = [];
+
+            var citys = {}
+
+            for (var i = 0; i < qianxiData.length; i++) {
+                var fromColumn = showType == '迁入' ? 'from' : 'to';
+                var toColumn = showType == '迁入' ? 'to' : 'from';
+                var fromCenter = mapv.utilCityCenter.getCenterByCityName(qianxiData[i][fromColumn]);
+                var toCenter = mapv.utilCityCenter.getCenterByCityName(qianxiData[i][toColumn]);
+                if (!fromCenter || !toCenter) {
+                    continue;
+                }
+
+                var point = 
+
+                citys[qianxiData[i].from] = qianxiData[i].count;
+                var point = showType == '迁入' ? fromCenter : toCenter;
+                pointData.push(
+                {
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [point.lng, point.lat]
+                    },
+                    text: i + 1
+                }
+                );
+                textData.push(
+                {
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [point.lng, point.lat]
+                    },
+                    text: qianxiData[i].from
+                }
+                );
+                textData.push(
+                {
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [toCenter.lng, toCenter.lat]
+                    },
+                    text: qianxiData[i].to
+                }
+                );
+
+                var curve = mapv.utilCurve.getPoints([fromCenter, toCenter]);
+
+                for (j = 0; j < curve.length; j++) {
+                    timeData.push({
+                        geometry: {
+                            type: 'Point',
+                            coordinates: curve[j]
+                        },
+                        count: 1,
+                        time: j
+                    });
+                }
+
+                lineData.push({
+                    geometry: {
+                        type: 'LineString',
+                        coordinates: curve
+                        //coordinates: [[fromCenter.lng, fromCenter.lat], [toCenter.lng, toCenter.lat]]
+                    },
+                    count: 30 * Math.random()
+                });
+
+            }
+
+            var data = geojsonDataSet.get({
+                filter: function (item) {
+                    for (var i = 0; i < qianxiData.length; i++) {
+                        if (item.name == qianxiData[i].from || item.name == qianxiData[i].to) {
+                            item.fillStyle = 'rgba(255, 65, 256, 1)';
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            });
+            var layerDataSet = new mapv.DataSet(data);
+
+            mapvLayer = new mapv.baiduMapLayer(map, layerDataSet, geojsonOptions);
+
+
+            var chinaLayer = new mapv.baiduMapLayer(map, geojsonDataSet, {
+                draw: 'simple',
+                lineWidth: 0.8,
+                strokeStyle: 'rgba(255, 255, 255, 1)',
+                fillStyle: 'rgba(218, 218, 218, 1)'
+            });
+
+
+            var textDataSet = new mapv.DataSet(textData);
+            
+            var textOptions = {
+                draw: 'text',
+                font: '12px Arial',
+                avoid: true,
+                fillStyle: 'black',
+                zIndex: 200,
+                shadowBlur: 10
+            }
+
+            var textMapvLayer = new mapv.baiduMapLayer(map, textDataSet, textOptions);
+
+            var lineDataSet = new mapv.DataSet(lineData);
+
+            var lineOptions = {
+                strokeStyle: 'rgba(255, 50, 50, 0.8)',
+                shadowColor: 'rgba(255, 250, 50, 1)',
+                shadowBlur: 20,
+                lineWidth: 2,
+                zIndex: 100,
+                draw: 'simple'
+            }
+
+            var lineLayer = new mapv.baiduMapLayer(map, lineDataSet, lineOptions);
+
+            var pointOptions = {
+                fillStyle: 'rgba(255, 250, 250, 0.5)',
+                strokeStyle: 'rgba(255, 250, 250, 1)',
+                lineWidth: 1,
+                size: 10,
+                zIndex: 300,
+                draw: 'simple'
+            }
+
+            
+            var pointDataSet = new mapv.DataSet(pointData);
+
+            //var pointLayer = new mapv.baiduMapLayer(map, pointDataSet, pointOptions);
+
+            /*
+            var numberLayer = new mapv.baiduMapLayer(map, pointDataSet, {
+                fillStyle: 'black',
+                zIndex: 300,
+                draw: 'text'
+            });
+            */
+
+
+            var timeDataSet = new mapv.DataSet(timeData);
+
+            console.log(timeData);
+
+            var timeOptions = {
+                fillStyle: 'rgba(255, 250, 250, 0.5)',
+                zIndex: 150,
+                size: 2.5,
+                animation: {
+                    type: 'time',
+                    stepsRange: {
+                        start: 0,
+                        end: 50
+                    },
+                    trails: 10,
+                    duration: 2,
+                },
+                draw: 'simple'
+            }
+
+            var timeMapvLayer = new mapv.baiduMapLayer(map, timeDataSet, timeOptions);
+
+        });
+
+
+        
+
+    </script>
+	
+</body>
+</html>
