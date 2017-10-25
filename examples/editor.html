@@ -781,6 +781,20 @@
                     new mapv.baiduMapLayer(map, new mapv.DataSet(pointData), option);
 
 
+                } else if (/path/.exec(rs)) {
+                    var newDataSet = mapv.csv.getDataSet(rs);
+                    newDataSet.initGeometry(function(item) {
+                        var coordinates = [];
+                        var path = item.path.split(',');
+                        for (var i = 0; i < path.length; i += 2) {
+                            coordinates.push([path[i], path[i + 1]]);
+                        }
+                        return {
+                            type: 'Polygon', 
+                            coordinates: [coordinates]
+                        }
+                    });
+                    dataSet.set(newDataSet.get());
                 } else {
                     var newDataSet = mapv.csv.getDataSet(rs);
                     newDataSet.initGeometry();
