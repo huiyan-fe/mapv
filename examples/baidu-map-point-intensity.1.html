@@ -39,7 +39,7 @@
         map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
 
         map.setMapStyle({
-            style: 'light'
+            style: 'bluish'
         });
 
         var randomCount = 300;
@@ -63,58 +63,38 @@
         var dataSet = new mapv.DataSet(data);
 
         var options = {
-            fillStyle: 'rgba(255, 50, 50, 0.6)',
-            shadowColor: 'rgba(255, 50, 50, 1)',
-            shadowBlur: 30,
-            globalCompositeOperation: 'lighter',
-            methods: {
-                click: function(item) {
-                    console.log(item);
-                }
+            gradient: {
+                0: 'blue',
+                0.5: 'yellow',
+                1: 'red'
             },
-            size: 5,
-            draw: 'simple'
+            max: 30,
+            draw: 'intensity'
         }
 
         var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
-
-        // mapvLayer.setOptions({
-        //     "fillStyle": "#ff3232",
-        //     "shadowColor": "#ff3232",
-        //     "shadowBlur": 30,
-        //     "globalCompositeOperation": "lighter",
-        //     "size": 5,
-        //     "draw": "simple",
-        //     "dataType": "Point"
-        // });
 
         mapvLayer.setOptions({
             "shadowColor": "#ff3232",
             "shadowBlur": 30,
             "globalCompositeOperation": "lighter",
-            "max": 100,
+            "max": 83,
             "min": 0,
             "dataType": "Point",
             "draw": "intensity"
-        });
+        })
 
         setTimeout(() => {
             mapvLayer.setOptions({
-                "fillStyle": "#f1ff27",
                 "shadowColor": "#ff3232",
                 "shadowBlur": 30,
                 "globalCompositeOperation": "lighter",
-                "size": 5,
-                "draw": "simple",
-                "dataType": "Point"
-            });
-        }, 1000)
-
-
-        // dataSet.set(data); // 修改数据
-
-        // mapvLayer.show(); // 显示图层
-        // mapvLayer.hide(); // 删除图层
+                "max": '83',
+                "min": '11',
+                "dataType": "Point",
+                "draw": "intensity"
+            })
+        }, 5000)
     </script>
 
 </body>

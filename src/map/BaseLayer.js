@@ -62,20 +62,17 @@ class BaseLayer {
 
     initDataRange(options) {
         var self = this;
-
         self.intensity = new Intensity({
             maxSize: self.options.maxSize,
             minSize: self.options.minSize,
             gradient: self.options.gradient,
             max: self.options.max || this.dataSet.getMax('count')
         });
-
         self.category = new Category(self.options.splitList);
         self.choropleth = new Choropleth(self.options.splitList);
         if (self.options.splitList === undefined) {
             self.category.generateByDataSet(this.dataSet, self.options.color);
         }
-
         if (self.options.splitList === undefined) {
             var min = self.options.min || this.dataSet.getMin('count');
             var max = self.options.max || this.dataSet.getMax('count');
@@ -244,7 +241,9 @@ class BaseLayer {
     setOptions(options) {
         var self = this;
         self.dataSet.reset();
+        // console.log('xxx1')
         self.init(options);
+        // console.log('xxx')
         self.draw();
     }
 
