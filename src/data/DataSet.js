@@ -52,7 +52,7 @@ DataSet.prototype = Event.prototype;
 /**
  * Add data.
  */
-DataSet.prototype.add = function(data, senderId) {
+DataSet.prototype.add = function (data, senderId) {
     if (Array.isArray(data)) {
         // Array
         for (var i = 0, len = data.length; i < len; i++) {
@@ -68,12 +68,18 @@ DataSet.prototype.add = function(data, senderId) {
     } else {
         throw new Error('Unknown dataType');
     }
+
+    this._dataCache = JSON.parse(JSON.stringify(this._data));
 };
+
+DataSet.prototype.reset = function () {
+    this._data = JSON.parse(JSON.stringify(this._dataCache));
+}
 
 /**
  * get data.
  */
-DataSet.prototype.get = function(args) {
+DataSet.prototype.get = function (args) {
     args = args || {};
 
     //console.time('copy data time')
@@ -81,10 +87,6 @@ DataSet.prototype.get = function(args) {
     // TODO: 不修改原始数据，在数据上挂载新的名称，每次修改数据直接修改新名称下的数据，可以省去deepCopy
     // var data = deepCopy(this._data);
     var data = this._data;
-
-    // console.timeEnd('copy data time')
-
-    // console.time('transferCoordinate time')
 
     var start = new Date();
 
@@ -111,7 +113,7 @@ DataSet.prototype.get = function(args) {
 /**
  * set data.
  */
-DataSet.prototype.set = function(data) {
+DataSet.prototype.set = function (data) {
     this._set(data);
     this._trigger('change');
 }
@@ -119,7 +121,7 @@ DataSet.prototype.set = function(data) {
 /**
  * set data.
  */
-DataSet.prototype._set = function(data) {
+DataSet.prototype._set = function (data) {
     this.clear();
     this.add(data);
 }
@@ -127,19 +129,19 @@ DataSet.prototype._set = function(data) {
 /**
  * clear data.
  */
-DataSet.prototype.clear = function(args) {
+DataSet.prototype.clear = function (args) {
     this._data = []; // map with data indexed by id
 }
 
 /**
  * remove data.
  */
-DataSet.prototype.remove = function(args) {};
+DataSet.prototype.remove = function (args) {};
 
 /**
  * update data.
  */
-DataSet.prototype.update = function(cbk, condition) {
+DataSet.prototype.update = function (cbk, condition) {
 
     var data = this._data;
 
@@ -160,13 +162,15 @@ DataSet.prototype.update = function(cbk, condition) {
         }
     }
 
+    this._dataCache = JSON.parse(JSON.stringify(this._data));
+
     this._trigger('change');
 };
 
 /**
  * transfer coordinate.
  */
-DataSet.prototype.transferCoordinate = function(data, transferFn, fromColumn, toColumnName) {
+DataSet.prototype.transferCoordinate = function (data, transferFn, fromColumn, toColumnName) {
 
     toColumnName = toColumnName || '_coordinates';
     fromColumn = fromColumn || 'coordinates';
@@ -220,7 +224,7 @@ DataSet.prototype.transferCoordinate = function(data, transferFn, fromColumn, to
     return data;
 };
 
-DataSet.prototype.initGeometry = function(transferFn) {
+DataSet.prototype.initGeometry = function (transferFn) {
 
     if (transferFn) {
 
@@ -255,7 +259,7 @@ DataSet.prototype.initGeometry = function(transferFn) {
 /**
  * 获取当前列的最大值
  */
-DataSet.prototype.getMax = function(columnName) {
+DataSet.prototype.getMax = function (columnName) {
     var data = this._data;
 
     if (!data || data.length <= 0) {
@@ -277,7 +281,7 @@ DataSet.prototype.getMax = function(columnName) {
 /**
  * 获取当前列的总和
  */
-DataSet.prototype.getSum = function(columnName) {
+DataSet.prototype.getSum = function (columnName) {
     var data = this._data;
 
     if (!data || data.length <= 0) {
@@ -298,7 +302,7 @@ DataSet.prototype.getSum = function(columnName) {
 /**
  * 获取当前列的最小值
  */
-DataSet.prototype.getMin = function(columnName) {
+DataSet.prototype.getMin = function (columnName) {
     var data = this._data;
 
     if (!data || data.length <= 0) {
@@ -320,7 +324,7 @@ DataSet.prototype.getMin = function(columnName) {
 /**
  * 获取去重的数据
  */
-DataSet.prototype.getUnique = function(columnName) {
+DataSet.prototype.getUnique = function (columnName) {
     var data = this._data;
 
     if (!data || data.length <= 0) {

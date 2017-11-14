@@ -6,8 +6,8 @@ import pathSimple from "../path/simple";
 import DataSet from "../../data/DataSet";
 
 export default {
-    draw: function(context, dataSet, options) {
-        // console.log('xxxx')
+    draw: function (context, dataSet, options) {
+        
         var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
 
         // console.log('xxxx',options)
@@ -32,7 +32,7 @@ export default {
             };
 
             var type = options.bigData;
-            
+
             if (type == 'Point' || type == 'Polygon' || type == 'MultiPolygon') {
 
                 context.fill();
@@ -47,6 +47,7 @@ export default {
 
             context.restore();
         } else {
+
             for (var i = 0, len = data.length; i < len; i++) {
 
                 var item = data[i];

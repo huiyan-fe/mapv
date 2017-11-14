@@ -106,7 +106,7 @@ class BaseLayer {
                     data[i]._size = self.intensity.getSize(item.count);
                 } else {
                     data[i]._size = undefined;
-                } 
+                }
 
                 var styleType = '_fillStyle';
 
@@ -131,8 +131,8 @@ class BaseLayer {
         var animationOptions = this.options.animation;
 
         var flag = (
-            animationOptions 
-            && !(animationOptions.enabled === false) 
+            animationOptions &&
+            !(animationOptions.enabled === false)
         );
 
         return flag;
@@ -176,7 +176,7 @@ class BaseLayer {
                 context.fillRect(0, 0, context.canvas.width, context.canvas.height);
                 drawSimple.draw(context, dataSet, self.options);
                 context.beginPath();
-                pathSimple.drawDataSet(context, dataSet, self.options); 
+                pathSimple.drawDataSet(context, dataSet, self.options);
                 context.clip();
                 clear(context);
                 context.restore();
@@ -243,6 +243,7 @@ class BaseLayer {
 
     setOptions(options) {
         var self = this;
+        self.dataSet.reset();
         self.init(options);
         self.draw();
     }
@@ -278,7 +279,7 @@ class BaseLayer {
 
             this.steps = { step: animationOptions.stepsRange.start };
             self.animator = new TWEEN.Tween(this.steps)
-                .onUpdate(function() {
+                .onUpdate(function () {
                     self._canvasUpdate(this.step);
                 })
                 .repeat(Infinity);
@@ -295,8 +296,7 @@ class BaseLayer {
         }
     }
 
-    addAnimatorEvent() {
-    }
+    addAnimatorEvent() {}
 
     animatorMovestartEvent() {
         var animationOptions = this.options.animation;
