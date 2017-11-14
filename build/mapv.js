@@ -595,7 +595,7 @@ var pathSimple = {
 
 var drawSimple = {
     draw: function draw(context, dataSet, options) {
-
+        // console.log('xxxx')
         var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
 
         // console.log('xxxx',options)
@@ -3794,12 +3794,10 @@ var drawText = {
         context.restore();
     }
 
-};
-
-/*
- *  当前文字区域和已有的文字区域是否有重叠部分
- */
-function hasOverlay(rects, overlay) {
+    /*
+     *  当前文字区域和已有的文字区域是否有重叠部分
+     */
+};function hasOverlay(rects, overlay) {
     for (var i = 0; i < rects.length; i++) {
         if (isRectOverlay(rects[i], overlay)) {
             return true;
