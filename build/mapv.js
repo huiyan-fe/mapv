@@ -160,6 +160,95 @@ var cityCenter = {
     }
 };
 
+var classCallCheck = function (instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+};
+
+var createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) defineProperties(Constructor, staticProps);
+    return Constructor;
+  };
+}();
+
+
+
+
+
+
+
+var get = function get(object, property, receiver) {
+  if (object === null) object = Function.prototype;
+  var desc = Object.getOwnPropertyDescriptor(object, property);
+
+  if (desc === undefined) {
+    var parent = Object.getPrototypeOf(object);
+
+    if (parent === null) {
+      return undefined;
+    } else {
+      return get(parent, property, receiver);
+    }
+  } else if ("value" in desc) {
+    return desc.value;
+  } else {
+    var getter = desc.get;
+
+    if (getter === undefined) {
+      return undefined;
+    }
+
+    return getter.call(receiver);
+  }
+};
+
+var inherits = function (subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+};
+
+
+
+
+
+
+
+
+
+
+
+var possibleConstructorReturn = function (self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return call && (typeof call === "object" || typeof call === "function") ? call : self;
+};
+
 /**
  * @author kyle / http://nikai.us/
  */
@@ -838,9 +927,9 @@ Intensity.prototype.getLegend = function (options) {
     return canvas;
 };
 
-var global = typeof window === 'undefined' ? {} : window;
+var global$1 = typeof window === 'undefined' ? {} : window;
 
-var devicePixelRatio = global.devicePixelRatio || 1;
+var devicePixelRatio = global$1.devicePixelRatio || 1;
 
 /**
  * @author kyle / http://nikai.us/
@@ -2770,17 +2859,13 @@ Choropleth.prototype.getLegend = function (options) {
     var splitList = this.splitList;
 };
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
 /**
  * @author Mofei<http://www.zhuwenlong.com>
  */
 
 var MapHelper = function () {
     function MapHelper(id, type, opt) {
-        _classCallCheck(this, MapHelper);
+        classCallCheck(this, MapHelper);
 
         if (!id || !type) {
             console.warn('id 和 type 为必填项');
@@ -2809,7 +2894,7 @@ var MapHelper = function () {
         });
     }
 
-    _createClass(MapHelper, [{
+    createClass(MapHelper, [{
         key: 'addLayer',
         value: function addLayer(datas, options) {
             if (this.type == 'baidu') {
@@ -2822,7 +2907,6 @@ var MapHelper = function () {
             return this.map;
         }
     }]);
-
     return MapHelper;
 }();
 
@@ -2849,9 +2933,9 @@ function CanvasLayer(options) {
     this.show();
 }
 
-var global$2 = typeof window === 'undefined' ? {} : window;
+var global$3 = typeof window === 'undefined' ? {} : window;
 
-if (global$2.BMap) {
+if (global$3.BMap) {
 
     CanvasLayer.prototype = new BMap.Overlay();
 
@@ -2874,7 +2958,7 @@ if (global$2.BMap) {
         var size = this._map.getSize();
         var canvas = this.canvas;
 
-        var devicePixelRatio = this.devicePixelRatio = global$2.devicePixelRatio || 1;
+        var devicePixelRatio = this.devicePixelRatio = global$3.devicePixelRatio || 1;
 
         canvas.width = size.width * devicePixelRatio;
         canvas.height = size.height * devicePixelRatio;
@@ -3877,10 +3961,6 @@ var drawIcon = {
     }
 };
 
-var _createClass$2 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck$2(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
 /**
  * @author kyle / http://nikai.us/
  */
@@ -3896,7 +3976,7 @@ function animate(time) {
 
 var BaseLayer = function () {
     function BaseLayer(map, dataSet, options) {
-        _classCallCheck$2(this, BaseLayer);
+        classCallCheck(this, BaseLayer);
 
         if (!(dataSet instanceof DataSet)) {
             dataSet = new DataSet(dataSet);
@@ -3906,7 +3986,7 @@ var BaseLayer = function () {
         this.map = map;
     }
 
-    _createClass$2(BaseLayer, [{
+    createClass(BaseLayer, [{
         key: "getDefaultContextConfig",
         value: function getDefaultContextConfig() {
             return {
@@ -4126,7 +4206,7 @@ var BaseLayer = function () {
         }
     }, {
         key: "set",
-        value: function set(obj) {
+        value: function set$$1(obj) {
             var self = this;
             var ctx = this.getContext();
             var conf = this.getDefaultContextConfig();
@@ -4192,25 +4272,16 @@ var BaseLayer = function () {
             }
         }
     }]);
-
     return BaseLayer;
 }();
 
-var _createClass$1 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck$1(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
 var AnimationLayer = function (_BaseLayer) {
-    _inherits(AnimationLayer, _BaseLayer);
+    inherits(AnimationLayer, _BaseLayer);
 
     function AnimationLayer(map, dataSet, options) {
-        _classCallCheck$1(this, AnimationLayer);
+        classCallCheck(this, AnimationLayer);
 
-        var _this = _possibleConstructorReturn(this, (AnimationLayer.__proto__ || Object.getPrototypeOf(AnimationLayer)).call(this, map, dataSet, options));
+        var _this = possibleConstructorReturn(this, (AnimationLayer.__proto__ || Object.getPrototypeOf(AnimationLayer)).call(this, map, dataSet, options));
 
         _this.map = map;
         _this.options = options || {};
@@ -4237,7 +4308,7 @@ var AnimationLayer = function (_BaseLayer) {
         return _this;
     }
 
-    _createClass$1(AnimationLayer, [{
+    createClass(AnimationLayer, [{
         key: "init",
         value: function init(options) {
 
@@ -4435,31 +4506,20 @@ var AnimationLayer = function (_BaseLayer) {
             this.start();
         }
     }]);
-
     return AnimationLayer;
 }(BaseLayer);
-
-var _createClass$3 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
-
-function _classCallCheck$3(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn$1(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits$1(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 /**
  * @author kyle / http://nikai.us/
  */
 
 var Layer = function (_BaseLayer) {
-    _inherits$1(Layer, _BaseLayer);
+    inherits(Layer, _BaseLayer);
 
     function Layer(map, dataSet, options) {
-        _classCallCheck$3(this, Layer);
+        classCallCheck(this, Layer);
 
-        var _this = _possibleConstructorReturn$1(this, (Layer.__proto__ || Object.getPrototypeOf(Layer)).call(this, map, dataSet, options));
+        var _this = possibleConstructorReturn(this, (Layer.__proto__ || Object.getPrototypeOf(Layer)).call(this, map, dataSet, options));
 
         var self = _this;
         var data = null;
@@ -4492,17 +4552,17 @@ var Layer = function (_BaseLayer) {
         return _this;
     }
 
-    _createClass$3(Layer, [{
+    createClass(Layer, [{
         key: "clickEvent",
         value: function clickEvent(e) {
             var pixel = e.pixel;
-            _get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "clickEvent", this).call(this, pixel, e);
+            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "clickEvent", this).call(this, pixel, e);
         }
     }, {
         key: "mousemoveEvent",
         value: function mousemoveEvent(e) {
             var pixel = e.pixel;
-            _get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "mousemoveEvent", this).call(this, pixel, e);
+            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "mousemoveEvent", this).call(this, pixel, e);
         }
     }, {
         key: "bindEvent",
@@ -4709,7 +4769,6 @@ var Layer = function (_BaseLayer) {
             this.canvasLayer.draw();
         }
     }]);
-
     return Layer;
 }(BaseLayer);
 
@@ -4892,9 +4951,9 @@ function CanvasLayer$2(opt_options) {
   }
 }
 
-var global$3 = typeof window === 'undefined' ? {} : window;
+var global$4 = typeof window === 'undefined' ? {} : window;
 
-if (global$3.google && global$3.google.maps) {
+if (global$4.google && global$4.google.maps) {
 
   CanvasLayer$2.prototype = new google.maps.OverlayView();
 
@@ -4935,8 +4994,8 @@ if (global$3.google && global$3.google.maps) {
    * @return {number} The browser-defined id for the requested callback.
    * @private
    */
-  CanvasLayer$2.prototype.requestAnimFrame_ = global$3.requestAnimationFrame || global$3.webkitRequestAnimationFrame || global$3.mozRequestAnimationFrame || global$3.oRequestAnimationFrame || global$3.msRequestAnimationFrame || function (callback) {
-    return global$3.setTimeout(callback, 1000 / 60);
+  CanvasLayer$2.prototype.requestAnimFrame_ = global$4.requestAnimationFrame || global$4.webkitRequestAnimationFrame || global$4.mozRequestAnimationFrame || global$4.oRequestAnimationFrame || global$4.msRequestAnimationFrame || function (callback) {
+    return global$4.setTimeout(callback, 1000 / 60);
   };
 
   /**
@@ -4948,7 +5007,7 @@ if (global$3.google && global$3.google.maps) {
    * @param {number=} requestId The id of the frame request to cancel.
    * @private
    */
-  CanvasLayer$2.prototype.cancelAnimFrame_ = global$3.cancelAnimationFrame || global$3.webkitCancelAnimationFrame || global$3.mozCancelAnimationFrame || global$3.oCancelAnimationFrame || global$3.msCancelAnimationFrame || function (requestId) {};
+  CanvasLayer$2.prototype.cancelAnimFrame_ = global$4.cancelAnimationFrame || global$4.webkitCancelAnimationFrame || global$4.mozCancelAnimationFrame || global$4.oCancelAnimationFrame || global$4.msCancelAnimationFrame || function (requestId) {};
 
   /**
    * Sets any options provided. See CanvasLayerOptions for more information.
@@ -5115,7 +5174,7 @@ if (global$3.google && global$3.google.maps) {
 
     // cease canvas update callbacks
     if (this.requestAnimationFrameId_) {
-      this.cancelAnimFrame_.call(global$3, this.requestAnimationFrameId_);
+      this.cancelAnimFrame_.call(global$4, this.requestAnimationFrameId_);
       this.requestAnimationFrameId_ = null;
     }
   };
@@ -5240,32 +5299,22 @@ if (global$3.google && global$3.google.maps) {
    */
   CanvasLayer$2.prototype.scheduleUpdate = function () {
     if (this.isAdded_ && !this.requestAnimationFrameId_) {
-      this.requestAnimationFrameId_ = this.requestAnimFrame_.call(global$3, this.requestUpdateFunction_);
+      this.requestAnimationFrameId_ = this.requestAnimFrame_.call(global$4, this.requestUpdateFunction_);
     }
   };
 }
-
-var _createClass$4 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _get$1 = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
-
-function _classCallCheck$4(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn$2(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits$2(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 /**
  * @author kyle / http://nikai.us/
  */
 
 var Layer$2 = function (_BaseLayer) {
-    _inherits$2(Layer, _BaseLayer);
+    inherits(Layer, _BaseLayer);
 
     function Layer(map, dataSet, options) {
-        _classCallCheck$4(this, Layer);
+        classCallCheck(this, Layer);
 
-        var _this = _possibleConstructorReturn$2(this, (Layer.__proto__ || Object.getPrototypeOf(Layer)).call(this, map, dataSet, options));
+        var _this = possibleConstructorReturn(this, (Layer.__proto__ || Object.getPrototypeOf(Layer)).call(this, map, dataSet, options));
 
         var self = _this;
         var data = null;
@@ -5291,17 +5340,17 @@ var Layer$2 = function (_BaseLayer) {
         return _this;
     }
 
-    _createClass$4(Layer, [{
+    createClass(Layer, [{
         key: "clickEvent",
         value: function clickEvent(e) {
             var pixel = e.pixel;
-            _get$1(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "clickEvent", this).call(this, pixel, e);
+            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "clickEvent", this).call(this, pixel, e);
         }
     }, {
         key: "mousemoveEvent",
         value: function mousemoveEvent(e) {
             var pixel = e.pixel;
-            _get$1(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "mousemoveEvent", this).call(this, pixel, e);
+            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "mousemoveEvent", this).call(this, pixel, e);
         }
     }, {
         key: "bindEvent",
@@ -5476,7 +5525,6 @@ var Layer$2 = function (_BaseLayer) {
             self.canvasLayer.draw();
         }
     }]);
-
     return Layer;
 }(BaseLayer);
 
