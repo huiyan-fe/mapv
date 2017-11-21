@@ -96,7 +96,8 @@ if (global.BMap) {
     }
 
     CanvasLayer.prototype.setZIndex = function(zIndex) {
-        this.canvas.style.zIndex = zIndex;
+        this.zIndex = zIndex;
+        this.canvas.style.zIndex = this.zIndex;
     }
 
     CanvasLayer.prototype.getZIndex = function() {

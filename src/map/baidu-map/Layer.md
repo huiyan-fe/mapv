@@ -44,6 +44,7 @@ map.setMapStyle({
 {
     zIndex: 1, // 层级
     size: 5, // 大小值
+    unit: 'px', // 'px': 以像素为单位绘制,默认值。'm': 以米制为单位绘制，会跟随地图比例放大缩小
     mixBlendMode: 'normal', // 不同图层之间的叠加模式，参考[https://developer.mozilla.org/en-US/docs/Web/CSS/mix-blend-mode](https://developer.mozilla.org/en-US/docs/Web/CSS/mix-blend-mode)
     fillStyle: 'rgba(200, 200, 50, 1)', // 填充颜色
     strokeStyle: 'rgba(0, 0, 255, 1)', // 描边颜色

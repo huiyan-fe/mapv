@@ -37,7 +37,6 @@
         map.centerAndZoom(new BMap.Point(106.962497, 38.208726), 5);  // 初始化地图,设置中心点坐标和地图级别
         map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
 
-        /*
         map.setMapStyle({
             styleJson: [
                 {
@@ -50,7 +49,6 @@
                 }
             ]
         });
-        */
 
         var bdary = new BMap.Boundary();
         bdary.get("北京市", function(rs){       //获取行政区域
