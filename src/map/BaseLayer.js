@@ -202,7 +202,9 @@ class BaseLayer {
     }
 
     clickEvent(pixel, e) {
-
+        if (!this.options.methods) {
+            return;
+        }
         var dataItem = this.isPointInPath(this.getContext(), pixel);
 
         if (dataItem) {
@@ -214,6 +216,9 @@ class BaseLayer {
     }
 
     mousemoveEvent(pixel, e) {
+        if (!this.options.methods) {
+            return;
+        }
         var dataItem = this.isPointInPath(this.getContext(), pixel);
         if (dataItem) {
             this.options.methods.mousemove(dataItem, e);
