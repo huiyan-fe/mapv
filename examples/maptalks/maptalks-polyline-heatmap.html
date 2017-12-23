@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>maptalks example</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maptalks@0.36.2/dist/maptalks.css" />-->
+    <link href="../threeParts/maptalks.css" rel="stylesheet" />
+    <style>
+        html, body, #map {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <!--<script src="https://cdn.jsdelivr.net/npm/maptalks@0.36.2/dist/maptalks.js"></script>-->
+    <script src="../threeParts/maptalks.js"></script>
+    <script src="../../build/mapv.js"></script>
+    <script src="http://mapv.baidu.com/demo/js/lib/drive.js"></script>
+    <script>
+
+    var map = new maptalks.Map('map', {
+        center: [116.404, 40.055],
+        zoom: 11,
+        attribution: {
+          content: '&copy; Google Maps'
+        },
+        baseLayer: new maptalks.TileLayer('base', {
+          'urlTemplate' : 'http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+          'subdomains'  : ['a','b','c','d','e']
+        })
+    });
+    var data = [];
+    for (var i = 0; i < driveData.length; i++) {
+        var line = [];
+        driveData[i].geo.forEach(function (c) {
+            var x = c[0] / 20037508.34 * 180;
+            var y =c[1] / 20037508.34 * 180;
+            y = 180 / Math.PI * (2 * Math.atan(Math.exp(y * Math.PI / 180)) - Math.PI / 2);
+            line.push([x, y]);
+        });
+        data.push({
+            geometry: {
+                type: 'LineString',
+                coordinates:line
+            },
+            count: 30 * Math.random()
+        });
+    }
+ 
+    var dataSet = new mapv.DataSet(data);
+
+    var options = {
+        blur: true, // 是否有模糊效果
+        shadowBlur: 20,
+        shadowColor: 'rgba(255, 255, 255, 1)',
+        max: 30, // 设置显示的权重最大值
+        lineWidth: 10, // 
+        strokeStyle: 'rgba(255, 255, 255, 0.8)',
+        maxOpacity: 0.8,
+        gradient: { // 显示的颜色渐变范围
+            '0': 'blue',
+            '0.6': 'cyan',
+            '0.7': 'lime',
+            '0.8': 'yellow',
+            '1.0': 'red'
+        },
+        draw: 'heatmap'
+    }
+
+    var mapvLayer = new mapv.MaptalksLayer('mapv', dataSet, options).addTo(map);
+
+    </script>
+</body>
+</html>
