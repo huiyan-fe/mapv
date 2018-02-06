@@ -22,7 +22,6 @@
 <body>
 
     <div id="map"></div>
-    <canvas id="canvas"></canvas>
 
     <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
     <script type="text/javascript" src="../build/mapv.js"></script>
@@ -84,7 +83,19 @@
             draw: 'simple'
         }
 
-        var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+        var yongduLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+        var isLineShow = true;
+        function animation() {
+            isLineShow = !isLineShow;
+            if (isLineShow) {
+                yongduLayer.show();
+            } else {
+                yongduLayer.hide();
+            }
+            setTimeout(animation, 400);
+        }
+        animation();
 
         var data = [];
 
@@ -106,10 +117,15 @@
         var dataSet = new mapv.DataSet(data);
 
         var options = {
-            strokeStyle: 'rgba(255, 250, 50, 1)',
-            shadowColor: 'rgba(255, 250, 50, 1)',
-            shadowBlur: 20,
+            strokeStyle: 'rgba(55, 50, 250, 0.5)',
+            //shadowColor: 'rgba(255, 250, 50, 1)',
+            //shadowBlur: 20,
             lineWidth: 5,
+            arrow: {
+                show: true,
+                interval: 4,
+                url: 'http://huiyan.baidu.com/cms/static/images/direction_blue.png'
+            },
             draw: 'simple'
         }
 
@@ -144,6 +160,7 @@
             draw: 'simple'
         }
 
+        /*
         var layer = new mapv.baiduMapAnimationLayer(map, dataSet, options);
 
         var layer = new mapv.baiduMapLayer(map, dataSet, {
@@ -151,6 +168,7 @@
             size: 5,
             draw: 'simple'
         });
+        */
 
         </script>
 	

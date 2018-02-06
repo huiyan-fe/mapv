@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.17";
+var version = "2.0.20";
 
 /**
  * @author kyle / http://nikai.us/
@@ -160,39 +160,99 @@ var cityCenter = {
     }
 };
 
+var classCallCheck = function (instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+};
+
+var createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) defineProperties(Constructor, staticProps);
+    return Constructor;
+  };
+}();
+
+
+
+
+
+
+
+var get = function get(object, property, receiver) {
+  if (object === null) object = Function.prototype;
+  var desc = Object.getOwnPropertyDescriptor(object, property);
+
+  if (desc === undefined) {
+    var parent = Object.getPrototypeOf(object);
+
+    if (parent === null) {
+      return undefined;
+    } else {
+      return get(parent, property, receiver);
+    }
+  } else if ("value" in desc) {
+    return desc.value;
+  } else {
+    var getter = desc.get;
+
+    if (getter === undefined) {
+      return undefined;
+    }
+
+    return getter.call(receiver);
+  }
+};
+
+var inherits = function (subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+};
+
+
+
+
+
+
+
+
+
+
+
+var possibleConstructorReturn = function (self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return call && (typeof call === "object" || typeof call === "function") ? call : self;
+};
+
 /**
  * @author kyle / http://nikai.us/
  */
 
-/**
- * DataSet
- *
- * A data set can:
- * - add/remove/update data
- * - gives triggers upon changes in the data
- * - can  import/export data in various data formats
- * @param {Array} [data]    Optional array with initial data
- * the field geometry is like geojson, it can be:
- * {
- *     "type": "Point",
- *     "coordinates": [125.6, 10.1]
- * }
- * {
- *     "type": "LineString",
- *     "coordinates": [
- *         [102.0, 0.0], [103.0, 1.0], [104.0, 0.0], [105.0, 1.0]
- *     ]
- * }
- * {
- *     "type": "Polygon",
- *     "coordinates": [
- *         [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],
- *           [100.0, 1.0], [100.0, 0.0] ]
- *     ]
- * }
- * @param {Object} [options]   Available options:
- * 
- */
 function DataSet(data, options) {
     Event.bind(this)();
 
@@ -226,6 +286,12 @@ DataSet.prototype.add = function (data, senderId) {
     } else {
         throw new Error('Unknown dataType');
     }
+
+    this._dataCache = JSON.parse(JSON.stringify(this._data));
+};
+
+DataSet.prototype.reset = function () {
+    this._data = JSON.parse(JSON.stringify(this._dataCache));
 };
 
 /**
@@ -239,10 +305,6 @@ DataSet.prototype.get = function (args) {
     // TODO: 不修改原始数据，在数据上挂载新的名称，每次修改数据直接修改新名称下的数据，可以省去deepCopy
     // var data = deepCopy(this._data);
     var data = this._data;
-
-    // console.timeEnd('copy data time')
-
-    // console.time('transferCoordinate time')
 
     var start = new Date();
 
@@ -316,6 +378,8 @@ DataSet.prototype.update = function (cbk, condition) {
             cbk && cbk(data[i]);
         }
     }
+
+    this._dataCache = JSON.parse(JSON.stringify(this._data));
 
     this._trigger('change');
 };
@@ -632,6 +696,7 @@ var drawSimple = {
 
             context.restore();
         } else {
+
             for (var i = 0, len = data.length; i < len; i++) {
 
                 var item = data[i];
@@ -703,11 +768,6 @@ function Canvas(width, height) {
  * @author kyle / http://nikai.us/
  */
 
-/**
- * Category
- * @param {Object} [options]   Available options:
- *                             {Object} gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"}
- */
 function Intensity(options) {
 
     options = options || {};
@@ -838,9 +898,9 @@ Intensity.prototype.getLegend = function (options) {
     return canvas;
 };
 
-var global = typeof window === 'undefined' ? {} : window;
+var global$1 = typeof window === 'undefined' ? {} : window;
 
-var devicePixelRatio = global.devicePixelRatio || 1;
+var devicePixelRatio = global$1.devicePixelRatio || 1;
 
 /**
  * @author kyle / http://nikai.us/
@@ -2751,10 +2811,13 @@ Choropleth.prototype.generateByDataSet = function (dataSet) {
  */
 Choropleth.prototype.generateByMinMax = function (min, max) {
     var colors = ['rgba(255, 255, 0, 0.8)', 'rgba(253, 98, 104, 0.8)', 'rgba(255, 146, 149, 0.8)', 'rgba(255, 241, 193, 0.8)', 'rgba(110, 176, 253, 0.8)', 'rgba(52, 139, 251, 0.8)', 'rgba(17, 102, 252, 0.8)'];
-    var splitNum = (max - min) / 7;
-    var index = min;
+    var splitNum = Number((max - min) / 7);
+    // console.log(splitNum)
+    max = Number(max);
+    var index = Number(min);
     this.splitList = [];
     var count = 0;
+
     while (index < max) {
         this.splitList.push({
             start: index,
@@ -2763,16 +2826,14 @@ Choropleth.prototype.generateByMinMax = function (min, max) {
         });
         count++;
         index += splitNum;
+        // console.log(index, max)
     }
+    // console.log('splitNum')
 };
 
 Choropleth.prototype.getLegend = function (options) {
     var splitList = this.splitList;
 };
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
  * @author Mofei<http://www.zhuwenlong.com>
@@ -2780,7 +2841,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var MapHelper = function () {
     function MapHelper(id, type, opt) {
-        _classCallCheck(this, MapHelper);
+        classCallCheck(this, MapHelper);
 
         if (!id || !type) {
             console.warn('id 和 type 为必填项');
@@ -2809,7 +2870,7 @@ var MapHelper = function () {
         });
     }
 
-    _createClass(MapHelper, [{
+    createClass(MapHelper, [{
         key: 'addLayer',
         value: function addLayer(datas, options) {
             if (this.type == 'baidu') {
@@ -2822,9 +2883,20 @@ var MapHelper = function () {
             return this.map;
         }
     }]);
-
     return MapHelper;
 }();
+
+// function MapHelper(dom, type, opt) {
+//     var map = new BMap.Map(dom, {
+//         enableMapClick: false
+//     });
+//     map.centerAndZoom(new BMap.Point(106.962497, 38.208726), 5);
+//     map.enableScrollWheelZoom(true);
+
+//     map.setMapStyle({
+//         style: 'light'
+//     });
+// }
 
 /**
  * 一直覆盖在当前地图视野的Canvas对象
@@ -2849,9 +2921,9 @@ function CanvasLayer(options) {
     this.show();
 }
 
-var global$2 = typeof window === 'undefined' ? {} : window;
+var global$3 = typeof window === 'undefined' ? {} : window;
 
-if (global$2.BMap) {
+if (global$3.BMap) {
 
     CanvasLayer.prototype = new BMap.Overlay();
 
@@ -2874,7 +2946,7 @@ if (global$2.BMap) {
         var size = this._map.getSize();
         var canvas = this.canvas;
 
-        var devicePixelRatio = this.devicePixelRatio = global$2.devicePixelRatio || 1;
+        var devicePixelRatio = this.devicePixelRatio = global$3.devicePixelRatio || 1;
 
         canvas.width = size.width * devicePixelRatio;
         canvas.height = size.height * devicePixelRatio;
@@ -2924,7 +2996,8 @@ if (global$2.BMap) {
     };
 
     CanvasLayer.prototype.setZIndex = function (zIndex) {
-        this.canvas.style.zIndex = zIndex;
+        this.zIndex = zIndex;
+        this.canvas.style.zIndex = this.zIndex;
     };
 
     CanvasLayer.prototype.getZIndex = function () {
@@ -3711,6 +3784,101 @@ TWEEN.Interpolation = {
 };
 
 /**
+ * 根据2点获取角度
+ * @param Array [123, 23] 点1
+ * @param Array [123, 23] 点2
+ * @return angle 角度,不是弧度
+ */
+function getAngle(start, end) {
+    var diff_x = end[0] - start[0];
+    var diff_y = end[1] - start[1];
+    var deg = 360 * Math.atan(diff_y / diff_x) / (2 * Math.PI);
+    if (end[0] < start[0]) {
+        deg = deg + 180;
+    }
+    return deg;
+}
+
+/**
+ * @author kyle / http://nikai.us/
+ */
+
+var imageCache = {};
+
+var object = {
+    draw: function draw(context, dataSet, options) {
+        var imageCacheKey = 'http://huiyan.baidu.com/github/tools/gis-drawing/static/images/direction.png';
+        if (options.arrow && options.arrow.url) {
+            imageCacheKey = options.arrow.url;
+        }
+
+        if (!imageCache[imageCacheKey]) {
+            imageCache[imageCacheKey] = null;
+        }
+
+        var directionImage = imageCache[imageCacheKey];
+
+        if (!directionImage) {
+            var args = Array.prototype.slice.call(arguments);
+            imageCache[imageCacheKey] = new Image();
+            imageCache[imageCacheKey].onload = function () {
+                object.draw.apply(null, args);
+            };
+            imageCache[imageCacheKey].src = imageCacheKey;
+            return;
+        }
+
+        var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
+
+        // console.log('xxxx',options)
+        context.save();
+
+        for (var key in options) {
+            context[key] = options[key];
+        }
+
+        for (var i = 0, len = data.length; i < len; i++) {
+
+            var item = data[i];
+
+            context.save();
+
+            if (item.fillStyle || item._fillStyle) {
+                context.fillStyle = item.fillStyle || item._fillStyle;
+            }
+
+            if (item.strokeStyle || item._strokeStyle) {
+                context.strokeStyle = item.strokeStyle || item._strokeStyle;
+            }
+
+            var type = item.geometry.type;
+
+            context.beginPath();
+            if (type === 'LineString') {
+                var coordinates = item.geometry._coordinates || item.geometry.coordinates;
+                var interval = options.arrow.interval !== undefined ? options.arrow.interval : 1;
+                for (var j = 0; j < coordinates.length; j += interval) {
+                    var x = coordinates[j][0];
+                    var y = coordinates[j][1];
+                    if (coordinates[j] && coordinates[j + 1]) {
+                        context.save();
+                        var angle = getAngle(coordinates[j], coordinates[j + 1]);
+                        context.translate(x, y);
+                        context.rotate(angle * Math.PI / 180);
+                        context.drawImage(directionImage, -directionImage.width / 2 / devicePixelRatio, -directionImage.height / 2 / devicePixelRatio, directionImage.width / devicePixelRatio, directionImage.height / devicePixelRatio);
+                        context.restore();
+                    }
+                }
+            }
+
+            context.restore();
+        }
+
+        context.restore();
+    }
+};
+
+/**
  * @author Mofei Zhu<mapv@zhuwenlong.com>
  * This file is to draw text
  */
@@ -3794,12 +3962,10 @@ var drawText = {
         context.restore();
     }
 
-};
-
-/*
- *  当前文字区域和已有的文字区域是否有重叠部分
- */
-function hasOverlay(rects, overlay) {
+    /*
+     *  当前文字区域和已有的文字区域是否有重叠部分
+     */
+};function hasOverlay(rects, overlay) {
     for (var i = 0; i < rects.length; i++) {
         if (isRectOverlay(rects[i], overlay)) {
             return true;
@@ -3879,10 +4045,6 @@ var drawIcon = {
     }
 };
 
-var _createClass$2 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck$2(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
 /**
  * @author kyle / http://nikai.us/
  */
@@ -3898,7 +4060,7 @@ function animate(time) {
 
 var BaseLayer = function () {
     function BaseLayer(map, dataSet, options) {
-        _classCallCheck$2(this, BaseLayer);
+        classCallCheck(this, BaseLayer);
 
         if (!(dataSet instanceof DataSet)) {
             dataSet = new DataSet(dataSet);
@@ -3908,7 +4070,7 @@ var BaseLayer = function () {
         this.map = map;
     }
 
-    _createClass$2(BaseLayer, [{
+    createClass(BaseLayer, [{
         key: "getDefaultContextConfig",
         value: function getDefaultContextConfig() {
             return {
@@ -3935,20 +4097,17 @@ var BaseLayer = function () {
         key: "initDataRange",
         value: function initDataRange(options) {
             var self = this;
-
             self.intensity = new Intensity({
                 maxSize: self.options.maxSize,
                 minSize: self.options.minSize,
                 gradient: self.options.gradient,
                 max: self.options.max || this.dataSet.getMax('count')
             });
-
             self.category = new Category(self.options.splitList);
             self.choropleth = new Choropleth(self.options.splitList);
             if (self.options.splitList === undefined) {
                 self.category.generateByDataSet(this.dataSet, self.options.color);
             }
-
             if (self.options.splitList === undefined) {
                 var min = self.options.min || this.dataSet.getMin('count');
                 var max = self.options.max || this.dataSet.getMax('count');
@@ -4062,6 +4221,10 @@ var BaseLayer = function () {
                         drawSimple.draw(context, dataSet, self.options);
                     }
             }
+
+            if (self.options.arrow && self.options.arrow.show !== false) {
+                object.draw(context, dataSet, self.options);
+            }
         }
     }, {
         key: "isPointInPath",
@@ -4123,12 +4286,15 @@ var BaseLayer = function () {
         key: "setOptions",
         value: function setOptions(options) {
             var self = this;
+            self.dataSet.reset();
+            // console.log('xxx1')
             self.init(options);
+            // console.log('xxx')
             self.draw();
         }
     }, {
         key: "set",
-        value: function set(obj) {
+        value: function set$$1(obj) {
             var self = this;
             var ctx = this.getContext();
             var conf = this.getDefaultContextConfig();
@@ -4194,25 +4360,16 @@ var BaseLayer = function () {
             }
         }
     }]);
-
     return BaseLayer;
 }();
 
-var _createClass$1 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck$1(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
 var AnimationLayer = function (_BaseLayer) {
-    _inherits(AnimationLayer, _BaseLayer);
+    inherits(AnimationLayer, _BaseLayer);
 
     function AnimationLayer(map, dataSet, options) {
-        _classCallCheck$1(this, AnimationLayer);
+        classCallCheck(this, AnimationLayer);
 
-        var _this = _possibleConstructorReturn(this, (AnimationLayer.__proto__ || Object.getPrototypeOf(AnimationLayer)).call(this, map, dataSet, options));
+        var _this = possibleConstructorReturn(this, (AnimationLayer.__proto__ || Object.getPrototypeOf(AnimationLayer)).call(this, map, dataSet, options));
 
         _this.map = map;
         _this.options = options || {};
@@ -4239,7 +4396,12 @@ var AnimationLayer = function (_BaseLayer) {
         return _this;
     }
 
-    _createClass$1(AnimationLayer, [{
+    createClass(AnimationLayer, [{
+        key: "draw",
+        value: function draw() {
+            this.canvasLayer.draw();
+        }
+    }, {
         key: "init",
         value: function init(options) {
 
@@ -4391,12 +4553,12 @@ var AnimationLayer = function (_BaseLayer) {
                         data[i]._index = 0;
                     }
 
-                    ctx.lineWidth = options.lineWidth || 1;
                     var strokeStyle = data[i].strokeStyle || options.strokeStyle;
                     var fillStyle = data[i].fillStyle || options.fillStyle || 'yellow';
                     ctx.fillStyle = fillStyle;
                     ctx.fill();
-                    if (strokeStyle) {
+                    if (strokeStyle && options.lineWidth) {
+                        ctx.lineWidth = options.lineWidth || 1;
                         ctx.strokeStyle = strokeStyle;
                         ctx.stroke();
                     }
@@ -4437,31 +4599,20 @@ var AnimationLayer = function (_BaseLayer) {
             this.start();
         }
     }]);
-
     return AnimationLayer;
 }(BaseLayer);
-
-var _createClass$3 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
-
-function _classCallCheck$3(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn$1(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits$1(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 /**
  * @author kyle / http://nikai.us/
  */
 
 var Layer = function (_BaseLayer) {
-    _inherits$1(Layer, _BaseLayer);
+    inherits(Layer, _BaseLayer);
 
     function Layer(map, dataSet, options) {
-        _classCallCheck$3(this, Layer);
+        classCallCheck(this, Layer);
 
-        var _this = _possibleConstructorReturn$1(this, (Layer.__proto__ || Object.getPrototypeOf(Layer)).call(this, map, dataSet, options));
+        var _this = possibleConstructorReturn(this, (Layer.__proto__ || Object.getPrototypeOf(Layer)).call(this, map, dataSet, options));
 
         var self = _this;
         var data = null;
@@ -4494,17 +4645,17 @@ var Layer = function (_BaseLayer) {
         return _this;
     }
 
-    _createClass$3(Layer, [{
+    createClass(Layer, [{
         key: "clickEvent",
         value: function clickEvent(e) {
             var pixel = e.pixel;
-            _get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "clickEvent", this).call(this, pixel, e);
+            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "clickEvent", this).call(this, pixel, e);
         }
     }, {
         key: "mousemoveEvent",
         value: function mousemoveEvent(e) {
             var pixel = e.pixel;
-            _get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "mousemoveEvent", this).call(this, pixel, e);
+            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "mousemoveEvent", this).call(this, pixel, e);
         }
     }, {
         key: "bindEvent",
@@ -4567,7 +4718,6 @@ var Layer = function (_BaseLayer) {
             if (!this.canvasLayer) {
                 return;
             }
-            console.time('update');
 
             var self = this;
 
@@ -4663,7 +4813,7 @@ var Layer = function (_BaseLayer) {
 
             //console.timeEnd('draw');
 
-            console.timeEnd('update');
+            //console.timeEnd('update')
             self.options.updateCallback && self.options.updateCallback(time);
         }
     }, {
@@ -4712,7 +4862,6 @@ var Layer = function (_BaseLayer) {
             this.canvasLayer.draw();
         }
     }]);
-
     return Layer;
 }(BaseLayer);
 
@@ -4895,9 +5044,9 @@ function CanvasLayer$2(opt_options) {
   }
 }
 
-var global$3 = typeof window === 'undefined' ? {} : window;
+var global$4 = typeof window === 'undefined' ? {} : window;
 
-if (global$3.google && global$3.google.maps) {
+if (global$4.google && global$4.google.maps) {
 
   CanvasLayer$2.prototype = new google.maps.OverlayView();
 
@@ -4938,8 +5087,8 @@ if (global$3.google && global$3.google.maps) {
    * @return {number} The browser-defined id for the requested callback.
    * @private
    */
-  CanvasLayer$2.prototype.requestAnimFrame_ = global$3.requestAnimationFrame || global$3.webkitRequestAnimationFrame || global$3.mozRequestAnimationFrame || global$3.oRequestAnimationFrame || global$3.msRequestAnimationFrame || function (callback) {
-    return global$3.setTimeout(callback, 1000 / 60);
+  CanvasLayer$2.prototype.requestAnimFrame_ = global$4.requestAnimationFrame || global$4.webkitRequestAnimationFrame || global$4.mozRequestAnimationFrame || global$4.oRequestAnimationFrame || global$4.msRequestAnimationFrame || function (callback) {
+    return global$4.setTimeout(callback, 1000 / 60);
   };
 
   /**
@@ -4951,7 +5100,7 @@ if (global$3.google && global$3.google.maps) {
    * @param {number=} requestId The id of the frame request to cancel.
    * @private
    */
-  CanvasLayer$2.prototype.cancelAnimFrame_ = global$3.cancelAnimationFrame || global$3.webkitCancelAnimationFrame || global$3.mozCancelAnimationFrame || global$3.oCancelAnimationFrame || global$3.msCancelAnimationFrame || function (requestId) {};
+  CanvasLayer$2.prototype.cancelAnimFrame_ = global$4.cancelAnimationFrame || global$4.webkitCancelAnimationFrame || global$4.mozCancelAnimationFrame || global$4.oCancelAnimationFrame || global$4.msCancelAnimationFrame || function (requestId) {};
 
   /**
    * Sets any options provided. See CanvasLayerOptions for more information.
@@ -5118,7 +5267,7 @@ if (global$3.google && global$3.google.maps) {
 
     // cease canvas update callbacks
     if (this.requestAnimationFrameId_) {
-      this.cancelAnimFrame_.call(global$3, this.requestAnimationFrameId_);
+      this.cancelAnimFrame_.call(global$4, this.requestAnimationFrameId_);
       this.requestAnimationFrameId_ = null;
     }
   };
@@ -5243,32 +5392,22 @@ if (global$3.google && global$3.google.maps) {
    */
   CanvasLayer$2.prototype.scheduleUpdate = function () {
     if (this.isAdded_ && !this.requestAnimationFrameId_) {
-      this.requestAnimationFrameId_ = this.requestAnimFrame_.call(global$3, this.requestUpdateFunction_);
+      this.requestAnimationFrameId_ = this.requestAnimFrame_.call(global$4, this.requestUpdateFunction_);
     }
   };
 }
-
-var _createClass$4 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _get$1 = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
-
-function _classCallCheck$4(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn$2(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits$2(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 /**
  * @author kyle / http://nikai.us/
  */
 
 var Layer$2 = function (_BaseLayer) {
-    _inherits$2(Layer, _BaseLayer);
+    inherits(Layer, _BaseLayer);
 
     function Layer(map, dataSet, options) {
-        _classCallCheck$4(this, Layer);
+        classCallCheck(this, Layer);
 
-        var _this = _possibleConstructorReturn$2(this, (Layer.__proto__ || Object.getPrototypeOf(Layer)).call(this, map, dataSet, options));
+        var _this = possibleConstructorReturn(this, (Layer.__proto__ || Object.getPrototypeOf(Layer)).call(this, map, dataSet, options));
 
         var self = _this;
         var data = null;
@@ -5294,17 +5433,17 @@ var Layer$2 = function (_BaseLayer) {
         return _this;
     }
 
-    _createClass$4(Layer, [{
+    createClass(Layer, [{
         key: "clickEvent",
         value: function clickEvent(e) {
             var pixel = e.pixel;
-            _get$1(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "clickEvent", this).call(this, pixel, e);
+            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "clickEvent", this).call(this, pixel, e);
         }
     }, {
         key: "mousemoveEvent",
         value: function mousemoveEvent(e) {
             var pixel = e.pixel;
-            _get$1(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "mousemoveEvent", this).call(this, pixel, e);
+            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "mousemoveEvent", this).call(this, pixel, e);
         }
     }, {
         key: "bindEvent",
@@ -5479,7 +5618,6 @@ var Layer$2 = function (_BaseLayer) {
             self.canvasLayer.draw();
         }
     }]);
-
     return Layer;
 }(BaseLayer);
 
