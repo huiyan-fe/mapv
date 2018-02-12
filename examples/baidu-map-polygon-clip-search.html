@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+
+    <style type="text/css">
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="map"></div>
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="../build/mapv.js"></script>
+
+    <script type="text/javascript">
+        var searchObj = {};
+        try {
+            var searchs = location.search.slice(1).split('&').map(item => item.split('='));
+            for (var i = 0; i < searchs.length; i += 1) {
+                searchObj[searchs[i][0]] = searchs[i][1];
+            }
+        } catch (e) {
+
+        }
+        console.log(searchObj)
+        if(!searchObj.city){
+            alert('请在地址栏输入city=城市, 如 city=北京');
+            location.href= location.href.split('?')[0]+'?city=北京';
+        }
+
+        // 百度地图API功能
+        var map = new BMap.Map("map", {
+            enableMapClick: false
+        }); // 创建Map实例
+        map.centerAndZoom(new BMap.Point(106.962497, 38.208726), 5); // 初始化地图,设置中心点坐标和地图级别
+        map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+
+        map.setMapStyle({
+            styleJson: [{
+                "featureType": "all",
+                "elementType": "all",
+                "stylers": {
+                    "lightness": 61,
+                    "saturation": -100
+                }
+            }]
+        });
+
+        var bdary = new BMap.Boundary();
+        bdary.get(searchObj.city, function(rs) { //获取行政区域
+            var count = rs.boundaries.length; //行政区域的点有多少个
+
+            var pointArray = [];
+            var data = [];
+            for (var i = 0; i < count; i++) {
+                var ply = new BMap.Polygon(rs.boundaries[i], {
+                    strokeWeight: 2,
+                    strokeColor: "#ff0000"
+                }); //建立多边形覆盖物
+                var coordinates = [];
+                var path = rs.boundaries[i].split(';');
+                for (var j = 0; j < path.length; j++) {
+                    coordinates.push(path[j].split(','));
+                }
+                pointArray = pointArray.concat(ply.getPath());
+
+                data.push({
+                    geometry: {
+                        type: 'Polygon',
+                        coordinates: [coordinates]
+                    }
+                });
+            }
+            console.log(data);
+
+            map.setViewport(pointArray); //调整视野  
+
+            var options = {
+                fillStyle: 'rgba(255, 255, 255, 1)',
+                strokeStyle: 'rgba(250, 250, 255, 1)',
+                lineWidth: 1,
+                draw: 'clip'
+            }
+
+            var mapvLayer = new mapv.baiduMapLayer(map, new mapv.DataSet(data), options);
+        });
+    </script>
+
+</body>
+
+</html>
