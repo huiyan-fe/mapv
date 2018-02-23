@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>maptalks demo</title>
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maptalks/dist/maptalks.css" />
+    <script src="https://cdn.jsdelivr.net/npm/maptalks/dist/maptalks.js"></script>
     <style type="text/css">
         html, body {
             width: 100%;
@@ -25,13 +26,13 @@
     <canvas id="canvas"></canvas>
 
     <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
-    <script src="../threeParts/maptalks.js"></script>
+    
     <script type="text/javascript" src="../../build/mapv.js"></script>
 
     <script type="text/javascript">
 
         var map = new maptalks.Map('map', {
-            center: [114.321317, 30.598428],
+            center: [116.41348403785,39.910843952376],
             zoom: 12,
             attribution: {
                 content: '&copy; Google Maps'
@@ -43,8 +44,7 @@
         });
 
 
-        $.get('../data/wuhan-car.txt', function (rs) {
-            var trans = new maptalks.Transformation([1, -1, -20037508.34, 20037508.34]);
+        $.get('../data/od-xierqi.txt', function (rs) {
             var data = [];
             var timeData = [];
 
