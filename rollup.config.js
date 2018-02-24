@@ -4,6 +4,9 @@ export default {
 	entry: 'index.js',
 	format: 'umd',
 	moduleName: 'mapv',
+	external: [
+		'maptalks'
+	],
 	plugins: [babel({
 		runtimeHelpers: true
 	})],
