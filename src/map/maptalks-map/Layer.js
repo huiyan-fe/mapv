@@ -137,10 +137,23 @@ class LayerRenderer extends maptalks.renderer.CanvasRenderer {
             context.clear(context.COLOR_BUFFER_BIT);
         }
 
+        let scale = 1;
+        if (self.context === '2d' && self.options.draw !== 'heatmap') {
+            //in heatmap.js, devicePixelRatio is being mulitplied independently
+            scale = self.canvasLayer.devicePixelRatio;
+        }
+
+        const zeroZero = new maptalks.Point(0, 0);
+        const nw = map._containerPointToPoint(zeroZero);
+        //reuse to save coordinate instance creation
+        const coord = new maptalks.Coordinate(0, 0);
         const dataGetOptions = {
             fromColumn: self.options.coordType === 'bd09mc' ? 'coordinates_mercator' : 'coordinates',
             transferCoordinate: function(coordinate) {
-                return map.coordToContainerPoint(new maptalks.Coordinate(coordinate)).toArray();
+                coord.x = coordinate[0];
+                coord.y = coordinate[1];
+                const r = map.coordToContainerPoint(coord)._multi(scale).toArray();
+                return r;
             }
         }
 
@@ -176,7 +189,9 @@ class LayerRenderer extends maptalks.renderer.CanvasRenderer {
             self.options._width = self.options.width;
         }
 
-        self.drawContext(context, data, self.options, { x : 0, y : 0 });
+        //screen position of the [0, 0] point
+        const zeroZeroScreen = map._pointToContainerPoint(zeroZero)._multi(scale);
+        self.drawContext(context, data, self.options, zeroZeroScreen);
 
         //console.timeEnd('draw');
 
