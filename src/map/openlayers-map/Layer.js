@@ -59,6 +59,11 @@ class Layer extends BaseLayer {
     this.argCheck(options);
   }
 
+  /**
+   * init mapv layer
+   * @param map
+   * @param options
+   */
   init (map, options) {
     if (map && map instanceof ol.Map) {
       this.$Map = map;
@@ -70,6 +75,15 @@ class Layer extends BaseLayer {
     } else {
       throw new Error('not map object')
     }
+  }
+
+  /**
+   * update layer
+   * @param time
+   * @private
+   */
+  _canvasUpdate (time) {
+    this.render(this.canvasLayer.canvas, time);
   }
 
   /**

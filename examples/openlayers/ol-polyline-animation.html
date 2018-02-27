@@ -80,7 +80,23 @@
 
     }
 
-    var dataSet = new mapv.DataSet(data);
+    var lineDataSet = new mapv.DataSet(data);
+
+    var lineOptions = {
+      strokeStyle: 'rgba(53,57,255,0.5)',
+      // globalCompositeOperation: 'lighter',
+      shadowColor: 'rgba(53,57,255,0.2)',
+      shadowBlur: 3,
+      lineWidth: 3.0,
+      draw: 'simple',
+      projection: 'EPSG:4326',
+      layerName: 'line',
+      // zIndex: 1
+    }
+
+    var mapvLineLayer = new mapv.OpenlayersLayer(map, lineDataSet, lineOptions);
+
+    var dataSet = new mapv.DataSet(timeData);
 
     var options = {
       fillStyle: 'rgba(255, 250, 250, 0.2)',
@@ -96,18 +112,8 @@
       },
       draw: 'simple',
       projection: 'EPSG:4326',
-      methods: {
-        click: function (event) {
-          console.log(event)
-        },
-        mousemove: function (event) {
-          if (event) {
-            mapvLayer.setDefaultCursor('pointer', event)
-          } else {
-            mapvLayer.setDefaultCursor('default', event)
-          }
-        }
-      }
+      layerName: 'ani',
+      // zIndex: 0
     }
 
     var mapvLayer = new mapv.OpenlayersLayer(map, dataSet, options);

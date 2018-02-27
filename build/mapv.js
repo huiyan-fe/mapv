@@ -5880,6 +5880,13 @@ var Layer$6 = function (_BaseLayer) {
     return _this;
   }
 
+  /**
+   * init mapv layer
+   * @param map
+   * @param options
+   */
+
+
   createClass(Layer, [{
     key: "init",
     value: function init(map, options) {
@@ -5893,6 +5900,18 @@ var Layer$6 = function (_BaseLayer) {
       } else {
         throw new Error('not map object');
       }
+    }
+
+    /**
+     * update layer
+     * @param time
+     * @private
+     */
+
+  }, {
+    key: "_canvasUpdate",
+    value: function _canvasUpdate(time) {
+      this.render(this.canvasLayer.canvas, time);
     }
 
     /**
