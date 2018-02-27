@@ -2,19 +2,13 @@
  * MapV for maptalks.js (https://github.com/maptalks/maptalks.js)
  * @author fuzhenn / https://github.com/fuzhenn
  */
+import * as maptalks from 'maptalks';
 import BaseLayer from "../BaseLayer";
 import clear from "../../canvas/clear";
 import DataSet from "../../data/DataSet";
 import TWEEN from "../../utils/Tween";
 
-let _layer = function () {}, _renderer = function () {};
-_layer.registerRenderer = function () {}
-if (window.maptalks) {
-    _layer = window.maptalks.Layer
-  _renderer = window.maptalks.renderer.CanvasRenderer
-}
-
-class Layer extends _layer {
+class Layer extends maptalks.Layer{
 
     constructor(id, dataSet, options) {
         super(id, options);
@@ -73,7 +67,7 @@ class Layer extends _layer {
 
 }
 
-class LayerRenderer extends _renderer {
+class LayerRenderer extends maptalks.renderer.CanvasRenderer {
 
     needToRedraw() {
         const base = this.layer.baseLayer;
