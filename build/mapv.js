@@ -5868,6 +5868,13 @@ var Layer$6 = function (_BaseLayer) {
        */
     };_this.layer_ = null;
 
+    /**
+     * previous cursor
+     * @type {undefined}
+     * @private
+     */
+    _this.previousCursor_ = undefined;
+
     _this.init(map, options);
     _this.argCheck(options);
     return _this;
@@ -5987,7 +5994,6 @@ var Layer$6 = function (_BaseLayer) {
             ratio: this.options.hasOwnProperty('ratio') ? this.options.ratio : 1
           })
         });
-        console.log(this.layer_);
         this.$Map.addLayer(this.layer_);
         this.$Map.un('precompose', this.reRender, this);
         this.$Map.on('precompose', this.reRender, this);
@@ -6082,7 +6088,10 @@ var Layer$6 = function (_BaseLayer) {
     key: "clickEvent",
     value: function clickEvent(event) {
       var pixel = event.pixel;
-      get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "clickEvent", this).call(this, pixel, event);
+      get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "clickEvent", this).call(this, {
+        x: pixel[0],
+        y: pixel[1]
+      }, event);
     }
 
     /**
@@ -6094,7 +6103,10 @@ var Layer$6 = function (_BaseLayer) {
     key: "mousemoveEvent",
     value: function mousemoveEvent(event) {
       var pixel = event.pixel;
-      get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "mousemoveEvent", this).call(this, pixel, event);
+      get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "mousemoveEvent", this).call(this, {
+        x: pixel[0],
+        y: pixel[1]
+      }, event);
     }
 
     /**
@@ -6142,6 +6154,28 @@ var Layer$6 = function (_BaseLayer) {
         if (this.options.methods.pointermove) {
           map.un('pointermove', this.mousemoveEvent, this);
         }
+      }
+    }
+
+    /**
+     * set map cursor
+     * @param cursor
+     * @param feature
+     */
+
+  }, {
+    key: "setDefaultCursor",
+    value: function setDefaultCursor(cursor, feature) {
+      if (!this.$Map) return;
+      var element = this.$Map.getTargetElement();
+      if (feature) {
+        if (element.style.cursor !== cursor) {
+          this.previousCursor_ = element.style.cursor;
+          element.style.cursor = cursor;
+        }
+      } else if (this.previousCursor_ !== undefined) {
+        element.style.cursor = this.previousCursor_;
+        this.previousCursor_ = undefined;
       }
     }
   }]);

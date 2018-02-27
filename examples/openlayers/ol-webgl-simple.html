@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <title>ol-webgl-simple</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/openlayers/dist/ol.css">
+  <style>
+    html, body, #map {
+      height: 100%;
+      padding: 0;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/openlayers/dist/ol.js"></script>
+<script src="../../build/mapv.js"></script>
+<script>
+  var map = new ol.Map({
+    target: 'map',
+    layers: [
+      new ol.layer.Tile({
+        layerName: 'baseLayer',
+        preload: 4,
+        source: new ol.source.OSM({
+          url: 'http://{a-e}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+        })
+      })
+    ],
+    loadTilesWhileAnimating: true,
+    pixelRatio: 1,
+    view: new ol.View({
+      projection: 'EPSG:4326',
+      center: [116.443571, 39.987549],
+      zoom: 13
+    })
+  });
+
+  $.get('../data/beijing-village.json', function (data) {
+
+    var dataSet = new mapv.DataSet(data);
+
+    var options = {
+      fillStyle: 'rgba(255, 80, 53, 0.8)',
+      strokeStyle: 'rgba(250, 255, 53, 0.8)',
+      context: 'webgl',
+      size: 3,
+      lineWidth: 1,
+      draw: 'simple',
+      projection: 'EPSG:4326'
+    }
+
+    var mapvLayer = new mapv.OpenlayersLayer(map, dataSet, options);
+  });
+
+</script>
+</body>
+</html>

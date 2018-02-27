@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-  <title>ol example</title>
+  <title>ol-point-bubble</title>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/openlayers/dist/ol.css">
@@ -34,24 +34,18 @@
     pixelRatio: 1,
     view: new ol.View({
       projection: 'EPSG:4326',
-      center: [113.53450137499999, 34.44104525],
+      center: [-102.17609405517578, 34.41583177128595],
       zoom: 5
     })
   });
 
-  var randomCount = 1000;
+  var randomCount = 300;
   var data = [];
-
-  var citys = ["北京", "天津", "上海", "重庆", "石家庄", "太原", "呼和浩特", "哈尔滨", "长春", "沈阳", "济南", "南京", "合肥", "杭州", "南昌", "福州", "郑州", "武汉", "长沙", "广州", "南宁", "西安", "银川", "兰州", "西宁", "乌鲁木齐", "成都", "贵阳", "昆明", "拉萨", "海口"];
-
-  // 构造数据
   while (randomCount--) {
-    var cityCenter1 = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
-    var cityCenter2 = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
     data.push({
       geometry: {
-        type: 'LineString',
-        coordinates: [[cityCenter1.lng - 1 + Math.random() * 1, cityCenter1.lat - 1 + Math.random() * 1], [cityCenter2.lng - 1 + Math.random() * 1, cityCenter2.lat - 1 + Math.random() * 1]]
+        type: 'Point',
+        coordinates: [-125.8 + Math.random() * 50, 30.3 + Math.random() * 20]
       },
       count: 30 * Math.random()
     });
@@ -60,11 +54,13 @@
   var dataSet = new mapv.DataSet(data);
 
   var options = {
-    strokeStyle: 'rgba(255, 250, 50, 0.3)',
+    fillStyle: 'rgba(255, 250, 50, 0.8)',
+    globalCompositeOperation: "lighter",
+    maxSize: 10,
+    max: 30,
+    shadowBlur: 30,
     shadowColor: 'rgba(255, 250, 50, 1)',
-    shadowBlur: 20,
-    lineWidth: 0.7,
-    draw: 'simple',
+    draw: 'bubble',
     projection: 'EPSG:4326',
     methods: {
       click: function (event) {
@@ -78,7 +74,7 @@
         }
       }
     }
-  }
+  };
 
   var mapvLayer = new mapv.OpenlayersLayer(map, dataSet, options);
 

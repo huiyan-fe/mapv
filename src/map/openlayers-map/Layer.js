@@ -48,6 +48,13 @@ class Layer extends BaseLayer {
      */
     this.layer_ = null;
 
+    /**
+     * previous cursor
+     * @type {undefined}
+     * @private
+     */
+    this.previousCursor_ = undefined
+
     this.init(map, options);
     this.argCheck(options);
   }
@@ -158,7 +165,6 @@ class Layer extends BaseLayer {
           ratio: (this.options.hasOwnProperty('ratio') ? this.options.ratio : 1)
         })
       });
-      console.log(this.layer_)
       this.$Map.addLayer(this.layer_);
       this.$Map.un('precompose', this.reRender, this);
       this.$Map.on('precompose', this.reRender, this);
@@ -234,7 +240,10 @@ class Layer extends BaseLayer {
    */
   clickEvent(event) {
     const pixel = event.pixel;
-    super.clickEvent(pixel, event);
+    super.clickEvent({
+      x: pixel[0],
+      y: pixel[1]
+    }, event);
   }
 
   /**
@@ -243,7 +252,10 @@ class Layer extends BaseLayer {
    */
   mousemoveEvent(event) {
     const pixel = event.pixel;
-    super.mousemoveEvent(pixel, event);
+    super.mousemoveEvent({
+      x: pixel[0],
+      y: pixel[1]
+    }, event);
   }
 
   /**
@@ -282,6 +294,25 @@ class Layer extends BaseLayer {
       if (this.options.methods.pointermove) {
         map.un('pointermove', this.mousemoveEvent, this);
       }
+    }
+  }
+
+  /**
+   * set map cursor
+   * @param cursor
+   * @param feature
+   */
+  setDefaultCursor (cursor, feature) {
+    if (!this.$Map) return;
+    const element = this.$Map.getTargetElement()
+    if (feature) {
+      if (element.style.cursor !== cursor) {
+        this.previousCursor_ = element.style.cursor
+        element.style.cursor = cursor
+      }
+    } else if (this.previousCursor_ !== undefined) {
+      element.style.cursor = this.previousCursor_
+      this.previousCursor_ = undefined
     }
   }
 }
