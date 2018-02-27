@@ -143,8 +143,6 @@ class LayerRenderer extends maptalks.renderer.CanvasRenderer {
             scale = self.canvasLayer.devicePixelRatio;
         }
 
-        const zeroZero = new maptalks.Point(0, 0);
-        const nw = map._containerPointToPoint(zeroZero);
         //reuse to save coordinate instance creation
         const coord = new maptalks.Coordinate(0, 0);
         const dataGetOptions = {
@@ -189,6 +187,7 @@ class LayerRenderer extends maptalks.renderer.CanvasRenderer {
             self.options._width = self.options.width;
         }
 
+        const zeroZero = new maptalks.Point(0, 0);
         //screen position of the [0, 0] point
         const zeroZeroScreen = map._pointToContainerPoint(zeroZero)._multi(scale);
         self.drawContext(context, data, self.options, zeroZeroScreen);
