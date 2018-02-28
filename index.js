@@ -36,6 +36,8 @@ export {default as googleMapLayer} from "./src/map/google-map/Layer";
 
 export {default as MaptalksLayer} from "./src/map/maptalks-map/Layer";
 
+export {default as AMapLayer} from "./src/map/gaode-map/Layer";
+
 // under test
 // export {default as leafletMapLayer} from "./src/map/leaflet-map/Layer";
 

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>ImageLayer</title>
+  <meta id="viewport" name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0"/>
+  <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main1119.css"/>
+  <script src="http://webapi.amap.com/maps?v=1.4.2&key=6cb85da518029607d421917b7ddeb94a"></script> -->
+</head>
+
+<body>
+<div id="container"></div>
+
+<script>
+  var map = new AMap.Map('container', {
+    resizeEnable: true,
+    // viewMode:"3D",
+    zoom:15,
+    center:[116.335183,39.941735]
+  });
+  AMap.plugin(["AMap.ControlBar"],function(){
+    var bar = new AMap.ControlBar();
+    map.addControl(bar);
+  });
+  /*
+   * 添加Canvas图层
+   */
+  var canvas = document.createElement('canvas');
+  canvas.width = canvas.height = 200;
+  var context = canvas.getContext('2d')
+  context.fillStyle='rgb(0,100,255)';
+  context.strokeStyle='white';
+  context.globalAlpha = 1;
+  context.lineWidth = 2;
+  var radious = 0;
+  var draw  = function(argument) {
+    context.clearRect(0,0,200,200)
+    context.globalAlpha = (context.globalAlpha-0.01+1)%1;
+    radious=100;
+
+    context.beginPath();
+    context.arc(100,100,radious,0,2*Math.PI);
+    context.fill();
+    context.stroke();
+    context.font = "48px serif";
+    context.fillText("Hello world", 10, 50)
+    CanvasLayer.reFresh()//2D视图时可以省略
+    AMap.Util.requestAnimFrame(draw)
+  }
+
+  var CanvasLayer = new AMap.CanvasLayer({
+    canvas: (function () {
+      return canvas
+    })(),
+    bounds: new AMap.Bounds(
+      [116.328911, 39.937229],
+      [116.342659, 39.946275]
+    ),
+    zooms: [3, 18],
+  });
+
+  CanvasLayer.setMap(map);
+  map.on('click', function (event) {
+    console.log(map.lngLatToContainer(event.lnglat, map.getZoom()));
+  })
+  draw();
+
+
+</script>
+</body>
+</html>
