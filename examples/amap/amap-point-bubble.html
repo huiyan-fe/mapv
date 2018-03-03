@@ -1,7 +1,7 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
-    <title>amap example</title>
+    <title>amap-point-bubble</title>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main1119.css"/>
@@ -18,19 +18,13 @@
 <div id="map"></div>
 <script src="../../build/mapv.js"></script>
 <script>
-
     var map = new AMap.Map('map', {
         resizeEnable: true,
         zoom: 4,
         center: [-102.17609405517578, 34.41583177128595],
         mapStyle: 'amap://styles/dark'
     });
-    AMap.plugin(["AMap.ControlBar"], function () {
-        var bar = new AMap.ControlBar();
-        map.addControl(bar);
-    });
-
-    var randomCount = 500;
+    var randomCount = 300;
     var data = [];
     while (randomCount--) {
         data.push({
@@ -41,35 +35,24 @@
             count: 30 * Math.random()
         });
     }
-
     var dataSet = new mapv.DataSet(data);
-
     var options = {
-        max: 30, // 设置显示的权重最大值
-        type: 'circle', // 点形状,可选circle:圆形(默认),rect:矩形
-        size: 10, // 半径大小
-        maxOpacity: 0.9,
-        gradient: { // 显示的颜色渐变范围
-            '0': 'blue',
-            '0.6': 'cyan',
-            '0.7': 'lime',
-            '0.8': 'yellow',
-            '1.0': 'red'
-        },
-        draw: 'heatmap',
-        zooms: [0, 22],
+        fillStyle: 'rgba(255, 250, 50, 0.8)',
+        globalCompositeOperation: "lighter",
+        maxSize: 10,
+        max: 30,
+        shadowBlur: 30,
+        shadowColor: 'rgba(255, 250, 50, 1)',
+        draw: 'bubble',
         methods: {
             click: function (event) {
                 console.log(event)
             },
             mousemove: function (event) {
-                console.log(event)
             }
         }
-    }
-
-    var mapvLayer = new mapv.AMapLayer(map, dataSet, options);
-
+    };
+    var mapvLayer = new mapv.AMapLayer(map, dataSet, options);;
 </script>
 </body>
 </html>
