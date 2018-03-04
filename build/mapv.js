@@ -5882,6 +5882,9 @@ var Layer$7 = function (_BaseLayer) {
          */
         _this.layer_ = null;
 
+        _this.initDataRange(options);
+        _this.initAnimator();
+        _this.onEvents();
         map.on('complete', function () {
             this.init(map, options);
             this.argCheck(options);
@@ -5903,9 +5906,6 @@ var Layer$7 = function (_BaseLayer) {
                 this.map = map;
                 this.context = this.options.context || '2d';
                 this.getCanvasLayer();
-                this.initDataRange(options);
-                this.initAnimator();
-                this.onEvents();
             } else {
                 throw new Error('not map object');
             }
@@ -5933,6 +5933,7 @@ var Layer$7 = function (_BaseLayer) {
     }, {
         key: "render",
         value: function render(canvas, time) {
+            if (!canvas) return;
             var map = this.map;
             var context = canvas.getContext(this.context);
             var animationOptions = this.options.animation;

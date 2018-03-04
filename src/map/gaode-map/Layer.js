@@ -50,6 +50,9 @@ class Layer extends BaseLayer {
          */
         this.layer_ = null;
 
+        this.initDataRange(options);
+        this.initAnimator();
+        this.onEvents()
         map.on('complete', function () {
             this.init(map, options);
             this.argCheck(options);
@@ -66,9 +69,6 @@ class Layer extends BaseLayer {
             this.map = map;
             this.context = this.options.context || '2d';
             this.getCanvasLayer();
-            this.initDataRange(options);
-            this.initAnimator();
-            this.onEvents()
         } else {
             throw new Error('not map object')
         }
@@ -90,6 +90,7 @@ class Layer extends BaseLayer {
      * @returns {Layer}
      */
     render(canvas, time) {
+        if (!canvas) return;
         const map = this.map;
         const context = canvas.getContext(this.context);
         const animationOptions = this.options.animation;
