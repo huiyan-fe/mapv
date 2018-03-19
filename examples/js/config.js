@@ -92,10 +92,12 @@ var config = {
             url: 'baidu-map-polygon-simple.html',
             pic: 'baidu-map-polygon-simple.jpg'
         },
+        /*
         {
             url: 'baidu-map-polygon-clip.html',
             pic: 'baidu-map-polygon-clip.jpg'
         },
+        */
         {
             url: 'baidu-map-polyline-heatmap.html',
             pic: 'baidu-map-polyline-heatmap.jpg'
@@ -112,6 +114,7 @@ var config = {
             url: 'beijing-village.html',
             pic: 'beijing-village.jpg'
         },
+        /*
         {
             url: 'geojson-china.html',
             pic: 'geojson-china.jpg'
@@ -124,6 +127,7 @@ var config = {
             url: 'geojson-world.html',
             pic: 'geojson-world.jpg'
         },
+        */
         {
             url: 'google-maps-point-bubble.html',
             pic: 'google-maps-point-bubble.jpg'
