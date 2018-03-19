@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>maptalks demo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maptalks/dist/maptalks.css" />
+    <script src="https://cdn.jsdelivr.net/npm/maptalks/dist/maptalks.js"></script>
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    
+    <script type="text/javascript" src="../../build/mapv.js"></script>
+
+    <script type="text/javascript">
+
+        var map = new maptalks.Map('map', {
+            center: [116.41348403785,39.910843952376],
+            zoom: 12,
+            attribution: {
+                content: '&copy; Google Maps'
+            },
+            baseLayer: new maptalks.TileLayer('base', {
+                'urlTemplate': 'http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+                'subdomains': ['a', 'b', 'c', 'd', 'e']
+            })
+        });
+
+
+        $.get('../data/od-xierqi.txt', function (rs) {
+            var data = [];
+            var timeData = [];
+
+            rs = rs.split("\n");
+            console.log(rs.length);
+            var maxLength = 0;
+            for (var i = 0; i < rs.length; i++) {
+                var item = rs[i].split(',');
+                var coordinates = [];
+                if (item.length > maxLength) {
+                    maxLength = item.length;
+                }
+                for (j = 0; j < item.length; j += 2) {
+                   // var coord = trans.untransform(new maptalks.Point(Number(item[j]), Number(item[j + 1])),1);
+                    //coordinates.push([coord.x,coord.y]);
+                    var x = Number(item[j]) / 20037508.34 * 180;
+                    var y = Number(item[j + 1]) / 20037508.34 * 180;
+                    y = 180 / Math.PI * (2 * Math.atan(Math.exp(y * Math.PI / 180)) - Math.PI / 2);
+                    if (x == 0 || y == NaN) {
+                        continue;
+                    }
+                    coordinates.push([x, y]);
+                    timeData.push({
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [x,y]
+                        },
+                        count: 1,
+                        time: j
+                    });
+                }
+                data.push({
+                    geometry: {
+                        type: 'LineString',
+                        coordinates: coordinates
+                    }
+                });
+
+            }
+
+            var dataSet = new mapv.DataSet(data);
+
+            var options = {
+                strokeStyle: 'rgba(53,57,255,0.5)',
+                // globalCompositeOperation: 'lighter',
+                shadowColor: 'rgba(53,57,255,0.2)',
+                shadowBlur: 3,
+                lineWidth: 3.0,
+                draw: 'simple'
+            }
+
+            var mapvLayer = new mapv.MaptalksLayer('mapv1', dataSet, options).addTo(map);
+
+
+            var dataSet = new mapv.DataSet(timeData);
+
+            var options = {
+                fillStyle: 'rgba(255, 250, 250, 0.2)',
+                globalCompositeOperation: "lighter",
+                size: 1.5,
+                animation: {
+                    stepsRange: {
+                        start: 0,
+                        end: 100
+                    },
+                    trails: 3,
+                    duration: 5,
+                },
+                draw: 'simple'
+            }
+
+            var mapvLayer = new mapv.MaptalksLayer('mapv', dataSet, options).addTo(map);
+        });
+
+
+    </script>
+
+</body>
+</html>
