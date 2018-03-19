@@ -34,6 +34,8 @@ export {default as baiduMapLayer} from "./src/map/baidu-map/Layer";
 export {default as googleMapCanvasLayer} from "./src/map/google-map/CanvasLayer";
 export {default as googleMapLayer} from "./src/map/google-map/Layer";
 
+export {default as MaptalksLayer} from "./src/map/maptalks-map/Layer";
+
 // under test
 // export {default as leafletMapLayer} from "./src/map/leaflet-map/Layer";
 

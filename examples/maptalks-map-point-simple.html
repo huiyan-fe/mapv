@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Leaflet.Canvas example</title>
+  <!-- based on leaflet quick example: http://leafletjs.com/examples/quick-start-example.html -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maptalks@0.36.2/dist/maptalks.css" />
+  <style> 
+    html, body, #map { height: 100%; padding: 0; margin: 0;}
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/maptalks@0.36.2/dist/maptalks.js"></script>
+  <script src="../build/mapv.js"></script>
+  <script>
+
+    var map = new maptalks.Map('map', {
+        center: [-102.17609405517578, 34.41583177128595],
+        zoom: 4,
+        attribution: {
+          content: '&copy; Google Maps'
+        },
+        baseLayer: new maptalks.TileLayer('base', {
+          'urlTemplate' : 'http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+          'subdomains'  : ['a','b','c','d','e']
+        })
+      });
+
+    var randomCount = 500;
+    var data = [];
+    while (randomCount--) {
+        data.push({
+            geometry: {
+                type: 'Point',
+                coordinates: [-125.8 + Math.random() * 50, 30.3 + Math.random() * 20]
+            },
+            count: 30 * Math.random()
+        });
+    }
+
+    var dataSet = new mapv.DataSet(data);
+
+    var options = {
+        fillStyle: 'rgba(255, 250, 50, 0.7)',
+        shadowColor: 'rgba(255, 255, 50, 1)',
+        shadowBlur: 10,
+        size: 3,
+        draw: 'simple'
+    }
+
+    var mapvLayer = new mapv.MaptalksLayer('mapv', dataSet, options).addTo(map);
+
+  </script>
+</body>
+</html>
