@@ -8,6 +8,7 @@ import Intensity from "../utils/data-range/Intensity";
 import Category from "../utils/data-range/Category";
 import Choropleth from "../utils/data-range/Choropleth";
 import drawHeatmap from "../canvas/draw/heatmap";
+import drawArrow from "../canvas/draw/arrow";
 import drawSimple from "../canvas/draw/simple";
 import webglDrawSimple from "../webgl/draw/simple";
 import drawGrid from "../canvas/draw/grid";
@@ -184,6 +185,10 @@ class BaseLayer {
                 } else {
                     drawSimple.draw(context, dataSet, self.options);
                 }
+        }
+
+        if (self.options.arrow && self.options.arrow.show !== false) {
+            drawArrow.draw(context, dataSet, self.options);
         }
     }
 

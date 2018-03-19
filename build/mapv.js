@@ -253,35 +253,6 @@ var possibleConstructorReturn = function (self, call) {
  * @author kyle / http://nikai.us/
  */
 
-/**
- * DataSet
- *
- * A data set can:
- * - add/remove/update data
- * - gives triggers upon changes in the data
- * - can  import/export data in various data formats
- * @param {Array} [data]    Optional array with initial data
- * the field geometry is like geojson, it can be:
- * {
- *     "type": "Point",
- *     "coordinates": [125.6, 10.1]
- * }
- * {
- *     "type": "LineString",
- *     "coordinates": [
- *         [102.0, 0.0], [103.0, 1.0], [104.0, 0.0], [105.0, 1.0]
- *     ]
- * }
- * {
- *     "type": "Polygon",
- *     "coordinates": [
- *         [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],
- *           [100.0, 1.0], [100.0, 0.0] ]
- *     ]
- * }
- * @param {Object} [options]   Available options:
- * 
- */
 function DataSet(data, options) {
     Event.bind(this)();
 
@@ -797,11 +768,6 @@ function Canvas(width, height) {
  * @author kyle / http://nikai.us/
  */
 
-/**
- * Category
- * @param {Object} [options]   Available options:
- *                             {Object} gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"}
- */
 function Intensity(options) {
 
     options = options || {};
@@ -2920,6 +2886,18 @@ var MapHelper = function () {
     return MapHelper;
 }();
 
+// function MapHelper(dom, type, opt) {
+//     var map = new BMap.Map(dom, {
+//         enableMapClick: false
+//     });
+//     map.centerAndZoom(new BMap.Point(106.962497, 38.208726), 5);
+//     map.enableScrollWheelZoom(true);
+
+//     map.setMapStyle({
+//         style: 'light'
+//     });
+// }
+
 /**
  * 一直覆盖在当前地图视野的Canvas对象
  *
@@ -3806,6 +3784,116 @@ TWEEN.Interpolation = {
 };
 
 /**
+ * 根据2点获取角度
+ * @param Array [123, 23] 点1
+ * @param Array [123, 23] 点2
+ * @return angle 角度,不是弧度
+ */
+function getAngle(start, end) {
+    var diff_x = end[0] - start[0];
+    var diff_y = end[1] - start[1];
+    var deg = 360 * Math.atan(diff_y / diff_x) / (2 * Math.PI);
+    if (end[0] < start[0]) {
+        deg = deg + 180;
+    }
+    return deg;
+}
+
+/**
+ * 绘制沿线箭头
+ * @author kyle / http://nikai.us/
+ */
+
+var imageCache = {};
+
+var object = {
+    draw: function draw(context, dataSet, options) {
+        var imageCacheKey = 'http://huiyan.baidu.com/github/tools/gis-drawing/static/images/direction.png';
+        if (options.arrow && options.arrow.url) {
+            imageCacheKey = options.arrow.url;
+        }
+
+        if (!imageCache[imageCacheKey]) {
+            imageCache[imageCacheKey] = null;
+        }
+
+        var directionImage = imageCache[imageCacheKey];
+
+        if (!directionImage) {
+            var args = Array.prototype.slice.call(arguments);
+            var image = new Image();
+            image.onload = function () {
+                imageCache[imageCacheKey] = image;
+                object.draw.apply(null, args);
+            };
+            image.src = imageCacheKey;
+            return;
+        }
+
+        var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
+
+        // console.log('xxxx',options)
+        context.save();
+
+        for (var key in options) {
+            context[key] = options[key];
+        }
+
+        var points = [];
+        var preCoordinate = null;
+        for (var i = 0, len = data.length; i < len; i++) {
+
+            var item = data[i];
+
+            context.save();
+
+            if (item.fillStyle || item._fillStyle) {
+                context.fillStyle = item.fillStyle || item._fillStyle;
+            }
+
+            if (item.strokeStyle || item._strokeStyle) {
+                context.strokeStyle = item.strokeStyle || item._strokeStyle;
+            }
+
+            var type = item.geometry.type;
+
+            context.beginPath();
+            if (type === 'LineString') {
+                var coordinates = item.geometry._coordinates || item.geometry.coordinates;
+                var interval = options.arrow.interval !== undefined ? options.arrow.interval : 1;
+                for (var j = 0; j < coordinates.length; j += interval) {
+                    if (coordinates[j] && coordinates[j + 1]) {
+                        var coordinate = coordinates[j];
+
+                        if (preCoordinate && getDistance(coordinate, preCoordinate) < 30) {
+                            continue;
+                        }
+
+                        context.save();
+                        var angle = getAngle(coordinates[j], coordinates[j + 1]);
+                        context.translate(coordinate[0], coordinate[1]);
+                        context.rotate(angle * Math.PI / 180);
+                        context.drawImage(directionImage, -directionImage.width / 2 / devicePixelRatio, -directionImage.height / 2 / devicePixelRatio, directionImage.width / devicePixelRatio, directionImage.height / devicePixelRatio);
+                        context.restore();
+
+                        points.push(coordinate);
+                        preCoordinate = coordinate;
+                    }
+                }
+            }
+
+            context.restore();
+        }
+
+        context.restore();
+    }
+};
+
+function getDistance(coordinateA, coordinateB) {
+    return Math.sqrt(Math.pow(coordinateA[0] - coordinateB[0], 2) + Math.pow(coordinateA[1] - coordinateB[1], 2));
+}
+
+/**
  * @author Mofei Zhu<mapv@zhuwenlong.com>
  * This file is to draw text
  */
@@ -4147,6 +4235,10 @@ var BaseLayer = function () {
                     } else {
                         drawSimple.draw(context, dataSet, self.options);
                     }
+            }
+
+            if (self.options.arrow && self.options.arrow.show !== false) {
+                object.draw(context, dataSet, self.options);
             }
         }
     }, {
