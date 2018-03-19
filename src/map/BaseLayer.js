@@ -195,7 +195,7 @@ class BaseLayer {
             pathSimple.draw(context, data[i], this.options);
             var x = pixel.x * this.canvasLayer.devicePixelRatio;
             var y = pixel.y * this.canvasLayer.devicePixelRatio;
-            if (context.isPointInPath(x, y) || context.isPointInStroke(x, y)) {
+            if (context.isPointInPath(x, y) || context.isPointInStroke && context.isPointInStroke(x, y)) {
                 return data[i];
             }
         }
