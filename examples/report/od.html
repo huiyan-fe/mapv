@@ -85,6 +85,9 @@
                 item.lineWidth = intensity.getSize(item['迁徙量']);
                 return item;
             });
+            data = data.sort(function (a, b) {
+                return b.count - a.count;
+            });
             lineDataSet.set(data);
         });
 
