@@ -60,6 +60,12 @@
             });
         }
 
+        var intensity = new mapv.utilDataRangeIntensity({
+            maxSize: 10,
+            minSize: 1,
+            max: 5000
+        });
+
         $.get('od.csv', function(csvstr) {
             var dataSet = mapv.csv.getDataSet(csvstr);
             var data = dataSet.get();
@@ -76,6 +82,7 @@
                     coordinates: [[cityCenter1.lng, cityCenter1.lat], [cityCenter2.lng, cityCenter2.lat]]
                 }
                 item.count = item['迁徙量'];
+                item.lineWidth = intensity.getSize(item['迁徙量']);
                 return item;
             });
             lineDataSet.set(data);
