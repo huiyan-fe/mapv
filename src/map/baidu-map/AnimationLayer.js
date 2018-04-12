@@ -32,6 +32,10 @@ class AnimationLayer extends BaseLayer{
         this.start();
     }
 
+    draw() {
+        this.canvasLayer.draw();
+    }
+
     init(options) {
 
         var self = this;
@@ -178,12 +182,12 @@ class AnimationLayer extends BaseLayer{
                     data[i]._index = 0;
                 }
 
-                ctx.lineWidth = options.lineWidth || 1;
                 var strokeStyle = data[i].strokeStyle || options.strokeStyle;
                 var fillStyle = data[i].fillStyle || options.fillStyle || 'yellow';
                 ctx.fillStyle = fillStyle;
                 ctx.fill();
-                if (strokeStyle) {
+                if (strokeStyle && options.lineWidth) {
+                    ctx.lineWidth = options.lineWidth || 1;
                     ctx.strokeStyle = strokeStyle;
                     ctx.stroke();
                 }

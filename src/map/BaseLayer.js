@@ -195,14 +195,16 @@ class BaseLayer {
             pathSimple.draw(context, data[i], this.options);
             var x = pixel.x * this.canvasLayer.devicePixelRatio;
             var y = pixel.y * this.canvasLayer.devicePixelRatio;
-            if (context.isPointInPath(x, y) || context.isPointInStroke(x, y)) {
+            if (context.isPointInPath(x, y) || context.isPointInStroke && context.isPointInStroke(x, y)) {
                 return data[i];
             }
         }
     }
 
     clickEvent(pixel, e) {
-
+        if (!this.options.methods) {
+            return;
+        }
         var dataItem = this.isPointInPath(this.getContext(), pixel);
 
         if (dataItem) {
@@ -214,6 +216,9 @@ class BaseLayer {
     }
 
     mousemoveEvent(pixel, e) {
+        if (!this.options.methods) {
+            return;
+        }
         var dataItem = this.isPointInPath(this.getContext(), pixel);
         if (dataItem) {
             this.options.methods.mousemove(dataItem, e);
