@@ -78,7 +78,7 @@ var object = {
                         var angle = getAngle(coordinates[j], coordinates[j + 1]);
                         context.translate(coordinate[0], coordinate[1]);
                         context.rotate((angle) * Math.PI / 180);
-                        context.drawImage(directionImage, -directionImage.width / 2 / devicePixelRatio, -directionImage.height / 2 / devicePixelRatio, directionImage.width / devicePixelRatio, directionImage.height / devicePixelRatio);
+                        context.drawImage(directionImage, -directionImage.width / 2 / 2, -directionImage.height / 2 / 2, directionImage.width / 2, directionImage.height / 2);
                         context.restore();
 
                         points.push(coordinate);
