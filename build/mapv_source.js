@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {}),global.maptalks));
 }(this, (function (exports,maptalks) { 'use strict';
 
-var version = "2.0.20";
+var version = "2.0.21";
 
 /**
  * @author kyle / http://nikai.us/
@@ -253,6 +253,35 @@ var possibleConstructorReturn = function (self, call) {
  * @author kyle / http://nikai.us/
  */
 
+/**
+ * DataSet
+ *
+ * A data set can:
+ * - add/remove/update data
+ * - gives triggers upon changes in the data
+ * - can  import/export data in various data formats
+ * @param {Array} [data]    Optional array with initial data
+ * the field geometry is like geojson, it can be:
+ * {
+ *     "type": "Point",
+ *     "coordinates": [125.6, 10.1]
+ * }
+ * {
+ *     "type": "LineString",
+ *     "coordinates": [
+ *         [102.0, 0.0], [103.0, 1.0], [104.0, 0.0], [105.0, 1.0]
+ *     ]
+ * }
+ * {
+ *     "type": "Polygon",
+ *     "coordinates": [
+ *         [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],
+ *           [100.0, 1.0], [100.0, 0.0] ]
+ *     ]
+ * }
+ * @param {Object} [options]   Available options:
+ * 
+ */
 function DataSet(data, options) {
     Event.bind(this)();
 
@@ -658,85 +687,85 @@ var pathSimple = {
  */
 
 var drawSimple = {
-                draw: function draw(context, dataSet, options) {
+    draw: function draw(context, dataSet, options) {
 
-                                var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
+        var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
 
-                                // console.log('xxxx',options)
-                                context.save();
+        // console.log('xxxx',options)
+        context.save();
 
-                                for (var key in options) {
-                                                context[key] = options[key];
-                                }
+        for (var key in options) {
+            context[key] = options[key];
+        }
 
-                                // console.log(data);
-                                if (options.bigData) {
-                                                context.save();
-                                                context.beginPath();
+        // console.log(data);
+        if (options.bigData) {
+            context.save();
+            context.beginPath();
 
-                                                for (var i = 0, len = data.length; i < len; i++) {
+            for (var i = 0, len = data.length; i < len; i++) {
 
-                                                                var item = data[i];
+                var item = data[i];
 
-                                                                pathSimple.draw(context, item, options);
-                                                }
+                pathSimple.draw(context, item, options);
+            }
 
-                                                var type = options.bigData;
+            var type = options.bigData;
 
-                                                if (type == 'Point' || type == 'Polygon' || type == 'MultiPolygon') {
+            if (type == 'Point' || type == 'Polygon' || type == 'MultiPolygon') {
 
-                                                                context.fill();
+                context.fill();
 
-                                                                if ((item.strokeStyle || options.strokeStyle) && options.lineWidth) {
-                                                                                context.stroke();
-                                                                }
-                                                } else if (type == 'LineString') {
-                                                                context.stroke();
-                                                }
-
-                                                context.restore();
-                                } else {
-
-                                                for (var i = 0, len = data.length; i < len; i++) {
-
-                                                                var item = data[i];
-
-                                                                context.save();
-
-                                                                if (item.fillStyle || item._fillStyle) {
-                                                                                context.fillStyle = item.fillStyle || item._fillStyle;
-                                                                }
-
-                                                                if (item.strokeStyle || item._strokeStyle) {
-                                                                                context.strokeStyle = item.strokeStyle || item._strokeStyle;
-                                                                }
-
-                                                                var type = item.geometry.type;
-
-                                                                context.beginPath();
-
-                                                                pathSimple.draw(context, item, options);
-
-                                                                if (type == 'Point' || type == 'Polygon' || type == 'MultiPolygon') {
-
-                                                                                context.fill();
-
-                                                                                if ((item.strokeStyle || options.strokeStyle) && options.lineWidth) {
-                                                                                                context.stroke();
-                                                                                }
-                                                                } else if (type == 'LineString') {
-                                                                                if (item.lineWidth || item._lineWidth) {
-                                                                                                context.lineWidth = item.lineWidth || item._lineWidth;
-                                                                                }
-                                                                                context.stroke();
-                                                                }
-
-                                                                context.restore();
-                                                }
-                                }
-
-                                context.restore();
+                if ((item.strokeStyle || options.strokeStyle) && options.lineWidth) {
+                    context.stroke();
                 }
+            } else if (type == 'LineString') {
+                context.stroke();
+            }
+
+            context.restore();
+        } else {
+
+            for (var i = 0, len = data.length; i < len; i++) {
+
+                var item = data[i];
+
+                context.save();
+
+                if (item.fillStyle || item._fillStyle) {
+                    context.fillStyle = item.fillStyle || item._fillStyle;
+                }
+
+                if (item.strokeStyle || item._strokeStyle) {
+                    context.strokeStyle = item.strokeStyle || item._strokeStyle;
+                }
+
+                var type = item.geometry.type;
+
+                context.beginPath();
+
+                pathSimple.draw(context, item, options);
+
+                if (type == 'Point' || type == 'Polygon' || type == 'MultiPolygon') {
+
+                    context.fill();
+
+                    if ((item.strokeStyle || options.strokeStyle) && options.lineWidth) {
+                        context.stroke();
+                    }
+                } else if (type == 'LineString') {
+                    if (item.lineWidth || item._lineWidth) {
+                        context.lineWidth = item.lineWidth || item._lineWidth;
+                    }
+                    context.stroke();
+                }
+
+                context.restore();
+            }
+        }
+
+        context.restore();
+    }
 };
 
 function Canvas$1(width, height) {
@@ -768,6 +797,11 @@ function Canvas$1(width, height) {
  * @author kyle / http://nikai.us/
  */
 
+/**
+ * Category
+ * @param {Object} [options]   Available options:
+ *                             {Object} gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"}
+ */
 function Intensity(options) {
 
     options = options || {};
@@ -2230,7 +2264,6 @@ function getCurveByTwoPoints(obj1, obj2, count) {
     if (parseFloat(lng2 - lng1) > 180) {
       if (lng1 < 0) {
         lng1 = parseFloat(180 + 180 + lng1);
-        lng2 = parseFloat(180 + 180 + lng2);
       }
     }
   }
@@ -2239,18 +2272,14 @@ function getCurveByTwoPoints(obj1, obj2, count) {
     if (parseFloat(lng1 - lng2) > 180) {
       if (lng2 < 0) {
         lng2 = parseFloat(180 + 180 + lng2);
-        lng1 = parseFloat(180 + 180 + lng1);
       }
     }
   }
-  // 此时纠正了 lng1 lng2
   j = 0;
   t2 = 0;
-  // 纬度相同
   if (lat2 == lat1) {
     t = 0;
     h = lng1 - lng2;
-    // 经度相同
   } else if (lng2 == lng1) {
     t = Math.PI / 2;
     h = lat1 - lat2;
@@ -2266,12 +2295,7 @@ function getCurveByTwoPoints(obj1, obj2, count) {
   lat3 = h2 * Math.sin(t2) + lat1;
 
   for (i = 0; i < count + 1; i++) {
-    var x = lng1 * B1(inc) + lng3 * B2(inc) + lng2 * B3(inc);
-    var y = lat1 * B1(inc) + lat3 * B2(inc) + lat2 * B3(inc);
-    var lng1_src = obj1.lng;
-    var lng2_src = obj2.lng;
-
-    curveCoordinates.push([lng1_src < 0 && lng2_src > 0 ? x - 360 : x, y]);
+    curveCoordinates.push([lng1 * B1(inc) + lng3 * B2(inc) + lng2 * B3(inc), lat1 * B1(inc) + lat3 * B2(inc) + lat2 * B3(inc)]);
     inc = inc + 1 / count;
   }
   return curveCoordinates;
@@ -2896,18 +2920,6 @@ var MapHelper = function () {
     return MapHelper;
 }();
 
-// function MapHelper(dom, type, opt) {
-//     var map = new BMap.Map(dom, {
-//         enableMapClick: false
-//     });
-//     map.centerAndZoom(new BMap.Point(106.962497, 38.208726), 5);
-//     map.enableScrollWheelZoom(true);
-
-//     map.setMapStyle({
-//         style: 'light'
-//     });
-// }
-
 /**
  * 一直覆盖在当前地图视野的Canvas对象
  *
@@ -3026,772 +3038,882 @@ if (global$3.BMap) {
 
 var TWEEN = TWEEN || function () {
 
-        var _tweens = [];
+    var _tweens = [];
 
-        return {
+    return {
 
-                getAll: function getAll() {
+        getAll: function getAll() {
 
-                        return _tweens;
-                },
+            return _tweens;
+        },
 
-                removeAll: function removeAll() {
+        removeAll: function removeAll() {
 
-                        _tweens = [];
-                },
+            _tweens = [];
+        },
 
-                add: function add(tween) {
+        add: function add(tween) {
 
-                        _tweens.push(tween);
-                },
+            _tweens.push(tween);
+        },
 
-                remove: function remove(tween) {
+        remove: function remove(tween) {
 
-                        var i = _tweens.indexOf(tween);
+            var i = _tweens.indexOf(tween);
 
-                        if (i !== -1) {
-                                _tweens.splice(i, 1);
-                        }
-                },
+            if (i !== -1) {
+                _tweens.splice(i, 1);
+            }
+        },
 
-                update: function update(time, preserve) {
+        update: function update(time, preserve) {
 
-                        if (_tweens.length === 0) {
-                                return false;
-                        }
+            if (_tweens.length === 0) {
+                return false;
+            }
 
-                        var i = 0;
+            var i = 0;
 
-                        time = time !== undefined ? time : TWEEN.now();
+            time = time !== undefined ? time : TWEEN.now();
 
-                        while (i < _tweens.length) {
+            while (i < _tweens.length) {
 
-                                if (_tweens[i].update(time) || preserve) {
-                                        i++;
-                                } else {
-                                        _tweens.splice(i, 1);
-                                }
-                        }
-
-                        return true;
+                if (_tweens[i].update(time) || preserve) {
+                    i++;
+                } else {
+                    _tweens.splice(i, 1);
                 }
-        };
+            }
+
+            return true;
+        }
+    };
 }();
 
 // Include a performance.now polyfill.
 // In node.js, use process.hrtime.
 if (typeof window === 'undefined' && typeof process !== 'undefined') {
-        TWEEN.now = function () {
-                var time = process.hrtime();
+    TWEEN.now = function () {
+        var time = process.hrtime();
 
-                // Convert [seconds, nanoseconds] to milliseconds.
-                return time[0] * 1000 + time[1] / 1000000;
-        };
+        // Convert [seconds, nanoseconds] to milliseconds.
+        return time[0] * 1000 + time[1] / 1000000;
+    };
 }
 // In a browser, use window.performance.now if it is available.
 else if (typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined) {
-                // This must be bound, because directly assigning this function
-                // leads to an invocation exception in Chrome.
-                TWEEN.now = window.performance.now.bind(window.performance);
+        // This must be bound, because directly assigning this function
+        // leads to an invocation exception in Chrome.
+        TWEEN.now = window.performance.now.bind(window.performance);
+    }
+    // Use Date.now if it is available.
+    else if (Date.now !== undefined) {
+            TWEEN.now = Date.now;
         }
-        // Use Date.now if it is available.
-        else if (Date.now !== undefined) {
-                        TWEEN.now = Date.now;
-                }
-                // Otherwise, use 'new Date().getTime()'.
-                else {
-                                TWEEN.now = function () {
-                                        return new Date().getTime();
-                                };
-                        }
+        // Otherwise, use 'new Date().getTime()'.
+        else {
+                TWEEN.now = function () {
+                    return new Date().getTime();
+                };
+            }
 
 TWEEN.Tween = function (object) {
 
-        var _object = object;
-        var _valuesStart = {};
-        var _valuesEnd = {};
-        var _valuesStartRepeat = {};
-        var _duration = 1000;
-        var _repeat = 0;
-        var _repeatDelayTime;
-        var _yoyo = false;
-        var _isPlaying = false;
-        var _reversed = false;
-        var _delayTime = 0;
-        var _startTime = null;
-        var _easingFunction = TWEEN.Easing.Linear.None;
-        var _interpolationFunction = TWEEN.Interpolation.Linear;
-        var _chainedTweens = [];
-        var _onStartCallback = null;
-        var _onStartCallbackFired = false;
-        var _onUpdateCallback = null;
-        var _onCompleteCallback = null;
-        var _onStopCallback = null;
+    var _object = object;
+    var _valuesStart = {};
+    var _valuesEnd = {};
+    var _valuesStartRepeat = {};
+    var _duration = 1000;
+    var _repeat = 0;
+    var _repeatDelayTime;
+    var _yoyo = false;
+    var _isPlaying = false;
+    var _reversed = false;
+    var _delayTime = 0;
+    var _startTime = null;
+    var _easingFunction = TWEEN.Easing.Linear.None;
+    var _interpolationFunction = TWEEN.Interpolation.Linear;
+    var _chainedTweens = [];
+    var _onStartCallback = null;
+    var _onStartCallbackFired = false;
+    var _onUpdateCallback = null;
+    var _onCompleteCallback = null;
+    var _onStopCallback = null;
 
-        this.to = function (properties, duration) {
+    this.to = function (properties, duration) {
 
-                _valuesEnd = properties;
+        _valuesEnd = properties;
 
-                if (duration !== undefined) {
-                        _duration = duration;
+        if (duration !== undefined) {
+            _duration = duration;
+        }
+
+        return this;
+    };
+
+    this.start = function (time) {
+
+        TWEEN.add(this);
+
+        _isPlaying = true;
+
+        _onStartCallbackFired = false;
+
+        _startTime = time !== undefined ? time : TWEEN.now();
+        _startTime += _delayTime;
+
+        for (var property in _valuesEnd) {
+
+            // Check if an Array was provided as property value
+            if (_valuesEnd[property] instanceof Array) {
+
+                if (_valuesEnd[property].length === 0) {
+                    continue;
                 }
 
-                return this;
-        };
+                // Create a local copy of the Array with the start value at the front
+                _valuesEnd[property] = [_object[property]].concat(_valuesEnd[property]);
+            }
 
-        this.start = function (time) {
+            // If `to()` specifies a property that doesn't exist in the source object,
+            // we should not set that property in the object
+            if (_object[property] === undefined) {
+                continue;
+            }
 
-                TWEEN.add(this);
+            // Save the starting value.
+            _valuesStart[property] = _object[property];
 
-                _isPlaying = true;
+            if (_valuesStart[property] instanceof Array === false) {
+                _valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
+            }
 
-                _onStartCallbackFired = false;
+            _valuesStartRepeat[property] = _valuesStart[property] || 0;
+        }
 
-                _startTime = time !== undefined ? time : TWEEN.now();
-                _startTime += _delayTime;
+        return this;
+    };
 
-                for (var property in _valuesEnd) {
+    this.stop = function () {
 
-                        // Check if an Array was provided as property value
-                        if (_valuesEnd[property] instanceof Array) {
+        if (!_isPlaying) {
+            return this;
+        }
 
-                                if (_valuesEnd[property].length === 0) {
-                                        continue;
-                                }
+        TWEEN.remove(this);
+        _isPlaying = false;
 
-                                // Create a local copy of the Array with the start value at the front
-                                _valuesEnd[property] = [_object[property]].concat(_valuesEnd[property]);
-                        }
+        if (_onStopCallback !== null) {
+            _onStopCallback.call(_object, _object);
+        }
 
-                        // If `to()` specifies a property that doesn't exist in the source object,
-                        // we should not set that property in the object
-                        if (_object[property] === undefined) {
-                                continue;
-                        }
+        this.stopChainedTweens();
+        return this;
+    };
 
-                        // Save the starting value.
-                        _valuesStart[property] = _object[property];
+    this.end = function () {
 
-                        if (_valuesStart[property] instanceof Array === false) {
-                                _valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
-                        }
+        this.update(_startTime + _duration);
+        return this;
+    };
 
-                        _valuesStartRepeat[property] = _valuesStart[property] || 0;
+    this.stopChainedTweens = function () {
+
+        for (var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i++) {
+            _chainedTweens[i].stop();
+        }
+    };
+
+    this.delay = function (amount) {
+
+        _delayTime = amount;
+        return this;
+    };
+
+    this.repeat = function (times) {
+
+        _repeat = times;
+        return this;
+    };
+
+    this.repeatDelay = function (amount) {
+
+        _repeatDelayTime = amount;
+        return this;
+    };
+
+    this.yoyo = function (yoyo) {
+
+        _yoyo = yoyo;
+        return this;
+    };
+
+    this.easing = function (easing) {
+
+        _easingFunction = easing;
+        return this;
+    };
+
+    this.interpolation = function (interpolation) {
+
+        _interpolationFunction = interpolation;
+        return this;
+    };
+
+    this.chain = function () {
+
+        _chainedTweens = arguments;
+        return this;
+    };
+
+    this.onStart = function (callback) {
+
+        _onStartCallback = callback;
+        return this;
+    };
+
+    this.onUpdate = function (callback) {
+
+        _onUpdateCallback = callback;
+        return this;
+    };
+
+    this.onComplete = function (callback) {
+
+        _onCompleteCallback = callback;
+        return this;
+    };
+
+    this.onStop = function (callback) {
+
+        _onStopCallback = callback;
+        return this;
+    };
+
+    this.update = function (time) {
+
+        var property;
+        var elapsed;
+        var value;
+
+        if (time < _startTime) {
+            return true;
+        }
+
+        if (_onStartCallbackFired === false) {
+
+            if (_onStartCallback !== null) {
+                _onStartCallback.call(_object, _object);
+            }
+
+            _onStartCallbackFired = true;
+        }
+
+        elapsed = (time - _startTime) / _duration;
+        elapsed = elapsed > 1 ? 1 : elapsed;
+
+        value = _easingFunction(elapsed);
+
+        for (property in _valuesEnd) {
+
+            // Don't update properties that do not exist in the source object
+            if (_valuesStart[property] === undefined) {
+                continue;
+            }
+
+            var start = _valuesStart[property] || 0;
+            var end = _valuesEnd[property];
+
+            if (end instanceof Array) {
+
+                _object[property] = _interpolationFunction(end, value);
+            } else {
+
+                // Parses relative end values with start as base (e.g.: +10, -3)
+                if (typeof end === 'string') {
+
+                    if (end.charAt(0) === '+' || end.charAt(0) === '-') {
+                        end = start + parseFloat(end);
+                    } else {
+                        end = parseFloat(end);
+                    }
                 }
 
-                return this;
-        };
+                // Protect against non numeric properties.
+                if (typeof end === 'number') {
+                    _object[property] = start + (end - start) * value;
+                }
+            }
+        }
 
-        this.stop = function () {
+        if (_onUpdateCallback !== null) {
+            _onUpdateCallback.call(_object, value);
+        }
 
-                if (!_isPlaying) {
-                        return this;
+        if (elapsed === 1) {
+
+            if (_repeat > 0) {
+
+                if (isFinite(_repeat)) {
+                    _repeat--;
                 }
 
-                TWEEN.remove(this);
-                _isPlaying = false;
+                // Reassign starting values, restart by making startTime = now
+                for (property in _valuesStartRepeat) {
 
-                if (_onStopCallback !== null) {
-                        _onStopCallback.call(_object, _object);
+                    if (typeof _valuesEnd[property] === 'string') {
+                        _valuesStartRepeat[property] = _valuesStartRepeat[property] + parseFloat(_valuesEnd[property]);
+                    }
+
+                    if (_yoyo) {
+                        var tmp = _valuesStartRepeat[property];
+
+                        _valuesStartRepeat[property] = _valuesEnd[property];
+                        _valuesEnd[property] = tmp;
+                    }
+
+                    _valuesStart[property] = _valuesStartRepeat[property];
                 }
 
-                this.stopChainedTweens();
-                return this;
-        };
-
-        this.end = function () {
-
-                this.update(_startTime + _duration);
-                return this;
-        };
-
-        this.stopChainedTweens = function () {
-
-                for (var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i++) {
-                        _chainedTweens[i].stop();
-                }
-        };
-
-        this.delay = function (amount) {
-
-                _delayTime = amount;
-                return this;
-        };
-
-        this.repeat = function (times) {
-
-                _repeat = times;
-                return this;
-        };
-
-        this.repeatDelay = function (amount) {
-
-                _repeatDelayTime = amount;
-                return this;
-        };
-
-        this.yoyo = function (yoyo) {
-
-                _yoyo = yoyo;
-                return this;
-        };
-
-        this.easing = function (easing) {
-
-                _easingFunction = easing;
-                return this;
-        };
-
-        this.interpolation = function (interpolation) {
-
-                _interpolationFunction = interpolation;
-                return this;
-        };
-
-        this.chain = function () {
-
-                _chainedTweens = arguments;
-                return this;
-        };
-
-        this.onStart = function (callback) {
-
-                _onStartCallback = callback;
-                return this;
-        };
-
-        this.onUpdate = function (callback) {
-
-                _onUpdateCallback = callback;
-                return this;
-        };
-
-        this.onComplete = function (callback) {
-
-                _onCompleteCallback = callback;
-                return this;
-        };
-
-        this.onStop = function (callback) {
-
-                _onStopCallback = callback;
-                return this;
-        };
-
-        this.update = function (time) {
-
-                var property;
-                var elapsed;
-                var value;
-
-                if (time < _startTime) {
-                        return true;
+                if (_yoyo) {
+                    _reversed = !_reversed;
                 }
 
-                if (_onStartCallbackFired === false) {
-
-                        if (_onStartCallback !== null) {
-                                _onStartCallback.call(_object, _object);
-                        }
-
-                        _onStartCallbackFired = true;
-                }
-
-                elapsed = (time - _startTime) / _duration;
-                elapsed = elapsed > 1 ? 1 : elapsed;
-
-                value = _easingFunction(elapsed);
-
-                for (property in _valuesEnd) {
-
-                        // Don't update properties that do not exist in the source object
-                        if (_valuesStart[property] === undefined) {
-                                continue;
-                        }
-
-                        var start = _valuesStart[property] || 0;
-                        var end = _valuesEnd[property];
-
-                        if (end instanceof Array) {
-
-                                _object[property] = _interpolationFunction(end, value);
-                        } else {
-
-                                // Parses relative end values with start as base (e.g.: +10, -3)
-                                if (typeof end === 'string') {
-
-                                        if (end.charAt(0) === '+' || end.charAt(0) === '-') {
-                                                end = start + parseFloat(end);
-                                        } else {
-                                                end = parseFloat(end);
-                                        }
-                                }
-
-                                // Protect against non numeric properties.
-                                if (typeof end === 'number') {
-                                        _object[property] = start + (end - start) * value;
-                                }
-                        }
-                }
-
-                if (_onUpdateCallback !== null) {
-                        _onUpdateCallback.call(_object, value);
-                }
-
-                if (elapsed === 1) {
-
-                        if (_repeat > 0) {
-
-                                if (isFinite(_repeat)) {
-                                        _repeat--;
-                                }
-
-                                // Reassign starting values, restart by making startTime = now
-                                for (property in _valuesStartRepeat) {
-
-                                        if (typeof _valuesEnd[property] === 'string') {
-                                                _valuesStartRepeat[property] = _valuesStartRepeat[property] + parseFloat(_valuesEnd[property]);
-                                        }
-
-                                        if (_yoyo) {
-                                                var tmp = _valuesStartRepeat[property];
-
-                                                _valuesStartRepeat[property] = _valuesEnd[property];
-                                                _valuesEnd[property] = tmp;
-                                        }
-
-                                        _valuesStart[property] = _valuesStartRepeat[property];
-                                }
-
-                                if (_yoyo) {
-                                        _reversed = !_reversed;
-                                }
-
-                                if (_repeatDelayTime !== undefined) {
-                                        _startTime = time + _repeatDelayTime;
-                                } else {
-                                        _startTime = time + _delayTime;
-                                }
-
-                                return true;
-                        } else {
-
-                                if (_onCompleteCallback !== null) {
-
-                                        _onCompleteCallback.call(_object, _object);
-                                }
-
-                                for (var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i++) {
-                                        // Make the chained tweens start exactly at the time they should,
-                                        // even if the `update()` method was called way past the duration of the tween
-                                        _chainedTweens[i].start(_startTime + _duration);
-                                }
-
-                                return false;
-                        }
+                if (_repeatDelayTime !== undefined) {
+                    _startTime = time + _repeatDelayTime;
+                } else {
+                    _startTime = time + _delayTime;
                 }
 
                 return true;
-        };
+            } else {
+
+                if (_onCompleteCallback !== null) {
+
+                    _onCompleteCallback.call(_object, _object);
+                }
+
+                for (var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i++) {
+                    // Make the chained tweens start exactly at the time they should,
+                    // even if the `update()` method was called way past the duration of the tween
+                    _chainedTweens[i].start(_startTime + _duration);
+                }
+
+                return false;
+            }
+        }
+
+        return true;
+    };
 };
 
 TWEEN.Easing = {
 
-        Linear: {
+    Linear: {
 
-                None: function None(k) {
+        None: function None(k) {
 
-                        return k;
-                }
-
-        },
-
-        Quadratic: {
-
-                In: function In(k) {
-
-                        return k * k;
-                },
-
-                Out: function Out(k) {
-
-                        return k * (2 - k);
-                },
-
-                InOut: function InOut(k) {
-
-                        if ((k *= 2) < 1) {
-                                return 0.5 * k * k;
-                        }
-
-                        return -0.5 * (--k * (k - 2) - 1);
-                }
-
-        },
-
-        Cubic: {
-
-                In: function In(k) {
-
-                        return k * k * k;
-                },
-
-                Out: function Out(k) {
-
-                        return --k * k * k + 1;
-                },
-
-                InOut: function InOut(k) {
-
-                        if ((k *= 2) < 1) {
-                                return 0.5 * k * k * k;
-                        }
-
-                        return 0.5 * ((k -= 2) * k * k + 2);
-                }
-
-        },
-
-        Quartic: {
-
-                In: function In(k) {
-
-                        return k * k * k * k;
-                },
-
-                Out: function Out(k) {
-
-                        return 1 - --k * k * k * k;
-                },
-
-                InOut: function InOut(k) {
-
-                        if ((k *= 2) < 1) {
-                                return 0.5 * k * k * k * k;
-                        }
-
-                        return -0.5 * ((k -= 2) * k * k * k - 2);
-                }
-
-        },
-
-        Quintic: {
-
-                In: function In(k) {
-
-                        return k * k * k * k * k;
-                },
-
-                Out: function Out(k) {
-
-                        return --k * k * k * k * k + 1;
-                },
-
-                InOut: function InOut(k) {
-
-                        if ((k *= 2) < 1) {
-                                return 0.5 * k * k * k * k * k;
-                        }
-
-                        return 0.5 * ((k -= 2) * k * k * k * k + 2);
-                }
-
-        },
-
-        Sinusoidal: {
-
-                In: function In(k) {
-
-                        return 1 - Math.cos(k * Math.PI / 2);
-                },
-
-                Out: function Out(k) {
-
-                        return Math.sin(k * Math.PI / 2);
-                },
-
-                InOut: function InOut(k) {
-
-                        return 0.5 * (1 - Math.cos(Math.PI * k));
-                }
-
-        },
-
-        Exponential: {
-
-                In: function In(k) {
-
-                        return k === 0 ? 0 : Math.pow(1024, k - 1);
-                },
-
-                Out: function Out(k) {
-
-                        return k === 1 ? 1 : 1 - Math.pow(2, -10 * k);
-                },
-
-                InOut: function InOut(k) {
-
-                        if (k === 0) {
-                                return 0;
-                        }
-
-                        if (k === 1) {
-                                return 1;
-                        }
-
-                        if ((k *= 2) < 1) {
-                                return 0.5 * Math.pow(1024, k - 1);
-                        }
-
-                        return 0.5 * (-Math.pow(2, -10 * (k - 1)) + 2);
-                }
-
-        },
-
-        Circular: {
-
-                In: function In(k) {
-
-                        return 1 - Math.sqrt(1 - k * k);
-                },
-
-                Out: function Out(k) {
-
-                        return Math.sqrt(1 - --k * k);
-                },
-
-                InOut: function InOut(k) {
-
-                        if ((k *= 2) < 1) {
-                                return -0.5 * (Math.sqrt(1 - k * k) - 1);
-                        }
-
-                        return 0.5 * (Math.sqrt(1 - (k -= 2) * k) + 1);
-                }
-
-        },
-
-        Elastic: {
-
-                In: function In(k) {
-
-                        if (k === 0) {
-                                return 0;
-                        }
-
-                        if (k === 1) {
-                                return 1;
-                        }
-
-                        return -Math.pow(2, 10 * (k - 1)) * Math.sin((k - 1.1) * 5 * Math.PI);
-                },
-
-                Out: function Out(k) {
-
-                        if (k === 0) {
-                                return 0;
-                        }
-
-                        if (k === 1) {
-                                return 1;
-                        }
-
-                        return Math.pow(2, -10 * k) * Math.sin((k - 0.1) * 5 * Math.PI) + 1;
-                },
-
-                InOut: function InOut(k) {
-
-                        if (k === 0) {
-                                return 0;
-                        }
-
-                        if (k === 1) {
-                                return 1;
-                        }
-
-                        k *= 2;
-
-                        if (k < 1) {
-                                return -0.5 * Math.pow(2, 10 * (k - 1)) * Math.sin((k - 1.1) * 5 * Math.PI);
-                        }
-
-                        return 0.5 * Math.pow(2, -10 * (k - 1)) * Math.sin((k - 1.1) * 5 * Math.PI) + 1;
-                }
-
-        },
-
-        Back: {
-
-                In: function In(k) {
-
-                        var s = 1.70158;
-
-                        return k * k * ((s + 1) * k - s);
-                },
-
-                Out: function Out(k) {
-
-                        var s = 1.70158;
-
-                        return --k * k * ((s + 1) * k + s) + 1;
-                },
-
-                InOut: function InOut(k) {
-
-                        var s = 1.70158 * 1.525;
-
-                        if ((k *= 2) < 1) {
-                                return 0.5 * (k * k * ((s + 1) * k - s));
-                        }
-
-                        return 0.5 * ((k -= 2) * k * ((s + 1) * k + s) + 2);
-                }
-
-        },
-
-        Bounce: {
-
-                In: function In(k) {
-
-                        return 1 - TWEEN.Easing.Bounce.Out(1 - k);
-                },
-
-                Out: function Out(k) {
-
-                        if (k < 1 / 2.75) {
-                                return 7.5625 * k * k;
-                        } else if (k < 2 / 2.75) {
-                                return 7.5625 * (k -= 1.5 / 2.75) * k + 0.75;
-                        } else if (k < 2.5 / 2.75) {
-                                return 7.5625 * (k -= 2.25 / 2.75) * k + 0.9375;
-                        } else {
-                                return 7.5625 * (k -= 2.625 / 2.75) * k + 0.984375;
-                        }
-                },
-
-                InOut: function InOut(k) {
-
-                        if (k < 0.5) {
-                                return TWEEN.Easing.Bounce.In(k * 2) * 0.5;
-                        }
-
-                        return TWEEN.Easing.Bounce.Out(k * 2 - 1) * 0.5 + 0.5;
-                }
-
+            return k;
         }
+
+    },
+
+    Quadratic: {
+
+        In: function In(k) {
+
+            return k * k;
+        },
+
+        Out: function Out(k) {
+
+            return k * (2 - k);
+        },
+
+        InOut: function InOut(k) {
+
+            if ((k *= 2) < 1) {
+                return 0.5 * k * k;
+            }
+
+            return -0.5 * (--k * (k - 2) - 1);
+        }
+
+    },
+
+    Cubic: {
+
+        In: function In(k) {
+
+            return k * k * k;
+        },
+
+        Out: function Out(k) {
+
+            return --k * k * k + 1;
+        },
+
+        InOut: function InOut(k) {
+
+            if ((k *= 2) < 1) {
+                return 0.5 * k * k * k;
+            }
+
+            return 0.5 * ((k -= 2) * k * k + 2);
+        }
+
+    },
+
+    Quartic: {
+
+        In: function In(k) {
+
+            return k * k * k * k;
+        },
+
+        Out: function Out(k) {
+
+            return 1 - --k * k * k * k;
+        },
+
+        InOut: function InOut(k) {
+
+            if ((k *= 2) < 1) {
+                return 0.5 * k * k * k * k;
+            }
+
+            return -0.5 * ((k -= 2) * k * k * k - 2);
+        }
+
+    },
+
+    Quintic: {
+
+        In: function In(k) {
+
+            return k * k * k * k * k;
+        },
+
+        Out: function Out(k) {
+
+            return --k * k * k * k * k + 1;
+        },
+
+        InOut: function InOut(k) {
+
+            if ((k *= 2) < 1) {
+                return 0.5 * k * k * k * k * k;
+            }
+
+            return 0.5 * ((k -= 2) * k * k * k * k + 2);
+        }
+
+    },
+
+    Sinusoidal: {
+
+        In: function In(k) {
+
+            return 1 - Math.cos(k * Math.PI / 2);
+        },
+
+        Out: function Out(k) {
+
+            return Math.sin(k * Math.PI / 2);
+        },
+
+        InOut: function InOut(k) {
+
+            return 0.5 * (1 - Math.cos(Math.PI * k));
+        }
+
+    },
+
+    Exponential: {
+
+        In: function In(k) {
+
+            return k === 0 ? 0 : Math.pow(1024, k - 1);
+        },
+
+        Out: function Out(k) {
+
+            return k === 1 ? 1 : 1 - Math.pow(2, -10 * k);
+        },
+
+        InOut: function InOut(k) {
+
+            if (k === 0) {
+                return 0;
+            }
+
+            if (k === 1) {
+                return 1;
+            }
+
+            if ((k *= 2) < 1) {
+                return 0.5 * Math.pow(1024, k - 1);
+            }
+
+            return 0.5 * (-Math.pow(2, -10 * (k - 1)) + 2);
+        }
+
+    },
+
+    Circular: {
+
+        In: function In(k) {
+
+            return 1 - Math.sqrt(1 - k * k);
+        },
+
+        Out: function Out(k) {
+
+            return Math.sqrt(1 - --k * k);
+        },
+
+        InOut: function InOut(k) {
+
+            if ((k *= 2) < 1) {
+                return -0.5 * (Math.sqrt(1 - k * k) - 1);
+            }
+
+            return 0.5 * (Math.sqrt(1 - (k -= 2) * k) + 1);
+        }
+
+    },
+
+    Elastic: {
+
+        In: function In(k) {
+
+            if (k === 0) {
+                return 0;
+            }
+
+            if (k === 1) {
+                return 1;
+            }
+
+            return -Math.pow(2, 10 * (k - 1)) * Math.sin((k - 1.1) * 5 * Math.PI);
+        },
+
+        Out: function Out(k) {
+
+            if (k === 0) {
+                return 0;
+            }
+
+            if (k === 1) {
+                return 1;
+            }
+
+            return Math.pow(2, -10 * k) * Math.sin((k - 0.1) * 5 * Math.PI) + 1;
+        },
+
+        InOut: function InOut(k) {
+
+            if (k === 0) {
+                return 0;
+            }
+
+            if (k === 1) {
+                return 1;
+            }
+
+            k *= 2;
+
+            if (k < 1) {
+                return -0.5 * Math.pow(2, 10 * (k - 1)) * Math.sin((k - 1.1) * 5 * Math.PI);
+            }
+
+            return 0.5 * Math.pow(2, -10 * (k - 1)) * Math.sin((k - 1.1) * 5 * Math.PI) + 1;
+        }
+
+    },
+
+    Back: {
+
+        In: function In(k) {
+
+            var s = 1.70158;
+
+            return k * k * ((s + 1) * k - s);
+        },
+
+        Out: function Out(k) {
+
+            var s = 1.70158;
+
+            return --k * k * ((s + 1) * k + s) + 1;
+        },
+
+        InOut: function InOut(k) {
+
+            var s = 1.70158 * 1.525;
+
+            if ((k *= 2) < 1) {
+                return 0.5 * (k * k * ((s + 1) * k - s));
+            }
+
+            return 0.5 * ((k -= 2) * k * ((s + 1) * k + s) + 2);
+        }
+
+    },
+
+    Bounce: {
+
+        In: function In(k) {
+
+            return 1 - TWEEN.Easing.Bounce.Out(1 - k);
+        },
+
+        Out: function Out(k) {
+
+            if (k < 1 / 2.75) {
+                return 7.5625 * k * k;
+            } else if (k < 2 / 2.75) {
+                return 7.5625 * (k -= 1.5 / 2.75) * k + 0.75;
+            } else if (k < 2.5 / 2.75) {
+                return 7.5625 * (k -= 2.25 / 2.75) * k + 0.9375;
+            } else {
+                return 7.5625 * (k -= 2.625 / 2.75) * k + 0.984375;
+            }
+        },
+
+        InOut: function InOut(k) {
+
+            if (k < 0.5) {
+                return TWEEN.Easing.Bounce.In(k * 2) * 0.5;
+            }
+
+            return TWEEN.Easing.Bounce.Out(k * 2 - 1) * 0.5 + 0.5;
+        }
+
+    }
 
 };
 
 TWEEN.Interpolation = {
 
-        Linear: function Linear(v, k) {
+    Linear: function Linear(v, k) {
 
-                var m = v.length - 1;
-                var f = m * k;
-                var i = Math.floor(f);
-                var fn = TWEEN.Interpolation.Utils.Linear;
+        var m = v.length - 1;
+        var f = m * k;
+        var i = Math.floor(f);
+        var fn = TWEEN.Interpolation.Utils.Linear;
 
-                if (k < 0) {
-                        return fn(v[0], v[1], f);
-                }
-
-                if (k > 1) {
-                        return fn(v[m], v[m - 1], m - f);
-                }
-
-                return fn(v[i], v[i + 1 > m ? m : i + 1], f - i);
-        },
-
-        Bezier: function Bezier(v, k) {
-
-                var b = 0;
-                var n = v.length - 1;
-                var pw = Math.pow;
-                var bn = TWEEN.Interpolation.Utils.Bernstein;
-
-                for (var i = 0; i <= n; i++) {
-                        b += pw(1 - k, n - i) * pw(k, i) * v[i] * bn(n, i);
-                }
-
-                return b;
-        },
-
-        CatmullRom: function CatmullRom(v, k) {
-
-                var m = v.length - 1;
-                var f = m * k;
-                var i = Math.floor(f);
-                var fn = TWEEN.Interpolation.Utils.CatmullRom;
-
-                if (v[0] === v[m]) {
-
-                        if (k < 0) {
-                                i = Math.floor(f = m * (1 + k));
-                        }
-
-                        return fn(v[(i - 1 + m) % m], v[i], v[(i + 1) % m], v[(i + 2) % m], f - i);
-                } else {
-
-                        if (k < 0) {
-                                return v[0] - (fn(v[0], v[0], v[1], v[1], -f) - v[0]);
-                        }
-
-                        if (k > 1) {
-                                return v[m] - (fn(v[m], v[m], v[m - 1], v[m - 1], f - m) - v[m]);
-                        }
-
-                        return fn(v[i ? i - 1 : 0], v[i], v[m < i + 1 ? m : i + 1], v[m < i + 2 ? m : i + 2], f - i);
-                }
-        },
-
-        Utils: {
-
-                Linear: function Linear(p0, p1, t) {
-
-                        return (p1 - p0) * t + p0;
-                },
-
-                Bernstein: function Bernstein(n, i) {
-
-                        var fc = TWEEN.Interpolation.Utils.Factorial;
-
-                        return fc(n) / fc(i) / fc(n - i);
-                },
-
-                Factorial: function () {
-
-                        var a = [1];
-
-                        return function (n) {
-
-                                var s = 1;
-
-                                if (a[n]) {
-                                        return a[n];
-                                }
-
-                                for (var i = n; i > 1; i--) {
-                                        s *= i;
-                                }
-
-                                a[n] = s;
-                                return s;
-                        };
-                }(),
-
-                CatmullRom: function CatmullRom(p0, p1, p2, p3, t) {
-
-                        var v0 = (p2 - p0) * 0.5;
-                        var v1 = (p3 - p1) * 0.5;
-                        var t2 = t * t;
-                        var t3 = t * t2;
-
-                        return (2 * p1 - 2 * p2 + v0 + v1) * t3 + (-3 * p1 + 3 * p2 - 2 * v0 - v1) * t2 + v0 * t + p1;
-                }
-
+        if (k < 0) {
+            return fn(v[0], v[1], f);
         }
 
+        if (k > 1) {
+            return fn(v[m], v[m - 1], m - f);
+        }
+
+        return fn(v[i], v[i + 1 > m ? m : i + 1], f - i);
+    },
+
+    Bezier: function Bezier(v, k) {
+
+        var b = 0;
+        var n = v.length - 1;
+        var pw = Math.pow;
+        var bn = TWEEN.Interpolation.Utils.Bernstein;
+
+        for (var i = 0; i <= n; i++) {
+            b += pw(1 - k, n - i) * pw(k, i) * v[i] * bn(n, i);
+        }
+
+        return b;
+    },
+
+    CatmullRom: function CatmullRom(v, k) {
+
+        var m = v.length - 1;
+        var f = m * k;
+        var i = Math.floor(f);
+        var fn = TWEEN.Interpolation.Utils.CatmullRom;
+
+        if (v[0] === v[m]) {
+
+            if (k < 0) {
+                i = Math.floor(f = m * (1 + k));
+            }
+
+            return fn(v[(i - 1 + m) % m], v[i], v[(i + 1) % m], v[(i + 2) % m], f - i);
+        } else {
+
+            if (k < 0) {
+                return v[0] - (fn(v[0], v[0], v[1], v[1], -f) - v[0]);
+            }
+
+            if (k > 1) {
+                return v[m] - (fn(v[m], v[m], v[m - 1], v[m - 1], f - m) - v[m]);
+            }
+
+            return fn(v[i ? i - 1 : 0], v[i], v[m < i + 1 ? m : i + 1], v[m < i + 2 ? m : i + 2], f - i);
+        }
+    },
+
+    Utils: {
+
+        Linear: function Linear(p0, p1, t) {
+
+            return (p1 - p0) * t + p0;
+        },
+
+        Bernstein: function Bernstein(n, i) {
+
+            var fc = TWEEN.Interpolation.Utils.Factorial;
+
+            return fc(n) / fc(i) / fc(n - i);
+        },
+
+        Factorial: function () {
+
+            var a = [1];
+
+            return function (n) {
+
+                var s = 1;
+
+                if (a[n]) {
+                    return a[n];
+                }
+
+                for (var i = n; i > 1; i--) {
+                    s *= i;
+                }
+
+                a[n] = s;
+                return s;
+            };
+        }(),
+
+        CatmullRom: function CatmullRom(p0, p1, p2, p3, t) {
+
+            var v0 = (p2 - p0) * 0.5;
+            var v1 = (p3 - p1) * 0.5;
+            var t2 = t * t;
+            var t3 = t * t2;
+
+            return (2 * p1 - 2 * p2 + v0 + v1) * t3 + (-3 * p1 + 3 * p2 - 2 * v0 - v1) * t2 + v0 * t + p1;
+        }
+
+    }
+
 };
+
+/**
+ * 根据2点获取角度
+ * @param Array [123, 23] 点1
+ * @param Array [123, 23] 点2
+ * @return angle 角度,不是弧度
+ */
+function getAngle(start, end) {
+    var diff_x = end[0] - start[0];
+    var diff_y = end[1] - start[1];
+    var deg = 360 * Math.atan(diff_y / diff_x) / (2 * Math.PI);
+    if (end[0] < start[0]) {
+        deg = deg + 180;
+    }
+    return deg;
+}
+
+/**
+ * 绘制沿线箭头
+ * @author kyle / http://nikai.us/
+ */
+
+var imageCache = {};
+
+var object = {
+    draw: function draw(context, dataSet, options) {
+        var imageCacheKey = 'http://huiyan.baidu.com/github/tools/gis-drawing/static/images/direction.png';
+        if (options.arrow && options.arrow.url) {
+            imageCacheKey = options.arrow.url;
+        }
+
+        if (!imageCache[imageCacheKey]) {
+            imageCache[imageCacheKey] = null;
+        }
+
+        var directionImage = imageCache[imageCacheKey];
+
+        if (!directionImage) {
+            var args = Array.prototype.slice.call(arguments);
+            var image = new Image();
+            image.onload = function () {
+                imageCache[imageCacheKey] = image;
+                object.draw.apply(null, args);
+            };
+            image.src = imageCacheKey;
+            return;
+        }
+
+        var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
+
+        // console.log('xxxx',options)
+        context.save();
+
+        for (var key in options) {
+            context[key] = options[key];
+        }
+
+        var points = [];
+        var preCoordinate = null;
+        for (var i = 0, len = data.length; i < len; i++) {
+
+            var item = data[i];
+
+            context.save();
+
+            if (item.fillStyle || item._fillStyle) {
+                context.fillStyle = item.fillStyle || item._fillStyle;
+            }
+
+            if (item.strokeStyle || item._strokeStyle) {
+                context.strokeStyle = item.strokeStyle || item._strokeStyle;
+            }
+
+            var type = item.geometry.type;
+
+            context.beginPath();
+            if (type === 'LineString') {
+                var coordinates = item.geometry._coordinates || item.geometry.coordinates;
+                var interval = options.arrow.interval !== undefined ? options.arrow.interval : 1;
+                for (var j = 0; j < coordinates.length; j += interval) {
+                    if (coordinates[j] && coordinates[j + 1]) {
+                        var coordinate = coordinates[j];
+
+                        if (preCoordinate && getDistance(coordinate, preCoordinate) < 30) {
+                            continue;
+                        }
+
+                        context.save();
+                        var angle = getAngle(coordinates[j], coordinates[j + 1]);
+                        context.translate(coordinate[0], coordinate[1]);
+                        context.rotate(angle * Math.PI / 180);
+                        context.drawImage(directionImage, -directionImage.width / 2 / 2, -directionImage.height / 2 / 2, directionImage.width / 2, directionImage.height / 2);
+                        context.restore();
+
+                        points.push(coordinate);
+                        preCoordinate = coordinate;
+                    }
+                }
+            }
+
+            context.restore();
+        }
+
+        context.restore();
+    }
+};
+
+function getDistance(coordinateA, coordinateB) {
+    return Math.sqrt(Math.pow(coordinateA[0] - coordinateB[0], 2) + Math.pow(coordinateA[1] - coordinateB[1], 2));
+}
 
 /**
  * @author Mofei Zhu<mapv@zhuwenlong.com>
@@ -4135,6 +4257,10 @@ var BaseLayer = function () {
                     } else {
                         drawSimple.draw(context, dataSet, self.options);
                     }
+            }
+
+            if (self.options.arrow && self.options.arrow.show !== false) {
+                object.draw(context, dataSet, self.options);
             }
         }
     }, {
@@ -5821,25 +5947,25 @@ var Layer$6 = Layer$5;
  */
 
 var geojson = {
-	getDataSet: function getDataSet(geoJson) {
+    getDataSet: function getDataSet(geoJson) {
 
-		var data = [];
-		var features = geoJson.features;
-		if (features) {
-			for (var i = 0; i < features.length; i++) {
-				var feature = features[i];
-				var geometry = feature.geometry;
-				var properties = feature.properties;
-				var item = {};
-				for (var key in properties) {
-					item[key] = properties[key];
-				}
-				item.geometry = geometry;
-				data.push(item);
-			}
-		}
-		return new DataSet(data);
-	}
+        var data = [];
+        var features = geoJson.features;
+        if(features){
+        for (var i = 0; i < features.length; i++) {
+            var feature = features[i];
+            var geometry = feature.geometry;
+            var properties = feature.properties;
+            var item = {};
+            for (var key in properties) {
+                item[key] = properties[key];
+            }
+            item.geometry = geometry;
+            data.push(item);
+          }
+        }
+        return new DataSet(data);
+    }
 };
 
 /**
