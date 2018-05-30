@@ -36,6 +36,14 @@ export default {
             if (type == 'Point' || type == 'Polygon' || type == 'MultiPolygon') {
 
                 context.fill();
+                
+                if (context.lineDash) {
+                    context.setLineDash(context.lineDash);
+                }
+                
+                if (item.lineDash) {
+                    context.setLineDash(item.lineDash);
+                }
 
                 if ((item.strokeStyle || options.strokeStyle) && options.lineWidth) {
                     context.stroke();
@@ -60,6 +68,14 @@ export default {
 
                 if (item.strokeStyle || item._strokeStyle) {
                     context.strokeStyle = item.strokeStyle || item._strokeStyle;
+                }
+
+                if (context.lineDash) {
+                    context.setLineDash(context.lineDash);
+                }
+                
+                if (item.lineDash) {
+                    context.setLineDash(item.lineDash);
                 }
 
                 var type = item.geometry.type;

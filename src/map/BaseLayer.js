@@ -200,8 +200,16 @@ class BaseLayer {
             pathSimple.draw(context, data[i], this.options);
             var x = pixel.x * this.canvasLayer.devicePixelRatio;
             var y = pixel.y * this.canvasLayer.devicePixelRatio;
-            if (context.isPointInPath(x, y) || context.isPointInStroke && context.isPointInStroke(x, y)) {
-                return data[i];
+
+            var geoType = data[i].geometry && data[i].geometry.type;
+            if (geoType.indexOf('Polygon') > -1) {
+                if (context.isPointInPath(x, y)) {
+                    return data[i];
+                }
+            } else {
+                if (context.isPointInStroke && context.isPointInStroke(x, y)) {
+                    return data[i];
+                }
             }
         }
     }
