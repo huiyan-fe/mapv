@@ -15,8 +15,8 @@ function getCurvePoints (points, options) {
 
 /**
  * 根据两点获取曲线坐标点数组
- * @param Point 起点 obj1
- * @param Point 终点 obj2 
+ * @param Point 起点
+ * @param Point 终点
  */
 function getCurveByTwoPoints (obj1, obj2, count) {
   console.info(obj1, obj2)
@@ -95,7 +95,6 @@ function getCurveByTwoPoints (obj1, obj2, count) {
     curveCoordinates.push([
       (lng1_src < 0 && lng2_src > 0) ? x - 360 : x, y
     ]);
-    console.info((lng1_src < 0 && lng2_src > 0) ? x - 360 : x, y);
     inc = inc + (1 / count);
   }
   return curveCoordinates;
