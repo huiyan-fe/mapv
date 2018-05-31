@@ -5,8 +5,13 @@ export default {
 	format: 'umd',
 	moduleName: 'mapv',
 	external: [
-		'maptalks'
+		'maptalks',
+		'openlayers'
 	],
+  globals: {
+    openlayers: 'ol',
+    maptalks: 'maptalks'
+  },
 	plugins: [babel({
 		runtimeHelpers: true
 	})],

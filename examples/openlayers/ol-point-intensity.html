@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>ol-point-intensity</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/openlayers/dist/ol.css">
+    <style>
+        html, body, #map {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<script src="https://cdn.jsdelivr.net/npm/openlayers/dist/ol.js"></script>
+<script src="../../build/mapv.js"></script>
+<script>
+
+  var map = new ol.Map({
+    target: 'map',
+    layers: [
+      new ol.layer.Tile({
+        layerName: 'baseLayer',
+        preload: 4,
+        source: new ol.source.OSM({
+          url: 'http://{a-e}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+        })
+      })
+    ],
+    loadTilesWhileAnimating: true,
+    pixelRatio: 1,
+    view: new ol.View({
+      projection: 'EPSG:4326',
+      center: [-102.17609405517578, 34.41583177128595],
+      zoom: 5
+    })
+  });
+
+  var randomCount = 300;
+  var data = [];
+  while (randomCount--) {
+    data.push({
+      geometry: {
+        type: 'Point',
+        coordinates: [-125.8 + Math.random() * 50, 30.3 + Math.random() * 20]
+      },
+      count: parseInt(30 * Math.random())
+    });
+  }
+
+  var dataSet = new mapv.DataSet(data);
+
+  var options = {
+    size: 5, // 点大小
+    gradient: { // 显示的颜色渐变范围
+      0: 'blue',
+      0.6: 'cyan',
+      0.7: 'lime',
+      0.8: 'yellow',
+      1.0: 'red'
+    },
+    max: 30,
+    draw: 'intensity',
+    projection: 'EPSG:4326',
+    methods: {
+      click: function (event) {
+        console.log(event)
+      },
+      mousemove: function (event) {
+        if (event) {
+          mapvLayer.setDefaultCursor('pointer', event)
+        } else {
+          mapvLayer.setDefaultCursor('default', event)
+        }
+      }
+    }
+  };
+
+  var mapvLayer = new mapv.OpenlayersLayer(map, dataSet, options);
+
+</script>
+</body>
+</html>

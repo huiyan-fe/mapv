@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <title>ol-polyline-animation</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/openlayers/dist/ol.css">
+  <style>
+    html, body, #map {
+      height: 100%;
+      padding: 0;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/openlayers/dist/ol.js"></script>
+<script src="../../build/mapv.js"></script>
+<script>
+
+  var map = new ol.Map({
+    target: 'map',
+    layers: [
+      new ol.layer.Tile({
+        layerName: 'baseLayer',
+        preload: 4,
+        source: new ol.source.OSM({
+          url: 'http://{a-e}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+        })
+      })
+    ],
+    loadTilesWhileAnimating: true,
+    pixelRatio: 1,
+    view: new ol.View({
+      projection: 'EPSG:4326',
+      center: [116.41348403785, 39.910843952376],
+      zoom: 12
+    })
+  });
+
+  $.get('../data/od-xierqi.txt', function (rs) {
+    var data = [];
+    var timeData = [];
+
+    rs = rs.split("\n");
+    console.log(rs.length);
+    var maxLength = 0;
+    for (var i = 0; i < rs.length; i++) {
+      var item = rs[i].split(',');
+      var coordinates = [];
+      if (item.length > maxLength) {
+        maxLength = item.length;
+      }
+      for (j = 0; j < item.length; j += 2) {
+        //coordinates.push([coord.x,coord.y]);
+        var x = Number(item[j]) / 20037508.34 * 180;
+        var y = Number(item[j + 1]) / 20037508.34 * 180;
+        y = 180 / Math.PI * (2 * Math.atan(Math.exp(y * Math.PI / 180)) - Math.PI / 2);
+        if (x == 0 || y == NaN) {
+          continue;
+        }
+        coordinates.push([x, y]);
+        timeData.push({
+          geometry: {
+            type: 'Point',
+            coordinates: [x, y]
+          },
+          count: 1,
+          time: j
+        });
+      }
+      data.push({
+        geometry: {
+          type: 'LineString',
+          coordinates: coordinates
+        }
+      });
+
+    }
+
+    var lineDataSet = new mapv.DataSet(data);
+
+    var lineOptions = {
+      strokeStyle: 'rgba(53,57,255,0.5)',
+      // globalCompositeOperation: 'lighter',
+      shadowColor: 'rgba(53,57,255,0.2)',
+      shadowBlur: 3,
+      lineWidth: 3.0,
+      draw: 'simple',
+      projection: 'EPSG:4326',
+      layerName: 'line',
+      // zIndex: 1
+    }
+
+    var mapvLineLayer = new mapv.OpenlayersLayer(map, lineDataSet, lineOptions);
+
+    var dataSet = new mapv.DataSet(timeData);
+
+    var options = {
+      fillStyle: 'rgba(255, 250, 250, 0.2)',
+      globalCompositeOperation: "lighter",
+      size: 1.5,
+      animation: {
+        stepsRange: {
+          start: 0,
+          end: 100
+        },
+        trails: 3,
+        duration: 5,
+      },
+      draw: 'simple',
+      projection: 'EPSG:4326',
+      layerName: 'ani',
+      // zIndex: 0
+    }
+
+    var mapvLayer = new mapv.OpenlayersLayer(map, dataSet, options);
+  });
+</script>
+</body>
+</html>
