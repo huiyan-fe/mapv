@@ -1,7 +1,7 @@
 /**
   * 根据弧线的坐标节点数组
   */
-function getCurvePoints(points, options) {
+function getCurvePoints (points, options) {
   options = options || {};
   var curvePoints = [];
   for (var i = 0; i < points.length - 1; i++) {
@@ -18,7 +18,8 @@ function getCurvePoints(points, options) {
  * @param Point 起点
  * @param Point 终点
  */
-function getCurveByTwoPoints(obj1, obj2, count) {
+function getCurveByTwoPoints (obj1, obj2, count) {
+  console.info(obj1, obj2)
   if (!obj1 || !obj2) {
     return null;
   }
@@ -63,15 +64,6 @@ function getCurveByTwoPoints(obj1, obj2, count) {
       }
     }
   }
-
-  if (lng1 > lng2) {
-    if (parseFloat(lng1 - lng2) > 180) {
-      if (lng2 < 0) {
-        lng2 = parseFloat(180 + 180 + lng2);
-        lng1 = parseFloat(180 + 180 + lng1);
-      }
-    }
-  }
   // 此时纠正了 lng1 lng2
   j = 0;
   t2 = 0;
@@ -108,11 +100,10 @@ function getCurveByTwoPoints(obj1, obj2, count) {
   return curveCoordinates;
 }
 
-function Point(lng, lat) {
+function Point (lng, lat) {
   this.lng = lng;
   this.lat = lat;
 }
-
 
 var curve = {
   getPoints: getCurvePoints

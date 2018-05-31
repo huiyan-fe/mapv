@@ -2240,6 +2240,7 @@ function getCurvePoints(points, options) {
  * @param Point 终点
  */
 function getCurveByTwoPoints(obj1, obj2, count) {
+  console.info(obj1, obj2);
   if (!obj1 || !obj2) {
     return null;
   }
@@ -2281,15 +2282,6 @@ function getCurveByTwoPoints(obj1, obj2, count) {
       if (lng1 < 0) {
         lng1 = parseFloat(180 + 180 + lng1);
         lng2 = parseFloat(180 + 180 + lng2);
-      }
-    }
-  }
-
-  if (lng1 > lng2) {
-    if (parseFloat(lng1 - lng2) > 180) {
-      if (lng2 < 0) {
-        lng2 = parseFloat(180 + 180 + lng2);
-        lng1 = parseFloat(180 + 180 + lng1);
       }
     }
   }
