@@ -2186,10 +2186,11 @@ function getCurvePoints(points, options) {
 
 /**
  * 根据两点获取曲线坐标点数组
- * @param Point 起点
- * @param Point 终点
+ * @param Point 起点 obj1
+ * @param Point 终点 obj2 
  */
 function getCurveByTwoPoints(obj1, obj2, count) {
+  console.info(obj1, obj2);
   if (!obj1 || !obj2) {
     return null;
   }
@@ -2234,15 +2235,6 @@ function getCurveByTwoPoints(obj1, obj2, count) {
       }
     }
   }
-
-  if (lng1 > lng2) {
-    if (parseFloat(lng1 - lng2) > 180) {
-      if (lng2 < 0) {
-        lng2 = parseFloat(180 + 180 + lng2);
-        lng1 = parseFloat(180 + 180 + lng1);
-      }
-    }
-  }
   // 此时纠正了 lng1 lng2
   j = 0;
   t2 = 0;
@@ -2272,6 +2264,7 @@ function getCurveByTwoPoints(obj1, obj2, count) {
     var lng2_src = obj2.lng;
 
     curveCoordinates.push([lng1_src < 0 && lng2_src > 0 ? x - 360 : x, y]);
+    console.info(lng1_src < 0 && lng2_src > 0 ? x - 360 : x, y);
     inc = inc + 1 / count;
   }
   return curveCoordinates;
