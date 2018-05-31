@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>amap-webgl-simple</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main1119.css"/>
+    <script src="http://webapi.amap.com/maps?v=1.4.2&key=6cb85da518029607d421917b7ddeb94a"></script>
+    <style>
+        html, body, #map {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<script src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="../../build/mapv.js"></script>
+<script>
+    var map = new AMap.Map('map', {
+        resizeEnable: true,
+        zoom: 13,
+        center: [116.443571, 39.987549],
+        mapStyle: 'amap://styles/dark'
+    });
+    $.get('../data/beijing-village.json', function (data) {
+        var dataSet = new mapv.DataSet(data);
+        var options = {
+            fillStyle: 'rgba(255, 80, 53, 0.8)',
+            strokeStyle: 'rgba(250, 255, 53, 0.8)',
+            context: 'webgl',
+            size: 3,
+            lineWidth: 1,
+            draw: 'simple'
+        }
+        var mapvLayer = new mapv.AMapLayer(map, dataSet, options);
+    });
+</script>
+</body>
+</html>

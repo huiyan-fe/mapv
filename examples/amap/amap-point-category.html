@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>amap-point-category</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main1119.css"/>
+    <script src="http://webapi.amap.com/maps?v=1.4.2&key=6cb85da518029607d421917b7ddeb94a"></script>
+    <style>
+        html, body, #map {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<script src="../../build/mapv.js"></script>
+<script>
+    var map = new AMap.Map('map', {
+        resizeEnable: true,
+        zoom: 4,
+        center: [-102.17609405517578, 34.41583177128595],
+        mapStyle: 'amap://styles/dark'
+    });
+    var randomCount = 300;
+    var data = [];
+    while (randomCount--) {
+        data.push({
+            geometry: {
+                type: 'Point',
+                coordinates: [-125.8 + Math.random() * 50, 30.3 + Math.random() * 20]
+            },
+            count: parseInt(4 * Math.random())
+        });
+    }
+    var dataSet = new mapv.DataSet(data);
+    var options = {
+        splitList: {
+            other: 'white',
+            1: 'blue',
+            2: 'yellow',
+            3: 'red'
+        },
+        size: 2,
+        max: 30,
+        draw: 'category',
+        methods: {
+            click: function (event) {
+                console.log(event)
+            },
+            mousemove: function (event) {
+            }
+        }
+    };
+    var mapvLayer = new mapv.AMapLayer(map, dataSet, options);
+</script>
+</body>
+</html>
