@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {}),global.maptalks));
 }(this, (function (exports,maptalks) { 'use strict';
 
-var version = "2.0.21";
+var version = "2.0.22";
 
 /**
  * @author kyle / http://nikai.us/
