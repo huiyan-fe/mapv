@@ -716,6 +716,14 @@ var drawSimple = {
 
                 context.fill();
 
+                if (context.lineDash) {
+                    context.setLineDash(context.lineDash);
+                }
+
+                if (item.lineDash) {
+                    context.setLineDash(item.lineDash);
+                }
+
                 if ((item.strokeStyle || options.strokeStyle) && options.lineWidth) {
                     context.stroke();
                 }
@@ -738,6 +746,14 @@ var drawSimple = {
 
                 if (item.strokeStyle || item._strokeStyle) {
                     context.strokeStyle = item.strokeStyle || item._strokeStyle;
+                }
+
+                if (context.lineDash) {
+                    context.setLineDash(context.lineDash);
+                }
+
+                if (item.lineDash) {
+                    context.setLineDash(item.lineDash);
                 }
 
                 var type = item.geometry.type;
@@ -2264,6 +2280,7 @@ function getCurveByTwoPoints(obj1, obj2, count) {
     if (parseFloat(lng2 - lng1) > 180) {
       if (lng1 < 0) {
         lng1 = parseFloat(180 + 180 + lng1);
+        lng2 = parseFloat(180 + 180 + lng2);
       }
     }
   }
@@ -2272,14 +2289,18 @@ function getCurveByTwoPoints(obj1, obj2, count) {
     if (parseFloat(lng1 - lng2) > 180) {
       if (lng2 < 0) {
         lng2 = parseFloat(180 + 180 + lng2);
+        lng1 = parseFloat(180 + 180 + lng1);
       }
     }
   }
+  // 此时纠正了 lng1 lng2
   j = 0;
   t2 = 0;
+  // 纬度相同
   if (lat2 == lat1) {
     t = 0;
     h = lng1 - lng2;
+    // 经度相同
   } else if (lng2 == lng1) {
     t = Math.PI / 2;
     h = lat1 - lat2;
@@ -2295,7 +2316,12 @@ function getCurveByTwoPoints(obj1, obj2, count) {
   lat3 = h2 * Math.sin(t2) + lat1;
 
   for (i = 0; i < count + 1; i++) {
-    curveCoordinates.push([lng1 * B1(inc) + lng3 * B2(inc) + lng2 * B3(inc), lat1 * B1(inc) + lat3 * B2(inc) + lat2 * B3(inc)]);
+    var x = lng1 * B1(inc) + lng3 * B2(inc) + lng2 * B3(inc);
+    var y = lat1 * B1(inc) + lat3 * B2(inc) + lat2 * B3(inc);
+    var lng1_src = obj1.lng;
+    var lng2_src = obj2.lng;
+
+    curveCoordinates.push([lng1_src < 0 && lng2_src > 0 ? x - 360 : x, y]);
     inc = inc + 1 / count;
   }
   return curveCoordinates;
@@ -4273,8 +4299,16 @@ var BaseLayer = function () {
                 pathSimple.draw(context, data[i], this.options);
                 var x = pixel.x * this.canvasLayer.devicePixelRatio;
                 var y = pixel.y * this.canvasLayer.devicePixelRatio;
-                if (context.isPointInPath(x, y) || context.isPointInStroke && context.isPointInStroke(x, y)) {
-                    return data[i];
+
+                var geoType = data[i].geometry && data[i].geometry.type;
+                if (geoType.indexOf('Polygon') > -1) {
+                    if (context.isPointInPath(x, y)) {
+                        return data[i];
+                    }
+                } else {
+                    if (context.isPointInStroke && context.isPointInStroke(x, y)) {
+                        return data[i];
+                    }
                 }
             }
         }
@@ -5951,16 +5985,18 @@ var geojson = {
 
         var data = [];
         var features = geoJson.features;
-        for (var i = 0; i < features.length; i++) {
-            var feature = features[i];
-            var geometry = feature.geometry;
-            var properties = feature.properties;
-            var item = {};
-            for (var key in properties) {
-                item[key] = properties[key];
+        if (features) {
+            for (var i = 0; i < features.length; i++) {
+                var feature = features[i];
+                var geometry = feature.geometry;
+                var properties = feature.properties;
+                var item = {};
+                for (var key in properties) {
+                    item[key] = properties[key];
+                }
+                item.geometry = geometry;
+                data.push(item);
             }
-            item.geometry = geometry;
-            data.push(item);
         }
         return new DataSet(data);
     }
