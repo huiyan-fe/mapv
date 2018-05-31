@@ -5969,6 +5969,322 @@ if (maptalks) {
 var Layer$6 = Layer$5;
 
 /**
+ * MapV for AMap
+ * @author sakitam-fdd - https://github.com/sakitam-fdd
+ */
+
+/**
+ * create canvas
+ * @param width
+ * @param height
+ * @param Canvas
+ * @returns {HTMLCanvasElement}
+ */
+var createCanvas = function createCanvas(width, height, Canvas$$1) {
+    if (typeof document !== 'undefined') {
+        var canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        return canvas;
+    } else {
+        // create a new canvas instance in node.js
+        // the canvas class needs to have a default constructor without any parameter
+        return new Canvas$$1(width, height);
+    }
+};
+
+var Layer$7 = function (_BaseLayer) {
+    inherits(Layer$$1, _BaseLayer);
+
+    function Layer$$1() {
+        var map = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+        var dataSet = arguments[1];
+        var options = arguments[2];
+        classCallCheck(this, Layer$$1);
+
+        var _this = possibleConstructorReturn(this, (Layer$$1.__proto__ || Object.getPrototypeOf(Layer$$1)).call(this, map, dataSet, options));
+
+        _this.options = options;
+
+        /**
+         * internal
+         * @type {{canvas: null, devicePixelRatio: number}}
+         */
+        _this.canvasLayer = {
+            canvas: null,
+            devicePixelRatio: window.devicePixelRatio
+        };
+
+        /**
+         * canvas layer
+         * @type {null}
+         * @private
+         */
+        _this.layer_ = null;
+
+        _this.initDataRange(options);
+        _this.initAnimator();
+        _this.onEvents();
+        map.on('complete', function () {
+            this.init(map, options);
+            this.argCheck(options);
+        }, _this);
+        return _this;
+    }
+
+    /**
+     * init mapv layer
+     * @param map
+     * @param options
+     */
+
+
+    createClass(Layer$$1, [{
+        key: "init",
+        value: function init(map, options) {
+            if (map) {
+                this.map = map;
+                this.context = this.options.context || '2d';
+                this.getCanvasLayer();
+            } else {
+                throw new Error('not map object');
+            }
+        }
+
+        /**
+         * update layer
+         * @param time
+         * @private
+         */
+
+    }, {
+        key: "_canvasUpdate",
+        value: function _canvasUpdate(time) {
+            this.render(this.canvasLayer.canvas, time);
+        }
+
+        /**
+         * render layer
+         * @param canvas
+         * @param time
+         * @returns {Layer}
+         */
+
+    }, {
+        key: "render",
+        value: function render(canvas, time) {
+            if (!canvas) return;
+            var map = this.map;
+            var context = canvas.getContext(this.context);
+            var animationOptions = this.options.animation;
+            if (this.isEnabledTime()) {
+                if (time === undefined) {
+                    clear(context);
+                    return this;
+                }
+                if (this.context === '2d') {
+                    context.save();
+                    context.globalCompositeOperation = 'destination-out';
+                    context.fillStyle = 'rgba(0, 0, 0, .1)';
+                    context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+                    context.restore();
+                }
+            } else {
+                clear(context);
+            }
+
+            if (this.context === '2d') {
+                for (var key in this.options) {
+                    context[key] = this.options[key];
+                }
+            } else {
+                context.clear(context.COLOR_BUFFER_BIT);
+            }
+            var dataGetOptions = {
+                transferCoordinate: function transferCoordinate(coordinate) {
+                    var _pixel = map.lngLatToContainer(new AMap.LngLat(coordinate[0], coordinate[1]));
+                    return [_pixel['x'], _pixel['y']];
+                }
+            };
+
+            if (time !== undefined) {
+                dataGetOptions.filter = function (item) {
+                    var trails = animationOptions.trails || 10;
+                    if (time && item.time > time - trails && item.time < time) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                };
+            }
+
+            var data = this.dataSet.get(dataGetOptions);
+            this.processData(data);
+
+            if (this.options.unit === 'm') {
+                if (this.options.size) {
+                    this.options._size = this.options.size / zoomUnit;
+                }
+                if (this.options.width) {
+                    this.options._width = this.options.width / zoomUnit;
+                }
+                if (this.options.height) {
+                    this.options._height = this.options.height / zoomUnit;
+                }
+            } else {
+                this.options._size = this.options.size;
+                this.options._height = this.options.height;
+                this.options._width = this.options.width;
+            }
+
+            this.drawContext(context, new DataSet(data), this.options, { x: 0, y: 0 });
+            this.options.updateCallback && this.options.updateCallback(time);
+            return this;
+        }
+
+        /**
+         * get canvas layer
+         */
+
+    }, {
+        key: "getCanvasLayer",
+        value: function getCanvasLayer() {
+            if (!this.canvasLayer.canvas && !this.layer_) {
+                var canvas = this.canvasFunction();
+                var bounds = this.map.getBounds();
+                this.layer_ = new AMap.CanvasLayer({
+                    canvas: canvas,
+                    bounds: this.options.bounds || bounds,
+                    zooms: this.options.zooms || [0, 22]
+                });
+                this.layer_.setMap(this.map);
+                this.map.on('mapmove', this.canvasFunction, this);
+                this.map.on('zoomchange', this.canvasFunction, this);
+            }
+        }
+
+        /**
+         * canvas constructor
+         * @returns {*}
+         */
+
+    }, {
+        key: "canvasFunction",
+        value: function canvasFunction() {
+            var _ref = [this.map.getSize().width, this.map.getSize().height],
+                width = _ref[0],
+                height = _ref[1];
+
+            if (!this.canvasLayer.canvas) {
+                this.canvasLayer.canvas = createCanvas(width, height);
+            } else {
+                this.canvasLayer.canvas.width = width;
+                this.canvasLayer.canvas.height = height;
+                var bounds = this.map.getBounds();
+                if (this.layer_) {
+                    this.layer_.setBounds(this.options.bounds || bounds);
+                }
+            }
+            this.render(this.canvasLayer.canvas);
+            return this.canvasLayer.canvas;
+        }
+
+        /**
+         * remove layer
+         */
+
+    }, {
+        key: "removeLayer",
+        value: function removeLayer() {
+            if (!this.map) return;
+            this.unEvents();
+            this.map.removeLayer(this.layer_);
+            delete this.map;
+            delete this.layer_;
+            delete this.canvasLayer.canvas;
+        }
+    }, {
+        key: "getContext",
+        value: function getContext() {
+            return this.canvasLayer.canvas.getContext(this.context);
+        }
+
+        /**
+         * handle click event
+         * @param event
+         */
+
+    }, {
+        key: "clickEvent",
+        value: function clickEvent(event) {
+            var pixel = event.pixel;
+            get(Layer$$1.prototype.__proto__ || Object.getPrototypeOf(Layer$$1.prototype), "clickEvent", this).call(this, pixel, event);
+        }
+
+        /**
+         * handle mousemove/pointermove event
+         * @param event
+         */
+
+    }, {
+        key: "mousemoveEvent",
+        value: function mousemoveEvent(event) {
+            var pixel = event.pixel;
+            get(Layer$$1.prototype.__proto__ || Object.getPrototypeOf(Layer$$1.prototype), "mousemoveEvent", this).call(this, pixel, event);
+        }
+
+        /**
+         * add animator event
+         */
+
+    }, {
+        key: "addAnimatorEvent",
+        value: function addAnimatorEvent() {
+            this.map.on('movestart', this.animatorMovestartEvent, this);
+            this.map.on('moveend', this.animatorMoveendEvent, this);
+        }
+
+        /**
+         * bind event
+         */
+
+    }, {
+        key: "onEvents",
+        value: function onEvents() {
+            var map = this.map;
+            this.unEvents();
+            if (this.options.methods) {
+                if (this.options.methods.click) {
+                    map.on('click', this.clickEvent, this);
+                }
+                if (this.options.methods.mousemove) {
+                    map.on('mousemove', this.mousemoveEvent, this);
+                }
+            }
+        }
+
+        /**
+         * unbind events
+         */
+
+    }, {
+        key: "unEvents",
+        value: function unEvents() {
+            var map = this.map;
+            if (this.options.methods) {
+                if (this.options.methods.click) {
+                    map.off('click', this.clickEvent, this);
+                }
+                if (this.options.methods.mousemove) {
+                    map.off('mousemove', this.mousemoveEvent, this);
+                }
+            }
+        }
+    }]);
+    return Layer$$1;
+}(BaseLayer);
+
+/**
  * @author kyle / http://nikai.us/
  */
 
@@ -6115,6 +6431,7 @@ exports.baiduMapLayer = Layer$1;
 exports.googleMapCanvasLayer = CanvasLayer$2;
 exports.googleMapLayer = Layer$3;
 exports.MaptalksLayer = Layer$6;
+exports.AMapLayer = Layer$7;
 exports.DataSet = DataSet;
 exports.geojson = geojson;
 exports.csv = csv;
