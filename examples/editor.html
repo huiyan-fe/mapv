@@ -878,9 +878,11 @@
 
 
     var isChina = 1;
+    var mapStyle = ['normal', 'light', 'dark', 'redalert', 'googlelite', 'grassgreen', 'midnight', 'pink', 'darkgreen', 'bluish', 'grayscale', 'hardedge'];
     $('#switchMap').bind('click', function() {
         isChina++;
-        if (isChina > 4) {
+        //if (isChina > 4) {
+        if (isChina > 16) {
             isChina = 1;
         }
         if (isChina == 1) {
@@ -896,8 +898,14 @@
             setGrayStyle();
             chinaLayer.hide();
         } else {
+            console.log(11);
             setDarkStyle();
             chinaLayer.hide();
+        }
+        if (isChina > 4) {
+            map.setMapStyle({
+                style: mapStyle[isChina - 5]
+            });
         }
     });
 
