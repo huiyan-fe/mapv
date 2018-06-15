@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {}),global.maptalks));
 }(this, (function (exports,maptalks) { 'use strict';
 
-var version = "2.0.23";
+var version = "2.0.24";
 
 /**
  * @author kyle / http://nikai.us/
@@ -657,8 +657,10 @@ var pathSimple = {
                 for (var i = 0; i < coordinates.length; i++) {
                     var polygon = coordinates[i];
                     this.drawPolygon(context, polygon);
+                    if (options.multiPolygonDraw) {
+                        options.multiPolygonDraw();
+                    }
                 }
-                context.closePath();
                 break;
             default:
                 console.log('type' + type + 'is not support now!');
@@ -667,9 +669,9 @@ var pathSimple = {
     },
 
     drawPolygon: function drawPolygon(context, coordinates) {
+        context.beginPath();
 
         for (var i = 0; i < coordinates.length; i++) {
-
             var coordinate = coordinates[i];
 
             context.moveTo(coordinate[0][0], coordinate[0][1]);
@@ -677,6 +679,7 @@ var pathSimple = {
                 context.lineTo(coordinate[j][0], coordinate[j][1]);
             }
             context.lineTo(coordinate[0][0], coordinate[0][1]);
+            context.closePath();
         }
     }
 
@@ -761,6 +764,13 @@ var drawSimple = {
                 context.beginPath();
 
                 pathSimple.draw(context, item, options);
+                options.multiPolygonDraw = function () {
+                    context.fill();
+
+                    if ((item.strokeStyle || options.strokeStyle) && options.lineWidth) {
+                        context.stroke();
+                    }
+                };
 
                 if (type == 'Point' || type == 'Polygon' || type == 'MultiPolygon') {
 
@@ -5694,7 +5704,7 @@ var Layer$3 = function (_BaseLayer) {
  * @author fuzhenn / https://github.com/fuzhenn
  */
 var Layer$5 = void 0;
-if (maptalks) {
+if (typeof maptalks !== 'undefined') {
     Layer$5 = function (_maptalks$Layer) {
         inherits(Layer$$1, _maptalks$Layer);
 
