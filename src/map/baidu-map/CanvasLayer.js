@@ -68,15 +68,10 @@ if (global.BMap) {
 
     CanvasLayer.prototype._draw = function() {
         var map = this._map;
-        var size = map.getSize();
-        var center = map.getCenter();
-        if (center) {
-            var pixel = map.pointToOverlayPixel(center);
-            this.canvas.style.left = pixel.x - size.width / 2 + 'px';
-            this.canvas.style.top = pixel.y - size.height / 2 + 'px';
-            this.dispatchEvent('draw');
-            this.options.update && this.options.update.call(this);
-        }
+        this.canvas.style.left = - map.offsetX + 'px';
+        this.canvas.style.top = - map.offsetY + 'px';
+        this.dispatchEvent('draw');
+        this.options.update && this.options.update.apply(this, arguments);
     }
 
     CanvasLayer.prototype.getContainer = function() {
