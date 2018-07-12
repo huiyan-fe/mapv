@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>amap-polyline-animation</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main1119.css"/>
+    <script src="http://webapi.amap.com/maps?v=1.4.2&key=6cb85da518029607d421917b7ddeb94a"></script>
+    <style>
+        html, body, #map {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<script src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="../../build/mapv.js"></script>
+<script>
+
+    var map = new AMap.Map('map', {
+        resizeEnable: true,
+        zoom: 12,
+        center: [116.41348403785, 39.910843952376],
+        mapStyle: 'amap://styles/dark'
+    });
+
+    $.get('../data/od-xierqi.txt', function (rs) {
+        var data = [];
+        var timeData = [];
+        rs = rs.split("\n");
+        console.log(rs.length);
+        var maxLength = 0;
+        for (var i = 0; i < rs.length; i++) {
+            var item = rs[i].split(',');
+            var coordinates = [];
+            if (item.length > maxLength) {
+                maxLength = item.length;
+            }
+            for (j = 0; j < item.length; j += 2) {
+                //coordinates.push([coord.x,coord.y]);
+                var x = Number(item[j]) / 20037508.34 * 180;
+                var y = Number(item[j + 1]) / 20037508.34 * 180;
+                y = 180 / Math.PI * (2 * Math.atan(Math.exp(y * Math.PI / 180)) - Math.PI / 2);
+                if (x == 0 || y == NaN) {
+                    continue;
+                }
+                coordinates.push([x, y]);
+                timeData.push({
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [x, y]
+                    },
+                    count: 1,
+                    time: j
+                });
+            }
+            data.push({
+                geometry: {
+                    type: 'LineString',
+                    coordinates: coordinates
+                }
+            });
+        }
+        var lineDataSet = new mapv.DataSet(data);
+        var lineOptions = {
+            strokeStyle: 'rgba(53,57,255,0.5)',
+            // globalCompositeOperation: 'lighter',
+            shadowColor: 'rgba(53,57,255,0.2)',
+            shadowBlur: 3,
+            lineWidth: 3.0,
+            draw: 'simple'
+        }
+        var mapvLineLayer = new mapv.AMapLayer(map, lineDataSet, lineOptions);
+        var dataSet = new mapv.DataSet(timeData);
+        var options = {
+            fillStyle: 'rgba(255, 250, 250, 0.2)',
+            globalCompositeOperation: "lighter",
+            size: 1.5,
+            animation: {
+                stepsRange: {
+                    start: 0,
+                    end: 100
+                },
+                trails: 3,
+                duration: 5,
+            },
+            draw: 'simple'
+        };
+        var mapvLayer = new mapv.AMapLayer(map, dataSet, options);
+    });
+
+</script>
+</body>
+</html>

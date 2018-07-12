@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>amap-polyline-simple</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main1119.css"/>
+    <script src="http://webapi.amap.com/maps?v=1.4.2&key=6cb85da518029607d421917b7ddeb94a"></script>
+    <style>
+        html, body, #map {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<script src="../../build/mapv.js"></script>
+<script>
+
+    var map = new AMap.Map('map', {
+        resizeEnable: true,
+        zoom: 4,
+        center: [113.53450137499999, 34.44104525],
+        mapStyle: 'amap://styles/dark'
+    });
+
+    var randomCount = 1000;
+    var data = [];
+    var citys = ["北京", "天津", "上海", "重庆", "石家庄", "太原", "呼和浩特", "哈尔滨", "长春", "沈阳", "济南", "南京", "合肥", "杭州", "南昌", "福州", "郑州", "武汉", "长沙", "广州", "南宁", "西安", "银川", "兰州", "西宁", "乌鲁木齐", "成都", "贵阳", "昆明", "拉萨", "海口"];
+    // 构造数据
+    while (randomCount--) {
+        var cityCenter1 = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
+        var cityCenter2 = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
+        data.push({
+            geometry: {
+                type: 'LineString',
+                coordinates: [[cityCenter1.lng - 1 + Math.random() * 1, cityCenter1.lat - 1 + Math.random() * 1], [cityCenter2.lng - 1 + Math.random() * 1, cityCenter2.lat - 1 + Math.random() * 1]]
+            },
+            count: 30 * Math.random()
+        });
+    }
+    var dataSet = new mapv.DataSet(data);
+    var options = {
+        strokeStyle: 'rgba(255, 250, 50, 0.3)',
+        shadowColor: 'rgba(255, 250, 50, 1)',
+        shadowBlur: 20,
+        lineWidth: 0.7,
+        draw: 'simple',
+        zooms: [0, 22]
+    };
+
+    var mapvLayer = new mapv.AMapLayer(map, dataSet, options);
+
+</script>
+</body>
+</html>

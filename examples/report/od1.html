@@ -24,8 +24,9 @@
     <div id="map"></div>
     <canvas id="canvas"></canvas>
 
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
-    <script type="text/javascript" src="../build/mapv.js"></script>
+    <script type="text/javascript" src="../../build/mapv.js"></script>
 
     <script type="text/javascript">
 
@@ -40,7 +41,7 @@
             style: 'midnight'
         });
 
-        var randomCount = 100;
+        var randomCount = 1000;
 
         var data = [];
 
@@ -50,41 +51,55 @@
         while (randomCount--) {
             var cityCenter1 = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
             var cityCenter2 = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
-            var cityCenter3 = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
             data.push({
                 geometry: {
-                    type: 'Polygon',
-                    coordinates: [
-                        [[cityCenter1.lng - 1 + Math.random() * 1, cityCenter1.lat - 1 + Math.random() * 1], [cityCenter2.lng - 1 + Math.random() * 1, cityCenter2.lat - 1 + Math.random() * 1], [cityCenter3.lng - 1 + Math.random() * 1, cityCenter3.lat - 1 + Math.random() * 1]]
-                    ]
+                    type: 'LineString',
+                    coordinates: [[cityCenter1.lng - 1 + Math.random() * 1, cityCenter1.lat - 1 + Math.random() * 1], [cityCenter2.lng - 1 + Math.random() * 1, cityCenter2.lat - 1 + Math.random() * 1]]
                 },
                 count: 30 * Math.random()
             });
         }
 
-        // 测试添加挖空的多边形
-        data.push({
-            geometry: {
-                type: 'Polygon',
-                coordinates: [
-                    [[106.664248, 47.6304], [118.29134, 47.6304], [118.29134, 41.703809], [106.664248, 41.703809]],
-                    [[109.534227, 43.121574], [115.053416, 43.121574], [115.053416, 45.808612], [109.534227, 45.808612]]
-                ]
-            }
+        var intensity = new mapv.utilDataRangeIntensity({
+            maxSize: 10,
+            minSize: 1,
+            max: 5000
         });
 
+        $.get('od1.csv', function(csvstr) {
+            var dataSet = mapv.csv.getDataSet(csvstr);
+            var data = dataSet.get();
+            data = data.map(function (item) {
+                item.geometry = {
+                    type: 'LineString',
+                    coordinates: [[item.lng1, item.lat1], [item.lng2, item.lat2]]
+                }
+                item.count = item.count;
+                item.lineWidth = intensity.getSize(item.count);
+                return item;
+            });
+            console.log(data);
+            data = data.sort(function (a, b) {
+                return b.count - a.count;
+            });
+            lineDataSet.set(data);
+        });
 
-        var dataSet = new mapv.DataSet(data);
+        var lineDataSet = new mapv.DataSet(data);
 
         var options = {
-            fillStyle: 'rgba(255, 250, 50, 0.1)',
-            // lineWidth: 1,
-            // strokeStyle: 'rgba(255, 250, 50, 0.1)',
+            strokeStyle: 'rgba(255, 50, 50, 0.3)',
+            coordType: 'bd09mc',
+            globalCompositeOperation: 'lighter',
+            shadowColor: 'rgba(255, 50, 50, 1)',
+            shadowBlur: 20,
+            lineWidth: 2,
             draw: 'simple'
         }
 
-        var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
-    </script>
+        var mapvLayer = new mapv.baiduMapLayer(map, lineDataSet, options);
+
+        </script>
 	
 </body>
 </html>
