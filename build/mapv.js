@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {}),global.maptalks));
 }(this, (function (exports,maptalks) { 'use strict';
 
-var version = "2.0.24";
+var version = "2.0.25";
 
 /**
  * @author kyle / http://nikai.us/
@@ -4303,12 +4303,12 @@ var BaseLayer = function () {
                 var y = pixel.y * this.canvasLayer.devicePixelRatio;
 
                 var geoType = data[i].geometry && data[i].geometry.type;
-                if (geoType.indexOf('Polygon') > -1) {
-                    if (context.isPointInPath(x, y)) {
+                if (geoType.indexOf('LineString') > -1) {
+                    if (context.isPointInStroke && context.isPointInStroke(x, y)) {
                         return data[i];
                     }
                 } else {
-                    if (context.isPointInStroke && context.isPointInStroke(x, y)) {
+                    if (context.isPointInPath(x, y)) {
                         return data[i];
                     }
                 }

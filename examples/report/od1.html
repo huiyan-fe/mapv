@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="../../build/mapv.js"></script>
+
+    <script type="text/javascript">
+
+        // 百度地图API功能
+        var map = new BMap.Map("map", {
+            enableMapClick: false
+        });    // 创建Map实例
+        map.centerAndZoom(new BMap.Point(105.403119, 38.028658), 5);  // 初始化地图,设置中心点坐标和地图级别
+        map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+
+        map.setMapStyle({
+            style: 'midnight'
+        });
+
+        var randomCount = 1000;
+
+        var data = [];
+
+        var citys = ["北京","天津","上海","重庆","石家庄","太原","呼和浩特","哈尔滨","长春","沈阳","济南","南京","合肥","杭州","南昌","福州","郑州","武汉","长沙","广州","南宁","西安","银川","兰州","西宁","乌鲁木齐","成都","贵阳","昆明","拉萨","海口"];
+
+        // 构造数据
+        while (randomCount--) {
+            var cityCenter1 = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
+            var cityCenter2 = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
+            data.push({
+                geometry: {
+                    type: 'LineString',
+                    coordinates: [[cityCenter1.lng - 1 + Math.random() * 1, cityCenter1.lat - 1 + Math.random() * 1], [cityCenter2.lng - 1 + Math.random() * 1, cityCenter2.lat - 1 + Math.random() * 1]]
+                },
+                count: 30 * Math.random()
+            });
+        }
+
+        var intensity = new mapv.utilDataRangeIntensity({
+            maxSize: 10,
+            minSize: 1,
+            max: 5000
+        });
+
+        $.get('od1.csv', function(csvstr) {
+            var dataSet = mapv.csv.getDataSet(csvstr);
+            var data = dataSet.get();
+            data = data.map(function (item) {
+                item.geometry = {
+                    type: 'LineString',
+                    coordinates: [[item.lng1, item.lat1], [item.lng2, item.lat2]]
+                }
+                item.count = item.count;
+                item.lineWidth = intensity.getSize(item.count);
+                return item;
+            });
+            console.log(data);
+            data = data.sort(function (a, b) {
+                return b.count - a.count;
+            });
+            lineDataSet.set(data);
+        });
+
+        var lineDataSet = new mapv.DataSet(data);
+
+        var options = {
+            strokeStyle: 'rgba(255, 50, 50, 0.3)',
+            coordType: 'bd09mc',
+            globalCompositeOperation: 'lighter',
+            shadowColor: 'rgba(255, 50, 50, 1)',
+            shadowBlur: 20,
+            lineWidth: 2,
+            draw: 'simple'
+        }
+
+        var mapvLayer = new mapv.baiduMapLayer(map, lineDataSet, options);
+
+        </script>
+	
+</body>
+</html>
