@@ -52,8 +52,10 @@ export default {
                 for (var i = 0; i < coordinates.length; i++) {
                     var polygon = coordinates[i];
                     this.drawPolygon(context, polygon);
+                    if (options.multiPolygonDraw) {
+                        options.multiPolygonDraw();
+                    }
                 }
-                context.closePath();
                 break;
             default:
                 console.log('type' + type + 'is not support now!');
@@ -62,9 +64,9 @@ export default {
     },
 
     drawPolygon: function(context, coordinates) {
+        context.beginPath();
 
         for (var i = 0; i < coordinates.length; i++) {
-
             var coordinate = coordinates[i];
 
             context.moveTo(coordinate[0][0], coordinate[0][1]);
@@ -72,6 +74,7 @@ export default {
                 context.lineTo(coordinate[j][0], coordinate[j][1]);
             }
             context.lineTo(coordinate[0][0], coordinate[0][1]);
+            context.closePath();
         }
 
     }

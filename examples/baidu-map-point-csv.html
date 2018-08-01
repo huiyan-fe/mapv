@@ -48,9 +48,17 @@
                 gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
                 max: 20,
                 fillStyle: 'blue',
-                draw: 'simple'
+                draw: 'simple',
+                methods: { // 一些事件回调函数
+                    click: function (item) { // 点击事件，返回对应点击元素的对象值
+                        console.warn(item);
+                    },
+                    mousemove: function (item) { // 鼠标移动事件，对应鼠标经过的元素对象值
+                        // console.log(item);
+                    }
+                },
             }
-
+            debugger;
             var dataSet = mapv.csv.getDataSet(csvstr);
             dataSet.initGeometry();
 

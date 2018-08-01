@@ -1,6 +1,6 @@
 {
   "name": "mapv",
-  "version": "2.0.20",
+  "version": "2.0.25",
   "description": "a library of geography visualization",
   "main": "build/mapv.js",
   "scripts": {

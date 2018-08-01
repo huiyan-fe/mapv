@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+<canvas id="canvas"></canvas>
+
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+<script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+<script type="text/javascript" src="../build/mapv.js"></script>
+
+<script type="text/javascript">
+
+    // 百度地图API功能
+    var map = new BMap.Map("map", {
+        enableMapClick: false
+    });    // 创建Map实例
+    map.centerAndZoom(new BMap.Point(105.403119, 38.028658), 5);  // 初始化地图,设置中心点坐标和地图级别
+    map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+
+    //创建小狐狸
+    var pt = new BMap.Point(127.733142,21.226515);
+    var myIcon = new BMap.Icon("images/view.png", new BMap.Size(85, 124));
+    var marker2 = new BMap.Marker(pt,{icon:myIcon});  // 创建标注
+    map.addOverlay(marker2);
+
+
+    // 地图自定义样式
+    map.setMapStyle({
+        styleJson: [{
+            "featureType": "water",
+            "elementType": "all",
+            "stylers": {
+                "color": "#044161"
+            }
+        }, {
+            "featureType": "land",
+            "elementType": "all",
+            "stylers": {
+                "color": "#091934"
+            }
+        }, {
+            "featureType": "boundary",
+            "elementType": "geometry",
+            "stylers": {
+                "color": "#064f85"
+            }
+        }, {
+            "featureType": "railway",
+            "elementType": "all",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "highway",
+            "elementType": "geometry",
+            "stylers": {
+                "color": "#004981"
+            }
+        }, {
+            "featureType": "highway",
+            "elementType": "geometry.fill",
+            "stylers": {
+                "color": "#005b96",
+                "lightness": 1
+            }
+        }, {
+            "featureType": "highway",
+            "elementType": "labels",
+            "stylers": {
+                "visibility": "on"
+            }
+        }, {
+            "featureType": "arterial",
+            "elementType": "geometry",
+            "stylers": {
+                "color": "#004981",
+                "lightness": -39
+            }
+        }, {
+            "featureType": "arterial",
+            "elementType": "geometry.fill",
+            "stylers": {
+                "color": "#00508b"
+            }
+        }, {
+            "featureType": "poi",
+            "elementType": "all",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "green",
+            "elementType": "all",
+            "stylers": {
+                "color": "#056197",
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "subway",
+            "elementType": "all",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "manmade",
+            "elementType": "all",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "local",
+            "elementType": "all",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "arterial",
+            "elementType": "labels",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "boundary",
+            "elementType": "geometry.fill",
+            "stylers": {
+                "color": "#029fd4"
+            }
+        }, {
+            "featureType": "building",
+            "elementType": "all",
+            "stylers": {
+                "color": "#1a5787"
+            }
+        }, {
+            "featureType": "label",
+            "elementType": "all",
+            "stylers": {
+                "visibility": "off"
+            }
+        }, {
+            "featureType": "poi",
+            "elementType": "labels.text.fill",
+            "stylers": {
+                "color": "#ffffff"
+            }
+        }, {
+            "featureType": "poi",
+            "elementType": "labels.text.stroke",
+            "stylers": {
+                "color": "#1e1c1c"
+            }
+        }, {
+            "featureType": "administrative",
+            "elementType": "labels",
+            "stylers": {
+                "visibility": "off"
+            }
+        },{
+            "featureType": "road",
+            "elementType": "labels",
+            "stylers": {
+                "visibility": "off"
+            }
+        }]
+    });
+
+    var randomCount = 1000;
+
+    var data = [];
+    var timeData = [];
+
+    function curive(fromPoint, endPoint, n) {
+        var delLng = (endPoint.lng - fromPoint.lng) / n;
+        var delLat = (endPoint.lat - fromPoint.lat) / n;
+
+        for (var i = 0; i < n; i++) {
+            var pointNLng = fromPoint.lng + delLng * i;
+            var pointNLat = fromPoint.lat + delLat * i;
+            timeData.push({
+                geometry: {
+                    type: 'Point',
+                    coordinates: [pointNLng, pointNLat]
+                },
+                count: 1,
+                time: i
+            });
+        }
+    }
+
+    // 构造数据
+    $.ajax({
+        url: 'data/qianxi.csv',
+        success: function (csvstr) {
+            var dataSet = mapv.csv.getDataSet(csvstr);
+            var getData = dataSet.get();
+
+            for (var i = 0; i < getData.length; i++) {
+                var item = getData[i];
+                var cityCenter1 = mapv.utilCityCenter.getCenterByCityName(item.from.replace(/市|省/, ""));
+                var cityCenter2 = mapv.utilCityCenter.getCenterByCityName(item.to.replace(/市|省/, ""));
+                if (cityCenter1 && cityCenter2) {
+                    if(Math.random() > 0.95) {
+                        curive(cityCenter2, cityCenter1, 50);
+                    }
+                    data.push({
+                        geometry: {
+                            type: 'LineString',
+                            coordinates: [[cityCenter1.lng, cityCenter1.lat], [cityCenter2.lng, cityCenter2.lat]]
+                        },
+                        count: item.count
+                    });
+                }
+            }
+
+            var dataSet = new mapv.DataSet(data);
+            var options = {
+                strokeStyle: 'rgba(55, 50, 250, 0.2)',
+                globalCompositeOperation: 'lighter',
+                shadowColor: 'rgba(55, 50, 250, 0.5)',
+                gradient: {0:'rgba(55, 50, 250, 0)',1:'rgba(55, 50, 250, 1)'},
+                lineWidth: 0.1,
+                draw: 'simple'
+            }
+
+            var mapvLineLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+            var dataSet = new mapv.DataSet(timeData);
+            var options = {
+                fillStyle: 'rgba(255, 250, 250, 0.9)',
+                size: .5,
+                animation: {
+                    type: 'time',
+                    stepsRange: {
+                        start: 0,
+                        end: 50
+                    },
+                    trails: 1,
+                    duration: 5,
+                },
+                draw: 'simple'
+            }
+            var mapvTimeLayer = new mapv.baiduMapLayer(map, dataSet, options);
+        }
+    });
+</script>
+</body>
+</html>

@@ -734,6 +734,8 @@
 
                 var mapvLayer = new mapv.baiduMapLayer(map, dataSet, $.extend({}, options));
                 mapvLayers.push(mapvLayer);
+
+
                 if (rs[0] == '[' && rs[rs.length - 1] == ']') {
                     rs = JSON.parse(rs);
                     rs = rs.map(function (item) {
@@ -745,11 +747,32 @@
                         }
                     });
                     dataSet.set(rs);
-                } else if (/lng1|lng2|lat1|lat2/.exec(rs)) {
+                } else if (/city1|city2|lng1|lng2|lat1|lat2/.exec(rs)) {
                     var newDataSet = mapv.csv.getDataSet(rs);
                     var pointData = [];
                     newDataSet.initGeometry(function (a) {
+                        if (a.city1) {
+                            var cityCenter = mapv.utilCityCenter.getCenterByCityName(a.city1);
+                            if (cityCenter) {
+                                a.lng1 = cityCenter.lng;
+                                a.lat1 = cityCenter.lat;
+                            }
+                        }
+
+                        if (a.city2) {
+                            var cityCenter = mapv.utilCityCenter.getCenterByCityName(a.city2);
+                            if (cityCenter) {
+                                a.lng2 = cityCenter.lng;
+                                a.lat2 = cityCenter.lat;
+                            }
+                        }
+
+                        if (!(a.lng1 && a.lat1 && a.lng2 && a.lat2)) {
+                            return;
+                        }
+
                         pointData.push({
+                            text: a.city1,
                             geometry: {
                                 type: 'Point',
                                 coordinates: [a.lng1, a.lat1]
@@ -757,6 +780,7 @@
                         });
 
                         pointData.push({
+                            text: a.city2,
                             geometry: {
                                 type: 'Point',
                                 coordinates: [a.lng2, a.lat2]
@@ -768,12 +792,22 @@
                             coordinates: [[a.lng1, a.lat1], [a.lng2, a.lat2]]
                         }
                     });
-                    dataSet.set(newDataSet.get());
-                    console.log(dataSet);
+
+                    var intensity = new mapv.utilDataRangeIntensity({
+                        maxSize: 20,
+                        minSize: 1,
+                        max: newDataSet.getMax('count'),
+                        min: newDataSet.getMin('count'),
+                    });
+
+                    dataSet.set(newDataSet.get().filter(function(item) {
+                        item.lineWidth = intensity.getSize(item.count);
+                        return item.geometry;
+                    }));
+                        console.log(dataSet.get());
 
                     var option = {
                         fillStyle: 'rgba(252, 53, 58, 1)',
-                        coordType: 'bd09mc',
                         zIndex: 2,
                         size: 3,
                         draw: 'simple'
@@ -781,7 +815,15 @@
 
                     new mapv.baiduMapLayer(map, new mapv.DataSet(pointData), option);
 
-
+                    var option = {
+                        fillStyle: 'rgba(252, 53, 58, 1)',
+                        font: '12px Arial',
+                        avoid: true,
+                        zIndex: 2,
+                        size: 12,
+                        draw: 'text'
+                    }
+                    new mapv.baiduMapLayer(map, new mapv.DataSet(pointData), option);
                 } else if (/path/.exec(rs)) {
                     var newDataSet = mapv.csv.getDataSet(rs);
                     newDataSet.initGeometry(function(item) {
@@ -836,9 +878,11 @@
 
 
     var isChina = 1;
+    var mapStyle = ['normal', 'light', 'dark', 'redalert', 'googlelite', 'grassgreen', 'midnight', 'pink', 'darkgreen', 'bluish', 'grayscale', 'hardedge'];
     $('#switchMap').bind('click', function() {
         isChina++;
-        if (isChina > 4) {
+        //if (isChina > 4) {
+        if (isChina > 16) {
             isChina = 1;
         }
         if (isChina == 1) {
@@ -854,8 +898,14 @@
             setGrayStyle();
             chinaLayer.hide();
         } else {
+            console.log(11);
             setDarkStyle();
             chinaLayer.hide();
+        }
+        if (isChina > 4) {
+            map.setMapStyle({
+                style: mapStyle[isChina - 5]
+            });
         }
     });
 

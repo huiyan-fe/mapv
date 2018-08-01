@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="../build/mapv.js"></script>
+
+    <script type="text/javascript">
+
+        // 百度地图API功能
+        var map = new BMap.Map("map", {
+            enableMapClick: false
+        });    // 创建Map实例
+        map.centerAndZoom(new BMap.Point(113.014081, 28.203235), 10);  // 初始化地图,设置中心点坐标和地图级别
+        map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+
+        map.setMapStyle({
+            style: 'midnight'
+        });
+
+        var changgui = [
+            '112.882964,28.308648,112.870891,28.302033,112.866292,28.293891,112.862267,28.278114,112.862267,28.260298,112.858818,28.239934,112.837546,28.244007,112.826623,28.243498,112.801901,28.250116,112.794427,28.250626,112.77488,28.248589,112.760507,28.251644,112.746781,28.256671,112.722922,28.268379,112.691015,28.281104,112.662556,28.286957,112.630361,28.306804,112.613113,28.313164,112.578619,28.322068,112.571432,28.325375,112.555047,28.33911,112.544411,28.357167,112.542111,28.369118,112.540387,28.378272,112.533775,28.393271,112.526589,28.403948,112.523139,28.413606,112.509054,28.433937,112.501292,28.450199,112.496118,28.473825,112.480308,28.504811,112.47499,28.509889,112.468953,28.521189,112.456305,28.535406,112.445813,28.550002,112.437189,28.556602,112.418361,28.566754,112.409306,28.562186,112.398383,28.569799,112.357564,28.572337,112.357564,28.572337',
+        ];
+
+        var raoxing = [
+            '112.880377,28.311447,112.876928,28.322132,112.861405,28.333833,112.853931,28.341972,112.845882,28.354179,112.838408,28.361808,112.834959,28.363334,112.831509,28.366894,112.83036,28.37859,112.824036,28.388251,112.812537,28.397911,112.79529,28.40757,112.782642,28.418753,112.758495,28.44264,112.737223,28.46703,112.7286,28.481763,112.72745,28.493446,112.728025,28.507668,112.734349,28.517317,112.744122,28.540674,112.748722,28.547781,112.743547,28.551843,112.741823,28.561995,112.744122,28.574685,112.72745,28.60361,112.725725,28.611221,112.72285,28.616802,112.719976,28.630499,112.714227,28.637093,112.683181,28.631006,112.65501,28.633035,112.596944,28.631514,112.5968,28.629485,112.594644,28.628977,112.593207,28.629358,112.58329,28.626314,112.572366,28.621875,112.555263,28.615787,112.542471,28.600693,112.52896,28.589529,112.512288,28.582932,112.489866,28.589022,112.480667,28.589022,112.472044,28.586484,112.45882,28.585469,112.447322,28.581917,112.419439,28.568721,112.417139,28.567706,112.414265,28.569228,112.362522,28.571766,112.326877,28.571766,112.344125,28.572781'
+        ];
+
+        var points = [
+            '112.882174,28.30833',
+            '112.858243,28.24057',
+            '112.770497,28.249862',
+            '112.478547,28.505573',
+            '112.38189,28.483922',
+            '112.317176,28.509366'
+        ];
+
+        var data = [];
+
+        // 构造数据
+        for (var i = 0; i < changgui.length; i++) {
+            var line = changgui[i].split(',');
+            var coordinates = [];
+            for (var j = 0; j < line.length; j += 2) {
+                coordinates.push([line[j], line[j + 1]]);
+            }
+            data.push({
+                geometry: {
+                    type: 'LineString',
+                    coordinates: coordinates
+                }
+            });
+        }
+
+        var dataSet = new mapv.DataSet(data);
+
+        var options = {
+            strokeStyle: 'rgba(255, 50, 50, 1)',
+            shadowColor: 'rgba(255, 50, 50, 1)',
+            shadowBlur: 20,
+            lineWidth: 5,
+            draw: 'simple'
+        }
+
+        var yongduLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+        var isLineShow = true;
+        function animation() {
+            isLineShow = !isLineShow;
+            if (isLineShow) {
+                yongduLayer.show();
+            } else {
+                yongduLayer.hide();
+            }
+            setTimeout(animation, 400);
+        }
+        animation();
+
+        var data = [];
+
+        // 构造数据
+        for (var i = 0; i < raoxing.length; i++) {
+            var line = raoxing[i].split(',');
+            var coordinates = [];
+            for (var j = 0; j < line.length; j += 2) {
+                coordinates.push([line[j], line[j + 1]]);
+            }
+            data.push({
+                geometry: {
+                    type: 'LineString',
+                    coordinates: coordinates
+                }
+            });
+        }
+
+        var dataSet = new mapv.DataSet(data);
+
+        var options = {
+            strokeStyle: 'rgba(55, 50, 250, 0.5)',
+            //shadowColor: 'rgba(255, 250, 50, 1)',
+            //shadowBlur: 20,
+            lineWidth: 5,
+            arrow: {
+                show: true,
+                interval: 4,
+                url: 'http://huiyan.baidu.com/cms/static/images/direction_blue.png'
+            },
+            draw: 'simple'
+        }
+
+        var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+        var data = [];
+        // 构造数据
+        for (var i = 0; i < points.length; i++) {
+            data.push({
+                geometry: {
+                    type: 'Point',
+                    coordinates: points[i].split(',')
+                },
+            });
+        }
+
+        var dataSet = new mapv.DataSet(data);
+        var options = {
+            strokeStyle: 'rgba(255, 50, 50, 0.6)',
+            shadowColor: 'rgba(255, 50, 50, 1)',
+            size: 25  + Math.random() * 5,
+            shadowBlur: 80,
+            styleType: 'stroke',
+            globalCompositeOperation: 'lighter',
+            lineWidth: 0,
+            splitList: { 
+                other: 'white',
+                1: 'blue',
+                2: 'yellow',
+                3: 'red'
+            },
+            draw: 'simple'
+        }
+
+        /*
+        var layer = new mapv.baiduMapAnimationLayer(map, dataSet, options);
+
+        var layer = new mapv.baiduMapLayer(map, dataSet, {
+            fillStyle: 'red',
+            size: 5,
+            draw: 'simple'
+        });
+        */
+
+        </script>
+	
+</body>
+</html>

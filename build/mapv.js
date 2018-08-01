@@ -1,10 +1,10 @@
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-	typeof define === 'function' && define.amd ? define(['exports'], factory) :
-	(factory((global.mapv = global.mapv || {})));
-}(this, (function (exports) { 'use strict';
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('maptalks')) :
+	typeof define === 'function' && define.amd ? define(['exports', 'maptalks'], factory) :
+	(factory((global.mapv = global.mapv || {}),global.maptalks));
+}(this, (function (exports,maptalks) { 'use strict';
 
-var version = "2.0.20";
+var version = "2.0.25";
 
 /**
  * @author kyle / http://nikai.us/
@@ -657,8 +657,10 @@ var pathSimple = {
                 for (var i = 0; i < coordinates.length; i++) {
                     var polygon = coordinates[i];
                     this.drawPolygon(context, polygon);
+                    if (options.multiPolygonDraw) {
+                        options.multiPolygonDraw();
+                    }
                 }
-                context.closePath();
                 break;
             default:
                 console.log('type' + type + 'is not support now!');
@@ -667,9 +669,9 @@ var pathSimple = {
     },
 
     drawPolygon: function drawPolygon(context, coordinates) {
+        context.beginPath();
 
         for (var i = 0; i < coordinates.length; i++) {
-
             var coordinate = coordinates[i];
 
             context.moveTo(coordinate[0][0], coordinate[0][1]);
@@ -677,6 +679,7 @@ var pathSimple = {
                 context.lineTo(coordinate[j][0], coordinate[j][1]);
             }
             context.lineTo(coordinate[0][0], coordinate[0][1]);
+            context.closePath();
         }
     }
 
@@ -716,6 +719,14 @@ var drawSimple = {
 
                 context.fill();
 
+                if (context.lineDash) {
+                    context.setLineDash(context.lineDash);
+                }
+
+                if (item.lineDash) {
+                    context.setLineDash(item.lineDash);
+                }
+
                 if ((item.strokeStyle || options.strokeStyle) && options.lineWidth) {
                     context.stroke();
                 }
@@ -740,11 +751,26 @@ var drawSimple = {
                     context.strokeStyle = item.strokeStyle || item._strokeStyle;
                 }
 
+                if (context.lineDash) {
+                    context.setLineDash(context.lineDash);
+                }
+
+                if (item.lineDash) {
+                    context.setLineDash(item.lineDash);
+                }
+
                 var type = item.geometry.type;
 
                 context.beginPath();
 
                 pathSimple.draw(context, item, options);
+                options.multiPolygonDraw = function () {
+                    context.fill();
+
+                    if ((item.strokeStyle || options.strokeStyle) && options.lineWidth) {
+                        context.stroke();
+                    }
+                };
 
                 if (type == 'Point' || type == 'Polygon' || type == 'MultiPolygon') {
 
@@ -768,7 +794,7 @@ var drawSimple = {
     }
 };
 
-function Canvas(width, height) {
+function Canvas$1(width, height) {
 
     var canvas;
 
@@ -838,7 +864,7 @@ Intensity.prototype.initPalette = function () {
 
     var gradient = this.gradient;
 
-    var canvas = new Canvas(256, 1);
+    var canvas = new Canvas$1(256, 1);
 
     var paletteCtx = this.paletteCtx = canvas.getContext('2d');
 
@@ -916,7 +942,7 @@ Intensity.prototype.getLegend = function (options) {
     var width = options.width || 20;
     var height = options.height || 180;
 
-    var canvas = new Canvas(width, height);
+    var canvas = new Canvas$1(width, height);
 
     var paletteCtx = canvas.getContext('2d');
 
@@ -946,7 +972,7 @@ function createCircle(size) {
     var r2 = size + shadowBlur;
     var offsetDistance = 10000;
 
-    var circle = new Canvas(r2 * 2, r2 * 2);
+    var circle = new Canvas$1(r2 * 2, r2 * 2);
     var context = circle.getContext('2d');
 
     context.shadowBlur = shadowBlur;
@@ -1048,7 +1074,7 @@ function draw$1(context, dataSet, options) {
     var strength = options.strength || 0.3;
     context.strokeStyle = 'rgba(0,0,0,' + strength + ')';
 
-    var shadowCanvas = new Canvas(context.canvas.width, context.canvas.height);
+    var shadowCanvas = new Canvas$1(context.canvas.width, context.canvas.height);
     var shadowContext = shadowCanvas.getContext('2d');
     shadowContext.scale(devicePixelRatio, devicePixelRatio);
 
@@ -2224,6 +2250,7 @@ function getCurvePoints(points, options) {
  * @param Point 终点
  */
 function getCurveByTwoPoints(obj1, obj2, count) {
+  console.info(obj1, obj2);
   if (!obj1 || !obj2) {
     return null;
   }
@@ -2264,22 +2291,18 @@ function getCurveByTwoPoints(obj1, obj2, count) {
     if (parseFloat(lng2 - lng1) > 180) {
       if (lng1 < 0) {
         lng1 = parseFloat(180 + 180 + lng1);
-      }
-    }
-  }
-
-  if (lng1 > lng2) {
-    if (parseFloat(lng1 - lng2) > 180) {
-      if (lng2 < 0) {
         lng2 = parseFloat(180 + 180 + lng2);
       }
     }
   }
+  // 此时纠正了 lng1 lng2
   j = 0;
   t2 = 0;
+  // 纬度相同
   if (lat2 == lat1) {
     t = 0;
     h = lng1 - lng2;
+    // 经度相同
   } else if (lng2 == lng1) {
     t = Math.PI / 2;
     h = lat1 - lat2;
@@ -2295,7 +2318,12 @@ function getCurveByTwoPoints(obj1, obj2, count) {
   lat3 = h2 * Math.sin(t2) + lat1;
 
   for (i = 0; i < count + 1; i++) {
-    curveCoordinates.push([lng1 * B1(inc) + lng3 * B2(inc) + lng2 * B3(inc), lat1 * B1(inc) + lat3 * B2(inc) + lat2 * B3(inc)]);
+    var x = lng1 * B1(inc) + lng3 * B2(inc) + lng2 * B3(inc);
+    var y = lat1 * B1(inc) + lat3 * B2(inc) + lat2 * B3(inc);
+    var lng1_src = obj1.lng;
+    var lng2_src = obj2.lng;
+
+    curveCoordinates.push([lng1_src < 0 && lng2_src > 0 ? x - 360 : x, y]);
     inc = inc + 1 / count;
   }
   return curveCoordinates;
@@ -3806,6 +3834,116 @@ TWEEN.Interpolation = {
 };
 
 /**
+ * 根据2点获取角度
+ * @param Array [123, 23] 点1
+ * @param Array [123, 23] 点2
+ * @return angle 角度,不是弧度
+ */
+function getAngle(start, end) {
+    var diff_x = end[0] - start[0];
+    var diff_y = end[1] - start[1];
+    var deg = 360 * Math.atan(diff_y / diff_x) / (2 * Math.PI);
+    if (end[0] < start[0]) {
+        deg = deg + 180;
+    }
+    return deg;
+}
+
+/**
+ * 绘制沿线箭头
+ * @author kyle / http://nikai.us/
+ */
+
+var imageCache = {};
+
+var object = {
+    draw: function draw(context, dataSet, options) {
+        var imageCacheKey = 'http://huiyan.baidu.com/github/tools/gis-drawing/static/images/direction.png';
+        if (options.arrow && options.arrow.url) {
+            imageCacheKey = options.arrow.url;
+        }
+
+        if (!imageCache[imageCacheKey]) {
+            imageCache[imageCacheKey] = null;
+        }
+
+        var directionImage = imageCache[imageCacheKey];
+
+        if (!directionImage) {
+            var args = Array.prototype.slice.call(arguments);
+            var image = new Image();
+            image.onload = function () {
+                imageCache[imageCacheKey] = image;
+                object.draw.apply(null, args);
+            };
+            image.src = imageCacheKey;
+            return;
+        }
+
+        var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
+
+        // console.log('xxxx',options)
+        context.save();
+
+        for (var key in options) {
+            context[key] = options[key];
+        }
+
+        var points = [];
+        var preCoordinate = null;
+        for (var i = 0, len = data.length; i < len; i++) {
+
+            var item = data[i];
+
+            context.save();
+
+            if (item.fillStyle || item._fillStyle) {
+                context.fillStyle = item.fillStyle || item._fillStyle;
+            }
+
+            if (item.strokeStyle || item._strokeStyle) {
+                context.strokeStyle = item.strokeStyle || item._strokeStyle;
+            }
+
+            var type = item.geometry.type;
+
+            context.beginPath();
+            if (type === 'LineString') {
+                var coordinates = item.geometry._coordinates || item.geometry.coordinates;
+                var interval = options.arrow.interval !== undefined ? options.arrow.interval : 1;
+                for (var j = 0; j < coordinates.length; j += interval) {
+                    if (coordinates[j] && coordinates[j + 1]) {
+                        var coordinate = coordinates[j];
+
+                        if (preCoordinate && getDistance(coordinate, preCoordinate) < 30) {
+                            continue;
+                        }
+
+                        context.save();
+                        var angle = getAngle(coordinates[j], coordinates[j + 1]);
+                        context.translate(coordinate[0], coordinate[1]);
+                        context.rotate(angle * Math.PI / 180);
+                        context.drawImage(directionImage, -directionImage.width / 2 / 2, -directionImage.height / 2 / 2, directionImage.width / 2, directionImage.height / 2);
+                        context.restore();
+
+                        points.push(coordinate);
+                        preCoordinate = coordinate;
+                    }
+                }
+            }
+
+            context.restore();
+        }
+
+        context.restore();
+    }
+};
+
+function getDistance(coordinateA, coordinateB) {
+    return Math.sqrt(Math.pow(coordinateA[0] - coordinateB[0], 2) + Math.pow(coordinateA[1] - coordinateB[1], 2));
+}
+
+/**
  * @author Mofei Zhu<mapv@zhuwenlong.com>
  * This file is to draw text
  */
@@ -4148,6 +4286,10 @@ var BaseLayer = function () {
                         drawSimple.draw(context, dataSet, self.options);
                     }
             }
+
+            if (self.options.arrow && self.options.arrow.show !== false) {
+                object.draw(context, dataSet, self.options);
+            }
         }
     }, {
         key: "isPointInPath",
@@ -4159,15 +4301,25 @@ var BaseLayer = function () {
                 pathSimple.draw(context, data[i], this.options);
                 var x = pixel.x * this.canvasLayer.devicePixelRatio;
                 var y = pixel.y * this.canvasLayer.devicePixelRatio;
-                if (context.isPointInPath(x, y) || context.isPointInStroke(x, y)) {
-                    return data[i];
+
+                var geoType = data[i].geometry && data[i].geometry.type;
+                if (geoType.indexOf('LineString') > -1) {
+                    if (context.isPointInStroke && context.isPointInStroke(x, y)) {
+                        return data[i];
+                    }
+                } else {
+                    if (context.isPointInPath(x, y)) {
+                        return data[i];
+                    }
                 }
             }
         }
     }, {
         key: "clickEvent",
         value: function clickEvent(pixel, e) {
-
+            if (!this.options.methods) {
+                return;
+            }
             var dataItem = this.isPointInPath(this.getContext(), pixel);
 
             if (dataItem) {
@@ -4179,6 +4331,9 @@ var BaseLayer = function () {
     }, {
         key: "mousemoveEvent",
         value: function mousemoveEvent(pixel, e) {
+            if (!this.options.methods) {
+                return;
+            }
             var dataItem = this.isPointInPath(this.getContext(), pixel);
             if (dataItem) {
                 this.options.methods.mousemove(dataItem, e);
@@ -4529,13 +4684,13 @@ var AnimationLayer = function (_BaseLayer) {
  * @author kyle / http://nikai.us/
  */
 
-var Layer = function (_BaseLayer) {
-    inherits(Layer, _BaseLayer);
+var Layer$1 = function (_BaseLayer) {
+    inherits(Layer$$1, _BaseLayer);
 
-    function Layer(map, dataSet, options) {
-        classCallCheck(this, Layer);
+    function Layer$$1(map, dataSet, options) {
+        classCallCheck(this, Layer$$1);
 
-        var _this = possibleConstructorReturn(this, (Layer.__proto__ || Object.getPrototypeOf(Layer)).call(this, map, dataSet, options));
+        var _this = possibleConstructorReturn(this, (Layer$$1.__proto__ || Object.getPrototypeOf(Layer$$1)).call(this, map, dataSet, options));
 
         var self = _this;
         var data = null;
@@ -4568,17 +4723,17 @@ var Layer = function (_BaseLayer) {
         return _this;
     }
 
-    createClass(Layer, [{
+    createClass(Layer$$1, [{
         key: "clickEvent",
         value: function clickEvent(e) {
             var pixel = e.pixel;
-            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "clickEvent", this).call(this, pixel, e);
+            get(Layer$$1.prototype.__proto__ || Object.getPrototypeOf(Layer$$1.prototype), "clickEvent", this).call(this, pixel, e);
         }
     }, {
         key: "mousemoveEvent",
         value: function mousemoveEvent(e) {
             var pixel = e.pixel;
-            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "mousemoveEvent", this).call(this, pixel, e);
+            get(Layer$$1.prototype.__proto__ || Object.getPrototypeOf(Layer$$1.prototype), "mousemoveEvent", this).call(this, pixel, e);
         }
     }, {
         key: "bindEvent",
@@ -4785,7 +4940,7 @@ var Layer = function (_BaseLayer) {
             this.canvasLayer.draw();
         }
     }]);
-    return Layer;
+    return Layer$$1;
 }(BaseLayer);
 
 /**
@@ -5324,13 +5479,13 @@ if (global$4.google && global$4.google.maps) {
  * @author kyle / http://nikai.us/
  */
 
-var Layer$2 = function (_BaseLayer) {
-    inherits(Layer, _BaseLayer);
+var Layer$3 = function (_BaseLayer) {
+    inherits(Layer$$1, _BaseLayer);
 
-    function Layer(map, dataSet, options) {
-        classCallCheck(this, Layer);
+    function Layer$$1(map, dataSet, options) {
+        classCallCheck(this, Layer$$1);
 
-        var _this = possibleConstructorReturn(this, (Layer.__proto__ || Object.getPrototypeOf(Layer)).call(this, map, dataSet, options));
+        var _this = possibleConstructorReturn(this, (Layer$$1.__proto__ || Object.getPrototypeOf(Layer$$1)).call(this, map, dataSet, options));
 
         var self = _this;
         var data = null;
@@ -5356,17 +5511,17 @@ var Layer$2 = function (_BaseLayer) {
         return _this;
     }
 
-    createClass(Layer, [{
+    createClass(Layer$$1, [{
         key: "clickEvent",
         value: function clickEvent(e) {
             var pixel = e.pixel;
-            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "clickEvent", this).call(this, pixel, e);
+            get(Layer$$1.prototype.__proto__ || Object.getPrototypeOf(Layer$$1.prototype), "clickEvent", this).call(this, pixel, e);
         }
     }, {
         key: "mousemoveEvent",
         value: function mousemoveEvent(e) {
             var pixel = e.pixel;
-            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "mousemoveEvent", this).call(this, pixel, e);
+            get(Layer$$1.prototype.__proto__ || Object.getPrototypeOf(Layer$$1.prototype), "mousemoveEvent", this).call(this, pixel, e);
         }
     }, {
         key: "bindEvent",
@@ -5541,7 +5696,986 @@ var Layer$2 = function (_BaseLayer) {
             self.canvasLayer.draw();
         }
     }]);
-    return Layer;
+    return Layer$$1;
+}(BaseLayer);
+
+/**
+ * MapV for maptalks.js (https://github.com/maptalks/maptalks.js)
+ * @author fuzhenn / https://github.com/fuzhenn
+ */
+var Layer$5 = void 0;
+if (typeof maptalks !== 'undefined') {
+    Layer$5 = function (_maptalks$Layer) {
+        inherits(Layer$$1, _maptalks$Layer);
+
+        function Layer$$1(id, dataSet, options) {
+            classCallCheck(this, Layer$$1);
+
+            var _this = possibleConstructorReturn(this, (Layer$$1.__proto__ || Object.getPrototypeOf(Layer$$1)).call(this, id, options));
+
+            _this.options_ = options;
+            _this.dataSet = dataSet;
+            _this._initBaseLayer(options);
+            return _this;
+        }
+
+        createClass(Layer$$1, [{
+            key: "_initBaseLayer",
+            value: function _initBaseLayer(options) {
+                var self = this;
+                var baseLayer = this.baseLayer = new BaseLayer(null, this.dataSet, options);
+                self.init(options);
+                baseLayer.argCheck(options);
+            }
+        }, {
+            key: "clickEvent",
+            value: function clickEvent(e) {
+                if (!this.baseLayer) {
+                    return;
+                }
+                var pixel = e.containerPoint;
+                this.baseLayer.clickEvent(pixel, e.domEvent);
+            }
+        }, {
+            key: "mousemoveEvent",
+            value: function mousemoveEvent(e) {
+                if (!this.baseLayer) {
+                    return;
+                }
+                var pixel = e.containerPoint;
+                this.baseLayer.mousemoveEvent(pixel, e.domEvent);
+            }
+        }, {
+            key: "getEvents",
+            value: function getEvents() {
+                return {
+                    'click': this.clickEvent,
+                    'mousemove': this.mousemoveEvent
+                };
+            }
+        }, {
+            key: "init",
+            value: function init(options) {
+
+                var base = this.baseLayer;
+
+                base.options = options;
+
+                base.initDataRange(options);
+
+                base.context = base.options.context || '2d';
+
+                base.initAnimator();
+            }
+        }, {
+            key: "addAnimatorEvent",
+            value: function addAnimatorEvent() {
+                this.map.addListener('movestart', this.animatorMovestartEvent.bind(this));
+                this.map.addListener('moveend', this.animatorMoveendEvent.bind(this));
+            }
+        }]);
+        return Layer$$1;
+    }(maptalks.Layer);
+
+    var LayerRenderer = function (_maptalks$renderer$Ca) {
+        inherits(LayerRenderer, _maptalks$renderer$Ca);
+
+        function LayerRenderer() {
+            classCallCheck(this, LayerRenderer);
+            return possibleConstructorReturn(this, (LayerRenderer.__proto__ || Object.getPrototypeOf(LayerRenderer)).apply(this, arguments));
+        }
+
+        createClass(LayerRenderer, [{
+            key: "needToRedraw",
+            value: function needToRedraw() {
+                var base = this.layer.baseLayer;
+                if (base.isEnabledTime()) {
+                    return true;
+                }
+                return get(LayerRenderer.prototype.__proto__ || Object.getPrototypeOf(LayerRenderer.prototype), "needToRedraw", this).call(this);
+            }
+        }, {
+            key: "draw",
+            value: function draw() {
+                var base = this.layer.baseLayer;
+                if (!this.canvas || !base.isEnabledTime() || this._shouldClear) {
+                    this.prepareCanvas();
+                    this._shouldClear = false;
+                }
+                this._update(this.gl || this.context, this._mapvFrameTime);
+                delete this._mapvFrameTime;
+                this.completeRender();
+            }
+        }, {
+            key: "drawOnInteracting",
+            value: function drawOnInteracting() {
+                this.draw();
+                this._shouldClear = false;
+            }
+        }, {
+            key: "onSkipDrawOnInteracting",
+            value: function onSkipDrawOnInteracting() {
+                this._shouldClear = true;
+            }
+        }, {
+            key: "_canvasUpdate",
+            value: function _canvasUpdate(time) {
+                this.setToRedraw();
+                this._mapvFrameTime = time;
+            }
+        }, {
+            key: "_update",
+            value: function _update(context, time) {
+                if (!this.canvas) {
+                    return;
+                }
+
+                var self = this.layer.baseLayer;
+
+                var animationOptions = self.options.animation;
+
+                var map = this.getMap();
+
+                if (self.isEnabledTime()) {
+                    if (time === undefined) {
+                        clear(context);
+                        return;
+                    }
+                    if (self.context == '2d') {
+                        context.save();
+                        context.globalCompositeOperation = 'destination-out';
+                        context.fillStyle = 'rgba(0, 0, 0, .1)';
+                        context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+                        context.restore();
+                    }
+                } else {
+                    clear(context);
+                }
+
+                if (self.context == '2d') {
+                    for (var key in self.options) {
+                        context[key] = self.options[key];
+                    }
+                } else {
+                    context.clear(context.COLOR_BUFFER_BIT);
+                }
+
+                var scale = 1;
+                if (self.context === '2d' && self.options.draw !== 'heatmap') {
+                    //in heatmap.js, devicePixelRatio is being mulitplied independently
+                    scale = self.canvasLayer.devicePixelRatio;
+                }
+
+                //reuse to save coordinate instance creation
+                var coord = new maptalks.Coordinate(0, 0);
+                var dataGetOptions = {
+                    fromColumn: self.options.coordType === 'bd09mc' ? 'coordinates_mercator' : 'coordinates',
+                    transferCoordinate: function transferCoordinate(coordinate) {
+                        coord.x = coordinate[0];
+                        coord.y = coordinate[1];
+                        var r = map.coordToContainerPoint(coord)._multi(scale).toArray();
+                        return r;
+                    }
+                };
+
+                if (time !== undefined) {
+                    dataGetOptions.filter = function (item) {
+                        var trails = animationOptions.trails || 10;
+                        if (time && item.time > time - trails && item.time < time) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    };
+                }
+
+                // get data from data set
+                var data = self.dataSet.get(dataGetOptions);
+
+                self.processData(data);
+
+                if (self.options.unit == 'm') {
+                    if (self.options.size) {
+                        self.options._size = self.options.size / zoomUnit;
+                    }
+                    if (self.options.width) {
+                        self.options._width = self.options.width / zoomUnit;
+                    }
+                    if (self.options.height) {
+                        self.options._height = self.options.height / zoomUnit;
+                    }
+                } else {
+                    self.options._size = self.options.size;
+                    self.options._height = self.options.height;
+                    self.options._width = self.options.width;
+                }
+
+                var zeroZero = new maptalks.Point(0, 0);
+                //screen position of the [0, 0] point
+                var zeroZeroScreen = map._pointToContainerPoint(zeroZero)._multi(scale);
+                self.drawContext(context, data, self.options, zeroZeroScreen);
+
+                //console.timeEnd('draw');
+
+                //console.timeEnd('update')
+                self.options.updateCallback && self.options.updateCallback(time);
+            }
+        }, {
+            key: "createCanvas",
+            value: function createCanvas() {
+                if (this.canvas) {
+                    return;
+                }
+                var map = this.getMap();
+                var size = map.getSize();
+                var r = maptalks.Browser.retina ? 2 : 1,
+                    w = r * size.width,
+                    h = r * size.height;
+                this.canvas = maptalks.Canvas.createCanvas(w, h, map.CanvasClass);
+                var mapvContext = this.layer.baseLayer.context;
+                if (mapvContext === '2d') {
+                    this.context = this.canvas.getContext('2d');
+                    if (this.layer.options['globalCompositeOperation']) {
+                        this.context.globalCompositeOperation = this.layer.options['globalCompositeOperation'];
+                    }
+                } else {
+                    var attributes = {
+                        'alpha': true,
+                        'preserveDrawingBuffer': true,
+                        'antialias': false
+                    };
+                    this.gl = this.canvas.getContext('webgl', attributes);
+                }
+
+                this.onCanvasCreate();
+
+                this._bindToMapv();
+
+                this.layer.fire('canvascreate', {
+                    'context': this.context,
+                    'gl': this.gl
+                });
+            }
+        }, {
+            key: "_bindToMapv",
+            value: function _bindToMapv() {
+                //some bindings needed by mapv baselayer
+                var base = this.layer.baseLayer;
+                this.devicePixelRatio = maptalks.Browser.retina ? 2 : 1;
+                base.canvasLayer = this;
+                base._canvasUpdate = this._canvasUpdate.bind(this);
+                base.getContext = function () {
+                    var renderer$$1 = self.getRenderer();
+                    return renderer$$1.gl || renderer$$1.context;
+                };
+            }
+        }]);
+        return LayerRenderer;
+    }(maptalks.renderer.CanvasRenderer);
+
+    Layer$5.registerRenderer('canvas', LayerRenderer);
+}
+
+var Layer$6 = Layer$5;
+
+/**
+ * MapV for AMap
+ * @author sakitam-fdd - https://github.com/sakitam-fdd
+ */
+
+/**
+ * create canvas
+ * @param width
+ * @param height
+ * @param Canvas
+ * @returns {HTMLCanvasElement}
+ */
+var createCanvas = function createCanvas(width, height, Canvas$$1) {
+    if (typeof document !== 'undefined') {
+        var canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        return canvas;
+    } else {
+        // create a new canvas instance in node.js
+        // the canvas class needs to have a default constructor without any parameter
+        return new Canvas$$1(width, height);
+    }
+};
+
+var Layer$7 = function (_BaseLayer) {
+    inherits(Layer$$1, _BaseLayer);
+
+    function Layer$$1() {
+        var map = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+        var dataSet = arguments[1];
+        var options = arguments[2];
+        classCallCheck(this, Layer$$1);
+
+        var _this = possibleConstructorReturn(this, (Layer$$1.__proto__ || Object.getPrototypeOf(Layer$$1)).call(this, map, dataSet, options));
+
+        _this.options = options;
+
+        /**
+         * internal
+         * @type {{canvas: null, devicePixelRatio: number}}
+         */
+        _this.canvasLayer = {
+            canvas: null,
+            devicePixelRatio: window.devicePixelRatio
+        };
+
+        /**
+         * canvas layer
+         * @type {null}
+         * @private
+         */
+        _this.layer_ = null;
+
+        _this.initDataRange(options);
+        _this.initAnimator();
+        _this.onEvents();
+        map.on('complete', function () {
+            this.init(map, options);
+            this.argCheck(options);
+        }, _this);
+        return _this;
+    }
+
+    /**
+     * init mapv layer
+     * @param map
+     * @param options
+     */
+
+
+    createClass(Layer$$1, [{
+        key: "init",
+        value: function init(map, options) {
+            if (map) {
+                this.map = map;
+                this.context = this.options.context || '2d';
+                this.getCanvasLayer();
+            } else {
+                throw new Error('not map object');
+            }
+        }
+
+        /**
+         * update layer
+         * @param time
+         * @private
+         */
+
+    }, {
+        key: "_canvasUpdate",
+        value: function _canvasUpdate(time) {
+            this.render(this.canvasLayer.canvas, time);
+        }
+
+        /**
+         * render layer
+         * @param canvas
+         * @param time
+         * @returns {Layer}
+         */
+
+    }, {
+        key: "render",
+        value: function render(canvas, time) {
+            if (!canvas) return;
+            var map = this.map;
+            var context = canvas.getContext(this.context);
+            var animationOptions = this.options.animation;
+            if (this.isEnabledTime()) {
+                if (time === undefined) {
+                    clear(context);
+                    return this;
+                }
+                if (this.context === '2d') {
+                    context.save();
+                    context.globalCompositeOperation = 'destination-out';
+                    context.fillStyle = 'rgba(0, 0, 0, .1)';
+                    context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+                    context.restore();
+                }
+            } else {
+                clear(context);
+            }
+
+            if (this.context === '2d') {
+                for (var key in this.options) {
+                    context[key] = this.options[key];
+                }
+            } else {
+                context.clear(context.COLOR_BUFFER_BIT);
+            }
+            var dataGetOptions = {
+                transferCoordinate: function transferCoordinate(coordinate) {
+                    var _pixel = map.lngLatToContainer(new AMap.LngLat(coordinate[0], coordinate[1]));
+                    return [_pixel['x'], _pixel['y']];
+                }
+            };
+
+            if (time !== undefined) {
+                dataGetOptions.filter = function (item) {
+                    var trails = animationOptions.trails || 10;
+                    if (time && item.time > time - trails && item.time < time) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                };
+            }
+
+            var data = this.dataSet.get(dataGetOptions);
+            this.processData(data);
+
+            if (this.options.unit === 'm') {
+                if (this.options.size) {
+                    this.options._size = this.options.size / zoomUnit;
+                }
+                if (this.options.width) {
+                    this.options._width = this.options.width / zoomUnit;
+                }
+                if (this.options.height) {
+                    this.options._height = this.options.height / zoomUnit;
+                }
+            } else {
+                this.options._size = this.options.size;
+                this.options._height = this.options.height;
+                this.options._width = this.options.width;
+            }
+
+            this.drawContext(context, new DataSet(data), this.options, { x: 0, y: 0 });
+            this.options.updateCallback && this.options.updateCallback(time);
+            return this;
+        }
+
+        /**
+         * get canvas layer
+         */
+
+    }, {
+        key: "getCanvasLayer",
+        value: function getCanvasLayer() {
+            if (!this.canvasLayer.canvas && !this.layer_) {
+                var canvas = this.canvasFunction();
+                var bounds = this.map.getBounds();
+                this.layer_ = new AMap.CanvasLayer({
+                    canvas: canvas,
+                    bounds: this.options.bounds || bounds,
+                    zooms: this.options.zooms || [0, 22]
+                });
+                this.layer_.setMap(this.map);
+                this.map.on('mapmove', this.canvasFunction, this);
+                this.map.on('zoomchange', this.canvasFunction, this);
+            }
+        }
+
+        /**
+         * canvas constructor
+         * @returns {*}
+         */
+
+    }, {
+        key: "canvasFunction",
+        value: function canvasFunction() {
+            var _ref = [this.map.getSize().width, this.map.getSize().height],
+                width = _ref[0],
+                height = _ref[1];
+
+            if (!this.canvasLayer.canvas) {
+                this.canvasLayer.canvas = createCanvas(width, height);
+            } else {
+                this.canvasLayer.canvas.width = width;
+                this.canvasLayer.canvas.height = height;
+                var bounds = this.map.getBounds();
+                if (this.layer_) {
+                    this.layer_.setBounds(this.options.bounds || bounds);
+                }
+            }
+            this.render(this.canvasLayer.canvas);
+            return this.canvasLayer.canvas;
+        }
+
+        /**
+         * remove layer
+         */
+
+    }, {
+        key: "removeLayer",
+        value: function removeLayer() {
+            if (!this.map) return;
+            this.unEvents();
+            this.map.removeLayer(this.layer_);
+            delete this.map;
+            delete this.layer_;
+            delete this.canvasLayer.canvas;
+        }
+    }, {
+        key: "getContext",
+        value: function getContext() {
+            return this.canvasLayer.canvas.getContext(this.context);
+        }
+
+        /**
+         * handle click event
+         * @param event
+         */
+
+    }, {
+        key: "clickEvent",
+        value: function clickEvent(event) {
+            var pixel = event.pixel;
+            get(Layer$$1.prototype.__proto__ || Object.getPrototypeOf(Layer$$1.prototype), "clickEvent", this).call(this, pixel, event);
+        }
+
+        /**
+         * handle mousemove/pointermove event
+         * @param event
+         */
+
+    }, {
+        key: "mousemoveEvent",
+        value: function mousemoveEvent(event) {
+            var pixel = event.pixel;
+            get(Layer$$1.prototype.__proto__ || Object.getPrototypeOf(Layer$$1.prototype), "mousemoveEvent", this).call(this, pixel, event);
+        }
+
+        /**
+         * add animator event
+         */
+
+    }, {
+        key: "addAnimatorEvent",
+        value: function addAnimatorEvent() {
+            this.map.on('movestart', this.animatorMovestartEvent, this);
+            this.map.on('moveend', this.animatorMoveendEvent, this);
+        }
+
+        /**
+         * bind event
+         */
+
+    }, {
+        key: "onEvents",
+        value: function onEvents() {
+            var map = this.map;
+            this.unEvents();
+            if (this.options.methods) {
+                if (this.options.methods.click) {
+                    map.on('click', this.clickEvent, this);
+                }
+                if (this.options.methods.mousemove) {
+                    map.on('mousemove', this.mousemoveEvent, this);
+                }
+            }
+        }
+
+        /**
+         * unbind events
+         */
+
+    }, {
+        key: "unEvents",
+        value: function unEvents() {
+            var map = this.map;
+            if (this.options.methods) {
+                if (this.options.methods.click) {
+                    map.off('click', this.clickEvent, this);
+                }
+                if (this.options.methods.mousemove) {
+                    map.off('mousemove', this.mousemoveEvent, this);
+                }
+            }
+        }
+    }]);
+    return Layer$$1;
+}(BaseLayer);
+
+/**
+ * MapV for openlayers (https://openlayers.org)
+ * @author sakitam-fdd - https://github.com/sakitam-fdd
+ */
+
+/**
+ * create canvas
+ * @param width
+ * @param height
+ * @returns {HTMLCanvasElement}
+ */
+var createCanvas$1 = function createCanvas(width, height) {
+  if (typeof document !== 'undefined') {
+    var canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    return canvas;
+  } else {
+    // create a new canvas instance in node.js
+    // the canvas class needs to have a default constructor without any parameter
+  }
+};
+
+var Layer$9 = function (_BaseLayer) {
+  inherits(Layer$$1, _BaseLayer);
+
+  function Layer$$1() {
+    var map = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    var dataSet = arguments[1];
+    var options = arguments[2];
+    classCallCheck(this, Layer$$1);
+
+    var _this = possibleConstructorReturn(this, (Layer$$1.__proto__ || Object.getPrototypeOf(Layer$$1)).call(this, map, dataSet, options));
+
+    _this.options = options;
+
+    /**
+     * internal
+     * @type {{canvas: null, devicePixelRatio: number}}
+     */
+    _this.canvasLayer = {
+      canvas: null,
+      devicePixelRatio: window.devicePixelRatio
+
+      /**
+       * cavnas layer
+       * @type {null}
+       * @private
+       */
+    };_this.layer_ = null;
+
+    /**
+     * previous cursor
+     * @type {undefined}
+     * @private
+     */
+    _this.previousCursor_ = undefined;
+
+    _this.init(map, options);
+    _this.argCheck(options);
+    return _this;
+  }
+
+  /**
+   * init mapv layer
+   * @param map
+   * @param options
+   */
+
+
+  createClass(Layer$$1, [{
+    key: "init",
+    value: function init(map, options) {
+      if (map && map instanceof ol.Map) {
+        this.$Map = map;
+        this.context = this.options.context || '2d';
+        this.getCanvasLayer();
+        this.initDataRange(options);
+        this.initAnimator();
+        this.onEvents();
+      } else {
+        throw new Error('not map object');
+      }
+    }
+
+    /**
+     * update layer
+     * @param time
+     * @private
+     */
+
+  }, {
+    key: "_canvasUpdate",
+    value: function _canvasUpdate(time) {
+      this.render(this.canvasLayer.canvas, time);
+    }
+
+    /**
+     * render layer
+     * @param canvas
+     * @param time
+     * @returns {Layer}
+     */
+
+  }, {
+    key: "render",
+    value: function render(canvas, time) {
+      var map = this.$Map;
+      var context = canvas.getContext(this.context);
+      var animationOptions = this.options.animation;
+      var _projection = this.options.hasOwnProperty('projection') ? this.options.projection : 'EPSG:4326';
+      if (this.isEnabledTime()) {
+        if (time === undefined) {
+          clear(context);
+          return this;
+        }
+        if (this.context === '2d') {
+          context.save();
+          context.globalCompositeOperation = 'destination-out';
+          context.fillStyle = 'rgba(0, 0, 0, .1)';
+          context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+          context.restore();
+        }
+      } else {
+        clear(context);
+      }
+
+      if (this.context === '2d') {
+        for (var key in this.options) {
+          context[key] = this.options[key];
+        }
+      } else {
+        context.clear(context.COLOR_BUFFER_BIT);
+      }
+      var dataGetOptions = {
+        transferCoordinate: function transferCoordinate(coordinate) {
+          return map.getPixelFromCoordinate(ol.proj.transform(coordinate, _projection, 'EPSG:4326'));
+        }
+      };
+
+      if (time !== undefined) {
+        dataGetOptions.filter = function (item) {
+          var trails = animationOptions.trails || 10;
+          if (time && item.time > time - trails && item.time < time) {
+            return true;
+          } else {
+            return false;
+          }
+        };
+      }
+
+      var data = this.dataSet.get(dataGetOptions);
+      this.processData(data);
+
+      if (this.options.unit === 'm') {
+        if (this.options.size) {
+          this.options._size = this.options.size / zoomUnit;
+        }
+        if (this.options.width) {
+          this.options._width = this.options.width / zoomUnit;
+        }
+        if (this.options.height) {
+          this.options._height = this.options.height / zoomUnit;
+        }
+      } else {
+        this.options._size = this.options.size;
+        this.options._height = this.options.height;
+        this.options._width = this.options.width;
+      }
+
+      this.drawContext(context, new DataSet(data), this.options, { x: 0, y: 0 });
+      this.options.updateCallback && this.options.updateCallback(time);
+      return this;
+    }
+
+    /**
+     * get canvas layer
+     */
+
+  }, {
+    key: "getCanvasLayer",
+    value: function getCanvasLayer() {
+      if (!this.canvasLayer.canvas && !this.layer_) {
+        var extent = this.getMapExtent();
+        this.layer_ = new ol.layer.Image({
+          layerName: this.options.layerName,
+          minResolution: this.options.minResolution,
+          maxResolution: this.options.maxResolution,
+          zIndex: this.options.zIndex,
+          extent: extent,
+          source: new ol.source.ImageCanvas({
+            canvasFunction: this.canvasFunction.bind(this),
+            projection: this.options.hasOwnProperty('projection') ? this.options.projection : 'EPSG:4326',
+            ratio: this.options.hasOwnProperty('ratio') ? this.options.ratio : 1
+          })
+        });
+        this.$Map.addLayer(this.layer_);
+        this.$Map.un('precompose', this.reRender, this);
+        this.$Map.on('precompose', this.reRender, this);
+      }
+    }
+
+    /**
+     * re render
+     */
+
+  }, {
+    key: "reRender",
+    value: function reRender() {
+      if (!this.layer_) return;
+      var extent = this.getMapExtent();
+      this.layer_.setExtent(extent);
+    }
+
+    /**
+     * canvas constructor
+     * @param extent
+     * @param resolution
+     * @param pixelRatio
+     * @param size
+     * @param projection
+     * @returns {*}
+     */
+
+  }, {
+    key: "canvasFunction",
+    value: function canvasFunction(extent, resolution, pixelRatio, size, projection) {
+      if (!this.canvasLayer.canvas) {
+        this.canvasLayer.canvas = createCanvas$1(size[0], size[1]);
+      } else {
+        this.canvasLayer.canvas.width = size[0];
+        this.canvasLayer.canvas.height = size[1];
+      }
+      this.render(this.canvasLayer.canvas);
+      return this.canvasLayer.canvas;
+    }
+
+    /**
+     * get map current extent
+     * @returns {Array}
+     */
+
+  }, {
+    key: "getMapExtent",
+    value: function getMapExtent() {
+      var size = this.$Map.getSize();
+      return this.$Map.getView().calculateExtent(size);
+    }
+
+    /**
+     * add layer to map
+     * @param map
+     */
+
+  }, {
+    key: "addTo",
+    value: function addTo(map) {
+      this.init(map, this.options);
+    }
+
+    /**
+     * remove layer
+     */
+
+  }, {
+    key: "removeLayer",
+    value: function removeLayer() {
+      if (!this.$Map) return;
+      this.unEvents();
+      this.$Map.un('precompose', this.reRender, this);
+      this.$Map.removeLayer(this.layer_);
+      delete this.$Map;
+      delete this.layer_;
+      delete this.canvasLayer.canvas;
+    }
+  }, {
+    key: "getContext",
+    value: function getContext() {
+      return this.canvasLayer.canvas.getContext(this.context);
+    }
+
+    /**
+     * handle click event
+     * @param event
+     */
+
+  }, {
+    key: "clickEvent",
+    value: function clickEvent(event) {
+      var pixel = event.pixel;
+      get(Layer$$1.prototype.__proto__ || Object.getPrototypeOf(Layer$$1.prototype), "clickEvent", this).call(this, {
+        x: pixel[0],
+        y: pixel[1]
+      }, event);
+    }
+
+    /**
+     * handle mousemove/pointermove event
+     * @param event
+     */
+
+  }, {
+    key: "mousemoveEvent",
+    value: function mousemoveEvent(event) {
+      var pixel = event.pixel;
+      get(Layer$$1.prototype.__proto__ || Object.getPrototypeOf(Layer$$1.prototype), "mousemoveEvent", this).call(this, {
+        x: pixel[0],
+        y: pixel[1]
+      }, event);
+    }
+
+    /**
+     * add animator event
+     */
+
+  }, {
+    key: "addAnimatorEvent",
+    value: function addAnimatorEvent() {
+      this.$Map.on('movestart', this.animatorMovestartEvent, this);
+      this.$Map.on('moveend', this.animatorMoveendEvent, this);
+    }
+
+    /**
+     * bind event
+     */
+
+  }, {
+    key: "onEvents",
+    value: function onEvents() {
+      var map = this.$Map;
+      this.unEvents();
+      if (this.options.methods) {
+        if (this.options.methods.click) {
+          map.on('click', this.clickEvent, this);
+        }
+        if (this.options.methods.mousemove) {
+          map.on('pointermove', this.mousemoveEvent, this);
+        }
+      }
+    }
+
+    /**
+     * unbind events
+     */
+
+  }, {
+    key: "unEvents",
+    value: function unEvents() {
+      var map = this.$Map;
+      if (this.options.methods) {
+        if (this.options.methods.click) {
+          map.un('click', this.clickEvent, this);
+        }
+        if (this.options.methods.pointermove) {
+          map.un('pointermove', this.mousemoveEvent, this);
+        }
+      }
+    }
+
+    /**
+     * set map cursor
+     * @param cursor
+     * @param feature
+     */
+
+  }, {
+    key: "setDefaultCursor",
+    value: function setDefaultCursor(cursor, feature) {
+      if (!this.$Map) return;
+      var element = this.$Map.getTargetElement();
+      if (feature) {
+        if (element.style.cursor !== cursor) {
+          this.previousCursor_ = element.style.cursor;
+          element.style.cursor = cursor;
+        }
+      } else if (this.previousCursor_ !== undefined) {
+        element.style.cursor = this.previousCursor_;
+        this.previousCursor_ = undefined;
+      }
+    }
+  }]);
+  return Layer$$1;
 }(BaseLayer);
 
 /**
@@ -5553,16 +6687,18 @@ var geojson = {
 
         var data = [];
         var features = geoJson.features;
-        for (var i = 0; i < features.length; i++) {
-            var feature = features[i];
-            var geometry = feature.geometry;
-            var properties = feature.properties;
-            var item = {};
-            for (var key in properties) {
-                item[key] = properties[key];
+        if (features) {
+            for (var i = 0; i < features.length; i++) {
+                var feature = features[i];
+                var geometry = feature.geometry;
+                var properties = feature.properties;
+                var item = {};
+                for (var key in properties) {
+                    item[key] = properties[key];
+                }
+                item.geometry = geometry;
+                data.push(item);
             }
-            item.geometry = geometry;
-            data.push(item);
         }
         return new DataSet(data);
     }
@@ -5685,9 +6821,12 @@ exports.utilDataRangeChoropleth = Choropleth;
 exports.Map = MapHelper;
 exports.baiduMapCanvasLayer = CanvasLayer;
 exports.baiduMapAnimationLayer = AnimationLayer;
-exports.baiduMapLayer = Layer;
+exports.baiduMapLayer = Layer$1;
 exports.googleMapCanvasLayer = CanvasLayer$2;
-exports.googleMapLayer = Layer$2;
+exports.googleMapLayer = Layer$3;
+exports.MaptalksLayer = Layer$6;
+exports.AMapLayer = Layer$7;
+exports.OpenlayersLayer = Layer$9;
 exports.DataSet = DataSet;
 exports.geojson = geojson;
 exports.csv = csv;

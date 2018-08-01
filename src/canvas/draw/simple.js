@@ -83,6 +83,13 @@ export default {
                 context.beginPath();
 
                 pathSimple.draw(context, item, options);
+                options.multiPolygonDraw = function() {
+                    context.fill();
+
+                    if ((item.strokeStyle || options.strokeStyle) && options.lineWidth) {
+                        context.stroke();
+                    }
+                }
 
                 if (type == 'Point' || type == 'Polygon' || type == 'MultiPolygon') {
 
@@ -91,6 +98,7 @@ export default {
                     if ((item.strokeStyle || options.strokeStyle) && options.lineWidth) {
                         context.stroke();
                     }
+
                 } else if (type == 'LineString') {
                     if (item.lineWidth || item._lineWidth) {
                         context.lineWidth = item.lineWidth || item._lineWidth;

@@ -8,6 +8,7 @@ import Intensity from "../utils/data-range/Intensity";
 import Category from "../utils/data-range/Category";
 import Choropleth from "../utils/data-range/Choropleth";
 import drawHeatmap from "../canvas/draw/heatmap";
+import drawArrow from "../canvas/draw/arrow";
 import drawSimple from "../canvas/draw/simple";
 import webglDrawSimple from "../webgl/draw/simple";
 import drawGrid from "../canvas/draw/grid";
@@ -185,6 +186,10 @@ class BaseLayer {
                     drawSimple.draw(context, dataSet, self.options);
                 }
         }
+
+        if (self.options.arrow && self.options.arrow.show !== false) {
+            drawArrow.draw(context, dataSet, self.options);
+        }
     }
 
     isPointInPath(context, pixel) {
@@ -197,12 +202,12 @@ class BaseLayer {
             var y = pixel.y * this.canvasLayer.devicePixelRatio;
 
             var geoType = data[i].geometry && data[i].geometry.type;
-            if (geoType.indexOf('Polygon') > -1) {
-                if (context.isPointInPath(x, y)) {
+            if (geoType.indexOf('LineString') > -1) {
+                if (context.isPointInStroke && context.isPointInStroke(x, y)) {
                     return data[i];
                 }
             } else {
-                if (context.isPointInStroke && context.isPointInStroke(x, y)) {
+                if (context.isPointInPath(x, y)) {
                     return data[i];
                 }
             }

@@ -9,7 +9,7 @@ import DataSet from "../../data/DataSet";
 import TWEEN from "../../utils/Tween";
 
 let Layer;
-if (maptalks) {
+if (typeof(maptalks) !== 'undefined') {
     Layer = class extends maptalks.Layer{
 
         constructor(id, dataSet, options) {
