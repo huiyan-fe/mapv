@@ -89,9 +89,11 @@ class Layer extends BaseLayer{
         if (this.options.coordType !== 'bd09mc') {
             var data = this.dataSet.get();
             data = this.dataSet.transferCoordinate(data, function(coordinates) {
-                if (coordinates[0] < -180 || coordinates[0] > -180 || coordinates[1] < -90 || coordinates[1] > 90) {
+                console.log(coordinates);
+                if (coordinates[0] < -180 || coordinates[0] > 180 || coordinates[1] < -90 || coordinates[1] > 90) {
                     return coordinates;
                 } else {
+                    console.log(11);
                     var pixel = projection.lngLatToPoint({
                         lng: coordinates[0],
                         lat: coordinates[1]
