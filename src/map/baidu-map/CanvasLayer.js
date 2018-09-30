@@ -39,6 +39,11 @@ if (global.BMap) {
             that.adjustSize();
             that._draw();
         });
+        /*
+        map.addEventListener('moving', function() {
+            that._draw();
+        });
+        */
         return this.canvas;
     }
 

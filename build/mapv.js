@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {}),global.maptalks));
 }(this, (function (exports,maptalks) { 'use strict';
 
-var version = "2.0.25";
+var version = "2.0.26";
 
 /**
  * @author kyle / http://nikai.us/
@@ -2989,6 +2989,11 @@ if (global$3.BMap) {
             that.adjustSize();
             that._draw();
         });
+        /*
+        map.addEventListener('moving', function() {
+            that._draw();
+        });
+        */
         return this.canvas;
     };
 
@@ -4776,11 +4781,15 @@ var Layer$1 = function (_BaseLayer) {
             if (this.options.coordType !== 'bd09mc') {
                 var data = this.dataSet.get();
                 data = this.dataSet.transferCoordinate(data, function (coordinates) {
-                    var pixel = projection.lngLatToPoint({
-                        lng: coordinates[0],
-                        lat: coordinates[1]
-                    });
-                    return [pixel.x, pixel.y];
+                    if (coordinates[0] < -180 || coordinates[0] > -180 || coordinates[1] < -90 || coordinates[1] > 90) {
+                        return coordinates;
+                    } else {
+                        var pixel = projection.lngLatToPoint({
+                            lng: coordinates[0],
+                            lat: coordinates[1]
+                        });
+                        return [pixel.x, pixel.y];
+                    }
                 }, 'coordinates', 'coordinates_mercator');
                 this.dataSet._set(data);
             }
