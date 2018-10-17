@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.30";
+var version = "2.0.31";
 
 /**
  * @author kyle / http://nikai.us/
@@ -436,6 +436,7 @@ DataSet.prototype.transferCoordinate = function (data, transferFn, fromColumn, t
                 }
                 geometry[toColumnName] = newCoordinates;
                 break;
+            case 'MultiLineString':
             case 'Polygon':
                 var newCoordinates = getPolygon(coordinates);
                 geometry[toColumnName] = newCoordinates;
@@ -640,14 +641,12 @@ var pathSimple = {
                 }
                 break;
             case 'LineString':
-                for (var j = 0; j < coordinates.length; j++) {
-                    var x = coordinates[j][0];
-                    var y = coordinates[j][1];
-                    if (j == 0) {
-                        context.moveTo(x, y);
-                    } else {
-                        context.lineTo(x, y);
-                    }
+                this.drawLineString(context, coordinates);
+                break;
+            case 'MultiLineString':
+                for (var i = 0; i < coordinates.length; i++) {
+                    var lineString = coordinates[i];
+                    this.drawLineString(context, lineString);
                 }
                 break;
             case 'Polygon':
@@ -665,6 +664,18 @@ var pathSimple = {
             default:
                 console.log('type' + type + 'is not support now!');
                 break;
+        }
+    },
+
+    drawLineString: function drawLineString(context, coordinates) {
+        for (var j = 0; j < coordinates.length; j++) {
+            var x = coordinates[j][0];
+            var y = coordinates[j][1];
+            if (j == 0) {
+                context.moveTo(x, y);
+            } else {
+                context.lineTo(x, y);
+            }
         }
     },
 
@@ -730,7 +741,7 @@ var drawSimple = {
                 if ((item.strokeStyle || options.strokeStyle) && options.lineWidth) {
                     context.stroke();
                 }
-            } else if (type == 'LineString') {
+            } else if (type == 'LineString' || type == 'MultiLineString') {
                 context.stroke();
             }
 
@@ -779,7 +790,7 @@ var drawSimple = {
                     if ((item.strokeStyle || options.strokeStyle) && options.lineWidth) {
                         context.stroke();
                     }
-                } else if (type == 'LineString') {
+                } else if (type == 'LineString' || type == 'MultiLineString') {
                     if (item.lineWidth || item._lineWidth) {
                         context.lineWidth = item.lineWidth || item._lineWidth;
                     }

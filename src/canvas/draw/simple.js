@@ -49,7 +49,7 @@ export default {
                     context.stroke();
                 }
 
-            } else if (type == 'LineString') {
+            } else if (type == 'LineString' || type == 'MultiLineString') {
                 context.stroke();
             }
 
@@ -99,7 +99,7 @@ export default {
                         context.stroke();
                     }
 
-                } else if (type == 'LineString') {
+                } else if (type == 'LineString' || type == 'MultiLineString') {
                     if (item.lineWidth || item._lineWidth) {
                         context.lineWidth = item.lineWidth || item._lineWidth;
                     }

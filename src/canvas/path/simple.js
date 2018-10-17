@@ -35,14 +35,12 @@ export default {
                 }
                 break;
             case 'LineString':
-                for (var j = 0; j < coordinates.length; j++) {
-                    var x = coordinates[j][0];
-                    var y = coordinates[j][1];
-                    if (j == 0) {
-                        context.moveTo(x, y);
-                    } else {
-                        context.lineTo(x, y);
-                    }
+                this.drawLineString(context, coordinates);
+                break;
+            case 'MultiLineString':
+                for (var i = 0; i < coordinates.length; i++) {
+                    var lineString = coordinates[i];
+                    this.drawLineString(context, lineString);
                 }
                 break;
             case 'Polygon':
@@ -60,6 +58,18 @@ export default {
             default:
                 console.log('type' + type + 'is not support now!');
                 break;
+        }
+    },
+
+    drawLineString: function(context, coordinates) {
+        for (var j = 0; j < coordinates.length; j++) {
+            var x = coordinates[j][0];
+            var y = coordinates[j][1];
+            if (j == 0) {
+                context.moveTo(x, y);
+            } else {
+                context.lineTo(x, y);
+            }
         }
     },
 
