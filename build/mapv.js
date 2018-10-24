@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.31";
+var version = "2.0.32";
 
 /**
  * @author kyle / http://nikai.us/
@@ -3964,6 +3964,41 @@ function getDistance(coordinateA, coordinateB) {
  * This file is to draw text
  */
 
+var drawClip = {
+    draw: function draw(context, dataSet, options) {
+        var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
+        context.save();
+
+        context.fillStyle = options.fillStyle || 'rgba(0, 0, 0, 0.5)';
+        context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+
+        options.multiPolygonDraw = function () {
+            context.save();
+            context.clip();
+            clear(context);
+            context.restore();
+        };
+
+        for (var i = 0, len = data.length; i < len; i++) {
+
+            context.beginPath();
+
+            pathSimple.drawDataSet(context, [data[i]], options);
+            context.save();
+            context.clip();
+            clear(context);
+            context.restore();
+        }
+
+        context.restore();
+    }
+};
+
+/**
+ * @author Mofei Zhu<mapv@zhuwenlong.com>
+ * This file is to draw text
+ */
+
 var drawText = {
     draw: function draw(context, dataSet, options) {
 
@@ -4285,15 +4320,7 @@ var BaseLayer = function () {
                     drawIcon.draw(context, dataSet, self.options);
                     break;
                 case 'clip':
-                    context.save();
-                    context.fillStyle = self.options.fillStyle || 'rgba(0, 0, 0, 0.5)';
-                    context.fillRect(0, 0, context.canvas.width, context.canvas.height);
-                    drawSimple.draw(context, dataSet, self.options);
-                    context.beginPath();
-                    pathSimple.drawDataSet(context, dataSet, self.options);
-                    context.clip();
-                    clear(context);
-                    context.restore();
+                    drawClip.draw(context, dataSet, self.options);
                     break;
                 default:
                     if (self.options.context == "webgl") {
