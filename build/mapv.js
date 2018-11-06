@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.32";
+var version = "2.0.33";
 
 /**
  * @author kyle / http://nikai.us/
@@ -998,8 +998,24 @@ function createCircle(size) {
 }
 
 function colorize(pixels, gradient, options) {
+    var max = getMax(options);
+    var min = getMin(options);
+    var diff = max - min;
+    var range = options.range || null;
+
+    var jMin = 0;
+    var jMax = 1024;
+    if (range && range.length === 2) {
+        jMin = (range[0] - min) / diff * 1024;
+    }
+
+    if (range && range.length === 2) {
+        jMax = (range[1] - min) / diff * 1024;
+    }
 
     var maxOpacity = options.maxOpacity || 0.8;
+    var range = options.range;
+
     for (var i = 3, len = pixels.length, j; i < len; i += 4) {
         j = pixels[i] * 4; // get gradient color from opacity value
 
@@ -1007,16 +1023,30 @@ function colorize(pixels, gradient, options) {
             pixels[i] = 256 * maxOpacity;
         }
 
-        pixels[i - 3] = gradient[j];
-        pixels[i - 2] = gradient[j + 1];
-        pixels[i - 1] = gradient[j + 2];
+        if (j && j >= jMin && j <= jMax) {
+            pixels[i - 3] = gradient[j];
+            pixels[i - 2] = gradient[j + 1];
+            pixels[i - 1] = gradient[j + 2];
+        } else {
+            pixels[i] = 0;
+        }
     }
+}
+
+function getMax(options) {
+    var max = options.max || 100;
+    return max;
+}
+
+function getMin(options) {
+    var min = options.min || 0;
+    return min;
 }
 
 function drawGray(context, dataSet, options) {
 
-    var max = options.max || 100;
-    var min = options.min || 0;
+    var max = getMax(options);
+    var min = getMin(options);
     // console.log(max)
     var size = options._size;
     if (size == undefined) {
