@@ -43,6 +43,13 @@ class Layer extends BaseLayer{
         });
 
     }
+    
+    throttle(fun, ctx, pixel, e) {
+        clearTimeout(fun.tId)
+        fun.tId = setTimeout(function(){
+            fun.call(ctx, pixel, e);
+        }, 300);
+    }
 
     clickEvent(e) {
         var pixel = e.pixel;
@@ -51,7 +58,8 @@ class Layer extends BaseLayer{
 
     mousemoveEvent(e) {
         var pixel = e.pixel;
-        super.mousemoveEvent(pixel, e);
+        this.throttle(super.mousemoveEvent, this, pixel, e);
+        // super.mousemoveEvent(pixel, e);
     }
 
     bindEvent(e) {
