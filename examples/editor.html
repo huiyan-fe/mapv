@@ -62,7 +62,7 @@
     </div>
 
     <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script>
-    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="//api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
     <script type="text/javascript" src="../build/mapv.js"></script>
     <script type="text/javascript" src="js/dat.gui.min.js"></script>
 
@@ -693,7 +693,7 @@
                     // gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
                     gui.add(options, 'lineWidth', 1, 10).onFinishChange(finished);
                     gui.addColor(options, 'strokeStyle').onChange(finished);
-                    gui.add(options, 'max', 1, 1000).onFinishChange(finished);
+                    gui.add(options, 'max', 1, 10000).onFinishChange(finished);
                     gui.add(options, 'maxSize', 35, 100).onFinishChange(finished);
                     break;
                 case 'category':
@@ -701,14 +701,14 @@
                     break;
                 case 'heatmap':
                     // gui.add(options, 'shadowBlur', 1, 100).onFinishChange(finished);
-                    gui.add(options, 'max', 1, 1000).onFinishChange(finished);
+                    gui.add(options, 'max', 1, 10000).onFinishChange(finished);
                     gui.add(options, 'maxOpacity', 0, 1).onFinishChange(finished);
                     gui.addGradient(options, 'gradient', gradientOptions).onFinishChange(finished);
                     break;
                 case 'grid':
                 case 'intensity':
                 case 'honeycomb':
-                    gui.add(options, 'max', 1, 1000).onFinishChange(finished);
+                    gui.add(options, 'max', 1, 10000).onFinishChange(finished);
                     gui.add(options, 'lineWidth', 1, 10).onFinishChange(finished);
                     gui.addColor(options, 'strokeStyle').onChange(finished);
                     gui.addGradient(options, 'gradient', gradientOptions).onFinishChange(finished);

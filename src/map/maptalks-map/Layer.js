@@ -2,7 +2,7 @@
  * MapV for maptalks.js (https://github.com/maptalks/maptalks.js)
  * @author fuzhenn / https://github.com/fuzhenn
  */
-import * as maptalks from 'maptalks';
+// import * as maptalks from 'maptalks';
 import BaseLayer from "../BaseLayer";
 import clear from "../../canvas/clear";
 import DataSet from "../../data/DataSet";

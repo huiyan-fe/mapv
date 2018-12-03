@@ -89,11 +89,15 @@ class Layer extends BaseLayer{
         if (this.options.coordType !== 'bd09mc') {
             var data = this.dataSet.get();
             data = this.dataSet.transferCoordinate(data, function(coordinates) {
-                var pixel = projection.lngLatToPoint({
-                    lng: coordinates[0],
-                    lat: coordinates[1]
-                });
-                return [pixel.x, pixel.y];
+                if (coordinates[0] < -180 || coordinates[0] > 180 || coordinates[1] < -90 || coordinates[1] > 90) {
+                    return coordinates;
+                } else {
+                    var pixel = projection.lngLatToPoint({
+                        lng: coordinates[0],
+                        lat: coordinates[1]
+                    });
+                    return [pixel.x, pixel.y];
+                }
             }, 'coordinates', 'coordinates_mercator');
             this.dataSet._set(data);
         }

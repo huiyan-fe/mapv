@@ -190,6 +190,7 @@ DataSet.prototype.transferCoordinate = function (data, transferFn, fromColumn, t
                 }
                 geometry[toColumnName] = newCoordinates;
                 break;
+            case 'MultiLineString':
             case 'Polygon':
                 var newCoordinates = getPolygon(coordinates);
                 geometry[toColumnName] = newCoordinates;

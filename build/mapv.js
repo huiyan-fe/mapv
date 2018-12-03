@@ -1,10 +1,10 @@
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('maptalks')) :
-	typeof define === 'function' && define.amd ? define(['exports', 'maptalks'], factory) :
-	(factory((global.mapv = global.mapv || {}),global.maptalks));
-}(this, (function (exports,maptalks) { 'use strict';
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+	typeof define === 'function' && define.amd ? define(['exports'], factory) :
+	(factory((global.mapv = global.mapv || {})));
+}(this, (function (exports) { 'use strict';
 
-var version = "2.0.25";
+var version = "2.0.33";
 
 /**
  * @author kyle / http://nikai.us/
@@ -436,6 +436,7 @@ DataSet.prototype.transferCoordinate = function (data, transferFn, fromColumn, t
                 }
                 geometry[toColumnName] = newCoordinates;
                 break;
+            case 'MultiLineString':
             case 'Polygon':
                 var newCoordinates = getPolygon(coordinates);
                 geometry[toColumnName] = newCoordinates;
@@ -640,14 +641,12 @@ var pathSimple = {
                 }
                 break;
             case 'LineString':
-                for (var j = 0; j < coordinates.length; j++) {
-                    var x = coordinates[j][0];
-                    var y = coordinates[j][1];
-                    if (j == 0) {
-                        context.moveTo(x, y);
-                    } else {
-                        context.lineTo(x, y);
-                    }
+                this.drawLineString(context, coordinates);
+                break;
+            case 'MultiLineString':
+                for (var i = 0; i < coordinates.length; i++) {
+                    var lineString = coordinates[i];
+                    this.drawLineString(context, lineString);
                 }
                 break;
             case 'Polygon':
@@ -665,6 +664,18 @@ var pathSimple = {
             default:
                 console.log('type' + type + 'is not support now!');
                 break;
+        }
+    },
+
+    drawLineString: function drawLineString(context, coordinates) {
+        for (var j = 0; j < coordinates.length; j++) {
+            var x = coordinates[j][0];
+            var y = coordinates[j][1];
+            if (j == 0) {
+                context.moveTo(x, y);
+            } else {
+                context.lineTo(x, y);
+            }
         }
     },
 
@@ -730,7 +741,7 @@ var drawSimple = {
                 if ((item.strokeStyle || options.strokeStyle) && options.lineWidth) {
                     context.stroke();
                 }
-            } else if (type == 'LineString') {
+            } else if (type == 'LineString' || type == 'MultiLineString') {
                 context.stroke();
             }
 
@@ -779,7 +790,7 @@ var drawSimple = {
                     if ((item.strokeStyle || options.strokeStyle) && options.lineWidth) {
                         context.stroke();
                     }
-                } else if (type == 'LineString') {
+                } else if (type == 'LineString' || type == 'MultiLineString') {
                     if (item.lineWidth || item._lineWidth) {
                         context.lineWidth = item.lineWidth || item._lineWidth;
                     }
@@ -794,7 +805,7 @@ var drawSimple = {
     }
 };
 
-function Canvas$1(width, height) {
+function Canvas(width, height) {
 
     var canvas;
 
@@ -864,7 +875,7 @@ Intensity.prototype.initPalette = function () {
 
     var gradient = this.gradient;
 
-    var canvas = new Canvas$1(256, 1);
+    var canvas = new Canvas(256, 1);
 
     var paletteCtx = this.paletteCtx = canvas.getContext('2d');
 
@@ -942,7 +953,7 @@ Intensity.prototype.getLegend = function (options) {
     var width = options.width || 20;
     var height = options.height || 180;
 
-    var canvas = new Canvas$1(width, height);
+    var canvas = new Canvas(width, height);
 
     var paletteCtx = canvas.getContext('2d');
 
@@ -972,7 +983,7 @@ function createCircle(size) {
     var r2 = size + shadowBlur;
     var offsetDistance = 10000;
 
-    var circle = new Canvas$1(r2 * 2, r2 * 2);
+    var circle = new Canvas(r2 * 2, r2 * 2);
     var context = circle.getContext('2d');
 
     context.shadowBlur = shadowBlur;
@@ -987,8 +998,24 @@ function createCircle(size) {
 }
 
 function colorize(pixels, gradient, options) {
+    var max = getMax(options);
+    var min = getMin(options);
+    var diff = max - min;
+    var range = options.range || null;
+
+    var jMin = 0;
+    var jMax = 1024;
+    if (range && range.length === 2) {
+        jMin = (range[0] - min) / diff * 1024;
+    }
+
+    if (range && range.length === 2) {
+        jMax = (range[1] - min) / diff * 1024;
+    }
 
     var maxOpacity = options.maxOpacity || 0.8;
+    var range = options.range;
+
     for (var i = 3, len = pixels.length, j; i < len; i += 4) {
         j = pixels[i] * 4; // get gradient color from opacity value
 
@@ -996,16 +1023,30 @@ function colorize(pixels, gradient, options) {
             pixels[i] = 256 * maxOpacity;
         }
 
-        pixels[i - 3] = gradient[j];
-        pixels[i - 2] = gradient[j + 1];
-        pixels[i - 1] = gradient[j + 2];
+        if (j && j >= jMin && j <= jMax) {
+            pixels[i - 3] = gradient[j];
+            pixels[i - 2] = gradient[j + 1];
+            pixels[i - 1] = gradient[j + 2];
+        } else {
+            pixels[i] = 0;
+        }
     }
+}
+
+function getMax(options) {
+    var max = options.max || 100;
+    return max;
+}
+
+function getMin(options) {
+    var min = options.min || 0;
+    return min;
 }
 
 function drawGray(context, dataSet, options) {
 
-    var max = options.max || 100;
-    var min = options.min || 0;
+    var max = getMax(options);
+    var min = getMin(options);
     // console.log(max)
     var size = options._size;
     if (size == undefined) {
@@ -1074,7 +1115,7 @@ function draw$1(context, dataSet, options) {
     var strength = options.strength || 0.3;
     context.strokeStyle = 'rgba(0,0,0,' + strength + ')';
 
-    var shadowCanvas = new Canvas$1(context.canvas.width, context.canvas.height);
+    var shadowCanvas = new Canvas(context.canvas.width, context.canvas.height);
     var shadowContext = shadowCanvas.getContext('2d');
     shadowContext.scale(devicePixelRatio, devicePixelRatio);
 
@@ -2989,6 +3030,11 @@ if (global$3.BMap) {
             that.adjustSize();
             that._draw();
         });
+        /*
+        map.addEventListener('moving', function() {
+            that._draw();
+        });
+        */
         return this.canvas;
     };
 
@@ -3948,6 +3994,41 @@ function getDistance(coordinateA, coordinateB) {
  * This file is to draw text
  */
 
+var drawClip = {
+    draw: function draw(context, dataSet, options) {
+        var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
+        context.save();
+
+        context.fillStyle = options.fillStyle || 'rgba(0, 0, 0, 0.5)';
+        context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+
+        options.multiPolygonDraw = function () {
+            context.save();
+            context.clip();
+            clear(context);
+            context.restore();
+        };
+
+        for (var i = 0, len = data.length; i < len; i++) {
+
+            context.beginPath();
+
+            pathSimple.drawDataSet(context, [data[i]], options);
+            context.save();
+            context.clip();
+            clear(context);
+            context.restore();
+        }
+
+        context.restore();
+    }
+};
+
+/**
+ * @author Mofei Zhu<mapv@zhuwenlong.com>
+ * This file is to draw text
+ */
+
 var drawText = {
     draw: function draw(context, dataSet, options) {
 
@@ -4269,15 +4350,7 @@ var BaseLayer = function () {
                     drawIcon.draw(context, dataSet, self.options);
                     break;
                 case 'clip':
-                    context.save();
-                    context.fillStyle = self.options.fillStyle || 'rgba(0, 0, 0, 0.5)';
-                    context.fillRect(0, 0, context.canvas.width, context.canvas.height);
-                    drawSimple.draw(context, dataSet, self.options);
-                    context.beginPath();
-                    pathSimple.drawDataSet(context, dataSet, self.options);
-                    context.clip();
-                    clear(context);
-                    context.restore();
+                    drawClip.draw(context, dataSet, self.options);
                     break;
                 default:
                     if (self.options.context == "webgl") {
@@ -4684,13 +4757,13 @@ var AnimationLayer = function (_BaseLayer) {
  * @author kyle / http://nikai.us/
  */
 
-var Layer$1 = function (_BaseLayer) {
-    inherits(Layer$$1, _BaseLayer);
+var Layer = function (_BaseLayer) {
+    inherits(Layer, _BaseLayer);
 
-    function Layer$$1(map, dataSet, options) {
-        classCallCheck(this, Layer$$1);
+    function Layer(map, dataSet, options) {
+        classCallCheck(this, Layer);
 
-        var _this = possibleConstructorReturn(this, (Layer$$1.__proto__ || Object.getPrototypeOf(Layer$$1)).call(this, map, dataSet, options));
+        var _this = possibleConstructorReturn(this, (Layer.__proto__ || Object.getPrototypeOf(Layer)).call(this, map, dataSet, options));
 
         var self = _this;
         var data = null;
@@ -4723,17 +4796,17 @@ var Layer$1 = function (_BaseLayer) {
         return _this;
     }
 
-    createClass(Layer$$1, [{
+    createClass(Layer, [{
         key: "clickEvent",
         value: function clickEvent(e) {
             var pixel = e.pixel;
-            get(Layer$$1.prototype.__proto__ || Object.getPrototypeOf(Layer$$1.prototype), "clickEvent", this).call(this, pixel, e);
+            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "clickEvent", this).call(this, pixel, e);
         }
     }, {
         key: "mousemoveEvent",
         value: function mousemoveEvent(e) {
             var pixel = e.pixel;
-            get(Layer$$1.prototype.__proto__ || Object.getPrototypeOf(Layer$$1.prototype), "mousemoveEvent", this).call(this, pixel, e);
+            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "mousemoveEvent", this).call(this, pixel, e);
         }
     }, {
         key: "bindEvent",
@@ -4776,11 +4849,15 @@ var Layer$1 = function (_BaseLayer) {
             if (this.options.coordType !== 'bd09mc') {
                 var data = this.dataSet.get();
                 data = this.dataSet.transferCoordinate(data, function (coordinates) {
-                    var pixel = projection.lngLatToPoint({
-                        lng: coordinates[0],
-                        lat: coordinates[1]
-                    });
-                    return [pixel.x, pixel.y];
+                    if (coordinates[0] < -180 || coordinates[0] > 180 || coordinates[1] < -90 || coordinates[1] > 90) {
+                        return coordinates;
+                    } else {
+                        var pixel = projection.lngLatToPoint({
+                            lng: coordinates[0],
+                            lat: coordinates[1]
+                        });
+                        return [pixel.x, pixel.y];
+                    }
                 }, 'coordinates', 'coordinates_mercator');
                 this.dataSet._set(data);
             }
@@ -4940,7 +5017,7 @@ var Layer$1 = function (_BaseLayer) {
             this.canvasLayer.draw();
         }
     }]);
-    return Layer$$1;
+    return Layer;
 }(BaseLayer);
 
 /**
@@ -5479,13 +5556,13 @@ if (global$4.google && global$4.google.maps) {
  * @author kyle / http://nikai.us/
  */
 
-var Layer$3 = function (_BaseLayer) {
-    inherits(Layer$$1, _BaseLayer);
+var Layer$2 = function (_BaseLayer) {
+    inherits(Layer, _BaseLayer);
 
-    function Layer$$1(map, dataSet, options) {
-        classCallCheck(this, Layer$$1);
+    function Layer(map, dataSet, options) {
+        classCallCheck(this, Layer);
 
-        var _this = possibleConstructorReturn(this, (Layer$$1.__proto__ || Object.getPrototypeOf(Layer$$1)).call(this, map, dataSet, options));
+        var _this = possibleConstructorReturn(this, (Layer.__proto__ || Object.getPrototypeOf(Layer)).call(this, map, dataSet, options));
 
         var self = _this;
         var data = null;
@@ -5511,17 +5588,17 @@ var Layer$3 = function (_BaseLayer) {
         return _this;
     }
 
-    createClass(Layer$$1, [{
+    createClass(Layer, [{
         key: "clickEvent",
         value: function clickEvent(e) {
             var pixel = e.pixel;
-            get(Layer$$1.prototype.__proto__ || Object.getPrototypeOf(Layer$$1.prototype), "clickEvent", this).call(this, pixel, e);
+            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "clickEvent", this).call(this, pixel, e);
         }
     }, {
         key: "mousemoveEvent",
         value: function mousemoveEvent(e) {
             var pixel = e.pixel;
-            get(Layer$$1.prototype.__proto__ || Object.getPrototypeOf(Layer$$1.prototype), "mousemoveEvent", this).call(this, pixel, e);
+            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "mousemoveEvent", this).call(this, pixel, e);
         }
     }, {
         key: "bindEvent",
@@ -5696,22 +5773,23 @@ var Layer$3 = function (_BaseLayer) {
             self.canvasLayer.draw();
         }
     }]);
-    return Layer$$1;
+    return Layer;
 }(BaseLayer);
 
 /**
  * MapV for maptalks.js (https://github.com/maptalks/maptalks.js)
  * @author fuzhenn / https://github.com/fuzhenn
  */
-var Layer$5 = void 0;
+// import * as maptalks from 'maptalks';
+var Layer$4 = void 0;
 if (typeof maptalks !== 'undefined') {
-    Layer$5 = function (_maptalks$Layer) {
-        inherits(Layer$$1, _maptalks$Layer);
+    Layer$4 = function (_maptalks$Layer) {
+        inherits(Layer, _maptalks$Layer);
 
-        function Layer$$1(id, dataSet, options) {
-            classCallCheck(this, Layer$$1);
+        function Layer(id, dataSet, options) {
+            classCallCheck(this, Layer);
 
-            var _this = possibleConstructorReturn(this, (Layer$$1.__proto__ || Object.getPrototypeOf(Layer$$1)).call(this, id, options));
+            var _this = possibleConstructorReturn(this, (Layer.__proto__ || Object.getPrototypeOf(Layer)).call(this, id, options));
 
             _this.options_ = options;
             _this.dataSet = dataSet;
@@ -5719,7 +5797,7 @@ if (typeof maptalks !== 'undefined') {
             return _this;
         }
 
-        createClass(Layer$$1, [{
+        createClass(Layer, [{
             key: "_initBaseLayer",
             value: function _initBaseLayer(options) {
                 var self = this;
@@ -5774,7 +5852,7 @@ if (typeof maptalks !== 'undefined') {
                 this.map.addListener('moveend', this.animatorMoveendEvent.bind(this));
             }
         }]);
-        return Layer$$1;
+        return Layer;
     }(maptalks.Layer);
 
     var LayerRenderer = function (_maptalks$renderer$Ca) {
@@ -5965,18 +6043,18 @@ if (typeof maptalks !== 'undefined') {
                 base.canvasLayer = this;
                 base._canvasUpdate = this._canvasUpdate.bind(this);
                 base.getContext = function () {
-                    var renderer$$1 = self.getRenderer();
-                    return renderer$$1.gl || renderer$$1.context;
+                    var renderer = self.getRenderer();
+                    return renderer.gl || renderer.context;
                 };
             }
         }]);
         return LayerRenderer;
     }(maptalks.renderer.CanvasRenderer);
 
-    Layer$5.registerRenderer('canvas', LayerRenderer);
+    Layer$4.registerRenderer('canvas', LayerRenderer);
 }
 
-var Layer$6 = Layer$5;
+var Layer$5 = Layer$4;
 
 /**
  * MapV for AMap
@@ -5990,7 +6068,7 @@ var Layer$6 = Layer$5;
  * @param Canvas
  * @returns {HTMLCanvasElement}
  */
-var createCanvas = function createCanvas(width, height, Canvas$$1) {
+var createCanvas = function createCanvas(width, height, Canvas) {
     if (typeof document !== 'undefined') {
         var canvas = document.createElement('canvas');
         canvas.width = width;
@@ -5999,20 +6077,20 @@ var createCanvas = function createCanvas(width, height, Canvas$$1) {
     } else {
         // create a new canvas instance in node.js
         // the canvas class needs to have a default constructor without any parameter
-        return new Canvas$$1(width, height);
+        return new Canvas(width, height);
     }
 };
 
-var Layer$7 = function (_BaseLayer) {
-    inherits(Layer$$1, _BaseLayer);
+var Layer$6 = function (_BaseLayer) {
+    inherits(Layer, _BaseLayer);
 
-    function Layer$$1() {
+    function Layer() {
         var map = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
         var dataSet = arguments[1];
         var options = arguments[2];
-        classCallCheck(this, Layer$$1);
+        classCallCheck(this, Layer);
 
-        var _this = possibleConstructorReturn(this, (Layer$$1.__proto__ || Object.getPrototypeOf(Layer$$1)).call(this, map, dataSet, options));
+        var _this = possibleConstructorReturn(this, (Layer.__proto__ || Object.getPrototypeOf(Layer)).call(this, map, dataSet, options));
 
         _this.options = options;
 
@@ -6049,7 +6127,7 @@ var Layer$7 = function (_BaseLayer) {
      */
 
 
-    createClass(Layer$$1, [{
+    createClass(Layer, [{
         key: "init",
         value: function init(map, options) {
             if (map) {
@@ -6228,7 +6306,7 @@ var Layer$7 = function (_BaseLayer) {
         key: "clickEvent",
         value: function clickEvent(event) {
             var pixel = event.pixel;
-            get(Layer$$1.prototype.__proto__ || Object.getPrototypeOf(Layer$$1.prototype), "clickEvent", this).call(this, pixel, event);
+            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "clickEvent", this).call(this, pixel, event);
         }
 
         /**
@@ -6240,7 +6318,7 @@ var Layer$7 = function (_BaseLayer) {
         key: "mousemoveEvent",
         value: function mousemoveEvent(event) {
             var pixel = event.pixel;
-            get(Layer$$1.prototype.__proto__ || Object.getPrototypeOf(Layer$$1.prototype), "mousemoveEvent", this).call(this, pixel, event);
+            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "mousemoveEvent", this).call(this, pixel, event);
         }
 
         /**
@@ -6291,7 +6369,7 @@ var Layer$7 = function (_BaseLayer) {
             }
         }
     }]);
-    return Layer$$1;
+    return Layer;
 }(BaseLayer);
 
 /**
@@ -6317,16 +6395,16 @@ var createCanvas$1 = function createCanvas(width, height) {
   }
 };
 
-var Layer$9 = function (_BaseLayer) {
-  inherits(Layer$$1, _BaseLayer);
+var Layer$8 = function (_BaseLayer) {
+  inherits(Layer, _BaseLayer);
 
-  function Layer$$1() {
+  function Layer() {
     var map = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     var dataSet = arguments[1];
     var options = arguments[2];
-    classCallCheck(this, Layer$$1);
+    classCallCheck(this, Layer);
 
-    var _this = possibleConstructorReturn(this, (Layer$$1.__proto__ || Object.getPrototypeOf(Layer$$1)).call(this, map, dataSet, options));
+    var _this = possibleConstructorReturn(this, (Layer.__proto__ || Object.getPrototypeOf(Layer)).call(this, map, dataSet, options));
 
     _this.options = options;
 
@@ -6364,7 +6442,7 @@ var Layer$9 = function (_BaseLayer) {
    */
 
 
-  createClass(Layer$$1, [{
+  createClass(Layer, [{
     key: "init",
     value: function init(map, options) {
       if (map && map instanceof ol.Map) {
@@ -6584,7 +6662,7 @@ var Layer$9 = function (_BaseLayer) {
     key: "clickEvent",
     value: function clickEvent(event) {
       var pixel = event.pixel;
-      get(Layer$$1.prototype.__proto__ || Object.getPrototypeOf(Layer$$1.prototype), "clickEvent", this).call(this, {
+      get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "clickEvent", this).call(this, {
         x: pixel[0],
         y: pixel[1]
       }, event);
@@ -6599,7 +6677,7 @@ var Layer$9 = function (_BaseLayer) {
     key: "mousemoveEvent",
     value: function mousemoveEvent(event) {
       var pixel = event.pixel;
-      get(Layer$$1.prototype.__proto__ || Object.getPrototypeOf(Layer$$1.prototype), "mousemoveEvent", this).call(this, {
+      get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "mousemoveEvent", this).call(this, {
         x: pixel[0],
         y: pixel[1]
       }, event);
@@ -6675,7 +6753,7 @@ var Layer$9 = function (_BaseLayer) {
       }
     }
   }]);
-  return Layer$$1;
+  return Layer;
 }(BaseLayer);
 
 /**
@@ -6821,12 +6899,12 @@ exports.utilDataRangeChoropleth = Choropleth;
 exports.Map = MapHelper;
 exports.baiduMapCanvasLayer = CanvasLayer;
 exports.baiduMapAnimationLayer = AnimationLayer;
-exports.baiduMapLayer = Layer$1;
+exports.baiduMapLayer = Layer;
 exports.googleMapCanvasLayer = CanvasLayer$2;
-exports.googleMapLayer = Layer$3;
-exports.MaptalksLayer = Layer$6;
-exports.AMapLayer = Layer$7;
-exports.OpenlayersLayer = Layer$9;
+exports.googleMapLayer = Layer$2;
+exports.MaptalksLayer = Layer$5;
+exports.AMapLayer = Layer$6;
+exports.OpenlayersLayer = Layer$8;
 exports.DataSet = DataSet;
 exports.geojson = geojson;
 exports.csv = csv;

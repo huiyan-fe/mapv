@@ -24,7 +24,7 @@
     <div id="map"></div>
     <canvas id="canvas"></canvas>
 
-    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="//api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
     <script type="text/javascript" src="../build/mapv.js"></script>
 
     <script type="text/javascript">
@@ -64,6 +64,7 @@
             size: 13,
             gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
             max: 100,
+            // range: [0, 100], // 过滤显示数据范围
             draw: 'heatmap'
         }
 
