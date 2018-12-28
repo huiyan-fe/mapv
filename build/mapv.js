@@ -4414,6 +4414,19 @@ var BaseLayer = function () {
                 this.options.methods.mousemove(null, e);
             }
         }
+    }, {
+        key: "tapEvent",
+        value: function tapEvent(pixel, e) {
+            if (!this.options.methods) {
+                return;
+            }
+            var dataItem = this.isPointInPath(this.getContext(), pixel);
+            if (dataItem) {
+                this.options.methods.tap(dataItem, e);
+            } else {
+                this.options.methods.tap(null, e);
+            }
+        }
 
         /**
          * obj.options
@@ -4771,6 +4784,7 @@ var Layer = function (_BaseLayer) {
 
         _this.clickEvent = _this.clickEvent.bind(_this);
         _this.mousemoveEvent = _this.mousemoveEvent.bind(_this);
+        _this.tapEvent = _this.tapEvent.bind(_this);
 
         self.init(options);
         self.argCheck(options);
@@ -4809,10 +4823,18 @@ var Layer = function (_BaseLayer) {
             get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "mousemoveEvent", this).call(this, pixel, e);
         }
     }, {
+        key: "tapEvent",
+        value: function tapEvent(e) {
+            var pixel = e.pixel;
+            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "tapEvent", this).call(this, pixel, e);
+        }
+    }, {
         key: "bindEvent",
         value: function bindEvent(e) {
             this.unbindEvent();
             var map = this.map;
+            var timer = 0;
+            var that = this;
 
             if (this.options.methods) {
                 if (this.options.methods.click) {
@@ -4821,6 +4843,17 @@ var Layer = function (_BaseLayer) {
                 }
                 if (this.options.methods.mousemove) {
                     map.addEventListener('mousemove', this.mousemoveEvent);
+                }
+
+                if (this.options.methods.tap) {
+                    map.addEventListener('touchstart', function (e) {
+                        timer = new Date();
+                    });
+                    map.addEventListener('touchend', function (e) {
+                        if (new Date() - timer < 300) {
+                            that.tapEvent(e);
+                        }
+                    });
                 }
             }
         }
