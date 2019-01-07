@@ -119,7 +119,7 @@
                 return item;
             });
             data = data.sort(function (a, b) {
-                return b.count - a.count;
+                return a.count - b.count;
             });
             lineDataSet.set(data);
         });
@@ -161,13 +161,14 @@
                             coordinates: [[start[0], start[1]], [end[0], end[1]]]
                         },
                         lineWidth: intensity.getSize(item.count),
-                        count: item['count']
+                        count: item.count
                     });
                 }
 
                 newData = newData.sort(function (a, b) {
-                    return b.count - a.count;
+                    return parseFloat(a.count) - parseFloat(b.count);
                 });
+                console.log('newData', newData);
                 
                 lineDataSet.set(newData);
             }
