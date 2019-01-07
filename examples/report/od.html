@@ -155,7 +155,6 @@
                     var item = uploadData[i];
                     var start = item['起点区坐标'].split(',');
                     var end = item['终点区坐标'].split(',');
-                    console.log(intensity.getSize(item.count));
                     newData.push({
                         geometry: {
                             type: 'LineString',
@@ -165,6 +164,10 @@
                         count: item['count']
                     });
                 }
+
+                newData = newData.sort(function (a, b) {
+                    return b.count - a.count;
+                });
                 
                 lineDataSet.set(newData);
             }
