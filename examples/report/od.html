@@ -41,7 +41,45 @@
         map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
 
         map.setMapStyle({
-            style: 'midnight'
+            styleJson: [
+                {
+                    "featureType": "all",
+                    "elementType": "all",
+                    "stylers": {
+                        "lightness": 40,
+                        "saturation": -100
+                    }
+                },
+				{
+                    "featureType": "administrative",
+                    "elementType": "labels",
+                    "stylers": {
+                        "visibility": "on"
+                    }
+                },
+				{
+                    "featureType": "poi",
+                    "elementType": "labels",
+                    "stylers": {
+                        "visibility": "off"
+                    }
+                },
+                {
+                    "featureType": "road",
+                    "elementType": "labels",
+                    "stylers": {
+                        "visibility": "off"
+                    }
+                },
+				{
+                    "featureType": "road",
+                    "elementType": "all",
+                    "stylers": {
+                        "lightness": -1,
+                        "saturation": -100
+                    }
+				}
+            ]
         });
 
         var randomCount = 1000;
