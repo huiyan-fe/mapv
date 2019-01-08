@@ -104,6 +104,11 @@
             max: 5000
         });
 
+        var legend = intensity.getLegend({
+        });
+        legend.style.cssText = "position: absolute;bottom: 10px; right: 10px;";
+        document.body.appendChild(legend);
+
         $.get('od.csv', function(csvstr) {
             var dataSet = mapv.csv.getDataSet(csvstr);
             var data = dataSet.get();
