@@ -60,7 +60,7 @@ class Layer extends BaseLayer{
 
         if (this.options.methods) {
             if (this.options.methods.click) {
-                map.setDefaultCursor("default");
+                // map.setDefaultCursor("default"); //不应该在这里设置光标，所以注释掉他
                 map.addEventListener('click', this.clickEvent);
             }
             if (this.options.methods.mousemove) {

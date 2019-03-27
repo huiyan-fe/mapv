@@ -227,8 +227,17 @@ class BaseLayer {
         }
         var dataItem = this.isPointInPath(this.getContext(), pixel);
         if (dataItem) {
+            if(this.options.hoverCursor){
+                if(!this._defaultCursor){
+                    this._defaultCursor = this.map.getDefaultCursor();
+                }
+                this.map.setDefaultCursor(this.options.hoverCursor)
+            }
             this.options.methods.mousemove(dataItem, e);
         } else {
+            if(this.options.hoverCursor && this._defaultCursor){
+                this.map.setDefaultCursor(this._defaultCursor);
+            }
             this.options.methods.mousemove(null, e);
         }
     }
