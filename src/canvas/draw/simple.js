@@ -77,6 +77,10 @@ export default {
                 if (item.lineDash) {
                     context.setLineDash(item.lineDash);
                 }
+                if (item.lineWidth) {
+                    context.lineWidth = item.lineWidth;
+                }
+
 
                 var type = item.geometry.type;
 
