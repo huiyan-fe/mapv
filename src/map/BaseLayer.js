@@ -227,18 +227,29 @@ class BaseLayer {
         }
         var dataItem = this.isPointInPath(this.getContext(), pixel);
         if (dataItem) {
-            if(this.options.hoverCursor){
-                if(!this._defaultCursor){
-                    this._defaultCursor = this.map.getDefaultCursor();
-                }
-                this.map.setDefaultCursor(this.options.hoverCursor)
-            }
             this.options.methods.mousemove(dataItem, e);
         } else {
-            if(this.options.hoverCursor && this._defaultCursor){
+            this.options.methods.mousemove(null, e);
+        }
+    }
+
+    changeHoverCursor(pixel, e) {
+        if (!this.options || !this.options.hoverCursor) {
+            return;
+        }
+        var dataItem = this.isPointInPath(this.getContext(), pixel);
+        if (dataItem) {
+            if(!this._defaultCursor){
+                this._defaultCursor = this.map.getDefaultCursor();
+            }
+            setTimeout(() => {
+                //如果存在多个layer，可能会被别的Layer重新设成默认光标，所以我们延迟100毫秒才设置，等其他Layer的changeHoverCursor方法执行完
+                this.map.setDefaultCursor(this.options.hoverCursor)
+            },100);
+        } else {
+            if(this._defaultCursor){
                 this.map.setDefaultCursor(this._defaultCursor);
             }
-            this.options.methods.mousemove(null, e);
         }
     }
 

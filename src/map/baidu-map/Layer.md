@@ -62,6 +62,7 @@ map.setMapStyle({
     lineCap: 'butt',
     lineJoin: 'miter',
     miterLimit: 10,
+    hoverCursor: 'pointer', //设置鼠标移动到上面时的指针样式，需符合CSS的cursor属性规范。注意，如果不设置hoverCursor，则指针不会变化
     methods: { // 一些事件回调函数
         click: function (item) { // 点击事件，返回对应点击元素的对象值
             console.log(item);

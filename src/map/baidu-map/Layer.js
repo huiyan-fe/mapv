@@ -20,6 +20,7 @@ class Layer extends BaseLayer{
 
         this.clickEvent = this.clickEvent.bind(this);
         this.mousemoveEvent = this.mousemoveEvent.bind(this);
+        this.changeHoverCursor = this.changeHoverCursor.bind(this);
 
         self.init(options);
         self.argCheck(options);
@@ -54,19 +55,25 @@ class Layer extends BaseLayer{
         super.mousemoveEvent(pixel, e);
     }
 
+    changeHoverCursor(e) {
+        var pixel = e.pixel;
+        super.changeHoverCursor(pixel, e);
+    }
+
     bindEvent(e) {
         this.unbindEvent();
         var map = this.map;
 
         if (this.options.methods) {
             if (this.options.methods.click) {
-                // map.setDefaultCursor("default"); //不应该在这里设置光标，所以注释掉他
+                map.setDefaultCursor("default");
                 map.addEventListener('click', this.clickEvent);
             }
             if (this.options.methods.mousemove) {
                 map.addEventListener('mousemove', this.mousemoveEvent);
             }
         }
+        map.addEventListener('mousemove', this.changeHoverCursor);
     }
 
     unbindEvent(e) {
@@ -80,6 +87,7 @@ class Layer extends BaseLayer{
                 map.removeEventListener('mousemove', this.mousemoveEvent);
             }
         }
+        map.removeEventListener('mousemove', this.changeHoverCursor);
     }
 
     // 经纬度左边转换为墨卡托坐标
