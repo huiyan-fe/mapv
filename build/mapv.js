@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.33";
+var version = "2.0.34";
 
 /**
  * @author kyle / http://nikai.us/
@@ -662,7 +662,7 @@ var pathSimple = {
                 }
                 break;
             default:
-                console.log('type' + type + 'is not support now!');
+                console.error('type' + type + 'is not support now!');
                 break;
         }
     },
@@ -2291,7 +2291,6 @@ function getCurvePoints(points, options) {
  * @param Point 终点
  */
 function getCurveByTwoPoints(obj1, obj2, count) {
-  console.info(obj1, obj2);
   if (!obj1 || !obj2) {
     return null;
   }

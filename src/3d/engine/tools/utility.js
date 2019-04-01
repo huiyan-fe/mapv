@@ -24,7 +24,7 @@ function getWebGLContext(canvas, err) {
 function initShaders(gl, vshader, fshader) {
     var program = createProgram(gl, vshader, fshader);
     if (!program) {
-        console.log('Failed to create program');
+        console.error('Failed to create program');
         return false;
     }
     gl.useProgram(program);
@@ -62,7 +62,7 @@ function createProgram(gl, vshader, fshader) {
     var linked = gl.getProgramParameter(program, gl.LINK_STATUS);
     if (!linked) {
         var error = gl.getProgramInfoLog(program);
-        console.log('Failed to link program: ' + error);
+        console.error('Failed to link program: ' + error);
         gl.deleteProgram(program);
         gl.deleteShader(fragmentShader);
         gl.deleteShader(vertexShader);
@@ -76,7 +76,7 @@ function loadShader(gl, type, source) {
     // Create shader object
     var shader = gl.createShader(type);
     if (shader == null) {
-        console.log('unable to create shader');
+        console.error('unable to create shader');
         return null;
     }
     // Set the shader program
@@ -87,7 +87,7 @@ function loadShader(gl, type, source) {
     var compiled = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
     if (!compiled) {
         var error = gl.getShaderInfoLog(shader);
-        console.log('Failed to compile shader: ' + error);
+        console.error('Failed to compile shader: ' + error);
         gl.deleteShader(shader);
         return null;
     }

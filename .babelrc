@@ -8,6 +8,9 @@
         ]
     ],
     "plugins": [
-        "external-helpers"
+        "external-helpers",
+        ["transform-remove-console",
+            { "exclude": ["error", "warn"]
+        }]
     ]
 }
