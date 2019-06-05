@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.34";
+var version = "2.0.35";
 
 /**
  * @author kyle / http://nikai.us/
@@ -1182,6 +1182,7 @@ var drawGrid = {
         }
 
         var intensity = new Intensity({
+            min: options.min || 0,
             max: options.max || 100,
             gradient: options.gradient
         });
