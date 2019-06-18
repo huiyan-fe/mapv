@@ -56,7 +56,7 @@ export default {
                 }
                 break;
             default:
-                console.log('type' + type + 'is not support now!');
+                console.error('type' + type + 'is not support now!');
                 break;
         }
     },

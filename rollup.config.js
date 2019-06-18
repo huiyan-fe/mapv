@@ -12,8 +12,10 @@ export default {
     openlayers: 'ol',
     maptalks: 'maptalks'
   },
-	plugins: [babel({
-		runtimeHelpers: true
-	})],
+	plugins: [
+		babel({
+			runtimeHelpers: true
+		})
+	],
 	dest: 'build/mapv.js'
 }

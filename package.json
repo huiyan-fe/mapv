@@ -1,6 +1,6 @@
 {
   "name": "mapv",
-  "version": "2.0.33",
+  "version": "2.0.35",
   "description": "a library of geography visualization",
   "main": "build/mapv.js",
   "scripts": {
@@ -25,9 +25,10 @@
   "homepage": "https://github.com/huiyan-fe/mapv#readme",
   "devDependencies": {
     "babel-helpers": "^6.24.1",
+    "babel-plugin-transform-remove-console": "^6.9.4",
     "babel-preset-env": "^1.6.1",
     "rollup": "^0.41.4",
-    "rollup-plugin-babel": "^2.4.0",
+    "rollup-plugin-babel": "^2.7.1",
     "rollup-watch": "^4.3.1",
     "uglify-js": "^3.1.9"
   },

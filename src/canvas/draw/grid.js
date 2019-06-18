@@ -31,6 +31,7 @@ export default {
         }
 
         var intensity = new Intensity({
+            min: options.min || 0,
             max: options.max || 100,
             gradient: options.gradient
         });
