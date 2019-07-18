@@ -232,6 +232,17 @@ class BaseLayer {
             this.options.methods.mousemove(null, e);
         }
     }
+    tapEvent(pixel, e) {
+        if (!this.options.methods) {
+            return;
+        }
+        var dataItem = this.isPointInPath(this.getContext(), pixel);
+        if (dataItem) {
+            this.options.methods.tap(dataItem, e);
+        } else {
+            this.options.methods.tap(null, e);
+        }
+    }
 
     /**
      * obj.options
