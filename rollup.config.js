@@ -6,10 +6,12 @@ export default {
 	moduleName: 'mapv',
 	external: [
 		'maptalks',
-		'openlayers'
+		'openlayers',
+		'leaflet'
 	],
   globals: {
     openlayers: 'ol',
+    leaflet: 'L',
     maptalks: 'maptalks'
   },
 	plugins: [
