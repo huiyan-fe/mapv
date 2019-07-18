@@ -1,5 +1,4 @@
 export {version} from "./build/version"
-//export const version = '2.0.35';
 
 // for experimental 3d
 
@@ -41,6 +40,7 @@ export { default as AMapLayer } from "./src/map/gaode-map/Layer";
 export { default as OpenlayersLayer } from "./src/map/openlayers-map/Layer";
 
 export { default as leafletMapLayer } from "./src/map/leaflet-map/Layer";
+export { default as cesiumMapLayer } from "./src/map/cesium/Layer";
 
 export { default as DataSet } from "./src/data/DataSet";
 export { default as geojson } from "./src/data/geojson";

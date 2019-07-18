@@ -2,39 +2,42 @@
 <html>
 
 <head>
-    <title>maptalks example</title>
+    <title>Cesium example</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css">
-
-
+    <!-- CesiumUnminified -->
+    <script src="https://openlayers.org/ol-cesium/node_modules/@camptocamp/cesium/Build/Cesium/Cesium.js"></script>
+    <link rel="stylesheet" type="text/css"
+        href="https://openlayers.org/ol-cesium/node_modules/@camptocamp/cesium/Build/Cesium/Widgets/widgets.css" />
     <style>
         html,
         body,
-        #map {
+        #cesiumContainer {
+            width: 100%;
             height: 100%;
-            padding: 0;
             margin: 0;
+            padding: 0;
+            overflow: hidden;
         }
     </style>
+
 </head>
 
 <body>
-    <div id="map"></div>
-
-
-    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
+    <div id="cesiumContainer"></div>
     <script src="../../build/mapv.js"></script>
     <script>
-
-        var map = L.map('map').setView([34.41583177128595, -102.17609405517578], 5);
-
-        L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
-            'subdomains': ['a', 'b', 'c', 'd', 'e']
-        }).addTo(map);
-
-        var randomCount = 50;
+        var viewer = new Cesium.Viewer('cesiumContainer', {
+            imageryProvider: new Cesium.UrlTemplateImageryProvider({
+                url: 'http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+                subdomains: ['a', 'b', 'c', 'd', 'e'],
+            }),
+        })
+        viewer.camera.setView({
+            destination: Cesium.Cartesian3.fromDegrees(-102.17609405517578, 34.41583177128595, 5000000)
+        });
+        var randomCount = 100;
         var data = [];
         while (randomCount--) {
             data.push({
@@ -52,8 +55,8 @@
             fillStyle: 'rgba(55, 50, 250, 0.8)',
             shadowColor: 'rgba(255, 250, 50, 1)',
             shadowBlur: 20,
-            size: 40,
-            globalAlpha: 0.5,
+            max: 100,
+            size: 50,
             label: {
                 show: true,
                 fillStyle: 'white',
@@ -61,11 +64,12 @@
                 // font: '20px Arial',
                 // shadowBlur: 10,
             },
+            globalAlpha: 0.5,
             gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)" },
-            draw: 'grid'
+            draw: 'honeycomb'
         }
 
-        var mapvLayer = mapv.leafletMapLayer(dataSet, options).addTo(map);
+        var mapvLayer = mapv.cesiumMapLayer(viewer, dataSet, options);
 
     </script>
 </body>
