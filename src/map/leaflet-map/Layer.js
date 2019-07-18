@@ -1,210 +1,247 @@
-/**
- * test
- * @author kyle / http://nikai.us/
- */
 
-import BaseLayer from "../BaseLayer";
-import clear from "../../canvas/clear";
-import DataSet from "../../data/DataSet";
-import TWEEN from "../../utils/Tween";
+import { MapVRenderer } from "./MapVRenderer";
+var mapVLayer;
+if (typeof (L) !== 'undefined') {
+    /**
+     * @class mapVLayer
+     * @classdesc MapV 图层。
+     * @category Visualization MapV
+     * @extends {L.Layer}
+     * @param {mapv.DataSet} dataSet - MapV 图层数据集。
+     * @param {Object} mapVOptions - MapV 图层参数。
+     * @param {Object} options - 参数。
+     * @param {string} [options.attributionPrefix] - 版权信息前缀。
+     * @param {string} [options.attribution='© 2018 百度 MapV'] - 版权信息。
+     * @fires mapVLayer#loaded
+     */
+    var MapVLayer = L.Layer.extend({
 
-class Layer extends BaseLayer{
+        options: {
+            attributionPrefix: null,
+            attribution: ''
+        },
 
-    constructor(map, dataSet, options) {
-
-        super(map, dataSet, options);
-
-        var self = this;
-        var data = null;
-        options = options || {};
-
-        self.init(options);
-        self.argCheck(options);
-
-        var BigPointLayer = L.CanvasLayer.extend({
-
-          render: function() {
-
-
-            self._canvasUpdate();
-
-            this.redraw();
-
-          }
-        });
-
-        var canvasLayer = this.canvasLayer = new BigPointLayer();
-        canvasLayer.addTo(map);
-
-        this.clickEvent = this.clickEvent.bind(this);
-        this.mousemoveEvent = this.mousemoveEvent.bind(this);
-        this.bindEvent();
-    }
-
-    clickEvent(e) {
-        var pixel = e.pixel;
-        super.clickEvent(pixel, e);
-    }
-
-    mousemoveEvent(e) {
-        var pixel = e.pixel;
-        super.mousemoveEvent(pixel, e);
-    }
-
-    bindEvent(e) {
-        var map = this.map;
-
-        if (this.options.methods) {
-            if (this.options.methods.click) {
-                map.setDefaultCursor("default");
-                map.addListener('click', this.clickEvent);
+        initialize: function (dataSet, mapVOptions, options) {
+            options = options || {};
+            this.dataSet = dataSet || {};
+            this.mapVOptions = mapVOptions || {};
+            this.render = this.render.bind(this);
+            L.Util.setOptions(this, options);
+            if (this.options.attributionPrefix) {
+                this.options.attribution = this.options.attributionPrefix + this.options.attribution;
             }
-            if (this.options.methods.mousemove) {
-                map.addListener('mousemove', this.mousemoveEvent);
+
+            this.canvas = this._createCanvas();
+            L.stamp(this);
+        },
+
+        /**
+         * @private
+         * @function mapVLayer.prototype.onAdd
+         * @description 添加地图图层。
+         * @param {L.Map} map - 要添加的地图。
+         */
+        onAdd: function (map) {
+            this._map = map;
+            var overlayPane = this.getPane();
+            var container = this.container = L.DomUtil.create("div", "leaflet-layer leaflet-zoom-animated", overlayPane);
+            container.appendChild(this.canvas);
+            var size = map.getSize();
+            container.style.width = size.x + "px";
+            container.style.height = size.y + "px";
+            this.renderer = new MapVRenderer(map, this, this.dataSet, this.mapVOptions);
+            this.draw();
+            /**
+             * @event mapVLayer#loaded
+             * @description 图层添加完成之后触发。
+             */
+            this.fire("loaded");
+        },
+
+        // _hide: function () {
+        //     this.canvas.style.display = 'none';
+        // },
+
+        // _show: function () {
+        //     this.canvas.style.display = 'block';
+        // },
+
+        /**
+         * @private
+         * @function mapVLayer.prototype.onRemove
+         * @description 删除地图图层。
+         */
+        onRemove: function () {
+            L.DomUtil.remove(this.container);
+            this.renderer.destroy();
+        },
+
+        /**
+         * @function mapVLayer.prototype.addData
+         * @description 追加数据。
+         * @param {Object} data - 要追加的数据。
+         * @param {Object} options - 要追加的值。
+         */
+        addData: function (data, options) {
+            this.renderer.addData(data, options);
+        },
+
+        /**
+         * @function mapVLayer.prototype.update
+         * @description 更新图层。
+         * @param {Object} opt - 待更新的数据。
+         * @param {Object} data - mapv 数据集。
+         * @param {Object} options - mapv 绘制参数。
+         */
+        update: function (opt) {
+            this.renderer.update(opt);
+        },
+
+        /**
+         * @function mapVLayer.prototype.getData
+         * @description 获取数据。
+         * @returns {mapv.DataSet} mapv 数据集。
+         */
+        getData: function () {
+            if (this.renderer) {
+                this.dataSet = this.renderer.getData();
             }
-        }
-    }
+            return this.dataSet;
+        },
 
-    unbindEvent(e) {
-        var map = this.map;
+        /**
+         * @function mapVLayer.prototype.removeData
+         * @description 删除符合过滤条件的数据。
+         * @param {Function} filter - 过滤条件。条件参数为数据项，返回值为 true，表示删除该元素；否则表示不删除。
+         * @example
+         *  filter=function(data){
+         *    if(data.id=="1"){
+         *      return true
+         *    }
+         *    return false;
+         *  }
+         */
+        removeData: function (filter) {
+            this.renderer && this.renderer.removeData(filter);
+        },
 
-        if (this.options.methods) {
-            if (this.options.methods.click) {
-                map.removeListener('click', this.clickEvent);
+        /**
+         * @function mapVLayer.prototype.clearData
+         * @description 清除数据。
+         */
+        clearData: function () {
+            this.renderer.clearData();
+        },
+
+        /**
+         * @function mapVLayer.prototype.draw
+         * @description 绘制图层。
+         */
+        draw: function () {
+            return this._reset();
+        },
+
+        /**
+         * @function mapVLayer.prototype.setZIndex
+         * @description 设置 canvas 层级。
+         * @param {number} zIndex - canvas 层级。
+         */
+        setZIndex: function (zIndex) {
+            this.canvas.style.zIndex = zIndex;
+        },
+
+        /**
+         * @function mapVLayer.prototype.render
+         * @description 渲染。
+         */
+        render: function () {
+            this.renderer._canvasUpdate();
+        },
+
+        /**
+         * @function mapVLayer.prototype.getCanvas
+         * @description 获取 canvas。
+         * @returns {HTMLElement} 返回 mapV 图层包含的 canvas 对象。
+         */
+        getCanvas: function () {
+            return this.canvas;
+        },
+
+        /**
+         * @function mapVLayer.prototype.getContainer
+         * @description 获取容器。
+         * @returns {HTMLElement} 返回包含 mapV 图层的 dom 对象。
+         */
+        getContainer: function () {
+            return this.container;
+        },
+
+        /**
+         * @function mapVLayer.prototype.getTopLeft
+         * @description 获取左上角坐标。
+         * @returns {L.Bounds} 返回左上角坐标。
+         */
+        getTopLeft: function () {
+            var map = this._map;
+            var topLeft;
+            if (map) {
+                var bounds = map.getBounds();
+                topLeft = bounds.getNorthWest();
             }
-            if (this.options.methods.mousemove) {
-                map.removeListener('mousemove', this.mousemoveEvent);
+            return topLeft;
+
+        },
+
+        _createCanvas: function () {
+            var canvas = document.createElement('canvas');
+            canvas.style.position = 'absolute';
+            canvas.style.top = 0 + "px";
+            canvas.style.left = 0 + "px";
+            canvas.style.pointerEvents = "none";
+            canvas.style.zIndex = this.options.zIndex || 600;
+            var global$2 = typeof window === 'undefined' ? {} : window;
+            var devicePixelRatio = this.devicePixelRatio = global$2.devicePixelRatio;
+            if (!this.mapVOptions.context || this.mapVOptions.context === '2d') {
+                canvas.getContext('2d').scale(devicePixelRatio, devicePixelRatio);
             }
-        }
-    }
+            return canvas;
+        },
 
-    getContext() {
-        return this.canvasLayer.canvas.getContext(this.context);
-    }
 
-    _canvasUpdate(time) {
-        if (!this.canvasLayer) {
-            return;
-        }
-
-        var self = this;
-
-        var animationOptions = self.options.animation;
-
-        var context = this.getContext();
-
-        if (self.isEnabledTime()) {
-            if (time === undefined) {
-                clear(context);
+        _resize: function () {
+            var canvas = this.canvas;
+            if (!canvas) {
                 return;
             }
-            if (this.context == '2d') {
-                context.save();
-                context.globalCompositeOperation = 'destination-out';
-                context.fillStyle = 'rgba(0, 0, 0, .1)';
-                context.fillRect(0, 0, context.canvas.width, context.canvas.height);
-                context.restore();
-            }
-        } else {
-            clear(context);
+
+            var map = this._map;
+            var size = map.getSize();
+            canvas.width = size.x;
+            canvas.height = size.y;
+            canvas.style.width = size.x + 'px';
+            canvas.style.height = size.y + 'px';
+            var bounds = map.getBounds();
+            var topLeft = map.latLngToLayerPoint(bounds.getNorthWest());
+            L.DomUtil.setPosition(canvas, topLeft);
+
+        },
+
+        _reset: function () {
+            this._resize();
+            this._render()
+        },
+        redraw: function () {
+            this._resize();
+            this._render()
+        },
+        _render: function () {
+            this.render();
         }
 
-        if (this.context == '2d') {
-            for (var key in self.options) {
-                context[key] = self.options[key];
-            }
-        } else {
-            context.clear(context.COLOR_BUFFER_BIT);
-        }
+    });
 
-        if (self.options.minZoom && map.getZoom() < self.options.minZoom || self.options.maxZoom && map.getZoom() > self.options.maxZoom) {
-            return;
-        }
-
-        var scale = 1;
-        if (this.context != '2d') {
-            scale = this.canvasLayer.devicePixelRatio;
-        }
-
-        var map = this.map;
-        var mapProjection = map.getProjection();
-        var scale = Math.pow(2, map.zoom) * resolutionScale;
-        var offset = mapProjection.fromLatLngToPoint(this.canvasLayer.getTopLeft());
-        var dataGetOptions = {
-            //fromColumn: self.options.coordType == 'bd09mc' ? 'coordinates' : 'coordinates_mercator',
-            transferCoordinate: function(coordinate) {
-                // get center from the map (projected)
-                var point = map.latLngToContainerPoint(new L.LatLng(coordinate[1], coordinate[0]));
-                return [pixel.x, pixel.y];
-            }
-        }
-
-        if (time !== undefined) {
-            dataGetOptions.filter = function(item) {
-                var trails = animationOptions.trails || 10;
-                if (time && item.time > (time - trails) && item.time < time) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-
-        var data = self.dataSet.get(dataGetOptions);
-
-        this.processData(data);
-
-        if (self.options.unit == 'm' && self.options.size) {
-            self.options._size = self.options.size / zoomUnit;
-        } else {
-            self.options._size = self.options.size;
-        }
-
-        var pixel = {x: 0, y: 0};
-
-        this.drawContext(context, new DataSet(data), self.options, pixel);
-
-        //console.timeEnd('draw');
-
-        //console.timeEnd('update')
-        self.options.updateCallback && self.options.updateCallback(time);
-    }
-
-    init(options) {
-
-        var self = this;
-
-        self.options = options;
-
-        this.initDataRange(options);
-
-        this.context = self.options.context || '2d';
-
-        if (self.options.zIndex) {
-            this.canvasLayer && this.canvasLayer.setZIndex(self.options.zIndex);
-        }
-
-        this.initAnimator();
-    }
-
-    addAnimatorEvent() {
-        this.map.addListener('movestart', this.animatorMovestartEvent.bind(this));
-        this.map.addListener('moveend', this.animatorMoveendEvent.bind(this));
-    }
-
-    show() {
-        this.map.addOverlay(this.canvasLayer);
-    }
-
-    hide() {
-        this.map.removeOverlay(this.canvasLayer);
-    }
-
-    draw() {
-        self.canvasLayer.draw();
-    }
-
+    mapVLayer = function (dataSet, mapVOptions, options) {
+        return new MapVLayer(dataSet, mapVOptions, options);
+    };
 }
-
-
-export default Layer;
+export default mapVLayer;
