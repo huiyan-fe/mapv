@@ -92,7 +92,9 @@ class Layer extends BaseLayer{
                 });
             }
         }
-        map.addEventListener('mousemove', this.changeHoverCursor);
+        if(this.options.hoverCursor){
+            map.addEventListener('mousemove', this.changeHoverCursor);
+        }
     }
 
     unbindEvent(e) {
@@ -106,7 +108,9 @@ class Layer extends BaseLayer{
                 map.removeEventListener('mousemove', this.mousemoveEvent);
             }
         }
-        map.removeEventListener('mousemove', this.changeHoverCursor);
+        if(this.options.hoverCursor){
+            map.removeEventListener('mousemove', this.changeHoverCursor);
+        }
     }
 
     // 经纬度左边转换为墨卡托坐标
