@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Cesium example</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- CesiumUnminified -->
+    <script src="https://openlayers.org/ol-cesium/node_modules/@camptocamp/cesium/Build/Cesium/Cesium.js"></script>
+    <link rel="stylesheet" type="text/css"
+        href="https://openlayers.org/ol-cesium/node_modules/@camptocamp/cesium/Build/Cesium/Widgets/widgets.css" />
+    <style>
+        html,
+        body,
+        #cesiumContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="cesiumContainer"></div>
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="../../build/mapv.js"></script>
+    <script>
+        var viewer = new Cesium.Viewer('cesiumContainer', {
+            imageryProvider: new Cesium.UrlTemplateImageryProvider({
+                url: 'http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+                subdomains: ['a', 'b', 'c', 'd', 'e'],
+            }),
+        })
+        viewer.camera.setView({
+            destination: Cesium.Cartesian3.fromDegrees(118.403, 32.928, 5000000)
+        });
+
+        $.get('../data/od-xierqi.txt', function (rs) {
+            var data = [];
+            var timeData = [];
+
+            rs = rs.split("\n");
+            console.log(rs.length);
+            var maxLength = 0;
+            for (var i = 0; i < rs.length; i++) {
+                var item = rs[i].split(',');
+                var coordinates = [];
+                if (item.length > maxLength) {
+                    maxLength = item.length;
+                }
+                for (j = 0; j < item.length; j += 2) {
+                    // var coord = trans.untransform(new maptalks.Point(Number(item[j]), Number(item[j + 1])),1);
+                    //coordinates.push([coord.x,coord.y]);
+                    var x = Number(item[j]) / 20037508.34 * 180;
+                    var y = Number(item[j + 1]) / 20037508.34 * 180;
+                    y = 180 / Math.PI * (2 * Math.atan(Math.exp(y * Math.PI / 180)) - Math.PI / 2);
+                    if (x == 0 || y == NaN) {
+                        continue;
+                    }
+                    coordinates.push([x, y]);
+                    timeData.push({
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [x, y]
+                        },
+                        count: 1,
+                        time: j
+                    });
+                }
+                data.push({
+                    geometry: {
+                        type: 'LineString',
+                        coordinates: coordinates
+                    }
+                });
+
+            }
+
+            var dataSet = new mapv.DataSet(data);
+
+            var options = {
+                strokeStyle: 'rgba(53,57,255,0.5)',
+                // globalCompositeOperation: 'lighter',
+                shadowColor: 'rgba(53,57,255,0.2)',
+                shadowBlur: 3,
+                lineWidth: 3.0,
+                draw: 'simple'
+            }
+
+            var mapvLayer = mapv.cesiumMapLayer(viewer, dataSet, options);
+
+
+            var dataSet = new mapv.DataSet(timeData);
+
+            var options = {
+                fillStyle: 'rgba(255, 250, 250, 0.2)',
+                globalCompositeOperation: "lighter",
+                size: 1.5,
+                animation: {
+                    stepsRange: {
+                        start: 0,
+                        end: 100
+                    },
+                    trails: 3,
+                    duration: 5,
+                },
+                draw: 'simple'
+            }
+
+            var mapvLayer = mapv.cesiumMapLayer(viewer, dataSet, options);
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Cesium example</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- CesiumUnminified -->
+    <script src="https://openlayers.org/ol-cesium/node_modules/@camptocamp/cesium/Build/Cesium/Cesium.js"></script>
+    <link rel="stylesheet" type="text/css"
+        href="https://openlayers.org/ol-cesium/node_modules/@camptocamp/cesium/Build/Cesium/Widgets/widgets.css" />
+    <style>
+        html,
+        body,
+        #cesiumContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="cesiumContainer"></div>
+    <script src="../../build/mapv.js"></script>
+    <script>
+        var viewer = new Cesium.Viewer('cesiumContainer', {
+            imageryProvider: new Cesium.UrlTemplateImageryProvider({
+                url: 'http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+                subdomains: ['a', 'b', 'c', 'd', 'e'],
+            }),
+        })
+        viewer.camera.setView({
+            destination: Cesium.Cartesian3.fromDegrees(-102.17609405517578, 34.41583177128595, 5000000)
+        });
+        var randomCount = 300;
+        var data = [];
+        while (randomCount--) {
+            data.push({
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-125.8 + Math.random() * 50, 30.3 + Math.random() * 20]
+                },
+                count: parseInt(30 * Math.random())
+            });
+        }
+
+        var dataSet = new mapv.DataSet(data);
+
+        var options = {
+            size: 5, // 点大小
+            gradient: { // 显示的颜色渐变范围
+                0: 'blue',
+                0.6: 'cyan',
+                0.7: 'lime',
+                0.8: 'yellow',
+                1.0: 'red'
+            },
+            max: 30,
+            draw: 'intensity'
+        }
+
+        var mapvLayer = mapv.cesiumMapLayer(viewer, dataSet, options);
+
+    </script>
+</body>
+
+</html>

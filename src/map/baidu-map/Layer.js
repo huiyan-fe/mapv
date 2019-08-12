@@ -20,6 +20,7 @@ class Layer extends BaseLayer{
 
         this.clickEvent = this.clickEvent.bind(this);
         this.mousemoveEvent = this.mousemoveEvent.bind(this);
+        this.tapEvent = this.tapEvent.bind(this);
         this.changeHoverCursor = this.changeHoverCursor.bind(this);
 
         self.init(options);
@@ -55,6 +56,11 @@ class Layer extends BaseLayer{
         super.mousemoveEvent(pixel, e);
     }
 
+    tapEvent(e) {
+        var pixel = e.pixel;
+        super.tapEvent(pixel, e);
+    }
+
     changeHoverCursor(e) {
         var pixel = e.pixel;
         super.changeHoverCursor(pixel, e);
@@ -63,6 +69,8 @@ class Layer extends BaseLayer{
     bindEvent(e) {
         this.unbindEvent();
         var map = this.map;
+        var timer = 0;
+        var that = this;
 
         if (this.options.methods) {
             if (this.options.methods.click) {
@@ -71,6 +79,17 @@ class Layer extends BaseLayer{
             }
             if (this.options.methods.mousemove) {
                 map.addEventListener('mousemove', this.mousemoveEvent);
+            }
+
+            if ("ontouchend" in window.document && this.options.methods.tap) {
+                map.addEventListener('touchstart', function(e) {
+                    timer = new Date
+                });
+                map.addEventListener('touchend', function(e) {
+                    if(new Date - timer < 300){
+                        that.tapEvent(e)
+                    }
+                });
             }
         }
         map.addEventListener('mousemove', this.changeHoverCursor);

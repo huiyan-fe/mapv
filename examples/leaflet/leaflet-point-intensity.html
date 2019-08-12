@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <title>maptalks example</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css">
+
+
+    <style>
+        html,
+        body,
+        #map {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+
+
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
+    <script src="../../build/mapv.js"></script>
+    <script>
+
+        var map = L.map('map').setView([34.41583177128595, -102.17609405517578], 5);
+
+        L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+            'subdomains': ['a', 'b', 'c', 'd', 'e']
+        }).addTo(map);
+
+        var randomCount = 300;
+        var data = [];
+        while (randomCount--) {
+            data.push({
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-125.8 + Math.random() * 50, 30.3 + Math.random() * 20]
+                },
+                count: parseInt(30 * Math.random())
+            });
+        }
+
+        var dataSet = new mapv.DataSet(data);
+
+        var options = {
+            size: 5, // 点大小
+            gradient: { // 显示的颜色渐变范围
+                0: 'blue',
+                0.6: 'cyan',
+                0.7: 'lime',
+                0.8: 'yellow',
+                1.0: 'red'
+            },
+            max: 30,
+            draw: 'intensity'
+        }
+
+        var mapvLayer = mapv.leafletMapLayer(dataSet, options).addTo(map);
+
+    </script>
+</body>
+
+</html>

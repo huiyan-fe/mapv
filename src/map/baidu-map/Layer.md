@@ -69,6 +69,9 @@ map.setMapStyle({
         },
         mousemove: function(item) { // 鼠标移动事件，对应鼠标经过的元素对象值
             console.log(item);
+        },
+        tap: function(item) {
+            console.log(item) // 只针对移动端,点击事件
         }
     },
     animation: {
