@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Cesium example</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- CesiumUnminified -->
+    <script src="https://openlayers.org/ol-cesium/node_modules/@camptocamp/cesium/Build/Cesium/Cesium.js"></script>
+    <link rel="stylesheet" type="text/css"
+        href="https://openlayers.org/ol-cesium/node_modules/@camptocamp/cesium/Build/Cesium/Widgets/widgets.css" />
+    <style>
+        html,
+        body,
+        #cesiumContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="cesiumContainer"></div>
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="../../build/mapv.js"></script>
+    <script>
+        var viewer = new Cesium.Viewer('cesiumContainer', {
+            imageryProvider: new Cesium.UrlTemplateImageryProvider({
+                url: 'http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+                subdomains: ['a', 'b', 'c', 'd', 'e'],
+            }),
+        })
+        viewer.camera.setView({
+            destination: Cesium.Cartesian3.fromDegrees(118.403, 32.928, 5000000)
+        });
+        var randomCount = 1000;
+        var data = [];
+
+        var citys = ["北京", "天津", "上海", "重庆", "石家庄", "太原", "呼和浩特", "哈尔滨", "长春", "沈阳", "济南", "南京", "合肥", "杭州", "南昌", "福州", "郑州", "武汉", "长沙", "广州", "南宁", "西安", "银川", "兰州", "西宁", "乌鲁木齐", "成都", "贵阳", "昆明", "拉萨", "海口"];
+
+        // 构造数据
+        while (randomCount--) {
+            var cityCenter1 = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
+            var cityCenter2 = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
+            data.push({
+                geometry: {
+                    type: 'LineString',
+                    coordinates: [[cityCenter1.lng - 1 + Math.random() * 1, cityCenter1.lat - 1 + Math.random() * 1], [cityCenter2.lng - 1 + Math.random() * 1, cityCenter2.lat - 1 + Math.random() * 1]]
+                },
+                count: 30 * Math.random()
+            });
+        }
+
+        var dataSet = new mapv.DataSet(data);
+
+        var options = {
+            strokeStyle: 'rgba(255, 250, 50, 0.3)',
+            shadowColor: 'rgba(255, 250, 50, 1)',
+            shadowBlur: 20,
+            lineWidth: 0.7,
+            draw: 'simple'
+        }
+        var mapvLayer = mapv.cesiumMapLayer(viewer, dataSet, options);
+    </script>
+</body>
+
+</html>

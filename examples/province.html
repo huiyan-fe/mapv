@@ -139,6 +139,21 @@
                     "featureType": "all",
                     "elementType": "all",
                     "stylers": {
+                              "lightness": 40,
+                              "saturation": -70
+                    }
+          },
+          {
+                    "featureType": "road",
+                    "elementType": "labels",
+                    "stylers": {
+                              "visibility": "off"
+                    }
+          },
+          {
+                    "featureType": "poi",
+                    "elementType": "all",
+                    "stylers": {
                               "visibility": "off"
                     }
           }
@@ -152,7 +167,7 @@
 
             chinaDataSet = mapv.geojson.getDataSet(geojson);
 
-            chinaLayer = new mapv.baiduMapLayer(map, chinaDataSet, options);
+            // chinaLayer = new mapv.baiduMapLayer(map, chinaDataSet, options);
 
         });
 
