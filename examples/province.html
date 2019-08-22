@@ -156,7 +156,14 @@
                     "stylers": {
                               "visibility": "off"
                     }
-          }
+          },
+          {
+                    "featureType": "all",
+                    "elementType": "labels",
+                    "stylers": {
+                              "visibility": "off"
+                    }
+               }
         ]
         });
         map.getContainer().style.background = '#fff';
@@ -167,7 +174,7 @@
 
             chinaDataSet = mapv.geojson.getDataSet(geojson);
 
-            // chinaLayer = new mapv.baiduMapLayer(map, chinaDataSet, options);
+            chinaLayer = new mapv.baiduMapLayer(map, chinaDataSet, options);
 
         });
 
@@ -514,7 +521,8 @@
             options.min = min;
             var cityMapper = {};
             for ( var j = 0; j < chinaData.length; j++) {
-                chinaData[j].fillStyle = 'rgba(218, 218, 218, 1)';
+                chinaData[j].fillStyle = 'rgba(218, 218, 218, 0.0)';
+                chinaData[j].strokeStyle = 'rgba(218, 218, 218, 0.0)';
             }
             for (var i = 0; i < dataInput.length; i++) {
                 var line = dataInput[i].split(',');
@@ -528,6 +536,7 @@
                     cityKey = cityKey.replace(/市|省/, '');
                     if (chinaData[j].name == cityKey) {
                         chinaData[j].fillStyle = undefined;
+                        chinaData[j].strokeStyle = 'rgba(255, 255, 255, 1)';
                         chinaData[j].count = parseFloat(line[1]);
                     }
                 }
