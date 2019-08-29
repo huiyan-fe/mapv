@@ -26,6 +26,9 @@
 
     <script type="text/javascript" src="//apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
     <script type="text/javascript" src="//api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="https://huiyan-fe.github.io/dataset-manager/static/xlsx.full.min.js"></script>
+    <script type="text/javascript" src="https://huiyan-fe.github.io/dataset-manager/static/papaparse.min.js"></script>
+    <script type="text/javascript" src="https://huiyan-fe.github.io/dataset-manager/dist/DataSetManager.js"></script>
     <script type="text/javascript" src="../../build/mapv.js"></script>
 
     <script type="text/javascript">
@@ -38,7 +41,37 @@
         map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
 
         map.setMapStyle({
-            style: 'midnight'
+            styleJson: [
+                {
+                    "featureType": "all",
+                    "elementType": "all",
+                    "stylers": {
+                        "lightness": 40,
+                        "saturation": -100
+                    }
+                },
+				{
+                    "featureType": "administrative",
+                    "elementType": "labels",
+                    "stylers": {
+                        "visibility": "on"
+                    }
+                },
+				{
+                    "featureType": "poi",
+                    "elementType": "labels",
+                    "stylers": {
+                        "visibility": "off"
+                    }
+                },
+                {
+                    "featureType": "road",
+                    "elementType": "labels",
+                    "stylers": {
+                        "visibility": "off"
+                    }
+                }
+            ]
         });
 
         var randomCount = 1000;
@@ -62,9 +95,19 @@
 
         var intensity = new mapv.utilDataRangeIntensity({
             maxSize: 10,
+            gradient: {
+				0: 'green',
+				0.5: 'yellow',
+				1: 'red',
+			},
             minSize: 1,
             max: 5000
         });
+
+        var legend = intensity.getLegend({
+        });
+        legend.style.cssText = "position: absolute;bottom: 10px; right: 10px;";
+        document.body.appendChild(legend);
 
         $.get('od.csv', function(csvstr) {
             var dataSet = mapv.csv.getDataSet(csvstr);
@@ -86,7 +129,7 @@
                 return item;
             });
             data = data.sort(function (a, b) {
-                return b.count - a.count;
+                return a.count - b.count;
             });
             lineDataSet.set(data);
         });
@@ -95,14 +138,54 @@
 
         var options = {
             strokeStyle: 'rgba(255, 50, 50, 0.3)',
-            globalCompositeOperation: 'lighter',
-            shadowColor: 'rgba(255, 50, 50, 1)',
-            shadowBlur: 20,
+            //globalCompositeOperation: 'lighter',
+            //shadowColor: 'rgba(255, 50, 50, 1)',
+            //shadowBlur: 20,
             lineWidth: 2,
             draw: 'simple'
         }
 
         var mapvLayer = new mapv.baiduMapLayer(map, lineDataSet, options);
+
+        var dataSetManager = new DataSetManager({
+            onUploaded: function() {
+                console.log('onUploaded');
+                console.log(dataSetManager.getData());
+                var uploadData = dataSetManager.getData();
+                var newData = [];
+                var maxCount = uploadData[0].count;
+                var minCount = uploadData[0].count;
+                for (var i = 0; i < uploadData.length; i++) {
+                    maxCount = Math.max(uploadData[i].count, maxCount);
+                    minCount = Math.min(uploadData[i].count, minCount);
+                }
+                intensity.setMax(maxCount / 2);
+                intensity.setMin(minCount);
+                for (var i = 0; i < uploadData.length; i++) {
+                    var item = uploadData[i];
+                    var start = item['起点区坐标'].split(',');
+                    var end = item['终点区坐标'].split(',');
+                    newData.push({
+                        geometry: {
+                            type: 'LineString',
+                            coordinates: [[start[0], start[1]], [end[0], end[1]]]
+                        },
+                        strokeStyle: intensity.getColor(item.count),
+                        lineWidth: intensity.getSize(item.count),
+                        count: item.count
+                    });
+                }
+
+                newData = newData.sort(function (a, b) {
+                    return parseFloat(a.count) - parseFloat(b.count);
+                });
+                console.log('newData', newData);
+                
+                lineDataSet.set(newData);
+            }
+        });
+
+        dataSetManager.addControl();
 
         </script>
 	
