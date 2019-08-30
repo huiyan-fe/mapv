@@ -38,6 +38,8 @@ class Layer extends BaseLayer{
             }
         });
 
+        
+
         dataSet.on('change', function() {
             self.transferToMercator();
             canvasLayer.draw();
@@ -102,12 +104,15 @@ class Layer extends BaseLayer{
     }
 
     // 经纬度左边转换为墨卡托坐标
-    transferToMercator() {
+    transferToMercator(dataSet) {
+        if (!dataSet) {
+            dataSet = this.dataSet;
+        }
         var projection = this.map.getMapType().getProjection();
 
         if (this.options.coordType !== 'bd09mc') {
-            var data = this.dataSet.get();
-            data = this.dataSet.transferCoordinate(data, function(coordinates) {
+            var data = dataSet.get();
+            data = dataSet.transferCoordinate(data, function(coordinates) {
                 if (coordinates[0] < -180 || coordinates[0] > 180 || coordinates[1] < -90 || coordinates[1] > 90) {
                     return coordinates;
                 } else {
@@ -118,7 +123,7 @@ class Layer extends BaseLayer{
                     return [pixel.x, pixel.y];
                 }
             }, 'coordinates', 'coordinates_mercator');
-            this.dataSet._set(data);
+            dataSet._set(data);
         }
     }
 
@@ -199,8 +204,20 @@ class Layer extends BaseLayer{
         }
 
         // get data from data set
-        var data = self.dataSet.get(dataGetOptions);
+        var data;
 
+        if (self.options.draw === 'cluster') {
+            var bounds = this.map.getBounds();
+            var ne = bounds.getNorthEast();
+            var sw = bounds.getSouthWest();
+            var clusterData = this.supercluster.getClusters([sw.lng, sw.lat, ne.lng, ne.lat], this.getZoom());
+            this.clusterDataSet.set(clusterData);
+            this.transferToMercator(this.clusterDataSet);
+            data = this.clusterDataSet.get(dataGetOptions);
+        } else {
+            data = self.dataSet.get(dataGetOptions);
+        }
+        
         this.processData(data);
 
         var nwPixel = map.pointToPixel(new BMap.Point(0, 0));
@@ -251,6 +268,10 @@ class Layer extends BaseLayer{
         this.initAnimator();
         this.bindEvent();
         
+    }
+
+    getZoom() {
+        return this.map.getZoom();
     }
 
     addAnimatorEvent() {

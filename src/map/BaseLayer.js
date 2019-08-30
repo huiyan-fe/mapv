@@ -13,11 +13,13 @@ import drawClip from "../canvas/draw/clip";
 import drawSimple from "../canvas/draw/simple";
 import webglDrawSimple from "../webgl/draw/simple";
 import drawGrid from "../canvas/draw/grid";
+import drawCluster from "../canvas/draw/cluster";
 import drawHoneycomb from "../canvas/draw/honeycomb";
 import drawText from "../canvas/draw/text";
 import drawIcon from "../canvas/draw/icon";
 import pathSimple from "../canvas/path/simple";
 import clear from "../canvas/clear";
+import Supercluster from '../utils/supercluster';
 
 if (typeof window !== 'undefined') {
     requestAnimationFrame(animate);
@@ -38,6 +40,12 @@ class BaseLayer {
 
         this.dataSet = dataSet;
         this.map = map;
+
+        if (options.draw === 'cluster' && !this.supercluster) {
+            this.supercluster = new Supercluster({maxZoom: options.maxZoom || 19, radius: options.clusterRadius || 100});
+            this.supercluster.load(dataSet.get());
+            this.clusterDataSet = new DataSet();
+        }
     }
 
     getDefaultContextConfig() {
@@ -152,13 +160,16 @@ class BaseLayer {
                 drawHeatmap.draw(context, dataSet, self.options);
                 break;
             case 'grid':
+            case 'cluster':
             case 'honeycomb':
                 self.options.offset = {
                     x: nwPixel.x,
                     y: nwPixel.y
                 };
-                if (self.options.draw == 'grid') {
+                if (self.options.draw === 'grid') {
                     drawGrid.draw(context, dataSet, self.options);
+                } else if (self.options.draw === 'cluster') {
+                    drawCluster.draw(context, dataSet, self.options);
                 } else {
                     drawHoneycomb.draw(context, dataSet, self.options);
                 }
@@ -187,7 +198,12 @@ class BaseLayer {
 
     isPointInPath(context, pixel) {
         var context = this.canvasLayer.canvas.getContext(this.context);
-        var data = this.dataSet.get();
+        var data;
+        if (this.options.draw === 'cluster') {
+            data = this.clusterDataSet.get();
+        } else {
+            data = this.dataSet.get();
+        }
         for (var i = 0; i < data.length; i++) {
             context.beginPath();
             pathSimple.draw(context, data[i], this.options);
