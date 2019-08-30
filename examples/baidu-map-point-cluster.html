@@ -60,29 +60,28 @@
         var dataSet = new mapv.DataSet(data);
 
         var options = {
-            fillStyle: 'rgba(255, 50, 0, 1.0)',
             // shadowColor: 'rgba(255, 250, 50, 1)',
             // shadowBlur: 10,
-            size: 5,
-            minSize: 8,
-            maxSize: 31,
-            globalAlpha: 0.8,
-            maxZoom: 10,
-            clusterRadius: 150,
+            fillStyle: 'rgba(255, 50, 0, 1.0)', // 非聚合点的颜色
+            size: 5, // 非聚合点的半径
+            minSize: 8, // 聚合点最小半径
+            maxSize: 31, // 聚合点最大半径
+            globalAlpha: 0.8, // 透明度
+            clusterRadius: 150, // 聚合像素半径
             methods: {
                 click: function(item) {
-                    console.log(item);
+                    console.log(item);  // 点击事件
                 }
             },
-            maxZoom: 19,
-            label: {
-                show: true,
+            maxZoom: 19, // 最大显示级别
+            label: { // 聚合文本样式
+                show: true, // 是否显示
                 fillStyle: 'white',
                 // shadowColor: 'yellow',
                 // font: '20px Arial',
                 // shadowBlur: 10,
             },
-            gradient: { 0: "blue", 0.5: 'yellow', 1.0: "rgb(255,0,0)"},
+            gradient: { 0: "blue", 0.5: 'yellow', 1.0: "rgb(255,0,0)"}, // 聚合图标渐变色
             draw: 'cluster'
         }
 
