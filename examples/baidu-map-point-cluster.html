@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript" src="//api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="../build/mapv.js"></script>
+
+    <script type="text/javascript">
+
+        // 百度地图API功能
+        var map = new BMap.Map("map", {
+            enableMapClick: false
+        });    // 创建Map实例
+        map.centerAndZoom(new BMap.Point(105.403119, 38.028658), 5);  // 初始化地图,设置中心点坐标和地图级别
+        map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+
+        map.setMapStyle({
+            style: 'midnight'
+        });
+
+        var randomCount = 100000;
+
+        var data = [];
+
+        var citys = ["北京","天津","上海","重庆","石家庄","太原","呼和浩特","哈尔滨","长春","沈阳","济南","南京","合肥","杭州","南昌","福州","郑州","武汉","长沙","广州","南宁","西安","银川","兰州","西宁","乌鲁木齐","成都","贵阳","昆明","拉萨","海口"];
+
+        // 构造数据
+        while (randomCount--) {
+            var cityCenter = mapv.utilCityCenter.getCenterByCityName(citys[parseInt(Math.random() * citys.length)]);
+            data.push({
+                geometry: {
+                    type: 'Point',
+                    coordinates: [cityCenter.lng - 5 + Math.random() * 10, cityCenter.lat - 5 + Math.random() * 10]
+                }
+            });
+        }
+
+        var dataSet = new mapv.DataSet(data);
+
+        var options = {
+            // shadowColor: 'rgba(255, 250, 50, 1)',
+            // shadowBlur: 10,
+            fillStyle: 'rgba(255, 50, 0, 1.0)', // 非聚合点的颜色
+            size: 5, // 非聚合点的半径
+            minSize: 8, // 聚合点最小半径
+            maxSize: 31, // 聚合点最大半径
+            globalAlpha: 0.8, // 透明度
+            clusterRadius: 150, // 聚合像素半径
+            methods: {
+                click: function(item) {
+                    console.log(item);  // 点击事件
+                }
+            },
+            maxZoom: 19, // 最大显示级别
+            label: { // 聚合文本样式
+                show: true, // 是否显示
+                fillStyle: 'white',
+                // shadowColor: 'yellow',
+                // font: '20px Arial',
+                // shadowBlur: 10,
+            },
+            gradient: { 0: "blue", 0.5: 'yellow', 1.0: "rgb(255,0,0)"}, // 聚合图标渐变色
+            draw: 'cluster'
+        }
+
+        var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+    </script>
+	
+</body>
+</html>

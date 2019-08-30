@@ -53,6 +53,10 @@ var config = {
             pic: 'baidu-map-point-bubble.jpg'
         },
         {
+            url: 'baidu-map-point-cluster.html',
+            pic: 'baidu-map-point-cluster.jpg'
+        },
+        {
             url: 'baidu-map-point-category.html',
             pic: 'baidu-map-point-category.jpg'
         },
