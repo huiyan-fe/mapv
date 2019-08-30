@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.36";
+var version = "2.0.37";
 
 /**
  * @author kyle / http://nikai.us/
@@ -253,6 +253,35 @@ var possibleConstructorReturn = function (self, call) {
  * @author kyle / http://nikai.us/
  */
 
+/**
+ * DataSet
+ *
+ * A data set can:
+ * - add/remove/update data
+ * - gives triggers upon changes in the data
+ * - can  import/export data in various data formats
+ * @param {Array} [data]    Optional array with initial data
+ * the field geometry is like geojson, it can be:
+ * {
+ *     "type": "Point",
+ *     "coordinates": [125.6, 10.1]
+ * }
+ * {
+ *     "type": "LineString",
+ *     "coordinates": [
+ *         [102.0, 0.0], [103.0, 1.0], [104.0, 0.0], [105.0, 1.0]
+ *     ]
+ * }
+ * {
+ *     "type": "Polygon",
+ *     "coordinates": [
+ *         [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],
+ *           [100.0, 1.0], [100.0, 0.0] ]
+ *     ]
+ * }
+ * @param {Object} [options]   Available options:
+ * 
+ */
 function DataSet(data, options) {
     Event.bind(this)();
 
@@ -805,6 +834,11 @@ function Canvas(width, height) {
  * @author kyle / http://nikai.us/
  */
 
+/**
+ * Category
+ * @param {Object} [options]   Available options:
+ *                             {Object} gradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"}
+ */
 function Intensity(options) {
 
     options = options || {};
@@ -2258,7 +2292,6 @@ function getCurvePoints(points, options) {
  * @param Point 终点
  */
 function getCurveByTwoPoints(obj1, obj2, count) {
-  console.info(obj1, obj2);
   if (!obj1 || !obj2) {
     return null;
   }
@@ -2955,18 +2988,6 @@ var MapHelper = function () {
     }]);
     return MapHelper;
 }();
-
-// function MapHelper(dom, type, opt) {
-//     var map = new BMap.Map(dom, {
-//         enableMapClick: false
-//     });
-//     map.centerAndZoom(new BMap.Point(106.962497, 38.208726), 5);
-//     map.enableScrollWheelZoom(true);
-
-//     map.setMapStyle({
-//         style: 'light'
-//     });
-// }
 
 /**
  * 一直覆盖在当前地图视野的Canvas对象
@@ -4487,14 +4508,10 @@ Supercluster.prototype.load = function load(points) {
     var maxZoom = ref.maxZoom;
     var nodeSize = ref.nodeSize;
 
-    if (log) {
-        console.time('total time');
-    }
+    if (log) {}
 
     var timerId = "prepare " + points.length + " points";
-    if (log) {
-        console.time(timerId);
-    }
+    if (log) {}
 
     this.points = points;
 
@@ -4508,9 +4525,7 @@ Supercluster.prototype.load = function load(points) {
     }
     this.trees[maxZoom + 1] = new KDBush(clusters, getX, getY, nodeSize, Float32Array);
 
-    if (log) {
-        console.timeEnd(timerId);
-    }
+    if (log) {}
 
     // cluster points on max zoom, then cluster the results on previous zoom, etc.;
     // results in a cluster hierarchy across zoom levels
@@ -4521,14 +4536,10 @@ Supercluster.prototype.load = function load(points) {
         clusters = this._cluster(clusters, z);
         this.trees[z] = new KDBush(clusters, getX, getY, nodeSize, Float32Array);
 
-        if (log) {
-            console.log('z%d: %d clusters in %dms', z, clusters.length, +Date.now() - now);
-        }
+        if (log) {}
     }
 
-    if (log) {
-        console.timeEnd('total time');
-    }
+    if (log) {}
 
     return this;
 };
@@ -6790,6 +6801,13 @@ var Layer$5 = Layer$4;
  * @author sakitam-fdd - https://github.com/sakitam-fdd
  */
 
+/**
+ * create canvas
+ * @param width
+ * @param height
+ * @param Canvas
+ * @returns {HTMLCanvasElement}
+ */
 var createCanvas = function createCanvas(width, height, Canvas) {
     if (typeof document !== 'undefined') {
         var canvas = document.createElement('canvas');
@@ -7099,6 +7117,12 @@ var Layer$6 = function (_BaseLayer) {
  * @author sakitam-fdd - https://github.com/sakitam-fdd
  */
 
+/**
+ * create canvas
+ * @param width
+ * @param height
+ * @returns {HTMLCanvasElement}
+ */
 var createCanvas$1 = function createCanvas(width, height) {
   if (typeof document !== 'undefined') {
     var canvas = document.createElement('canvas');
@@ -7473,6 +7497,17 @@ var Layer$8 = function (_BaseLayer) {
 }(BaseLayer);
 
 // https://github.com/SuperMap/iClient-JavaScript
+/**
+ * @class MapVRenderer
+ * @classdesc 地图渲染类。
+ * @category Visualization MapV
+ * @private
+ * @extends mapv.BaseLayer
+ * @param {L.Map} map - 待渲染的地图。
+ * @param {L.Layer} layer - 待渲染的图层。
+ * @param {DataSet} dataSet - 待渲染的数据集。
+ * @param {Object} options - 渲染的参数。
+ */
 var MapVRenderer = function (_BaseLayer) {
     inherits(MapVRenderer, _BaseLayer);
 
