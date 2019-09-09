@@ -114,7 +114,11 @@ Intensity.prototype.getSize = function (value) {
         value = min;
     }
 
-    size = minSize + (value - min) / (max - min) * (maxSize - minSize);
+    if (max > min) {
+        size = minSize + (value - min) / (max - min) * (maxSize - minSize);
+    } else {
+        return maxSize;
+    }
 
     return size;
 
