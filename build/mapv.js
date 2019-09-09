@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.37";
+var version = "2.0.38";
 
 /**
  * @author kyle / http://nikai.us/
@@ -942,7 +942,11 @@ Intensity.prototype.getSize = function (value) {
         value = min;
     }
 
-    size = minSize + (value - min) / (max - min) * (maxSize - minSize);
+    if (max > min) {
+        size = minSize + (value - min) / (max - min) * (maxSize - minSize);
+    } else {
+        return maxSize;
+    }
 
     return size;
 };
