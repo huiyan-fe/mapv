@@ -47,21 +47,33 @@ class Layer extends BaseLayer{
     }
 
     clickEvent(e) {
+        if(!this.visible){
+            return;
+        }
         var pixel = e.pixel;
         super.clickEvent(pixel, e);
     }
 
     mousemoveEvent(e) {
+        if(!this.visible){
+            return;
+        }
         var pixel = e.pixel;
         super.mousemoveEvent(pixel, e);
     }
 
     tapEvent(e) {
+        if(!this.visible){
+            return;
+        }
         var pixel = e.pixel;
         super.tapEvent(pixel, e);
     }
 
     changeHoverCursor(e) {
+        if(!this.visible){
+            return;
+        }
         var pixel = e.pixel;
         super.changeHoverCursor(pixel, e);
     }
@@ -244,6 +256,7 @@ class Layer extends BaseLayer{
     init(options) {
 
         var self = this;
+        self.visible = true;
         self.options = options;
         this.initDataRange(options);
         this.context = self.options.context || '2d';
@@ -272,10 +285,12 @@ class Layer extends BaseLayer{
 
     show() {
         this.map.addOverlay(this.canvasLayer);
+        this.visible = true;
     }
 
     hide() {
         this.map.removeOverlay(this.canvasLayer);
+        this.visible = false;
     }
 
     draw() {
