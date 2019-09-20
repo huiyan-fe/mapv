@@ -258,9 +258,16 @@ class BaseLayer {
                 this.map.setDefaultCursor(this.options.hoverCursor)
             },100);
         } else {
-            if(this._defaultCursor){
-                this.map.setDefaultCursor(this._defaultCursor);
-            }
+            this.resetCursor();
+        }
+    }
+
+    /**
+     * 恢复默认光标（如果有的话）
+     */
+    resetCursor(){
+        if(this._defaultCursor){
+            this.map.setDefaultCursor(this._defaultCursor);
         }
     }
 

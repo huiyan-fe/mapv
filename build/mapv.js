@@ -769,6 +769,9 @@ var drawSimple = {
                 if (item.lineDash) {
                     context.setLineDash(item.lineDash);
                 }
+                if (item.lineWidth) {
+                    context.lineWidth = item.lineWidth;
+                }
 
                 var type = item.geometry.type;
 
@@ -3112,770 +3115,770 @@ if (global$3.BMap) {
 
 var TWEEN = TWEEN || function () {
 
-    var _tweens = [];
+        var _tweens = [];
 
-    return {
+        return {
 
-        getAll: function getAll() {
+                getAll: function getAll() {
 
-            return _tweens;
-        },
+                        return _tweens;
+                },
 
-        removeAll: function removeAll() {
+                removeAll: function removeAll() {
 
-            _tweens = [];
-        },
+                        _tweens = [];
+                },
 
-        add: function add(tween) {
+                add: function add(tween) {
 
-            _tweens.push(tween);
-        },
+                        _tweens.push(tween);
+                },
 
-        remove: function remove(tween) {
+                remove: function remove(tween) {
 
-            var i = _tweens.indexOf(tween);
+                        var i = _tweens.indexOf(tween);
 
-            if (i !== -1) {
-                _tweens.splice(i, 1);
-            }
-        },
+                        if (i !== -1) {
+                                _tweens.splice(i, 1);
+                        }
+                },
 
-        update: function update(time, preserve) {
+                update: function update(time, preserve) {
 
-            if (_tweens.length === 0) {
-                return false;
-            }
+                        if (_tweens.length === 0) {
+                                return false;
+                        }
 
-            var i = 0;
+                        var i = 0;
 
-            time = time !== undefined ? time : TWEEN.now();
+                        time = time !== undefined ? time : TWEEN.now();
 
-            while (i < _tweens.length) {
+                        while (i < _tweens.length) {
 
-                if (_tweens[i].update(time) || preserve) {
-                    i++;
-                } else {
-                    _tweens.splice(i, 1);
+                                if (_tweens[i].update(time) || preserve) {
+                                        i++;
+                                } else {
+                                        _tweens.splice(i, 1);
+                                }
+                        }
+
+                        return true;
                 }
-            }
-
-            return true;
-        }
-    };
+        };
 }();
 
 // Include a performance.now polyfill.
 // In node.js, use process.hrtime.
 if (typeof window === 'undefined' && typeof process !== 'undefined') {
-    TWEEN.now = function () {
-        var time = process.hrtime();
+        TWEEN.now = function () {
+                var time = process.hrtime();
 
-        // Convert [seconds, nanoseconds] to milliseconds.
-        return time[0] * 1000 + time[1] / 1000000;
-    };
+                // Convert [seconds, nanoseconds] to milliseconds.
+                return time[0] * 1000 + time[1] / 1000000;
+        };
 }
 // In a browser, use window.performance.now if it is available.
 else if (typeof window !== 'undefined' && window.performance !== undefined && window.performance.now !== undefined) {
-        // This must be bound, because directly assigning this function
-        // leads to an invocation exception in Chrome.
-        TWEEN.now = window.performance.now.bind(window.performance);
-    }
-    // Use Date.now if it is available.
-    else if (Date.now !== undefined) {
-            TWEEN.now = Date.now;
+                // This must be bound, because directly assigning this function
+                // leads to an invocation exception in Chrome.
+                TWEEN.now = window.performance.now.bind(window.performance);
         }
-        // Otherwise, use 'new Date().getTime()'.
-        else {
-                TWEEN.now = function () {
-                    return new Date().getTime();
-                };
-            }
+        // Use Date.now if it is available.
+        else if (Date.now !== undefined) {
+                        TWEEN.now = Date.now;
+                }
+                // Otherwise, use 'new Date().getTime()'.
+                else {
+                                TWEEN.now = function () {
+                                        return new Date().getTime();
+                                };
+                        }
 
 TWEEN.Tween = function (object) {
 
-    var _object = object;
-    var _valuesStart = {};
-    var _valuesEnd = {};
-    var _valuesStartRepeat = {};
-    var _duration = 1000;
-    var _repeat = 0;
-    var _repeatDelayTime;
-    var _yoyo = false;
-    var _isPlaying = false;
-    var _reversed = false;
-    var _delayTime = 0;
-    var _startTime = null;
-    var _easingFunction = TWEEN.Easing.Linear.None;
-    var _interpolationFunction = TWEEN.Interpolation.Linear;
-    var _chainedTweens = [];
-    var _onStartCallback = null;
-    var _onStartCallbackFired = false;
-    var _onUpdateCallback = null;
-    var _onCompleteCallback = null;
-    var _onStopCallback = null;
+        var _object = object;
+        var _valuesStart = {};
+        var _valuesEnd = {};
+        var _valuesStartRepeat = {};
+        var _duration = 1000;
+        var _repeat = 0;
+        var _repeatDelayTime;
+        var _yoyo = false;
+        var _isPlaying = false;
+        var _reversed = false;
+        var _delayTime = 0;
+        var _startTime = null;
+        var _easingFunction = TWEEN.Easing.Linear.None;
+        var _interpolationFunction = TWEEN.Interpolation.Linear;
+        var _chainedTweens = [];
+        var _onStartCallback = null;
+        var _onStartCallbackFired = false;
+        var _onUpdateCallback = null;
+        var _onCompleteCallback = null;
+        var _onStopCallback = null;
 
-    this.to = function (properties, duration) {
+        this.to = function (properties, duration) {
 
-        _valuesEnd = properties;
+                _valuesEnd = properties;
 
-        if (duration !== undefined) {
-            _duration = duration;
-        }
-
-        return this;
-    };
-
-    this.start = function (time) {
-
-        TWEEN.add(this);
-
-        _isPlaying = true;
-
-        _onStartCallbackFired = false;
-
-        _startTime = time !== undefined ? time : TWEEN.now();
-        _startTime += _delayTime;
-
-        for (var property in _valuesEnd) {
-
-            // Check if an Array was provided as property value
-            if (_valuesEnd[property] instanceof Array) {
-
-                if (_valuesEnd[property].length === 0) {
-                    continue;
+                if (duration !== undefined) {
+                        _duration = duration;
                 }
 
-                // Create a local copy of the Array with the start value at the front
-                _valuesEnd[property] = [_object[property]].concat(_valuesEnd[property]);
-            }
+                return this;
+        };
 
-            // If `to()` specifies a property that doesn't exist in the source object,
-            // we should not set that property in the object
-            if (_object[property] === undefined) {
-                continue;
-            }
+        this.start = function (time) {
 
-            // Save the starting value.
-            _valuesStart[property] = _object[property];
+                TWEEN.add(this);
 
-            if (_valuesStart[property] instanceof Array === false) {
-                _valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
-            }
+                _isPlaying = true;
 
-            _valuesStartRepeat[property] = _valuesStart[property] || 0;
-        }
+                _onStartCallbackFired = false;
 
-        return this;
-    };
+                _startTime = time !== undefined ? time : TWEEN.now();
+                _startTime += _delayTime;
 
-    this.stop = function () {
+                for (var property in _valuesEnd) {
 
-        if (!_isPlaying) {
-            return this;
-        }
+                        // Check if an Array was provided as property value
+                        if (_valuesEnd[property] instanceof Array) {
 
-        TWEEN.remove(this);
-        _isPlaying = false;
+                                if (_valuesEnd[property].length === 0) {
+                                        continue;
+                                }
 
-        if (_onStopCallback !== null) {
-            _onStopCallback.call(_object, _object);
-        }
+                                // Create a local copy of the Array with the start value at the front
+                                _valuesEnd[property] = [_object[property]].concat(_valuesEnd[property]);
+                        }
 
-        this.stopChainedTweens();
-        return this;
-    };
+                        // If `to()` specifies a property that doesn't exist in the source object,
+                        // we should not set that property in the object
+                        if (_object[property] === undefined) {
+                                continue;
+                        }
 
-    this.end = function () {
+                        // Save the starting value.
+                        _valuesStart[property] = _object[property];
 
-        this.update(_startTime + _duration);
-        return this;
-    };
+                        if (_valuesStart[property] instanceof Array === false) {
+                                _valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
+                        }
 
-    this.stopChainedTweens = function () {
-
-        for (var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i++) {
-            _chainedTweens[i].stop();
-        }
-    };
-
-    this.delay = function (amount) {
-
-        _delayTime = amount;
-        return this;
-    };
-
-    this.repeat = function (times) {
-
-        _repeat = times;
-        return this;
-    };
-
-    this.repeatDelay = function (amount) {
-
-        _repeatDelayTime = amount;
-        return this;
-    };
-
-    this.yoyo = function (yoyo) {
-
-        _yoyo = yoyo;
-        return this;
-    };
-
-    this.easing = function (easing) {
-
-        _easingFunction = easing;
-        return this;
-    };
-
-    this.interpolation = function (interpolation) {
-
-        _interpolationFunction = interpolation;
-        return this;
-    };
-
-    this.chain = function () {
-
-        _chainedTweens = arguments;
-        return this;
-    };
-
-    this.onStart = function (callback) {
-
-        _onStartCallback = callback;
-        return this;
-    };
-
-    this.onUpdate = function (callback) {
-
-        _onUpdateCallback = callback;
-        return this;
-    };
-
-    this.onComplete = function (callback) {
-
-        _onCompleteCallback = callback;
-        return this;
-    };
-
-    this.onStop = function (callback) {
-
-        _onStopCallback = callback;
-        return this;
-    };
-
-    this.update = function (time) {
-
-        var property;
-        var elapsed;
-        var value;
-
-        if (time < _startTime) {
-            return true;
-        }
-
-        if (_onStartCallbackFired === false) {
-
-            if (_onStartCallback !== null) {
-                _onStartCallback.call(_object, _object);
-            }
-
-            _onStartCallbackFired = true;
-        }
-
-        elapsed = (time - _startTime) / _duration;
-        elapsed = elapsed > 1 ? 1 : elapsed;
-
-        value = _easingFunction(elapsed);
-
-        for (property in _valuesEnd) {
-
-            // Don't update properties that do not exist in the source object
-            if (_valuesStart[property] === undefined) {
-                continue;
-            }
-
-            var start = _valuesStart[property] || 0;
-            var end = _valuesEnd[property];
-
-            if (end instanceof Array) {
-
-                _object[property] = _interpolationFunction(end, value);
-            } else {
-
-                // Parses relative end values with start as base (e.g.: +10, -3)
-                if (typeof end === 'string') {
-
-                    if (end.charAt(0) === '+' || end.charAt(0) === '-') {
-                        end = start + parseFloat(end);
-                    } else {
-                        end = parseFloat(end);
-                    }
+                        _valuesStartRepeat[property] = _valuesStart[property] || 0;
                 }
 
-                // Protect against non numeric properties.
-                if (typeof end === 'number') {
-                    _object[property] = start + (end - start) * value;
-                }
-            }
-        }
+                return this;
+        };
 
-        if (_onUpdateCallback !== null) {
-            _onUpdateCallback.call(_object, value);
-        }
+        this.stop = function () {
 
-        if (elapsed === 1) {
-
-            if (_repeat > 0) {
-
-                if (isFinite(_repeat)) {
-                    _repeat--;
+                if (!_isPlaying) {
+                        return this;
                 }
 
-                // Reassign starting values, restart by making startTime = now
-                for (property in _valuesStartRepeat) {
+                TWEEN.remove(this);
+                _isPlaying = false;
 
-                    if (typeof _valuesEnd[property] === 'string') {
-                        _valuesStartRepeat[property] = _valuesStartRepeat[property] + parseFloat(_valuesEnd[property]);
-                    }
-
-                    if (_yoyo) {
-                        var tmp = _valuesStartRepeat[property];
-
-                        _valuesStartRepeat[property] = _valuesEnd[property];
-                        _valuesEnd[property] = tmp;
-                    }
-
-                    _valuesStart[property] = _valuesStartRepeat[property];
+                if (_onStopCallback !== null) {
+                        _onStopCallback.call(_object, _object);
                 }
 
-                if (_yoyo) {
-                    _reversed = !_reversed;
+                this.stopChainedTweens();
+                return this;
+        };
+
+        this.end = function () {
+
+                this.update(_startTime + _duration);
+                return this;
+        };
+
+        this.stopChainedTweens = function () {
+
+                for (var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i++) {
+                        _chainedTweens[i].stop();
+                }
+        };
+
+        this.delay = function (amount) {
+
+                _delayTime = amount;
+                return this;
+        };
+
+        this.repeat = function (times) {
+
+                _repeat = times;
+                return this;
+        };
+
+        this.repeatDelay = function (amount) {
+
+                _repeatDelayTime = amount;
+                return this;
+        };
+
+        this.yoyo = function (yoyo) {
+
+                _yoyo = yoyo;
+                return this;
+        };
+
+        this.easing = function (easing) {
+
+                _easingFunction = easing;
+                return this;
+        };
+
+        this.interpolation = function (interpolation) {
+
+                _interpolationFunction = interpolation;
+                return this;
+        };
+
+        this.chain = function () {
+
+                _chainedTweens = arguments;
+                return this;
+        };
+
+        this.onStart = function (callback) {
+
+                _onStartCallback = callback;
+                return this;
+        };
+
+        this.onUpdate = function (callback) {
+
+                _onUpdateCallback = callback;
+                return this;
+        };
+
+        this.onComplete = function (callback) {
+
+                _onCompleteCallback = callback;
+                return this;
+        };
+
+        this.onStop = function (callback) {
+
+                _onStopCallback = callback;
+                return this;
+        };
+
+        this.update = function (time) {
+
+                var property;
+                var elapsed;
+                var value;
+
+                if (time < _startTime) {
+                        return true;
                 }
 
-                if (_repeatDelayTime !== undefined) {
-                    _startTime = time + _repeatDelayTime;
-                } else {
-                    _startTime = time + _delayTime;
+                if (_onStartCallbackFired === false) {
+
+                        if (_onStartCallback !== null) {
+                                _onStartCallback.call(_object, _object);
+                        }
+
+                        _onStartCallbackFired = true;
+                }
+
+                elapsed = (time - _startTime) / _duration;
+                elapsed = elapsed > 1 ? 1 : elapsed;
+
+                value = _easingFunction(elapsed);
+
+                for (property in _valuesEnd) {
+
+                        // Don't update properties that do not exist in the source object
+                        if (_valuesStart[property] === undefined) {
+                                continue;
+                        }
+
+                        var start = _valuesStart[property] || 0;
+                        var end = _valuesEnd[property];
+
+                        if (end instanceof Array) {
+
+                                _object[property] = _interpolationFunction(end, value);
+                        } else {
+
+                                // Parses relative end values with start as base (e.g.: +10, -3)
+                                if (typeof end === 'string') {
+
+                                        if (end.charAt(0) === '+' || end.charAt(0) === '-') {
+                                                end = start + parseFloat(end);
+                                        } else {
+                                                end = parseFloat(end);
+                                        }
+                                }
+
+                                // Protect against non numeric properties.
+                                if (typeof end === 'number') {
+                                        _object[property] = start + (end - start) * value;
+                                }
+                        }
+                }
+
+                if (_onUpdateCallback !== null) {
+                        _onUpdateCallback.call(_object, value);
+                }
+
+                if (elapsed === 1) {
+
+                        if (_repeat > 0) {
+
+                                if (isFinite(_repeat)) {
+                                        _repeat--;
+                                }
+
+                                // Reassign starting values, restart by making startTime = now
+                                for (property in _valuesStartRepeat) {
+
+                                        if (typeof _valuesEnd[property] === 'string') {
+                                                _valuesStartRepeat[property] = _valuesStartRepeat[property] + parseFloat(_valuesEnd[property]);
+                                        }
+
+                                        if (_yoyo) {
+                                                var tmp = _valuesStartRepeat[property];
+
+                                                _valuesStartRepeat[property] = _valuesEnd[property];
+                                                _valuesEnd[property] = tmp;
+                                        }
+
+                                        _valuesStart[property] = _valuesStartRepeat[property];
+                                }
+
+                                if (_yoyo) {
+                                        _reversed = !_reversed;
+                                }
+
+                                if (_repeatDelayTime !== undefined) {
+                                        _startTime = time + _repeatDelayTime;
+                                } else {
+                                        _startTime = time + _delayTime;
+                                }
+
+                                return true;
+                        } else {
+
+                                if (_onCompleteCallback !== null) {
+
+                                        _onCompleteCallback.call(_object, _object);
+                                }
+
+                                for (var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i++) {
+                                        // Make the chained tweens start exactly at the time they should,
+                                        // even if the `update()` method was called way past the duration of the tween
+                                        _chainedTweens[i].start(_startTime + _duration);
+                                }
+
+                                return false;
+                        }
                 }
 
                 return true;
-            } else {
-
-                if (_onCompleteCallback !== null) {
-
-                    _onCompleteCallback.call(_object, _object);
-                }
-
-                for (var i = 0, numChainedTweens = _chainedTweens.length; i < numChainedTweens; i++) {
-                    // Make the chained tweens start exactly at the time they should,
-                    // even if the `update()` method was called way past the duration of the tween
-                    _chainedTweens[i].start(_startTime + _duration);
-                }
-
-                return false;
-            }
-        }
-
-        return true;
-    };
+        };
 };
 
 TWEEN.Easing = {
 
-    Linear: {
+        Linear: {
 
-        None: function None(k) {
+                None: function None(k) {
 
-            return k;
+                        return k;
+                }
+
+        },
+
+        Quadratic: {
+
+                In: function In(k) {
+
+                        return k * k;
+                },
+
+                Out: function Out(k) {
+
+                        return k * (2 - k);
+                },
+
+                InOut: function InOut(k) {
+
+                        if ((k *= 2) < 1) {
+                                return 0.5 * k * k;
+                        }
+
+                        return -0.5 * (--k * (k - 2) - 1);
+                }
+
+        },
+
+        Cubic: {
+
+                In: function In(k) {
+
+                        return k * k * k;
+                },
+
+                Out: function Out(k) {
+
+                        return --k * k * k + 1;
+                },
+
+                InOut: function InOut(k) {
+
+                        if ((k *= 2) < 1) {
+                                return 0.5 * k * k * k;
+                        }
+
+                        return 0.5 * ((k -= 2) * k * k + 2);
+                }
+
+        },
+
+        Quartic: {
+
+                In: function In(k) {
+
+                        return k * k * k * k;
+                },
+
+                Out: function Out(k) {
+
+                        return 1 - --k * k * k * k;
+                },
+
+                InOut: function InOut(k) {
+
+                        if ((k *= 2) < 1) {
+                                return 0.5 * k * k * k * k;
+                        }
+
+                        return -0.5 * ((k -= 2) * k * k * k - 2);
+                }
+
+        },
+
+        Quintic: {
+
+                In: function In(k) {
+
+                        return k * k * k * k * k;
+                },
+
+                Out: function Out(k) {
+
+                        return --k * k * k * k * k + 1;
+                },
+
+                InOut: function InOut(k) {
+
+                        if ((k *= 2) < 1) {
+                                return 0.5 * k * k * k * k * k;
+                        }
+
+                        return 0.5 * ((k -= 2) * k * k * k * k + 2);
+                }
+
+        },
+
+        Sinusoidal: {
+
+                In: function In(k) {
+
+                        return 1 - Math.cos(k * Math.PI / 2);
+                },
+
+                Out: function Out(k) {
+
+                        return Math.sin(k * Math.PI / 2);
+                },
+
+                InOut: function InOut(k) {
+
+                        return 0.5 * (1 - Math.cos(Math.PI * k));
+                }
+
+        },
+
+        Exponential: {
+
+                In: function In(k) {
+
+                        return k === 0 ? 0 : Math.pow(1024, k - 1);
+                },
+
+                Out: function Out(k) {
+
+                        return k === 1 ? 1 : 1 - Math.pow(2, -10 * k);
+                },
+
+                InOut: function InOut(k) {
+
+                        if (k === 0) {
+                                return 0;
+                        }
+
+                        if (k === 1) {
+                                return 1;
+                        }
+
+                        if ((k *= 2) < 1) {
+                                return 0.5 * Math.pow(1024, k - 1);
+                        }
+
+                        return 0.5 * (-Math.pow(2, -10 * (k - 1)) + 2);
+                }
+
+        },
+
+        Circular: {
+
+                In: function In(k) {
+
+                        return 1 - Math.sqrt(1 - k * k);
+                },
+
+                Out: function Out(k) {
+
+                        return Math.sqrt(1 - --k * k);
+                },
+
+                InOut: function InOut(k) {
+
+                        if ((k *= 2) < 1) {
+                                return -0.5 * (Math.sqrt(1 - k * k) - 1);
+                        }
+
+                        return 0.5 * (Math.sqrt(1 - (k -= 2) * k) + 1);
+                }
+
+        },
+
+        Elastic: {
+
+                In: function In(k) {
+
+                        if (k === 0) {
+                                return 0;
+                        }
+
+                        if (k === 1) {
+                                return 1;
+                        }
+
+                        return -Math.pow(2, 10 * (k - 1)) * Math.sin((k - 1.1) * 5 * Math.PI);
+                },
+
+                Out: function Out(k) {
+
+                        if (k === 0) {
+                                return 0;
+                        }
+
+                        if (k === 1) {
+                                return 1;
+                        }
+
+                        return Math.pow(2, -10 * k) * Math.sin((k - 0.1) * 5 * Math.PI) + 1;
+                },
+
+                InOut: function InOut(k) {
+
+                        if (k === 0) {
+                                return 0;
+                        }
+
+                        if (k === 1) {
+                                return 1;
+                        }
+
+                        k *= 2;
+
+                        if (k < 1) {
+                                return -0.5 * Math.pow(2, 10 * (k - 1)) * Math.sin((k - 1.1) * 5 * Math.PI);
+                        }
+
+                        return 0.5 * Math.pow(2, -10 * (k - 1)) * Math.sin((k - 1.1) * 5 * Math.PI) + 1;
+                }
+
+        },
+
+        Back: {
+
+                In: function In(k) {
+
+                        var s = 1.70158;
+
+                        return k * k * ((s + 1) * k - s);
+                },
+
+                Out: function Out(k) {
+
+                        var s = 1.70158;
+
+                        return --k * k * ((s + 1) * k + s) + 1;
+                },
+
+                InOut: function InOut(k) {
+
+                        var s = 1.70158 * 1.525;
+
+                        if ((k *= 2) < 1) {
+                                return 0.5 * (k * k * ((s + 1) * k - s));
+                        }
+
+                        return 0.5 * ((k -= 2) * k * ((s + 1) * k + s) + 2);
+                }
+
+        },
+
+        Bounce: {
+
+                In: function In(k) {
+
+                        return 1 - TWEEN.Easing.Bounce.Out(1 - k);
+                },
+
+                Out: function Out(k) {
+
+                        if (k < 1 / 2.75) {
+                                return 7.5625 * k * k;
+                        } else if (k < 2 / 2.75) {
+                                return 7.5625 * (k -= 1.5 / 2.75) * k + 0.75;
+                        } else if (k < 2.5 / 2.75) {
+                                return 7.5625 * (k -= 2.25 / 2.75) * k + 0.9375;
+                        } else {
+                                return 7.5625 * (k -= 2.625 / 2.75) * k + 0.984375;
+                        }
+                },
+
+                InOut: function InOut(k) {
+
+                        if (k < 0.5) {
+                                return TWEEN.Easing.Bounce.In(k * 2) * 0.5;
+                        }
+
+                        return TWEEN.Easing.Bounce.Out(k * 2 - 1) * 0.5 + 0.5;
+                }
+
         }
-
-    },
-
-    Quadratic: {
-
-        In: function In(k) {
-
-            return k * k;
-        },
-
-        Out: function Out(k) {
-
-            return k * (2 - k);
-        },
-
-        InOut: function InOut(k) {
-
-            if ((k *= 2) < 1) {
-                return 0.5 * k * k;
-            }
-
-            return -0.5 * (--k * (k - 2) - 1);
-        }
-
-    },
-
-    Cubic: {
-
-        In: function In(k) {
-
-            return k * k * k;
-        },
-
-        Out: function Out(k) {
-
-            return --k * k * k + 1;
-        },
-
-        InOut: function InOut(k) {
-
-            if ((k *= 2) < 1) {
-                return 0.5 * k * k * k;
-            }
-
-            return 0.5 * ((k -= 2) * k * k + 2);
-        }
-
-    },
-
-    Quartic: {
-
-        In: function In(k) {
-
-            return k * k * k * k;
-        },
-
-        Out: function Out(k) {
-
-            return 1 - --k * k * k * k;
-        },
-
-        InOut: function InOut(k) {
-
-            if ((k *= 2) < 1) {
-                return 0.5 * k * k * k * k;
-            }
-
-            return -0.5 * ((k -= 2) * k * k * k - 2);
-        }
-
-    },
-
-    Quintic: {
-
-        In: function In(k) {
-
-            return k * k * k * k * k;
-        },
-
-        Out: function Out(k) {
-
-            return --k * k * k * k * k + 1;
-        },
-
-        InOut: function InOut(k) {
-
-            if ((k *= 2) < 1) {
-                return 0.5 * k * k * k * k * k;
-            }
-
-            return 0.5 * ((k -= 2) * k * k * k * k + 2);
-        }
-
-    },
-
-    Sinusoidal: {
-
-        In: function In(k) {
-
-            return 1 - Math.cos(k * Math.PI / 2);
-        },
-
-        Out: function Out(k) {
-
-            return Math.sin(k * Math.PI / 2);
-        },
-
-        InOut: function InOut(k) {
-
-            return 0.5 * (1 - Math.cos(Math.PI * k));
-        }
-
-    },
-
-    Exponential: {
-
-        In: function In(k) {
-
-            return k === 0 ? 0 : Math.pow(1024, k - 1);
-        },
-
-        Out: function Out(k) {
-
-            return k === 1 ? 1 : 1 - Math.pow(2, -10 * k);
-        },
-
-        InOut: function InOut(k) {
-
-            if (k === 0) {
-                return 0;
-            }
-
-            if (k === 1) {
-                return 1;
-            }
-
-            if ((k *= 2) < 1) {
-                return 0.5 * Math.pow(1024, k - 1);
-            }
-
-            return 0.5 * (-Math.pow(2, -10 * (k - 1)) + 2);
-        }
-
-    },
-
-    Circular: {
-
-        In: function In(k) {
-
-            return 1 - Math.sqrt(1 - k * k);
-        },
-
-        Out: function Out(k) {
-
-            return Math.sqrt(1 - --k * k);
-        },
-
-        InOut: function InOut(k) {
-
-            if ((k *= 2) < 1) {
-                return -0.5 * (Math.sqrt(1 - k * k) - 1);
-            }
-
-            return 0.5 * (Math.sqrt(1 - (k -= 2) * k) + 1);
-        }
-
-    },
-
-    Elastic: {
-
-        In: function In(k) {
-
-            if (k === 0) {
-                return 0;
-            }
-
-            if (k === 1) {
-                return 1;
-            }
-
-            return -Math.pow(2, 10 * (k - 1)) * Math.sin((k - 1.1) * 5 * Math.PI);
-        },
-
-        Out: function Out(k) {
-
-            if (k === 0) {
-                return 0;
-            }
-
-            if (k === 1) {
-                return 1;
-            }
-
-            return Math.pow(2, -10 * k) * Math.sin((k - 0.1) * 5 * Math.PI) + 1;
-        },
-
-        InOut: function InOut(k) {
-
-            if (k === 0) {
-                return 0;
-            }
-
-            if (k === 1) {
-                return 1;
-            }
-
-            k *= 2;
-
-            if (k < 1) {
-                return -0.5 * Math.pow(2, 10 * (k - 1)) * Math.sin((k - 1.1) * 5 * Math.PI);
-            }
-
-            return 0.5 * Math.pow(2, -10 * (k - 1)) * Math.sin((k - 1.1) * 5 * Math.PI) + 1;
-        }
-
-    },
-
-    Back: {
-
-        In: function In(k) {
-
-            var s = 1.70158;
-
-            return k * k * ((s + 1) * k - s);
-        },
-
-        Out: function Out(k) {
-
-            var s = 1.70158;
-
-            return --k * k * ((s + 1) * k + s) + 1;
-        },
-
-        InOut: function InOut(k) {
-
-            var s = 1.70158 * 1.525;
-
-            if ((k *= 2) < 1) {
-                return 0.5 * (k * k * ((s + 1) * k - s));
-            }
-
-            return 0.5 * ((k -= 2) * k * ((s + 1) * k + s) + 2);
-        }
-
-    },
-
-    Bounce: {
-
-        In: function In(k) {
-
-            return 1 - TWEEN.Easing.Bounce.Out(1 - k);
-        },
-
-        Out: function Out(k) {
-
-            if (k < 1 / 2.75) {
-                return 7.5625 * k * k;
-            } else if (k < 2 / 2.75) {
-                return 7.5625 * (k -= 1.5 / 2.75) * k + 0.75;
-            } else if (k < 2.5 / 2.75) {
-                return 7.5625 * (k -= 2.25 / 2.75) * k + 0.9375;
-            } else {
-                return 7.5625 * (k -= 2.625 / 2.75) * k + 0.984375;
-            }
-        },
-
-        InOut: function InOut(k) {
-
-            if (k < 0.5) {
-                return TWEEN.Easing.Bounce.In(k * 2) * 0.5;
-            }
-
-            return TWEEN.Easing.Bounce.Out(k * 2 - 1) * 0.5 + 0.5;
-        }
-
-    }
 
 };
 
 TWEEN.Interpolation = {
 
-    Linear: function Linear(v, k) {
+        Linear: function Linear(v, k) {
 
-        var m = v.length - 1;
-        var f = m * k;
-        var i = Math.floor(f);
-        var fn = TWEEN.Interpolation.Utils.Linear;
+                var m = v.length - 1;
+                var f = m * k;
+                var i = Math.floor(f);
+                var fn = TWEEN.Interpolation.Utils.Linear;
 
-        if (k < 0) {
-            return fn(v[0], v[1], f);
-        }
-
-        if (k > 1) {
-            return fn(v[m], v[m - 1], m - f);
-        }
-
-        return fn(v[i], v[i + 1 > m ? m : i + 1], f - i);
-    },
-
-    Bezier: function Bezier(v, k) {
-
-        var b = 0;
-        var n = v.length - 1;
-        var pw = Math.pow;
-        var bn = TWEEN.Interpolation.Utils.Bernstein;
-
-        for (var i = 0; i <= n; i++) {
-            b += pw(1 - k, n - i) * pw(k, i) * v[i] * bn(n, i);
-        }
-
-        return b;
-    },
-
-    CatmullRom: function CatmullRom(v, k) {
-
-        var m = v.length - 1;
-        var f = m * k;
-        var i = Math.floor(f);
-        var fn = TWEEN.Interpolation.Utils.CatmullRom;
-
-        if (v[0] === v[m]) {
-
-            if (k < 0) {
-                i = Math.floor(f = m * (1 + k));
-            }
-
-            return fn(v[(i - 1 + m) % m], v[i], v[(i + 1) % m], v[(i + 2) % m], f - i);
-        } else {
-
-            if (k < 0) {
-                return v[0] - (fn(v[0], v[0], v[1], v[1], -f) - v[0]);
-            }
-
-            if (k > 1) {
-                return v[m] - (fn(v[m], v[m], v[m - 1], v[m - 1], f - m) - v[m]);
-            }
-
-            return fn(v[i ? i - 1 : 0], v[i], v[m < i + 1 ? m : i + 1], v[m < i + 2 ? m : i + 2], f - i);
-        }
-    },
-
-    Utils: {
-
-        Linear: function Linear(p0, p1, t) {
-
-            return (p1 - p0) * t + p0;
-        },
-
-        Bernstein: function Bernstein(n, i) {
-
-            var fc = TWEEN.Interpolation.Utils.Factorial;
-
-            return fc(n) / fc(i) / fc(n - i);
-        },
-
-        Factorial: function () {
-
-            var a = [1];
-
-            return function (n) {
-
-                var s = 1;
-
-                if (a[n]) {
-                    return a[n];
+                if (k < 0) {
+                        return fn(v[0], v[1], f);
                 }
 
-                for (var i = n; i > 1; i--) {
-                    s *= i;
+                if (k > 1) {
+                        return fn(v[m], v[m - 1], m - f);
                 }
 
-                a[n] = s;
-                return s;
-            };
-        }(),
+                return fn(v[i], v[i + 1 > m ? m : i + 1], f - i);
+        },
 
-        CatmullRom: function CatmullRom(p0, p1, p2, p3, t) {
+        Bezier: function Bezier(v, k) {
 
-            var v0 = (p2 - p0) * 0.5;
-            var v1 = (p3 - p1) * 0.5;
-            var t2 = t * t;
-            var t3 = t * t2;
+                var b = 0;
+                var n = v.length - 1;
+                var pw = Math.pow;
+                var bn = TWEEN.Interpolation.Utils.Bernstein;
 
-            return (2 * p1 - 2 * p2 + v0 + v1) * t3 + (-3 * p1 + 3 * p2 - 2 * v0 - v1) * t2 + v0 * t + p1;
+                for (var i = 0; i <= n; i++) {
+                        b += pw(1 - k, n - i) * pw(k, i) * v[i] * bn(n, i);
+                }
+
+                return b;
+        },
+
+        CatmullRom: function CatmullRom(v, k) {
+
+                var m = v.length - 1;
+                var f = m * k;
+                var i = Math.floor(f);
+                var fn = TWEEN.Interpolation.Utils.CatmullRom;
+
+                if (v[0] === v[m]) {
+
+                        if (k < 0) {
+                                i = Math.floor(f = m * (1 + k));
+                        }
+
+                        return fn(v[(i - 1 + m) % m], v[i], v[(i + 1) % m], v[(i + 2) % m], f - i);
+                } else {
+
+                        if (k < 0) {
+                                return v[0] - (fn(v[0], v[0], v[1], v[1], -f) - v[0]);
+                        }
+
+                        if (k > 1) {
+                                return v[m] - (fn(v[m], v[m], v[m - 1], v[m - 1], f - m) - v[m]);
+                        }
+
+                        return fn(v[i ? i - 1 : 0], v[i], v[m < i + 1 ? m : i + 1], v[m < i + 2 ? m : i + 2], f - i);
+                }
+        },
+
+        Utils: {
+
+                Linear: function Linear(p0, p1, t) {
+
+                        return (p1 - p0) * t + p0;
+                },
+
+                Bernstein: function Bernstein(n, i) {
+
+                        var fc = TWEEN.Interpolation.Utils.Factorial;
+
+                        return fc(n) / fc(i) / fc(n - i);
+                },
+
+                Factorial: function () {
+
+                        var a = [1];
+
+                        return function (n) {
+
+                                var s = 1;
+
+                                if (a[n]) {
+                                        return a[n];
+                                }
+
+                                for (var i = n; i > 1; i--) {
+                                        s *= i;
+                                }
+
+                                a[n] = s;
+                                return s;
+                        };
+                }(),
+
+                CatmullRom: function CatmullRom(p0, p1, p2, p3, t) {
+
+                        var v0 = (p2 - p0) * 0.5;
+                        var v1 = (p3 - p1) * 0.5;
+                        var t2 = t * t;
+                        var t3 = t * t2;
+
+                        return (2 * p1 - 2 * p2 + v0 + v1) * t3 + (-3 * p1 + 3 * p2 - 2 * v0 - v1) * t2 + v0 * t + p1;
+                }
+
         }
-
-    }
 
 };
 
@@ -3995,33 +3998,33 @@ function getDistance(coordinateA, coordinateB) {
  */
 
 var drawClip = {
-    draw: function draw(context, dataSet, options) {
-        var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
-        context.save();
+        draw: function draw(context, dataSet, options) {
+                var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
+                context.save();
 
-        context.fillStyle = options.fillStyle || 'rgba(0, 0, 0, 0.5)';
-        context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+                context.fillStyle = options.fillStyle || 'rgba(0, 0, 0, 0.5)';
+                context.fillRect(0, 0, context.canvas.width, context.canvas.height);
 
-        options.multiPolygonDraw = function () {
-            context.save();
-            context.clip();
-            clear(context);
-            context.restore();
-        };
+                options.multiPolygonDraw = function () {
+                        context.save();
+                        context.clip();
+                        clear(context);
+                        context.restore();
+                };
 
-        for (var i = 0, len = data.length; i < len; i++) {
+                for (var i = 0, len = data.length; i < len; i++) {
 
-            context.beginPath();
+                        context.beginPath();
 
-            pathSimple.drawDataSet(context, [data[i]], options);
-            context.save();
-            context.clip();
-            clear(context);
-            context.restore();
+                        pathSimple.drawDataSet(context, [data[i]], options);
+                        context.save();
+                        context.clip();
+                        clear(context);
+                        context.restore();
+                }
+
+                context.restore();
         }
-
-        context.restore();
-    }
 };
 
 /**
@@ -4427,6 +4430,39 @@ var BaseLayer = function () {
                 this.options.methods.tap(null, e);
             }
         }
+    }, {
+        key: "changeHoverCursor",
+        value: function changeHoverCursor(pixel, e) {
+            var _this = this;
+
+            if (!this.options || !this.options.hoverCursor) {
+                return;
+            }
+            var dataItem = this.isPointInPath(this.getContext(), pixel);
+            if (dataItem) {
+                if (!this._defaultCursor) {
+                    this._defaultCursor = this.map.getDefaultCursor();
+                }
+                setTimeout(function () {
+                    //如果存在多个layer，可能会被别的Layer重新设成默认光标，所以我们延迟100毫秒才设置，等其他Layer的changeHoverCursor方法执行完
+                    _this.map.setDefaultCursor(_this.options.hoverCursor);
+                }, 100);
+            } else {
+                this.resetCursor();
+            }
+        }
+
+        /**
+         * 恢复默认光标（如果有的话）
+         */
+
+    }, {
+        key: "resetCursor",
+        value: function resetCursor() {
+            if (this._defaultCursor) {
+                this.map.setDefaultCursor(this._defaultCursor);
+            }
+        }
 
         /**
          * obj.options
@@ -4785,6 +4821,7 @@ var Layer = function (_BaseLayer) {
         _this.clickEvent = _this.clickEvent.bind(_this);
         _this.mousemoveEvent = _this.mousemoveEvent.bind(_this);
         _this.tapEvent = _this.tapEvent.bind(_this);
+        _this.changeHoverCursor = _this.changeHoverCursor.bind(_this);
 
         self.init(options);
         self.argCheck(options);
@@ -4813,20 +4850,38 @@ var Layer = function (_BaseLayer) {
     createClass(Layer, [{
         key: "clickEvent",
         value: function clickEvent(e) {
+            if (!this.visible) {
+                return;
+            }
             var pixel = e.pixel;
             get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "clickEvent", this).call(this, pixel, e);
         }
     }, {
         key: "mousemoveEvent",
         value: function mousemoveEvent(e) {
+            if (!this.visible) {
+                return;
+            }
             var pixel = e.pixel;
             get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "mousemoveEvent", this).call(this, pixel, e);
         }
     }, {
         key: "tapEvent",
         value: function tapEvent(e) {
+            if (!this.visible) {
+                return;
+            }
             var pixel = e.pixel;
             get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "tapEvent", this).call(this, pixel, e);
+        }
+    }, {
+        key: "changeHoverCursor",
+        value: function changeHoverCursor(e) {
+            if (!this.visible) {
+                return;
+            }
+            var pixel = e.pixel;
+            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "changeHoverCursor", this).call(this, pixel, e);
         }
     }, {
         key: "bindEvent",
@@ -4845,7 +4900,7 @@ var Layer = function (_BaseLayer) {
                     map.addEventListener('mousemove', this.mousemoveEvent);
                 }
 
-                if (this.options.methods.tap) {
+                if ("ontouchend" in window.document && this.options.methods.tap) {
                     map.addEventListener('touchstart', function (e) {
                         timer = new Date();
                     });
@@ -4855,6 +4910,9 @@ var Layer = function (_BaseLayer) {
                         }
                     });
                 }
+            }
+            if (this.options.hoverCursor) {
+                map.addEventListener('mousemove', this.changeHoverCursor);
             }
         }
     }, {
@@ -4869,6 +4927,9 @@ var Layer = function (_BaseLayer) {
                 if (this.options.methods.mousemove) {
                     map.removeEventListener('mousemove', this.mousemoveEvent);
                 }
+            }
+            if (this.options.hoverCursor) {
+                map.removeEventListener('mousemove', this.changeHoverCursor);
             }
         }
 
@@ -5009,6 +5070,7 @@ var Layer = function (_BaseLayer) {
         value: function init(options) {
 
             var self = this;
+            self.visible = true;
             self.options = options;
             this.initDataRange(options);
             this.context = self.options.context || '2d';
@@ -5038,11 +5100,15 @@ var Layer = function (_BaseLayer) {
         key: "show",
         value: function show() {
             this.map.addOverlay(this.canvasLayer);
+            this.visible = true;
         }
     }, {
         key: "hide",
         value: function hide() {
             this.map.removeOverlay(this.canvasLayer);
+            this.visible = false;
+            //恢复默认的鼠标形状
+            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "resetCursor", this).call(this);
         }
     }, {
         key: "draw",
@@ -6789,6 +6855,1050 @@ var Layer$8 = function (_BaseLayer) {
   return Layer;
 }(BaseLayer);
 
+// https://github.com/SuperMap/iClient-JavaScript
+/**
+ * @class MapVRenderer
+ * @classdesc 地图渲染类。
+ * @category Visualization MapV
+ * @private
+ * @extends mapv.BaseLayer
+ * @param {L.Map} map - 待渲染的地图。
+ * @param {L.Layer} layer - 待渲染的图层。
+ * @param {DataSet} dataSet - 待渲染的数据集。
+ * @param {Object} options - 渲染的参数。
+ */
+var MapVRenderer = function (_BaseLayer) {
+    inherits(MapVRenderer, _BaseLayer);
+
+    function MapVRenderer(map, layer, dataSet, options) {
+        classCallCheck(this, MapVRenderer);
+
+        var _this = possibleConstructorReturn(this, (MapVRenderer.__proto__ || Object.getPrototypeOf(MapVRenderer)).call(this, map, dataSet, options));
+
+        if (!BaseLayer) {
+            return possibleConstructorReturn(_this);
+        }
+
+        var self = _this;
+        options = options || {};
+
+        self.init(options);
+        self.argCheck(options);
+        _this.canvasLayer = layer;
+        _this.clickEvent = _this.clickEvent.bind(_this);
+        _this.mousemoveEvent = _this.mousemoveEvent.bind(_this);
+        _this._moveStartEvent = _this.moveStartEvent.bind(_this);
+        _this._moveEndEvent = _this.moveEndEvent.bind(_this);
+        _this._zoomStartEvent = _this.zoomStartEvent.bind(_this);
+        _this.bindEvent();
+        return _this;
+    }
+
+    /**
+     * @function MapVRenderer.prototype.clickEvent
+     * @description 点击事件。
+     * @param {Object} e - 触发对象。
+     */
+
+
+    createClass(MapVRenderer, [{
+        key: 'clickEvent',
+        value: function clickEvent(e) {
+            var offset = this.map.containerPointToLayerPoint([0, 0]);
+            var devicePixelRatio = this.devicePixelRatio = this.canvasLayer.devicePixelRatio = window.devicePixelRatio;
+            var pixel = e.layerPoint;
+            get(MapVRenderer.prototype.__proto__ || Object.getPrototypeOf(MapVRenderer.prototype), 'clickEvent', this).call(this, L.point((pixel.x - offset.x) / devicePixelRatio, (pixel.y - offset.y) / devicePixelRatio), e);
+        }
+
+        /**
+         * @function MapVRenderer.prototype.mousemoveEvent
+         * @description 鼠标移动事件。
+         * @param {Object} e - 触发对象。
+         */
+
+    }, {
+        key: 'mousemoveEvent',
+        value: function mousemoveEvent(e) {
+            var pixel = e.layerPoint;
+            get(MapVRenderer.prototype.__proto__ || Object.getPrototypeOf(MapVRenderer.prototype), 'mousemoveEvent', this).call(this, pixel, e);
+        }
+
+        /**
+         * @function MapVRenderer.prototype.bindEvent
+         * @description 绑定鼠标移动和鼠标点击事件。
+         * @param {Object} e - 触发对象。
+         */
+
+    }, {
+        key: 'bindEvent',
+        value: function bindEvent() {
+            var map = this.map;
+
+            if (this.options.methods) {
+                if (this.options.methods.click) {
+                    map.on('click', this.clickEvent);
+                }
+                if (this.options.methods.mousemove) {
+                    map.on('mousemove', this.mousemoveEvent);
+                }
+            }
+            this.map.on('movestart', this._moveStartEvent);
+            this.map.on('moveend', this._moveEndEvent);
+            this.map.on('zoomstart', this._zoomStartEvent);
+        }
+        /**
+         * @function MapVRenderer.prototype.destroy
+         * @description 释放资源。
+         */
+
+    }, {
+        key: 'destroy',
+        value: function destroy() {
+            this.unbindEvent();
+            this.clearData();
+            this.animator && this.animator.stop();
+            this.animator = null;
+            this.canvasLayer = null;
+        }
+        /**
+         * @function MapVRenderer.prototype.unbindEvent
+         * @description 解绑鼠标移动和鼠标滑动触发的事件。
+         * @param {Object} e - 触发对象。
+         */
+
+    }, {
+        key: 'unbindEvent',
+        value: function unbindEvent() {
+            var map = this.map;
+
+            if (this.options.methods) {
+                if (this.options.methods.click) {
+                    map.off('click', this.clickEvent);
+                }
+                if (this.options.methods.mousemove) {
+                    map.off('mousemove', this.mousemoveEvent);
+                }
+            }
+            this.map.off('movestart', this._moveStartEvent);
+            this.map.off('moveend', this._moveEndEvent);
+            this.map.off('zoomstart', this._zoomStartEvent);
+        }
+
+        /**
+         * @function MapVRenderer.prototype.getContext
+         * @description 获取信息。
+         */
+
+    }, {
+        key: 'getContext',
+        value: function getContext() {
+            return this.canvasLayer.getCanvas().getContext(this.context);
+        }
+
+        /**
+         * @function MapVRenderer.prototype.addData
+         * @description 添加数据。
+         * @param {Object} data - 待添加的数据。
+         * @param  {Object} options - 待添加的数据信息。
+         */
+
+    }, {
+        key: 'addData',
+        value: function addData(data, options) {
+            var _data = data;
+            if (data && data.get) {
+                _data = data.get();
+            }
+            this.dataSet.add(_data);
+            this.update({
+                options: options
+            });
+        }
+
+        /**
+         * @function MapVRenderer.prototype.update
+         * @description 更新图层。
+         * @param {Object} opt - 待更新的数据。
+         * @param {Object} opt.data - mapv数据集。
+         * @param {Object} opt.options - mapv绘制参数。
+         */
+
+    }, {
+        key: 'update',
+        value: function update(opt) {
+            var update = opt || {};
+            var _data = update.data;
+            if (_data && _data.get) {
+                _data = _data.get();
+            }
+            if (_data != undefined) {
+                this.dataSet.set(_data);
+            }
+            get(MapVRenderer.prototype.__proto__ || Object.getPrototypeOf(MapVRenderer.prototype), 'update', this).call(this, {
+                options: update.options
+            });
+        }
+
+        /**
+         * @function MapVRenderer.prototype.getData
+         * @description 获取数据
+         */
+
+    }, {
+        key: 'getData',
+        value: function getData() {
+            return this.dataSet;
+        }
+
+        /**
+         * @function MapVRenderer.prototype.removeData
+         * @description 删除符合过滤条件的数据。
+         * @param {Function} filter - 过滤条件。条件参数为数据项，返回值为 true，表示删除该元素；否则表示不删除。
+         */
+
+    }, {
+        key: 'removeData',
+        value: function removeData(_filter) {
+            if (!this.dataSet) {
+                return;
+            }
+            var newData = this.dataSet.get({
+                filter: function filter(data) {
+                    return _filter != null && typeof _filter === "function" ? !_filter(data) : true;
+                }
+            });
+            this.dataSet.set(newData);
+            this.update({
+                options: null
+            });
+        }
+
+        /**
+         * @function MapVRenderer.prototype.clearData
+         * @description 清除数据
+         */
+
+    }, {
+        key: 'clearData',
+        value: function clearData() {
+            this.dataSet && this.dataSet.clear();
+            this.update({
+                options: null
+            });
+        }
+    }, {
+        key: '_canvasUpdate',
+        value: function _canvasUpdate(time) {
+            if (!this.canvasLayer) {
+                return;
+            }
+
+            var self = this;
+
+            var animationOptions = self.options.animation;
+
+            var context = this.getContext();
+            var map = this.map;
+            if (self.isEnabledTime()) {
+                if (time === undefined) {
+                    this.clear(context);
+                    return;
+                }
+                if (this.context === '2d') {
+                    context.save();
+                    context.globalCompositeOperation = 'destination-out';
+                    context.fillStyle = 'rgba(0, 0, 0, .1)';
+                    context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+                    context.restore();
+                }
+            } else {
+                this.clear(context);
+            }
+
+            if (this.context === '2d') {
+                for (var key in self.options) {
+                    context[key] = self.options[key];
+                }
+            } else {
+                context.clear(context.COLOR_BUFFER_BIT);
+            }
+
+            if (self.options.minZoom && map.getZoom() < self.options.minZoom || self.options.maxZoom && map.getZoom() > self.options.maxZoom) {
+                return;
+            }
+
+            var bounds = map.getBounds();
+            //获取当前像素下的地理范围
+            var dw = bounds.getEast() - bounds.getWest();
+            var dh = bounds.getNorth() - bounds.getSouth();
+            var mapCanvas = map.getSize();
+
+            var resolutionX = dw / mapCanvas.x,
+                resolutionY = dh / mapCanvas.y;
+            //var centerPx = map.latLngToLayerPoint(map.getCenter());
+
+            //获取屏幕左上角的地理坐标坐标
+            //左上角屏幕坐标为0,0
+            var topLeft = this.canvasLayer.getTopLeft();
+
+            var topLeftPX = map.latLngToContainerPoint(topLeft);
+            // 获取精确的像素坐标. https://github.com/SuperMap/iClient-JavaScript/blob/eacc26952b8915bba0122db751d766056c5fb24d/src/leaflet/core/Base.js
+            // var topLeftPX = map.latLngToAccurateContainerPoint(topLeft);
+            // var lopLeft = map.containerPointToLatLng([0, 0]);
+            var dataGetOptions = {
+                transferCoordinate: function transferCoordinate(coordinate) {
+                    var offset;
+                    if (self.context === '2d') {
+                        offset = map.latLngToContainerPoint(L.latLng(coordinate[1], coordinate[0]));
+                        // offset = map.latLngToAccurateContainerPoint(L.latLng(coordinate[1], coordinate[0]));
+                    } else {
+                        offset = {
+                            'x': (coordinate[0] - topLeft.lng) / resolutionX,
+                            'y': (topLeft.lat - coordinate[1]) / resolutionY
+                        };
+                    }
+                    var pixel = {
+                        x: offset.x - topLeftPX.x,
+                        y: offset.y - topLeftPX.y
+                    };
+                    return [pixel.x, pixel.y];
+                }
+            };
+
+            if (time !== undefined) {
+                dataGetOptions.filter = function (item) {
+                    var trails = animationOptions.trails || 10;
+                    return time && item.time > time - trails && item.time < time;
+                };
+            }
+
+            var data = self.dataSet.get(dataGetOptions);
+
+            this.processData(data);
+
+            self.options._size = self.options.size;
+
+            var worldPoint = map.latLngToContainerPoint(L.latLng(0, 0));
+            var pixel = {
+                x: worldPoint.x - topLeftPX.x,
+                y: worldPoint.y - topLeftPX.y
+            };
+            this.drawContext(context, data, self.options, pixel);
+
+            self.options.updateCallback && self.options.updateCallback(time);
+        }
+    }, {
+        key: 'init',
+        value: function init(options) {
+
+            var self = this;
+
+            self.options = options;
+
+            this.initDataRange(options);
+
+            this.context = self.options.context || '2d';
+
+            if (self.options.zIndex) {
+                this.canvasLayer && this.canvasLayer.setZIndex(self.options.zIndex);
+            }
+
+            this.initAnimator();
+        }
+    }, {
+        key: 'addAnimatorEvent',
+        value: function addAnimatorEvent() {}
+
+        /**
+         * @function MapVRenderer.prototype.moveStartEvent
+         * @description 开始移动事件。
+         */
+
+    }, {
+        key: 'moveStartEvent',
+        value: function moveStartEvent() {
+            var animationOptions = this.options.animation;
+            if (this.isEnabledTime() && this.animator) {
+                this.steps.step = animationOptions.stepsRange.start;
+                this._hide();
+            }
+        }
+
+        /**
+         * @function MapVRenderer.prototype.moveEndEvent
+         * @description 结束移动事件。
+         */
+
+    }, {
+        key: 'moveEndEvent',
+        value: function moveEndEvent() {
+            this.canvasLayer.draw();
+            this._show();
+        }
+
+        /**
+         * @function MapVRenderer.prototype.zoomStartEvent
+         * @description 隐藏渲染样式。
+         */
+
+    }, {
+        key: 'zoomStartEvent',
+        value: function zoomStartEvent() {
+            this._hide();
+        }
+
+        /**
+         * @function MapVRenderer.prototype.clear
+         * @description 清除信息。
+         * @param {string} context - 指定要清除的信息。
+         */
+
+    }, {
+        key: 'clear',
+        value: function clear(context) {
+            context && context.clearRect && context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        }
+    }, {
+        key: '_hide',
+        value: function _hide() {
+            this.canvasLayer.canvas.style.display = 'none';
+        }
+    }, {
+        key: '_show',
+        value: function _show() {
+            this.canvasLayer.canvas.style.display = 'block';
+        }
+
+        /**
+         * @function MapVRenderer.prototype.draw
+         * @description 绘制渲染
+         */
+
+    }, {
+        key: 'draw',
+        value: function draw() {
+            this.canvasLayer.draw();
+        }
+    }]);
+    return MapVRenderer;
+}(BaseLayer);
+
+var mapVLayer;
+if (typeof L !== 'undefined') {
+    /**
+     * @class mapVLayer
+     * @classdesc MapV 图层。
+     * @category Visualization MapV
+     * @extends {L.Layer}
+     * @param {mapv.DataSet} dataSet - MapV 图层数据集。
+     * @param {Object} mapVOptions - MapV 图层参数。
+     * @param {Object} options - 参数。
+     * @param {string} [options.attributionPrefix] - 版权信息前缀。
+     * @param {string} [options.attribution='© 2018 百度 MapV'] - 版权信息。
+     * @fires mapVLayer#loaded
+     */
+    var MapVLayer = L.Layer.extend({
+
+        options: {
+            attributionPrefix: null,
+            attribution: ''
+        },
+
+        initialize: function initialize(dataSet, mapVOptions, options) {
+            options = options || {};
+            this.dataSet = dataSet || {};
+            this.mapVOptions = mapVOptions || {};
+            this.render = this.render.bind(this);
+            L.Util.setOptions(this, options);
+            if (this.options.attributionPrefix) {
+                this.options.attribution = this.options.attributionPrefix + this.options.attribution;
+            }
+
+            this.canvas = this._createCanvas();
+            L.stamp(this);
+        },
+
+        /**
+         * @private
+         * @function mapVLayer.prototype.onAdd
+         * @description 添加地图图层。
+         * @param {L.Map} map - 要添加的地图。
+         */
+        onAdd: function onAdd(map) {
+            this._map = map;
+            var overlayPane = this.getPane();
+            var container = this.container = L.DomUtil.create("div", "leaflet-layer leaflet-zoom-animated", overlayPane);
+            container.appendChild(this.canvas);
+            var size = map.getSize();
+            container.style.width = size.x + "px";
+            container.style.height = size.y + "px";
+            this.renderer = new MapVRenderer(map, this, this.dataSet, this.mapVOptions);
+            this.draw();
+            /**
+             * @event mapVLayer#loaded
+             * @description 图层添加完成之后触发。
+             */
+            this.fire("loaded");
+        },
+
+        // _hide: function () {
+        //     this.canvas.style.display = 'none';
+        // },
+
+        // _show: function () {
+        //     this.canvas.style.display = 'block';
+        // },
+
+        /**
+         * @private
+         * @function mapVLayer.prototype.onRemove
+         * @description 删除地图图层。
+         */
+        onRemove: function onRemove() {
+            L.DomUtil.remove(this.container);
+            this.renderer.destroy();
+        },
+
+        /**
+         * @function mapVLayer.prototype.addData
+         * @description 追加数据。
+         * @param {Object} data - 要追加的数据。
+         * @param {Object} options - 要追加的值。
+         */
+        addData: function addData(data, options) {
+            this.renderer.addData(data, options);
+        },
+
+        /**
+         * @function mapVLayer.prototype.update
+         * @description 更新图层。
+         * @param {Object} opt - 待更新的数据。
+         * @param {Object} data - mapv 数据集。
+         * @param {Object} options - mapv 绘制参数。
+         */
+        update: function update(opt) {
+            this.renderer.update(opt);
+        },
+
+        /**
+         * @function mapVLayer.prototype.getData
+         * @description 获取数据。
+         * @returns {mapv.DataSet} mapv 数据集。
+         */
+        getData: function getData() {
+            if (this.renderer) {
+                this.dataSet = this.renderer.getData();
+            }
+            return this.dataSet;
+        },
+
+        /**
+         * @function mapVLayer.prototype.removeData
+         * @description 删除符合过滤条件的数据。
+         * @param {Function} filter - 过滤条件。条件参数为数据项，返回值为 true，表示删除该元素；否则表示不删除。
+         * @example
+         *  filter=function(data){
+         *    if(data.id=="1"){
+         *      return true
+         *    }
+         *    return false;
+         *  }
+         */
+        removeData: function removeData(filter) {
+            this.renderer && this.renderer.removeData(filter);
+        },
+
+        /**
+         * @function mapVLayer.prototype.clearData
+         * @description 清除数据。
+         */
+        clearData: function clearData() {
+            this.renderer.clearData();
+        },
+
+        /**
+         * @function mapVLayer.prototype.draw
+         * @description 绘制图层。
+         */
+        draw: function draw() {
+            return this._reset();
+        },
+
+        /**
+         * @function mapVLayer.prototype.setZIndex
+         * @description 设置 canvas 层级。
+         * @param {number} zIndex - canvas 层级。
+         */
+        setZIndex: function setZIndex(zIndex) {
+            this.canvas.style.zIndex = zIndex;
+        },
+
+        /**
+         * @function mapVLayer.prototype.render
+         * @description 渲染。
+         */
+        render: function render() {
+            this.renderer._canvasUpdate();
+        },
+
+        /**
+         * @function mapVLayer.prototype.getCanvas
+         * @description 获取 canvas。
+         * @returns {HTMLElement} 返回 mapV 图层包含的 canvas 对象。
+         */
+        getCanvas: function getCanvas() {
+            return this.canvas;
+        },
+
+        /**
+         * @function mapVLayer.prototype.getContainer
+         * @description 获取容器。
+         * @returns {HTMLElement} 返回包含 mapV 图层的 dom 对象。
+         */
+        getContainer: function getContainer() {
+            return this.container;
+        },
+
+        /**
+         * @function mapVLayer.prototype.getTopLeft
+         * @description 获取左上角坐标。
+         * @returns {L.Bounds} 返回左上角坐标。
+         */
+        getTopLeft: function getTopLeft() {
+            var map = this._map;
+            var topLeft;
+            if (map) {
+                var bounds = map.getBounds();
+                topLeft = bounds.getNorthWest();
+            }
+            return topLeft;
+        },
+
+        _createCanvas: function _createCanvas() {
+            var canvas = document.createElement('canvas');
+            canvas.style.position = 'absolute';
+            canvas.style.top = 0 + "px";
+            canvas.style.left = 0 + "px";
+            canvas.style.pointerEvents = "none";
+            canvas.style.zIndex = this.options.zIndex || 600;
+            var global$2 = typeof window === 'undefined' ? {} : window;
+            var devicePixelRatio = this.devicePixelRatio = global$2.devicePixelRatio;
+            if (!this.mapVOptions.context || this.mapVOptions.context === '2d') {
+                canvas.getContext('2d').scale(devicePixelRatio, devicePixelRatio);
+            }
+            return canvas;
+        },
+
+        _resize: function _resize() {
+            var canvas = this.canvas;
+            if (!canvas) {
+                return;
+            }
+
+            var map = this._map;
+            var size = map.getSize();
+            canvas.width = size.x;
+            canvas.height = size.y;
+            canvas.style.width = size.x + 'px';
+            canvas.style.height = size.y + 'px';
+            var bounds = map.getBounds();
+            var topLeft = map.latLngToLayerPoint(bounds.getNorthWest());
+            L.DomUtil.setPosition(canvas, topLeft);
+        },
+
+        _reset: function _reset() {
+            this._resize();
+            this._render();
+        },
+        redraw: function redraw() {
+            this._resize();
+            this._render();
+        },
+        _render: function _render() {
+            this.render();
+        }
+
+    });
+
+    mapVLayer = function mapVLayer(dataSet, mapVOptions, options) {
+        return new MapVLayer(dataSet, mapVOptions, options);
+    };
+}
+var mapVLayer$1 = mapVLayer;
+
+var MapVRenderer$1 = function (_BaseLayer) {
+    inherits(MapVRenderer, _BaseLayer);
+
+    /**
+     * Creates an instance of MapVRenderer.
+     * @param {*} viewer cesium viewer
+     * @param {*} dataset mapv dataset
+     * @param {*} option mapvOptions
+     * @param {*} mapVLayer
+     * @memberof MapVRenderer
+     */
+    function MapVRenderer(viewer, dataset, option, mapVLayer) {
+        classCallCheck(this, MapVRenderer);
+
+        var _this = possibleConstructorReturn(this, (MapVRenderer.__proto__ || Object.getPrototypeOf(MapVRenderer)).call(this, viewer, dataset, option));
+
+        if (!BaseLayer) {
+            return possibleConstructorReturn(_this);
+        }
+        _this.map = viewer, _this.scene = viewer.scene, _this.dataSet = dataset;
+        option = option || {}, _this.init(option), _this.argCheck(option), _this.initDevicePixelRatio(), _this.canvasLayer = mapVLayer, _this.stopAniamation = !1, _this.animation = option.animation, _this.clickEvent = _this.clickEvent.bind(_this), _this.mousemoveEvent = _this.mousemoveEvent.bind(_this), _this.bindEvent();
+        return _this;
+    }
+
+    createClass(MapVRenderer, [{
+        key: "initDevicePixelRatio",
+        value: function initDevicePixelRatio() {
+            this.devicePixelRatio = window.devicePixelRatio || 1;
+        }
+    }, {
+        key: "clickEvent",
+        value: function clickEvent(t) {
+            var e = t.point;
+            get(MapVRenderer.prototype.__proto__ || Object.getPrototypeOf(MapVRenderer.prototype), "clickEvent", this).call(this, e, t);
+        }
+    }, {
+        key: "mousemoveEvent",
+        value: function mousemoveEvent(t) {
+            var e = t.point;
+            get(MapVRenderer.prototype.__proto__ || Object.getPrototypeOf(MapVRenderer.prototype), "mousemoveEvent", this).call(this, e, t);
+        }
+    }, {
+        key: "addAnimatorEvent",
+        value: function addAnimatorEvent() {}
+    }, {
+        key: "animatorMovestartEvent",
+        value: function animatorMovestartEvent() {
+            var t = this.options.animation;
+            this.isEnabledTime() && this.animator && (this.steps.step = t.stepsRange.start);
+        }
+    }, {
+        key: "animatorMoveendEvent",
+        value: function animatorMoveendEvent() {
+            this.isEnabledTime() && this.animator;
+        }
+    }, {
+        key: "bindEvent",
+        value: function bindEvent() {
+            this.map;
+            this.options.methods && (this.options.methods.click, this.options.methods.mousemove);
+        }
+    }, {
+        key: "unbindEvent",
+        value: function unbindEvent() {
+            var t = this.map;
+            this.options.methods && (this.options.methods.click && t.off("click", this.clickEvent), this.options.methods.mousemove && t.off("mousemove", this.mousemoveEvent));
+        }
+    }, {
+        key: "getContext",
+        value: function getContext() {
+            return this.canvasLayer.canvas.getContext(this.context);
+        }
+    }, {
+        key: "init",
+        value: function init(t) {
+            this.options = t, this.initDataRange(t), this.context = this.options.context || "2d", this.options.zIndex && this.canvasLayer && this.canvasLayer.setZIndex(this.options.zIndex), this.initAnimator();
+        }
+    }, {
+        key: "_canvasUpdate",
+        value: function _canvasUpdate(t) {
+            this.map;
+            var e = this.scene;
+            if (this.canvasLayer && !this.stopAniamation) {
+                var i = this.options.animation,
+                    n = this.getContext();
+                if (this.isEnabledTime()) {
+                    if (void 0 === t) return void this.clear(n);
+                    "2d" === this.context && (n.save(), n.globalCompositeOperation = "destination-out", n.fillStyle = "rgba(0, 0, 0, .1)", n.fillRect(0, 0, n.canvas.width, n.canvas.height), n.restore());
+                } else this.clear(n);
+                if ("2d" === this.context) for (var o in this.options) {
+                    n[o] = this.options[o];
+                } else n.clear(n.COLOR_BUFFER_BIT);
+                var a = {
+                    transferCoordinate: function transferCoordinate(t) {
+                        var i = Cesium.Cartesian3.fromDegrees(t[0], t[1]),
+                            n = Cesium.SceneTransforms.wgs84ToWindowCoordinates(e, i);
+                        return void 0 == n ? [-1, -1] : [n.x, n.y];
+                    }
+                };
+                void 0 !== t && (a.filter = function (e) {
+                    var n = i.trails || 10;
+                    return !!(t && e.time > t - n && e.time < t);
+                });
+                var c = this.dataSet.get(a);
+                this.processData(c), "m" == this.options.unit && this.options.size, this.options._size = this.options.size;
+                var h = Cesium.SceneTransforms.wgs84ToWindowCoordinates(e, Cesium.Cartesian3.fromDegrees(0, 0));
+                this.drawContext(n, new DataSet(c), this.options, h), this.options.updateCallback && this.options.updateCallback(t);
+            }
+        }
+    }, {
+        key: "updateData",
+        value: function updateData(t, e) {
+            var i = t;
+            i && i.get && (i = i.get()), void 0 != i && this.dataSet.set(i), get(MapVRenderer.prototype.__proto__ || Object.getPrototypeOf(MapVRenderer.prototype), "update", this).call(this, {
+                options: e
+            });
+        }
+    }, {
+        key: "addData",
+        value: function addData(t, e) {
+            var i = t;
+            t && t.get && (i = t.get()), this.dataSet.add(i), this.update({
+                options: e
+            });
+        }
+    }, {
+        key: "getData",
+        value: function getData() {
+            return this.dataSet;
+        }
+    }, {
+        key: "removeData",
+        value: function removeData(t) {
+            if (this.dataSet) {
+                var e = this.dataSet.get({
+                    filter: function filter(e) {
+                        return null == t || "function" != typeof t || !t(e);
+                    }
+                });
+                this.dataSet.set(e), this.update({
+                    options: null
+                });
+            }
+        }
+    }, {
+        key: "clearData",
+        value: function clearData() {
+            this.dataSet && this.dataSet.clear(), this.update({
+                options: null
+            });
+        }
+    }, {
+        key: "draw",
+        value: function draw() {
+            this.canvasLayer.draw();
+        }
+    }, {
+        key: "clear",
+        value: function clear(t) {
+            t && t.clearRect && t.clearRect(0, 0, t.canvas.width, t.canvas.height);
+        }
+    }]);
+    return MapVRenderer;
+}(BaseLayer);
+
+var mapVLayer$2;
+if (typeof Cesium !== 'undefined') {
+    var defIndex = 0;
+    var r = Cesium;
+
+    var MapVLayer$1 = function () {
+        /**
+         *Creates an instance of MapVLayer.
+         * @param {*} viewer
+         * @param {*} dataset
+         * @param {*} options
+         * @param {*} container default viewer.container
+         * @memberof MapVLayer
+         */
+        function MapVLayer(viewer, dataset, options, container) {
+            classCallCheck(this, MapVLayer);
+
+            this.map = viewer, this.scene = viewer.scene, this.mapvBaseLayer = new MapVRenderer$1(viewer, dataset, options, this), this.mapVOptions = options, this.initDevicePixelRatio(), this.canvas = this._createCanvas(), this.render = this.render.bind(this);
+            if (container) {
+                this.container = container;
+            } else {
+                var inner = viewer.container.querySelector('.cesium-viewer-cesiumWidgetContainer');
+                this.container = inner ? inner : viewer.container;
+            }
+            this.addInnerContainer();
+
+            // void 0 != container ? (this.container = container,
+            //     container.appendChild(this.canvas)) : (this.container = viewer.container,
+            //         this.addInnerContainer()),
+            this.bindEvent();
+            this._reset();
+        }
+
+        createClass(MapVLayer, [{
+            key: 'initDevicePixelRatio',
+            value: function initDevicePixelRatio() {
+                this.devicePixelRatio = window.devicePixelRatio || 1;
+            }
+        }, {
+            key: 'addInnerContainer',
+            value: function addInnerContainer() {
+                this.container.appendChild(this.canvas);
+            }
+        }, {
+            key: 'bindEvent',
+            value: function bindEvent() {
+                var that = this;
+
+                this.innerMoveStart = this.moveStartEvent.bind(this);
+                this.innerMoveEnd = this.moveEndEvent.bind(this);
+                this.scene.camera.moveStart.addEventListener(this.innerMoveStart, this);
+                this.scene.camera.moveEnd.addEventListener(this.innerMoveEnd, this);
+
+                var t = new Cesium.ScreenSpaceEventHandler(this.scene.canvas);
+
+                t.setInputAction(function (t) {
+                    that.innerMoveEnd();
+                }, Cesium.ScreenSpaceEventType.LEFT_UP);
+                t.setInputAction(function (t) {
+                    that.innerMoveEnd();
+                }, Cesium.ScreenSpaceEventType.MIDDLE_UP);
+                this.handler = t;
+            }
+        }, {
+            key: 'unbindEvent',
+            value: function unbindEvent() {
+                this.scene.camera.moveStart.removeEventListener(this.innerMoveStart, this);
+                this.scene.camera.moveEnd.removeEventListener(this.innerMoveEnd, this);
+                this.scene.postRender.removeEventListener(this._reset, this);
+                this.handler && (this.handler.destroy(), this.handler = null);
+            }
+        }, {
+            key: 'moveStartEvent',
+            value: function moveStartEvent() {
+                if (this.mapvBaseLayer) {
+                    this.mapvBaseLayer.animatorMovestartEvent();
+                    this.scene.postRender.addEventListener(this._reset, this);
+                }
+            }
+        }, {
+            key: 'moveEndEvent',
+            value: function moveEndEvent() {
+                if (this.mapvBaseLayer) {
+                    this.scene.postRender.removeEventListener(this._reset, this), this.mapvBaseLayer.animatorMoveendEvent();
+                    this._reset();
+                }
+            }
+        }, {
+            key: 'zoomStartEvent',
+            value: function zoomStartEvent() {
+                this._unvisiable();
+            }
+        }, {
+            key: 'zoomEndEvent',
+            value: function zoomEndEvent() {
+                this._unvisiable();
+            }
+        }, {
+            key: 'addData',
+            value: function addData(t, e) {
+                void 0 != this.mapvBaseLayer && this.mapvBaseLayer.addData(t, e);
+            }
+        }, {
+            key: 'updateData',
+            value: function updateData(t, e) {
+                void 0 != this.mapvBaseLayer && this.mapvBaseLayer.updateData(t, e);
+            }
+        }, {
+            key: 'getData',
+            value: function getData() {
+                return this.mapvBaseLayer && (this.dataSet = this.mapvBaseLayer.getData()), this.dataSet;
+            }
+        }, {
+            key: 'removeData',
+            value: function removeData(t) {
+                void 0 != this.mapvBaseLayer && this.mapvBaseLayer && this.mapvBaseLayer.removeData(t);
+            }
+        }, {
+            key: 'removeAllData',
+            value: function removeAllData() {
+                void 0 != this.mapvBaseLayer && this.mapvBaseLayer.clearData();
+            }
+        }, {
+            key: '_visiable',
+            value: function _visiable() {
+                return this.canvas.style.display = "block", this;
+            }
+        }, {
+            key: '_unvisiable',
+            value: function _unvisiable() {
+                return this.canvas.style.display = "none", this;
+            }
+        }, {
+            key: '_createCanvas',
+            value: function _createCanvas() {
+                var t = document.createElement("canvas");
+                t.id = this.mapVOptions.layerid || "mapv" + defIndex++, t.style.position = "absolute", t.style.top = "0px", t.style.left = "0px", t.style.pointerEvents = "none", t.style.zIndex = this.mapVOptions.zIndex || 0, t.width = parseInt(this.map.canvas.width), t.height = parseInt(this.map.canvas.height), t.style.width = this.map.canvas.style.width, t.style.height = this.map.canvas.style.height;
+                var e = this.devicePixelRatio;
+                return "2d" == this.mapVOptions.context && t.getContext(this.mapVOptions.context).scale(e, e), t;
+            }
+        }, {
+            key: '_reset',
+            value: function _reset() {
+                this.resizeCanvas();
+                this.fixPosition();
+                this.onResize();
+                this.render();
+            }
+        }, {
+            key: 'draw',
+            value: function draw() {
+                this._reset();
+            }
+        }, {
+            key: 'show',
+            value: function show() {
+                this._visiable();
+            }
+        }, {
+            key: 'hide',
+            value: function hide() {
+                this._unvisiable();
+            }
+        }, {
+            key: 'destroy',
+            value: function destroy() {
+                this.remove();
+            }
+        }, {
+            key: 'remove',
+            value: function remove() {
+                void 0 != this.mapvBaseLayer && (this.removeAllData(), this.mapvBaseLayer.clear(this.mapvBaseLayer.getContext()), this.mapvBaseLayer = void 0, this.canvas.parentElement.removeChild(this.canvas));
+            }
+        }, {
+            key: 'update',
+            value: function update(t) {
+                void 0 != t && this.updateData(t.data, t.options);
+            }
+        }, {
+            key: 'resizeCanvas',
+            value: function resizeCanvas() {
+                if (void 0 != this.canvas && null != this.canvas) {
+                    var t = this.canvas;
+                    t.style.position = "absolute", t.style.top = "0px", t.style.left = "0px", t.width = parseInt(this.map.canvas.width), t.height = parseInt(this.map.canvas.height), t.style.width = this.map.canvas.style.width, t.style.height = this.map.canvas.style.height;
+                }
+            }
+        }, {
+            key: 'fixPosition',
+            value: function fixPosition() {}
+        }, {
+            key: 'onResize',
+            value: function onResize() {}
+        }, {
+            key: 'render',
+            value: function render() {
+                void 0 != this.mapvBaseLayer && this.mapvBaseLayer._canvasUpdate();
+            }
+        }]);
+        return MapVLayer;
+    }();
+
+    mapVLayer$2 = function mapVLayer(viewer, dataSet, mapVOptions, container) {
+        return new MapVLayer$1(viewer, dataSet, mapVOptions, container);
+    };
+}
+
+var mapVLayer$3 = mapVLayer$2;
+
 /**
  * @author kyle / http://nikai.us/
  */
@@ -6938,6 +8048,8 @@ exports.googleMapLayer = Layer$2;
 exports.MaptalksLayer = Layer$5;
 exports.AMapLayer = Layer$6;
 exports.OpenlayersLayer = Layer$8;
+exports.leafletMapLayer = mapVLayer$1;
+exports.cesiumMapLayer = mapVLayer$3;
 exports.DataSet = DataSet;
 exports.geojson = geojson;
 exports.csv = csv;

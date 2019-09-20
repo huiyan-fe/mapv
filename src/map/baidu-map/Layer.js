@@ -291,6 +291,8 @@ class Layer extends BaseLayer{
     hide() {
         this.map.removeOverlay(this.canvasLayer);
         this.visible = false;
+        //恢复默认的鼠标形状
+        super.resetCursor();
     }
 
     draw() {
