@@ -196,6 +196,10 @@ class BaseLayer {
 
             var geoType = data[i].geometry && data[i].geometry.type;
             if (geoType.indexOf('LineString') > -1) {
+                if(this.options.mouseLineWidth){
+                    //LineString太不容易命中isPointInStroke了，给他设置一个线宽，提高命中率
+                    context.lineWidth = this.options.mouseLineWidth;
+                }
                 if (context.isPointInStroke && context.isPointInStroke(x, y)) {
                     return data[i];
                 }
