@@ -51,7 +51,10 @@ export default {
                     var polygon = coordinates[i];
                     this.drawPolygon(context, polygon);
                     if (options.multiPolygonDraw) {
-                        options.multiPolygonDraw();
+                        var flag = options.multiPolygonDraw();
+                        if (flag) {
+                            return flag;
+                        }
                     }
                 }
                 break;

@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.38";
+var version = "2.0.40";
 
 /**
  * @author kyle / http://nikai.us/
@@ -657,7 +657,10 @@ var pathSimple = {
                     var polygon = coordinates[i];
                     this.drawPolygon(context, polygon);
                     if (options.multiPolygonDraw) {
-                        options.multiPolygonDraw();
+                        var flag = options.multiPolygonDraw();
+                        if (flag) {
+                            return flag;
+                        }
                     }
                 }
                 break;
@@ -5062,9 +5065,17 @@ var BaseLayer = function () {
             }
             for (var i = 0; i < data.length; i++) {
                 context.beginPath();
-                pathSimple.draw(context, data[i], this.options);
+                var options = this.options;
                 var x = pixel.x * this.canvasLayer.devicePixelRatio;
                 var y = pixel.y * this.canvasLayer.devicePixelRatio;
+
+                options.multiPolygonDraw = function () {
+                    if (context.isPointInPath(x, y)) {
+                        return data[i];
+                    }
+                };
+
+                pathSimple.draw(context, data[i], options);
 
                 var geoType = data[i].geometry && data[i].geometry.type;
                 if (geoType.indexOf('LineString') > -1) {
@@ -5072,6 +5083,7 @@ var BaseLayer = function () {
                         return data[i];
                     }
                 } else {
+
                     if (context.isPointInPath(x, y)) {
                         return data[i];
                     }
