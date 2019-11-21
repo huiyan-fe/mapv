@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.39";
+var version = "2.0.41";
 
 /**
  * @author kyle / http://nikai.us/
@@ -625,7 +625,7 @@ var pathSimple = {
     draw: function draw$$1(context, data, options) {
         var type = data.geometry.type;
         var coordinates = data.geometry._coordinates || data.geometry.coordinates;
-        var symbol = options.symbol || 'circle';
+        var symbol = data.symbol || options.symbol || 'circle';
         switch (type) {
             case 'Point':
                 var size = data._size || data.size || options._size || options.size || 5;
@@ -4119,11 +4119,6 @@ var drawText = {
             context[key] = options[key];
         }
 
-        var offset = options.offset || {
-            x: 0,
-            y: 0
-        };
-
         var rects = [];
 
         var size = options._size || options.size;
@@ -4146,6 +4141,12 @@ var drawText = {
         if (options.avoid) {
             // 标注避让
             for (var i = 0, len = data.length; i < len; i++) {
+
+                var offset = data[i].offset || options.offset || {
+                    x: 0,
+                    y: 0
+                };
+
                 var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
                 var x = coordinates[0] + offset.x;
                 var y = coordinates[1] + offset.y;
@@ -4176,6 +4177,10 @@ var drawText = {
             }
         } else {
             for (var i = 0, len = data.length; i < len; i++) {
+                var offset = data[i].offset || options.offset || {
+                    x: 0,
+                    y: 0
+                };
                 var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
                 var x = coordinates[0] + offset.x;
                 var y = coordinates[1] + offset.y;
