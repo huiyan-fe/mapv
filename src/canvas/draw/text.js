@@ -17,11 +17,6 @@ export default {
             context[key] = options[key];
         }
 
-        var offset = options.offset || {
-            x: 0,
-            y: 0
-        };
-
         var rects = [];
             
         var size = options._size || options.size;
@@ -43,6 +38,12 @@ export default {
 
         if (options.avoid) { // 标注避让
             for (var i = 0, len = data.length; i < len; i++) {
+                
+                var offset = data[i].offset || options.offset || {
+                    x: 0,
+                    y: 0
+                };
+
                 var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
                 var x = coordinates[0] + offset.x;
                 var y = coordinates[1] + offset.y;
@@ -74,6 +75,10 @@ export default {
             };
         } else {
             for (var i = 0, len = data.length; i < len; i++) {
+                var offset = data[i].offset || options.offset || {
+                    x: 0,
+                    y: 0
+                };
                 var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
                 var x = coordinates[0] + offset.x;
                 var y = coordinates[1] + offset.y;
