@@ -290,6 +290,20 @@ class Layer extends BaseLayer{
     draw() {
         this.canvasLayer.draw();
     }
+
+    clearData() {
+        this.dataSet && this.dataSet.clear();
+        this.update({
+            options: null
+        });
+    }
+
+    destroy() {
+        this.unbindEvent();
+        this.clearData();
+        this.map.removeOverlay(this.canvasLayer);
+        this.canvasLayer = null;
+    }
 }
 
 export default Layer;

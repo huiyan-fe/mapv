@@ -100,6 +100,10 @@ if (global.BMap) {
         //this._map.removeOverlay(this);
     }
 
+    CanvasLayer.prototype.remove = function() {
+        this._map.removeOverlay(this);
+    }
+
     CanvasLayer.prototype.setZIndex = function(zIndex) {
         this.zIndex = zIndex;
         this.canvas.style.zIndex = this.zIndex;
