@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.38";
+var version = "2.0.41";
 
 /**
  * @author kyle / http://nikai.us/
@@ -625,7 +625,7 @@ var pathSimple = {
     draw: function draw$$1(context, data, options) {
         var type = data.geometry.type;
         var coordinates = data.geometry._coordinates || data.geometry.coordinates;
-        var symbol = options.symbol || 'circle';
+        var symbol = data.symbol || options.symbol || 'circle';
         switch (type) {
             case 'Point':
                 var size = data._size || data.size || options._size || options.size || 5;
@@ -657,7 +657,10 @@ var pathSimple = {
                     var polygon = coordinates[i];
                     this.drawPolygon(context, polygon);
                     if (options.multiPolygonDraw) {
-                        options.multiPolygonDraw();
+                        var flag = options.multiPolygonDraw();
+                        if (flag) {
+                            return flag;
+                        }
                     }
                 }
                 break;
@@ -4116,11 +4119,6 @@ var drawText = {
             context[key] = options[key];
         }
 
-        var offset = options.offset || {
-            x: 0,
-            y: 0
-        };
-
         var rects = [];
 
         var size = options._size || options.size;
@@ -4143,6 +4141,12 @@ var drawText = {
         if (options.avoid) {
             // 标注避让
             for (var i = 0, len = data.length; i < len; i++) {
+
+                var offset = data[i].offset || options.offset || {
+                    x: 0,
+                    y: 0
+                };
+
                 var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
                 var x = coordinates[0] + offset.x;
                 var y = coordinates[1] + offset.y;
@@ -4173,6 +4177,10 @@ var drawText = {
             }
         } else {
             for (var i = 0, len = data.length; i < len; i++) {
+                var offset = data[i].offset || options.offset || {
+                    x: 0,
+                    y: 0
+                };
                 var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
                 var x = coordinates[0] + offset.x;
                 var y = coordinates[1] + offset.y;
@@ -5062,9 +5070,17 @@ var BaseLayer = function () {
             }
             for (var i = 0; i < data.length; i++) {
                 context.beginPath();
-                pathSimple.draw(context, data[i], this.options);
+                var options = this.options;
                 var x = pixel.x * this.canvasLayer.devicePixelRatio;
                 var y = pixel.y * this.canvasLayer.devicePixelRatio;
+
+                options.multiPolygonDraw = function () {
+                    if (context.isPointInPath(x, y)) {
+                        return data[i];
+                    }
+                };
+
+                pathSimple.draw(context, data[i], options);
 
                 var geoType = data[i].geometry && data[i].geometry.type;
                 if (geoType.indexOf('LineString') > -1) {
@@ -5072,6 +5088,7 @@ var BaseLayer = function () {
                         return data[i];
                     }
                 } else {
+
                     if (context.isPointInPath(x, y)) {
                         return data[i];
                     }

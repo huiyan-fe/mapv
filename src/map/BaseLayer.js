@@ -206,9 +206,17 @@ class BaseLayer {
         }
         for (var i = 0; i < data.length; i++) {
             context.beginPath();
-            pathSimple.draw(context, data[i], this.options);
+            let options = this.options;
             var x = pixel.x * this.canvasLayer.devicePixelRatio;
             var y = pixel.y * this.canvasLayer.devicePixelRatio;
+
+            options.multiPolygonDraw = function() {
+                if (context.isPointInPath(x, y)) {
+                    return data[i];
+                }
+            }
+
+            pathSimple.draw(context, data[i], options);
 
             var geoType = data[i].geometry && data[i].geometry.type;
             if (geoType.indexOf('LineString') > -1) {
@@ -216,6 +224,7 @@ class BaseLayer {
                     return data[i];
                 }
             } else {
+
                 if (context.isPointInPath(x, y)) {
                     return data[i];
                 }
