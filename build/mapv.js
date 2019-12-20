@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.41";
+var version = "2.0.42";
 
 /**
  * @author kyle / http://nikai.us/
@@ -3098,6 +3098,10 @@ if (global$3.BMap) {
         //this._map.removeOverlay(this);
     };
 
+    CanvasLayer.prototype.remove = function () {
+        this._map.removeOverlay(this);
+    };
+
     CanvasLayer.prototype.setZIndex = function (zIndex) {
         this.zIndex = zIndex;
         this.canvas.style.zIndex = this.zIndex;
@@ -5470,6 +5474,23 @@ var AnimationLayer = function (_BaseLayer) {
         value: function show() {
             this.start();
         }
+    }, {
+        key: "clearData",
+        value: function clearData() {
+            this.dataSet && this.dataSet.clear();
+            this.update({
+                options: null
+            });
+        }
+    }, {
+        key: "destroy",
+        value: function destroy() {
+            this.stop();
+            this.unbindEvent();
+            this.clearData();
+            this.canvasLayer.remove();
+            this.canvasLayer = null;
+        }
     }]);
     return AnimationLayer;
 }(BaseLayer);
@@ -5776,6 +5797,22 @@ var Layer = function (_BaseLayer) {
         key: "draw",
         value: function draw() {
             this.canvasLayer.draw();
+        }
+    }, {
+        key: "clearData",
+        value: function clearData() {
+            this.dataSet && this.dataSet.clear();
+            this.update({
+                options: null
+            });
+        }
+    }, {
+        key: "destroy",
+        value: function destroy() {
+            this.unbindEvent();
+            this.clearData();
+            this.map.removeOverlay(this.canvasLayer);
+            this.canvasLayer = null;
         }
     }]);
     return Layer;
