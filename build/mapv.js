@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.42";
+var version = "2.0.43";
 
 /**
  * @author kyle / http://nikai.us/
@@ -3098,10 +3098,6 @@ if (global$3.BMap) {
         //this._map.removeOverlay(this);
     };
 
-    CanvasLayer.prototype.remove = function () {
-        this._map.removeOverlay(this);
-    };
-
     CanvasLayer.prototype.setZIndex = function (zIndex) {
         this.zIndex = zIndex;
         this.canvas.style.zIndex = this.zIndex;
@@ -5488,7 +5484,7 @@ var AnimationLayer = function (_BaseLayer) {
             this.stop();
             this.unbindEvent();
             this.clearData();
-            this.canvasLayer.remove();
+            this.map.removeOverlay(this.canvasLayer);
             this.canvasLayer = null;
         }
     }]);

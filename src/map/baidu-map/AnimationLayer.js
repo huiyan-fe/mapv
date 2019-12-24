@@ -234,7 +234,7 @@ class AnimationLayer extends BaseLayer{
         this.stop();
         this.unbindEvent();
         this.clearData();
-        this.canvasLayer.remove();
+        this.map.removeOverlay(this.canvasLayer);
         this.canvasLayer = null;
     }
 }
