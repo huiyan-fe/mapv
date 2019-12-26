@@ -16,18 +16,12 @@ export default {
 
         var size = options._size || options.size || 50;
 
+        // 后端传入数据为网格数据时，传入enableCluster为false，前端不进行删格化操作，直接画方格
+        var enableCluster = 'enableCluster' in options ? options.enableCluster : true;
+
         var offset = options.offset || {
             x: 0,
             y: 0
-        }
-
-        for (var i = 0; i < data.length; i++) {
-            var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
-            var gridKey = Math.floor((coordinates[0] - offset.x) / size) + "," + Math.floor((coordinates[1] - offset.y) / size);
-            if (!grids[gridKey]) {
-                grids[gridKey] = 0;
-            }
-            grids[gridKey] += ~~(data[i].count || 1);
         }
 
         var intensity = new Intensity({
@@ -36,15 +30,43 @@ export default {
             gradient: options.gradient
         });
 
-        for (var gridKey in grids) {
-            gridKey = gridKey.split(",");
+        if (!enableCluster) {
+            for (let i = 0; i < data.length; i++) {
+                var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
+                var gridKey = coordinates.join(',');
+                grids[gridKey] = ~~(data[i].count || 1);
+            }
+            for (let gridKey in grids) {
+                gridKey = gridKey.split(",");
+    
+                context.beginPath();
+                context.rect(+gridKey[0] - size / 2, +gridKey[1] - size / 2, size, size);
+                context.fillStyle = intensity.getColor(grids[gridKey]);
+                context.fill();
+                if (options.strokeStyle && options.lineWidth) {
+                    context.stroke();
+                }
+            }
+        } else {
+            for (let i = 0; i < data.length; i++) {
+                var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
+                var gridKey = Math.floor((coordinates[0] - offset.x) / size) + "," + Math.floor((coordinates[1] - offset.y) / size);
+                if (!grids[gridKey]) {
+                    grids[gridKey] = 0;
+                }
+                grids[gridKey] += ~~(data[i].count || 1);
+            }
 
-            context.beginPath();
-            context.rect(gridKey[0] * size + .5 + offset.x, gridKey[1] * size + .5 + offset.y, size, size);
-            context.fillStyle = intensity.getColor(grids[gridKey]);
-            context.fill();
-            if (options.strokeStyle && options.lineWidth) {
-                context.stroke();
+            for (let gridKey in grids) {
+                gridKey = gridKey.split(",");
+    
+                context.beginPath();
+                context.rect(gridKey[0] * size + .5 + offset.x, gridKey[1] * size + .5 + offset.y, size, size);
+                context.fillStyle = intensity.getColor(grids[gridKey]);
+                context.fill();
+                if (options.strokeStyle && options.lineWidth) {
+                    context.stroke();
+                }
             }
         }
 
