@@ -91,7 +91,11 @@ export default {
                 gridKey = gridKey.split(',');
                 var text = grids[gridKey];
                 var textWidth = context.measureText(text).width;
-                context.fillText(text, gridKey[0] * size + .5 + offset.x + size / 2 - textWidth / 2, gridKey[1] * size + .5 + offset.y + size / 2 + 5);
+                if (!enableCluster) {
+                    context.fillText(text, +gridKey[0] - textWidth / 2, +gridKey[1] + 5);
+                } else {
+                    context.fillText(text, gridKey[0] * size + .5 + offset.x + size / 2 - textWidth / 2, gridKey[1] * size + .5 + offset.y + size / 2 + 5);
+                }
             }
         }
 
