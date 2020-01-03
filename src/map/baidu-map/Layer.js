@@ -144,8 +144,8 @@ class Layer extends BaseLayer{
 
         var projection = map.getMapType().getProjection();
         var zoomUnit;
-        if (projection.getZoomUnit) {
-            zoomUnit = projection.getZoomUnit(map.getZoom());
+        if (projection.getZoomUnits) {
+            zoomUnit = projection.getZoomUnits(map.getZoom());
         } else {
             zoomUnit = Math.pow(2, 18 - map.getZoom());
         }

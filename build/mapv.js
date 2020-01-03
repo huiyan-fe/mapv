@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.47";
+var version = "2.0.48";
 
 /**
  * @author kyle / http://nikai.us/
@@ -5352,8 +5352,13 @@ var AnimationLayer = function (_BaseLayer) {
             }
             //clear(ctx);
             var map = this.map;
-            var zoomUnit = Math.pow(2, 18 - map.getZoom());
+            var zoomUnit;
             var projection = map.getMapType().getProjection();
+            if (projection.getZoomUnits) {
+                zoomUnit = projection.getZoomUnits(map.getZoom());
+            } else {
+                zoomUnit = Math.pow(2, 18 - map.getZoom());
+            }
 
             var mcCenter = projection.lngLatToPoint(map.getCenter());
             var nwMc = new BMap.Pixel(mcCenter.x - map.getSize().width / 2 * zoomUnit, mcCenter.y + map.getSize().height / 2 * zoomUnit); //左上角墨卡托坐标
@@ -5668,8 +5673,13 @@ var Layer = function (_BaseLayer) {
 
             var map = this.canvasLayer._map;
 
-            var zoomUnit = Math.pow(2, 18 - map.getZoom());
             var projection = map.getMapType().getProjection();
+            var zoomUnit;
+            if (projection.getZoomUnits) {
+                zoomUnit = projection.getZoomUnits(map.getZoom());
+            } else {
+                zoomUnit = Math.pow(2, 18 - map.getZoom());
+            }
 
             var mcCenter = projection.lngLatToPoint(map.getCenter());
             var nwMc = new BMap.Pixel(mcCenter.x - map.getSize().width / 2 * zoomUnit, mcCenter.y + map.getSize().height / 2 * zoomUnit); //左上角墨卡托坐标
