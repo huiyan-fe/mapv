@@ -227,6 +227,21 @@ class AnimationLayer extends BaseLayer{
     show() {
         this.start();
     }
+
+    clearData() {
+        this.dataSet && this.dataSet.clear();
+        this.update({
+            options: null
+        });
+    }
+
+    destroy() {
+        this.stop();
+        this.unbindEvent();
+        this.clearData();
+        this.map.removeOverlay(this.canvasLayer);
+        this.canvasLayer = null;
+    }
 }
 
 export default AnimationLayer;
