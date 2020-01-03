@@ -142,8 +142,13 @@ class Layer extends BaseLayer{
 
         var map = this.canvasLayer._map;
 
-        var zoomUnit = Math.pow(2, 18 - map.getZoom());
         var projection = map.getMapType().getProjection();
+        var zoomUnit;
+        if (projection.getZoomUnit) {
+            zoomUnit = projection.getZoomUnit(map.getZoom());
+        } else {
+            zoomUnit = Math.pow(2, 18 - map.getZoom());
+        }
 
         var mcCenter = projection.lngLatToPoint(map.getCenter());
         var nwMc = new BMap.Pixel(mcCenter.x - (map.getSize().width / 2) * zoomUnit, mcCenter.y + (map.getSize().height / 2) * zoomUnit); //左上角墨卡托坐标

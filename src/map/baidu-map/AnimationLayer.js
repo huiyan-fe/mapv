@@ -83,8 +83,13 @@ class AnimationLayer extends BaseLayer{
         }
         //clear(ctx);
         var map = this.map;
-        var zoomUnit = Math.pow(2, 18 - map.getZoom());
+        var zoomUnit;
         var projection = map.getMapType().getProjection();
+        if (projection.getZoomUnits) {
+            zoomUnit = projection.getZoomUnits(map.getZoom());
+        } else {
+            zoomUnit = Math.pow(2, 18 - map.getZoom());
+        }
 
         var mcCenter = projection.lngLatToPoint(map.getCenter());
         var nwMc = new BMap.Pixel(mcCenter.x - (map.getSize().width / 2) * zoomUnit, mcCenter.y + (map.getSize().height / 2) * zoomUnit); //左上角墨卡托坐标
