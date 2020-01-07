@@ -45,6 +45,7 @@ function colorize(pixels, gradient, options) {
     }
 
     var maxOpacity = options.maxOpacity || 0.8;
+    var minOpacity = options.minOpacity || 0;
     var range = options.range;
 
     for (var i = 3, len = pixels.length, j; i < len; i += 4) {
@@ -52,6 +53,9 @@ function colorize(pixels, gradient, options) {
 
         if (pixels[i] / 256 > maxOpacity) {
             pixels[i] = 256 * maxOpacity;
+        }
+        if (pixels[i] / 256 < minOpacity) {
+            pixels[i] = 256 * minOpacity;
         }
 
         if (j && j >= jMin && j <= jMax) {

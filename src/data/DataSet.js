@@ -56,11 +56,13 @@ DataSet.prototype.add = function (data, senderId) {
     if (Array.isArray(data)) {
         // Array
         for (var i = 0, len = data.length; i < len; i++) {
-            if (data[i].time && data[i].time.length == 14 && data[i].time.substr(0, 2) == '20') {
-                var time = data[i].time;
-                data[i].time = new Date(time.substr(0, 4) + '-' + time.substr(4, 2) + '-' + time.substr(6, 2) + ' ' + time.substr(8, 2) + ':' + time.substr(10, 2) + ':' + time.substr(12, 2)).getTime();
+            if (data[i]) {
+                if (data[i].time && data[i].time.length == 14 && data[i].time.substr(0, 2) == '20') {
+                    var time = data[i].time;
+                    data[i].time = new Date(time.substr(0, 4) + '-' + time.substr(4, 2) + '-' + time.substr(6, 2) + ' ' + time.substr(8, 2) + ':' + time.substr(10, 2) + ':' + time.substr(12, 2)).getTime();
+                }
+                this._data.push(data[i]);
             }
-            this._data.push(data[i]);
         }
     } else if (data instanceof Object) {
         // Single item
