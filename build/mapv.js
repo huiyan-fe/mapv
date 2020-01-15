@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.48";
+var version = "2.0.50";
 
 /**
  * @author kyle / http://nikai.us/
@@ -303,11 +303,13 @@ DataSet.prototype.add = function (data, senderId) {
     if (Array.isArray(data)) {
         // Array
         for (var i = 0, len = data.length; i < len; i++) {
-            if (data[i].time && data[i].time.length == 14 && data[i].time.substr(0, 2) == '20') {
-                var time = data[i].time;
-                data[i].time = new Date(time.substr(0, 4) + '-' + time.substr(4, 2) + '-' + time.substr(6, 2) + ' ' + time.substr(8, 2) + ':' + time.substr(10, 2) + ':' + time.substr(12, 2)).getTime();
+            if (data[i]) {
+                if (data[i].time && data[i].time.length == 14 && data[i].time.substr(0, 2) == '20') {
+                    var time = data[i].time;
+                    data[i].time = new Date(time.substr(0, 4) + '-' + time.substr(4, 2) + '-' + time.substr(6, 2) + ' ' + time.substr(8, 2) + ':' + time.substr(10, 2) + ':' + time.substr(12, 2)).getTime();
+                }
+                this._data.push(data[i]);
             }
-            this._data.push(data[i]);
         }
     } else if (data instanceof Object) {
         // Single item
@@ -1021,6 +1023,7 @@ function colorize(pixels, gradient, options) {
     }
 
     var maxOpacity = options.maxOpacity || 0.8;
+    var minOpacity = options.minOpacity || 0;
     var range = options.range;
 
     for (var i = 3, len = pixels.length, j; i < len; i += 4) {
@@ -1028,6 +1031,9 @@ function colorize(pixels, gradient, options) {
 
         if (pixels[i] / 256 > maxOpacity) {
             pixels[i] = 256 * maxOpacity;
+        }
+        if (pixels[i] / 256 < minOpacity) {
+            pixels[i] = 256 * minOpacity;
         }
 
         if (j && j >= jMin && j <= jMax) {
@@ -5829,7 +5835,7 @@ var Layer = function (_BaseLayer) {
     }, {
         key: "draw",
         value: function draw() {
-            this.canvasLayer.draw();
+            this.canvasLayer && this.canvasLayer.draw();
         }
     }, {
         key: "clearData",
