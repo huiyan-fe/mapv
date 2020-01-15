@@ -293,7 +293,7 @@ class Layer extends BaseLayer{
     }
 
     draw() {
-        this.canvasLayer.draw();
+        this.canvasLayer && this.canvasLayer.draw();
     }
 
     clearData() {

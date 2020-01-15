@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.49";
+var version = "2.0.50";
 
 /**
  * @author kyle / http://nikai.us/
@@ -5835,7 +5835,7 @@ var Layer = function (_BaseLayer) {
     }, {
         key: "draw",
         value: function draw() {
-            this.canvasLayer.draw();
+            this.canvasLayer && this.canvasLayer.draw();
         }
     }, {
         key: "clearData",
