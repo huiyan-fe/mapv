@@ -1103,9 +1103,20 @@ var customStyle = [{
 
         var chinaDataSet;
         var chinaLayer;
+        /*
         $.get('data/china.json', function(geojson) {
 
             chinaDataSet = mapv.geojson.getDataSet(geojson);
+
+            chinaLayer = new mapv.baiduMapLayer(map, chinaDataSet, options);
+
+        });
+        */
+
+        $.get('data/province.json', function(data) {
+            console.log(data);
+
+            chinaDataSet = new mapv.DataSet(data);
 
             chinaLayer = new mapv.baiduMapLayer(map, chinaDataSet, options);
 
@@ -1467,7 +1478,7 @@ var customStyle = [{
 
                 for ( var j = 0; j < chinaData.length; j++) {
                     cityKey = cityKey.replace(/市|省/, '');
-                    if (chinaData[j].name == cityKey) {
+                    if (chinaData[j].name.replace(/市|省/, '') == cityKey) {
                         chinaData[j].fillStyle = undefined;
                         chinaData[j].strokeStyle = 'rgba(255, 255, 255, 1)';
                         chinaData[j].count = parseFloat(line[1]);
