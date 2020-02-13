@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.50";
+var version = "2.0.51";
 
 /**
  * @author kyle / http://nikai.us/
@@ -3064,7 +3064,11 @@ if (global$3.BMap) {
         canvas.style.cssText = "position:absolute;" + "left:0;" + "top:0;" + "z-index:" + this.zIndex + ";user-select:none;";
         canvas.style.mixBlendMode = this.mixBlendMode;
         this.adjustSize();
-        map.getPanes()[this.paneName].appendChild(canvas);
+        var pane = map.getPanes()[this.paneName];
+        if (!pane) {
+            pane = map.getPanes().floatShadow;
+        }
+        pane.appendChild(canvas);
         var that = this;
         map.addEventListener('resize', function () {
             that.adjustSize();
@@ -5643,7 +5647,24 @@ var Layer = function (_BaseLayer) {
             if (!dataSet) {
                 dataSet = this.dataSet;
             }
-            var projection = this.map.getMapType().getProjection();
+
+            var map = this.map;
+
+            var mapType = map.getMapType();
+            var projection;
+            if (mapType.getProjection) {
+                projection = mapType.getProjection();
+            } else {
+                projection = {
+                    lngLatToPoint: function lngLatToPoint(point) {
+                        var mc = map.lnglatToMercator(point.lng, point.lat);
+                        return {
+                            x: mc[0],
+                            y: mc[1]
+                        };
+                    }
+                };
+            }
 
             if (this.options.coordType !== 'bd09mc') {
                 var data = dataSet.get();
@@ -5679,7 +5700,26 @@ var Layer = function (_BaseLayer) {
 
             var map = this.canvasLayer._map;
 
-            var projection = map.getMapType().getProjection();
+            var projection;
+            var mcCenter;
+            if (map.getMapType().getProjection) {
+                projection = map.getMapType().getProjection();
+                mcCenter = projection.lngLatToPoint(map.getCenter());
+            } else {
+                mcCenter = {
+                    x: map.getCenter().lng,
+                    y: map.getCenter().lat
+                };
+                projection = {
+                    lngLatToPoint: function lngLatToPoint(point) {
+                        var mc = map.lnglatToMercator(point.lng, point.lat);
+                        return {
+                            x: mc[0],
+                            y: mc[1]
+                        };
+                    }
+                };
+            }
             var zoomUnit;
             if (projection.getZoomUnits) {
                 zoomUnit = projection.getZoomUnits(map.getZoom());
@@ -5687,7 +5727,6 @@ var Layer = function (_BaseLayer) {
                 zoomUnit = Math.pow(2, 18 - map.getZoom());
             }
 
-            var mcCenter = projection.lngLatToPoint(map.getCenter());
             var nwMc = new BMap.Pixel(mcCenter.x - map.getSize().width / 2 * zoomUnit, mcCenter.y + map.getSize().height / 2 * zoomUnit); //左上角墨卡托坐标
 
             var context = this.getContext();

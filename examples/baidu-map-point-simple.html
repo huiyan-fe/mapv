@@ -25,6 +25,7 @@
     <canvas id="canvas"></canvas>
 
     <script type="text/javascript" src="//api.map.baidu.com/api?v=2.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <!--<script src="https://map.baidu.com/api/js?version=1.0"></script>-->
     <script type="text/javascript" src="../build/mapv.js"></script>
 
     <script type="text/javascript">
@@ -36,9 +37,11 @@
         map.centerAndZoom(new BMap.Point(105.403119, 38.028658), 5);  // 初始化地图,设置中心点坐标和地图级别
         map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
 
+        /*
         map.setMapStyle({
             style: 'light'
         });
+        */
 
         var randomCount = 300;
 

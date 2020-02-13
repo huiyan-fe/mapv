@@ -33,7 +33,11 @@ if (global.BMap) {
         canvas.style.cssText = "position:absolute;" + "left:0;" + "top:0;" + "z-index:" + this.zIndex + ";user-select:none;";
         canvas.style.mixBlendMode = this.mixBlendMode;
         this.adjustSize();
-        map.getPanes()[this.paneName].appendChild(canvas);
+        var pane = map.getPanes()[this.paneName];
+        if (!pane) {
+            pane = map.getPanes().floatShadow;
+        }
+        pane.appendChild(canvas);
         var that = this;
         map.addEventListener('resize', function() {
             that.adjustSize();
