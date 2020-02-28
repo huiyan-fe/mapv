@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.51";
+var version = "2.0.52";
 
 /**
  * @author kyle / http://nikai.us/
@@ -1180,8 +1180,8 @@ var drawGrid = {
 
         var size = options._size || options.size || 50;
 
-        // 后端传入数据为网格数据时，传入enableCluster为false，前端不进行删格化操作，直接画方格	
-        var enableCluster = 'enableCluster' in options ? options.enableCluster : true;
+        // 后端传入数据为网格数据时，传入disableCluster为true，前端不进行删格化操作，直接画方格	
+        var disableCluster = options.disableCluster;
 
         var offset = options.offset || {
             x: 0,
@@ -1194,11 +1194,11 @@ var drawGrid = {
             gradient: options.gradient
         });
 
-        if (!enableCluster) {
+        if (disableCluster) {
             for (var i = 0; i < data.length; i++) {
                 var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
                 var gridKey = coordinates.join(',');
-                grids[gridKey] = ~~(data[i].count || 1);
+                grids[gridKey] = data[i].count || 1;
             }
             for (var _gridKey in grids) {
                 _gridKey = _gridKey.split(',');
@@ -1255,7 +1255,7 @@ var drawGrid = {
                 gridKey = gridKey.split(',');
                 var text = grids[gridKey];
                 var textWidth = context.measureText(text).width;
-                if (!enableCluster) {
+                if (disableCluster) {
                     context.fillText(text, +gridKey[0] - textWidth / 2, +gridKey[1] + 5);
                 } else {
                     context.fillText(text, gridKey[0] * size + .5 + offset.x + size / 2 - textWidth / 2, gridKey[1] * size + .5 + offset.y + size / 2 + 5);
