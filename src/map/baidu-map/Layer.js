@@ -29,6 +29,7 @@ class Layer extends BaseLayer{
         var canvasLayer = this.canvasLayer = new CanvasLayer({
             map: map,
             context: this.context,
+            updateImmediate: options.updateImmediate,
             paneName: options.paneName,
             mixBlendMode: options.mixBlendMode,
             enableMassClear: options.enableMassClear,

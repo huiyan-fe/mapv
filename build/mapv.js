@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.53";
+var version = "2.0.54";
 
 /**
  * @author kyle / http://nikai.us/
@@ -3074,11 +3074,19 @@ if (global$3.BMap) {
             that.adjustSize();
             that._draw();
         });
+        map.addEventListener('update', function () {
+            that._draw();
+        });
         /*
         map.addEventListener('moving', function() {
             that._draw();
         });
         */
+        if (this.options.updateImmediate) {
+            setTimeout(function () {
+                that._draw();
+            }, 100);
+        }
         return this.canvas;
     };
 
@@ -3100,10 +3108,14 @@ if (global$3.BMap) {
 
     CanvasLayer.prototype.draw = function () {
         var self = this;
-        clearTimeout(self.timeoutID);
-        self.timeoutID = setTimeout(function () {
+        if (this.options.updateImmediate) {
             self._draw();
-        }, 15);
+        } else {
+            clearTimeout(self.timeoutID);
+            self.timeoutID = setTimeout(function () {
+                self._draw();
+            }, 15);
+        }
     };
 
     CanvasLayer.prototype._draw = function () {
@@ -5560,6 +5572,7 @@ var Layer = function (_BaseLayer) {
         var canvasLayer = _this.canvasLayer = new CanvasLayer({
             map: map,
             context: _this.context,
+            updateImmediate: options.updateImmediate,
             paneName: options.paneName,
             mixBlendMode: options.mixBlendMode,
             enableMassClear: options.enableMassClear,

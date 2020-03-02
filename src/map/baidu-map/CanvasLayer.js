@@ -43,11 +43,19 @@ if (global.BMap) {
             that.adjustSize();
             that._draw();
         });
+        map.addEventListener('update', function() {
+            that._draw();
+        });
         /*
         map.addEventListener('moving', function() {
             that._draw();
         });
         */
+        if (this.options.updateImmediate) {
+            setTimeout(function() {
+                that._draw();
+            }, 100);
+        }
         return this.canvas;
     }
 
@@ -69,10 +77,14 @@ if (global.BMap) {
 
     CanvasLayer.prototype.draw = function() {
         var self = this;
-        clearTimeout(self.timeoutID);
-        self.timeoutID = setTimeout(function() {
+        if (this.options.updateImmediate) {
             self._draw();
-        }, 15);
+        } else {
+            clearTimeout(self.timeoutID);
+            self.timeoutID = setTimeout(function() {
+                self._draw();
+            }, 15);
+        }
     }
 
     CanvasLayer.prototype._draw = function() {
