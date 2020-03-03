@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        #legend {
+            position: absolute;
+            right: 10px;
+            bottom: 20px;
+            text-align: center;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script>
+    <script type="text/javascript" src="//api.map.baidu.com/api?v=3.0&ak=1XjLLEhZhQNUzd93EjU5nOGQ"></script>
+    <script type="text/javascript" src="//mapv.baidu.com/build/mapv.js"></script>
+
+    <script type="text/javascript">
+
+var customStyle = [{"featureType":"background","elementType":"geometry","stylers":{"color":"#070c17ff"}},{"featureType":"poilabel","elementType":"labels.icon","stylers":{"visibility":"off"}},{"featureType":"road","elementType":"labels","stylers":{"visibility":"off"}},{"featureType":"road","elementType":"geometry.fill","stylers":{"color":"#151e25ff"}},{"featureType":"road","elementType":"geometry.stroke","stylers":{"color":"#ffffff0"}},{"featureType":"highway","elementType":"geometry.fill","stylers":{"color":"#27303bff"}},{"featureType":"highway","elementType":"geometry.stroke","stylers":{"color":"#ffffff0"}},{"featureType":"nationalway","elementType":"geometry.fill","stylers":{"color":"#27303bff"}},{"featureType":"nationalway","elementType":"geometry.stroke","stylers":{"color":"#ffffff0"}},{"featureType":"provincialway","elementType":"geometry.fill","stylers":{"color":"#27303bff"}},{"featureType":"provincialway","elementType":"geometry.stroke","stylers":{"color":"#ffffff0"}},{"featureType":"railway","elementType":"geometry","stylers":{"visibility":"off"}},{"featureType":"highwaysign","elementType":"labels","stylers":{"visibility":"off"}},{"featureType":"highwaysign","elementType":"labels.icon","stylers":{"visibility":"off"}},{"featureType":"nationalwaysign","elementType":"labels.icon","stylers":{"visibility":"off"}},{"featureType":"nationalwaysign","elementType":"labels","stylers":{"visibility":"off"}},{"featureType":"provincialwaysign","elementType":"labels","stylers":{"visibility":"off"}},{"featureType":"provincialwaysign","elementType":"labels.icon","stylers":{"visibility":"off"}},{"featureType":"tertiarywaysign","elementType":"labels","stylers":{"visibility":"off"}},{"featureType":"tertiarywaysign","elementType":"labels.icon","stylers":{"visibility":"off"}},{"featureType":"subwaylabel","elementType":"labels","stylers":{"visibility":"off"}},{"featureType":"subwaylabel","elementType":"labels.icon","stylers":{"visibility":"off"}},{"featureType":"poilabel","elementType":"labels.text.fill","stylers":{"color":"#80868dff"}},{"featureType":"poilabel","elementType":"labels.text.stroke","stylers":{"color":"#ffffff0"}},{"featureType":"districtlabel","elementType":"labels.text.fill","stylers":{"color":"#71767aff"}},{"featureType":"districtlabel","elementType":"labels.text.stroke","stylers":{"color":"#ffffff0"}},{"featureType":"poilabel","elementType":"labels","stylers":{"visibility":"off"}},{"featureType":"airportlabel","elementType":"labels","stylers":{"visibility":"on"}},{"featureType":"airportlabel","elementType":"labels.icon","stylers":{"visibility":"off"}},{"featureType":"airportlabel","elementType":"labels.text.fill","stylers":{"color":"#80868dff"}},{"featureType":"airportlabel","elementType":"labels.text.stroke","stylers":{"color":"#ffffff0"}},{"featureType":"manmade","elementType":"labels","stylers":{"visibility":"off"}},{"featureType":"manmade","elementType":"geometry","stylers":{"color":"#070c17ff"}},{"featureType":"water","elementType":"labels","stylers":{"visibility":"off"}},{"featureType":"water","elementType":"geometry","stylers":{"color":"#141d27ff"}},{"featureType":"green","elementType":"geometry","stylers":{"color":"#122228ff","visibility":"off"}},{"featureType":"subway","elementType":"geometry","stylers":{"visibility":"off"}},{"featureType":"highway","elementType":"labels","stylers":{"visibility":"on"}},{"featureType":"highway","elementType":"labels.text.stroke","stylers":{"color":"#ffffff0"}},{"featureType":"highway","elementType":"labels.text.fill","stylers":{"color":"#5f6468ff"}},{"featureType":"town","elementType":"labels","stylers":{"visibility":"off"}},{"featureType":"village","elementType":"labels","stylers":{"visibility":"off"}},{"featureType":"highway","elementType":"geometry","stylers":{"weight":3}},{"featureType":"cityhighway","elementType":"geometry.fill","stylers":{"color":"#27303bff"}},{"featureType":"arterial","elementType":"geometry.fill","stylers":{"color":"#27303bff"}},{"featureType":"arterial","elementType":"geometry.stroke","stylers":{"color":"#ffffff0"}},{"featureType":"cityhighway","elementType":"geometry.stroke","stylers":{"color":"#ffffff0"}}];
+
+        // 百度地图API功能
+        var map = new BMap.Map("map", {
+            enableMapClick: false
+        });    // 创建Map实例
+        map.centerAndZoom(new BMap.Point(105.403119, 38.028658), 3);  // 初始化地图,设置中心点坐标和地图级别
+        map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+
+        var pt = new BMap.Point(127.733142,21.226515);
+        var jiuduanwidth = 227;
+        var jiuduanheight  = 338;
+        var scale = 2.5;
+        var myIcon = new BMap.Icon("./images/nanhai.png", new BMap.Size(jiuduanwidth / scale, jiuduanheight / scale), {
+            imageSize: new BMap.Size(jiuduanwidth / scale, jiuduanheight / scale)
+        });
+        /*
+        var marker2 = new BMap.Marker(pt,{icon:myIcon});  // 创建标注
+        map.addOverlay(marker2);
+        marker2.enableDragging();
+        */
+
+        map.setMapStyleV2({
+            styleJson: customStyle
+        });
+        
+        map.getContainer().style.background = '#000';
+
+        var intensity = new mapv.utilDataRangeIntensity({
+            max: 100,
+            gradient: {0: 'darkblue', 1: 'lightblue'},
+            min: 0,
+            maxSize: 15,
+            minSize: 5
+        });
+
+        var boundaryData = [];
+        var dataSet = new mapv.DataSet([]);
+        var options = {
+            draw: 'simple',
+            fillStyle: 'yellow'
+        }
+        var chinaLayer = new mapv.baiduMapLayer(map, dataSet, options);
+
+        function getBoundary(text) {
+            var bdary = new BMap.Boundary();
+            bdary.get(text , function(rs){       //获取行政区域
+                var count = rs.boundaries.length; //行政区域的点有多少个
+                if (count === 0) {
+                    alert('未能获取当前输入行政区域');
+                    return ;
+                }
+                var coordinates = [];
+                for (var i = 0; i < count; i++) {
+                    var ply = new BMap.Polygon(rs.boundaries[i], {strokeWeight: 1.0, strokeColor: 'rgba(255, 255, 255, 0.1)', fillOpacity: 0.5, fillColor: intensity.getColor(Math.random() * 100)}); //建立多边形覆盖物
+
+                    map.addOverlay(ply);  //添加覆盖物
+                    var path = ply.getPath();
+                    var points = [];
+                    for (var j = 0; j < path.length; j++) {
+                        points.push([path[j].lng, path[j].lat]);
+                    }
+                    coordinates.push([points]);
+                }
+                boundaryData.push({
+                    name: text,
+                    geometry: {
+                        type: 'MultiPolygon',
+                        coordinates: coordinates
+                    }
+                });
+                // dataSet.set(boundaryData);
+            });
+        }
+
+        function boundarySearch(){
+            var text = '武汉市,黄石市,襄阳市,荆州市,宜昌市,十堰市,孝感市,荆门市,鄂州市,黄冈市,咸宁市,随州市,恩施土家族苗族自治州,仙桃市,潜江市,天门市,神农架林区';
+            text = text.split(',');
+            for (var i = 0; i < text.length; i++) {
+                getBoundary(text[i]);
+            }
+        }
+
+        boundarySearch();
+
+
+    </script>
+	
+</body>
+</html>
