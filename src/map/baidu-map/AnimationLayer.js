@@ -1,7 +1,9 @@
-
 import clear from "../../canvas/clear";
 import BaseLayer from "../BaseLayer";
 import CanvasLayer from "./CanvasLayer";
+
+var global = typeof window === 'undefined' ? {} : window;
+var BMap = global.BMap || global.BMapGL;
 
 class AnimationLayer extends BaseLayer{
     constructor (map, dataSet, options) {
@@ -61,7 +63,22 @@ class AnimationLayer extends BaseLayer{
 
     // 经纬度左边转换为墨卡托坐标
     transferToMercator() {
-        var projection = this.map.getMapType().getProjection();
+        var map = this.map;
+        var mapType = map.getMapType();
+        var projection;
+        if (mapType.getProjection) {
+            projection = mapType.getProjection();
+        } else {
+            projection = {
+                lngLatToPoint: function(point) {
+                    var mc = map.lnglatToMercator(point.lng, point.lat);
+                    return {
+                        x: mc[0],
+                        y: mc[1]
+                    }
+                }
+            }
+        }
 
         if (this.options.coordType !== 'bd09mc') {
             var data = this.dataSet.get();
@@ -83,15 +100,32 @@ class AnimationLayer extends BaseLayer{
         }
         //clear(ctx);
         var map = this.map;
+        var projection;
+        var mcCenter;
+        if  (map.getMapType().getProjection) {
+            projection = map.getMapType().getProjection();
+            mcCenter = projection.lngLatToPoint(map.getCenter());
+        } else  {
+            mcCenter = {
+                x: map.getCenter().lng,
+                y: map.getCenter().lat
+            };
+            projection = {
+                lngLatToPoint: function(point) {
+                    var mc = map.lnglatToMercator(point.lng, point.lat);
+                    return {
+                        x: mc[0],
+                        y: mc[1]
+                    }
+                }
+            };
+        }
         var zoomUnit;
-        var projection = map.getMapType().getProjection();
         if (projection.getZoomUnits) {
             zoomUnit = projection.getZoomUnits(map.getZoom());
         } else {
             zoomUnit = Math.pow(2, 18 - map.getZoom());
         }
-
-        var mcCenter = projection.lngLatToPoint(map.getCenter());
         var nwMc = new BMap.Pixel(mcCenter.x - (map.getSize().width / 2) * zoomUnit, mcCenter.y + (map.getSize().height / 2) * zoomUnit); //左上角墨卡托坐标
 
         clear(ctx);

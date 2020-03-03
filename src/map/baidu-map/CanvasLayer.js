@@ -22,8 +22,8 @@ function CanvasLayer(options) {
 }
 
 var global = typeof window === 'undefined' ? {} : window;
-
-if (global.BMap) {
+var BMap = global.BMap || global.BMapGL;
+if (BMap) {
 
     CanvasLayer.prototype = new BMap.Overlay();
 

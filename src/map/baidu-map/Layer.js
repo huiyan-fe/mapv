@@ -8,6 +8,9 @@ import clear from "../../canvas/clear";
 import DataSet from "../../data/DataSet";
 import TWEEN from "../../utils/Tween";
 
+var global = typeof window === 'undefined' ? {} : window;
+var BMap = global.BMap || global.BMapGL;
+
 class Layer extends BaseLayer{
 
     constructor(map, dataSet, options) {
