@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.55";
+var version = "2.0.56";
 
 /**
  * @author kyle / http://nikai.us/
@@ -5402,6 +5402,10 @@ var AnimationLayer = function (_BaseLayer) {
                     x: map.getCenter().lng,
                     y: map.getCenter().lat
                 };
+                if (mcCenter.x > -180 && mcCenter.x < 180) {
+                    mcCenter = map.lnglatToMercator(mcCenter.x, mcCenter.y);
+                    mcCenter = { x: mcCenter[0], y: mcCenter[1] };
+                }
                 projection = {
                     lngLatToPoint: function lngLatToPoint(point) {
                         var mc = map.lnglatToMercator(point.lng, point.lat);
@@ -5761,6 +5765,10 @@ var Layer = function (_BaseLayer) {
                     x: map.getCenter().lng,
                     y: map.getCenter().lat
                 };
+                if (mcCenter.x > -180 && mcCenter.x < 180) {
+                    mcCenter = map.lnglatToMercator(mcCenter.x, mcCenter.y);
+                    mcCenter = { x: mcCenter[0], y: mcCenter[1] };
+                }
                 projection = {
                     lngLatToPoint: function lngLatToPoint(point) {
                         var mc = map.lnglatToMercator(point.lng, point.lat);

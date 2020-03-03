@@ -172,6 +172,10 @@ class Layer extends BaseLayer{
             mcCenter = {
                 x: map.getCenter().lng,
                 y: map.getCenter().lat
+            }
+            if (mcCenter.x > -180 && mcCenter.x < 180) {
+                mcCenter = map.lnglatToMercator(mcCenter.x, mcCenter.y);
+                mcCenter = {x: mcCenter[0], y: mcCenter[1]}
             };
             projection = {
                 lngLatToPoint: function(point) {
