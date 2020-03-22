@@ -273,7 +273,7 @@ dataSet中添加字段
     textAlign: 'center',
     avoid: true, // 开启文本标注避让
     textBaseline: 'middle',
-    offset: { // 文本便宜值
+    offset: { // 文本偏移值
         x: 0,
         y: 0
     }
