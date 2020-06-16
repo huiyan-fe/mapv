@@ -139,11 +139,7 @@ if (typeof(maptalks) !== 'undefined') {
                 context.clear(context.COLOR_BUFFER_BIT);
             }
     
-            let scale = 1;
-            if (self.context === '2d' && self.options.draw !== 'heatmap') {
-                //in heatmap.js, devicePixelRatio is being mulitplied independently
-                scale = self.canvasLayer.devicePixelRatio;
-            }
+            const scale = 1;
     
             //reuse to save coordinate instance creation
             const coord = new maptalks.Coordinate(0, 0);
@@ -206,7 +202,7 @@ if (typeof(maptalks) !== 'undefined') {
             }
             const map = this.getMap();
             const size = map.getSize();
-            const r = maptalks.Browser.retina ? 2 : 1,
+            const r = map.getDevicePixelRatio ? map.getDevicePixelRatio() : (maptalks.Browser.retina ? 2 : 1),
                 w = r * size.width,
                 h = r * size.height;
             this.canvas = maptalks.Canvas.createCanvas(w, h, map.CanvasClass);
@@ -216,6 +212,11 @@ if (typeof(maptalks) !== 'undefined') {
                 if (this.layer.options['globalCompositeOperation']) {
                     this.context.globalCompositeOperation = this.layer.options['globalCompositeOperation'];
                 }
+                if (this.layer.baseLayer.options.draw !== 'heatmap' && r !== 1) {
+                    //in heatmap.js, devicePixelRatio is being mulitplied independently
+                    this.context.scale(r, r);
+                }
+                
             } else {
                 const attributes = {
                     'alpha': true,
@@ -238,7 +239,8 @@ if (typeof(maptalks) !== 'undefined') {
         _bindToMapv() {
             //some bindings needed by mapv baselayer
             const base = this.layer.baseLayer;
-            this.devicePixelRatio = maptalks.Browser.retina ? 2 : 1;
+            const map = this.getMap();
+            this.devicePixelRatio = map.getDevicePixelRatio ? map.getDevicePixelRatio() : (maptalks.Browser.retina ? 2 : 1);
             base.canvasLayer = this;
             base._canvasUpdate = this._canvasUpdate.bind(this);
             base.getContext = function () {
