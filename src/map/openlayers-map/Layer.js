@@ -329,6 +329,20 @@ class Layer extends BaseLayer {
       this.previousCursor_ = undefined
     }
   }
+  
+  /**
+   * 显示图层
+   */
+  show() {
+    this.$Map.addLayer(this.layer_);
+  }
+
+  /**
+   * 隐藏图层
+   */
+  hide() {
+    this.$Map.removeLayer(this.layer_);
+  }
 }
 
 export default Layer
