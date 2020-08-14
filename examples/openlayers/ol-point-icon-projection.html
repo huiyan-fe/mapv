@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+	<title>ol-point-colorpleth</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/openlayers/dist/ol.css">
+	<style>
+		html,
+		body,
+		#map {
+			height: 100%;
+			padding: 0;
+			margin: 0;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="map"></div>
+	<script src="https://cdn.jsdelivr.net/npm/openlayers/dist/ol.js"></script>
+	<script src="../../build/mapv.js"></script>
+	<script>
+		var map = new ol.Map({
+			target: 'map',
+			layers: [
+				new ol.layer.Tile({
+					layerName: 'baseLayer',
+					preload: 4,
+					source: new ol.source.OSM({
+						url: 'http://{a-e}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+					})
+				})
+			],
+			loadTilesWhileAnimating: true,
+			pixelRatio: 1,
+			view: new ol.View({
+				// projection: 'EPSG:4326',
+				// center: [-102.17609405517578, 34.41583177128595],
+				projection: 'EPSG:3857',
+				center: ol.proj.transform([-102.17609405517578, 34.41583177128595], 'EPSG:4326',
+					"EPSG:3857"),
+				zoom: 5
+			})
+		});
+
+		var randomCount = 300;
+		var data = [];
+
+		var img = new Image();
+		img.src = '../images/flag.png';
+
+		img.onload = function () {
+			// 构造数据
+			while (randomCount--) {
+				data.push({
+					geometry: {
+						type: 'Point',
+						// coordinates: ol.proj.transform([-125.8 + Math.random() * 50, 30.3 + Math.random() * 20],
+						// 	'EPSG:4326',
+						// 	"EPSG:3857")
+						coordinates: [-125.8 + Math.random() * 50, 30.3 + Math.random() * 20]
+					},
+					deg: 360 * Math.random(),
+					icon: img
+				});
+			}
+
+			var dataSet = new mapv.DataSet(data);
+
+			var baseSize = {
+				width: 24,
+				height: 30
+			};
+
+
+			var options = {
+				draw: 'icon',
+				// projection是dataSet中数据的投影类型 可以与map.view中的类型不同 会自动转换 但对性能有一定的影响 所以尽量让数据与map的类型一致
+				// projection: 'EPSG:3857',
+				projection: 'EPSG:4326',
+				width: baseSize.width,
+				height: baseSize.height,
+				methods: {
+					click: function (event) {
+						console.log(event)
+					},
+					mousemove: function (event) {
+						if (event) {
+							mapvLayer.setDefaultCursor('pointer', event)
+						} else {
+							mapvLayer.setDefaultCursor('default', event)
+						}
+					}
+				}
+			};
+			var mapvLayer = new mapv.OpenlayersLayer(map, dataSet, options);
+		}
+	</script>
+</body>
+
+</html>
