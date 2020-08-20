@@ -97,6 +97,7 @@ class Layer extends BaseLayer {
     const context = canvas.getContext(this.context);
     const animationOptions = this.options.animation;
     const _projection = this.options.hasOwnProperty('projection') ? this.options.projection : 'EPSG:4326';
+    const mapViewProjection = this.$Map.getView().getProjection().getCode();
     if (this.isEnabledTime()) {
       if (time === undefined) {
         clear(context);
@@ -120,11 +121,14 @@ class Layer extends BaseLayer {
     } else {
       context.clear(context.COLOR_BUFFER_BIT);
     }
-    const dataGetOptions = {
-      transferCoordinate: function(coordinate) {
-        return map.getPixelFromCoordinate(ol.proj.transform(coordinate, _projection, 'EPSG:4326'));
-      }
-    };
+	const dataGetOptions = {}
+    dataGetOptions.transferCoordinate = ((_projection === mapViewProjection) ? function (coordinate) {
+			// 当数据与map的投影一致时不再进行投影转换
+			return map.getPixelFromCoordinate(coordinate);
+		} : function (coordinate) {
+			// 数据与Map投影不一致时 将数据投影转换为 Map的投影
+			return map.getPixelFromCoordinate(ol.proj.transform(coordinate, _projection, mapViewProjection));
+		});
 
     if (time !== undefined) {
       dataGetOptions.filter = function(item) {
@@ -175,7 +179,7 @@ class Layer extends BaseLayer {
         extent: extent,
         source: new ol.source.ImageCanvas({
           canvasFunction: this.canvasFunction.bind(this),
-          projection: (this.options.hasOwnProperty('projection') ? this.options.projection : 'EPSG:4326'),
+          projection: this.$Map.getView().getProjection().getCode(), // 图层投影与Map保持一致
           ratio: (this.options.hasOwnProperty('ratio') ? this.options.ratio : 1)
         })
       });
@@ -328,6 +332,20 @@ class Layer extends BaseLayer {
       element.style.cursor = this.previousCursor_
       this.previousCursor_ = undefined
     }
+  }
+  
+  /**
+   * 显示图层
+   */
+  show() {
+    this.$Map.addLayer(this.layer_);
+  }
+
+  /**
+   * 隐藏图层
+   */
+  hide() {
+    this.$Map.removeLayer(this.layer_);
   }
 }
 
