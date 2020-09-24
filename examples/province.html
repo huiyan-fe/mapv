@@ -1478,7 +1478,7 @@ var customStyle = [{
 
                 for ( var j = 0; j < chinaData.length; j++) {
                     cityKey = cityKey.replace(/市|省/, '');
-                    if (chinaData[j].name.replace(/市|省/, '') == cityKey) {
+                    if (chinaData[j].name.replace(/市|省/, '') == cityKey || chinaData[j].name.indexOf(cityKey) > -1) {
                         chinaData[j].fillStyle = undefined;
                         chinaData[j].strokeStyle = 'rgba(255, 255, 255, 1)';
                         chinaData[j].count = parseFloat(line[1]);

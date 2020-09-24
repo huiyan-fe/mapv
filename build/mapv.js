@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.56";
+var version = "2.0.57";
 
 /**
  * @author kyle / http://nikai.us/
@@ -294,7 +294,7 @@ function DataSet(data, options) {
     }
 }
 
-DataSet.prototype = Event.prototype;
+DataSet.prototype = Object.create(Event.prototype);
 
 /**
  * Add data.
@@ -4089,37 +4089,18 @@ var drawCluster = {
         context.save();
         var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
 
-        var pointCountMax;
-        var pointCountMin;
-        for (var i = 0; i < data.length; i++) {
-            var item = data[i];
-            if (item.properties && item.properties.cluster) {
-                if (pointCountMax === undefined) {
-                    pointCountMax = item.properties.point_count;
-                }
-                if (pointCountMin === undefined) {
-                    pointCountMin = item.properties.point_count;
-                }
-                pointCountMax = Math.max(pointCountMax, item.properties.point_count);
-                pointCountMin = Math.min(pointCountMin, item.properties.point_count);
-            }
-        }
-
-        var intensity = new Intensity({
-            min: pointCountMin,
-            max: pointCountMax,
-            minSize: options.minSize || 8,
-            maxSize: options.maxSize || 30,
-            gradient: options.gradient
-        });
+        var iconOffset = options.iconOffset || {
+            x: 0,
+            y: 0
+        };
 
         for (var i = 0; i < data.length; i++) {
             var item = data[i];
             var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
             context.beginPath();
             if (item.properties && item.properties.cluster) {
-                context.arc(coordinates[0], coordinates[1], intensity.getSize(item.properties.point_count), 0, Math.PI * 2);
-                context.fillStyle = intensity.getColor(item.properties.point_count);
+                context.arc(coordinates[0], coordinates[1], item.size, 0, Math.PI * 2);
+                context.fillStyle = item.fillStyle;
                 context.fill();
 
                 if (options.label && options.label.show !== false) {
@@ -4143,9 +4124,26 @@ var drawCluster = {
                     context.fillText(text, coordinates[0] + .5 - textWidth / 2, coordinates[1] + .5 + 3);
                 }
             } else {
-                context.arc(coordinates[0], coordinates[1], options.size || 5, 0, Math.PI * 2);
-                context.fillStyle = options.fillStyle || 'red';
-                context.fill();
+                var x = coordinates[0];
+                var y = coordinates[1];
+                if (options.icon) {
+
+                    var iconWidth = options.iconWidth;
+                    var iconHeight = options.iconHeight;
+
+                    x = x - iconWidth / 2 + iconOffset.x;
+                    y = y - iconHeight / 2 + iconOffset.y;
+
+                    if (iconWidth && iconHeight) {
+                        context.drawImage(options.icon, x, y, iconWidth, iconHeight);
+                    } else {
+                        context.drawImage(options.icon, x, y);
+                    }
+                } else {
+                    context.arc(x, y, options.size || 5, 0, Math.PI * 2);
+                    context.fillStyle = options.fillStyle || 'red';
+                    context.fill();
+                }
             }
         }
         context.restore();
@@ -5112,7 +5110,7 @@ var BaseLayer = function () {
         value: function isPointInPath(context, pixel) {
             var context = this.canvasLayer.canvas.getContext(this.context);
             var data;
-            if (this.options.draw === 'cluster') {
+            if (this.options.draw === 'cluster' && (!this.options.maxClusterZoom || this.options.maxClusterZoom >= this.getZoom())) {
                 data = this.clusterDataSet.get();
             } else {
                 data = this.dataSet.get();
@@ -5846,14 +5844,49 @@ var Layer = function (_BaseLayer) {
             // get data from data set
             var data;
 
-            if (self.options.draw === 'cluster') {
+            if (self.options.draw === 'cluster' && (!self.options.maxClusterZoom || self.options.maxClusterZoom >= this.getZoom())) {
                 var bounds = this.map.getBounds();
                 var ne = bounds.getNorthEast();
                 var sw = bounds.getSouthWest();
-                var clusterData = this.supercluster.getClusters([sw.lng, sw.lat, ne.lng, ne.lat], this.getZoom());
+                var clusterData;
+                clusterData = this.supercluster.getClusters([sw.lng, sw.lat, ne.lng, ne.lat], this.getZoom());
+                var pointCountMax;
+                var pointCountMin;
+                for (var i = 0; i < clusterData.length; i++) {
+                    var item = clusterData[i];
+                    if (item.properties && item.properties.cluster) {
+                        if (pointCountMax === undefined) {
+                            pointCountMax = item.properties.point_count;
+                        }
+                        if (pointCountMin === undefined) {
+                            pointCountMin = item.properties.point_count;
+                        }
+                        pointCountMax = Math.max(pointCountMax, item.properties.point_count);
+                        pointCountMin = Math.min(pointCountMin, item.properties.point_count);
+                    }
+                }
+
+                var intensity = new Intensity({
+                    min: pointCountMin,
+                    max: pointCountMax,
+                    minSize: self.options.minSize || 8,
+                    maxSize: self.options.maxSize || 30,
+                    gradient: self.options.gradient
+                });
+
+                for (var i = 0; i < clusterData.length; i++) {
+                    var item = clusterData[i];
+                    if (item.properties && item.properties.cluster_id) {
+                        clusterData[i].size = intensity.getSize(item.properties.point_count);
+                        clusterData[i].fillStyle = intensity.getColor(item.properties.point_count);
+                    } else {
+                        clusterData[i].size = self.options.size;
+                    }
+                }
+
                 this.clusterDataSet.set(clusterData);
                 this.transferToMercator(this.clusterDataSet);
-                data = this.clusterDataSet.get(dataGetOptions);
+                data = self.clusterDataSet.get(dataGetOptions);
             } else {
                 data = self.dataSet.get(dataGetOptions);
             }
@@ -5924,10 +5957,12 @@ var Layer = function (_BaseLayer) {
         key: "show",
         value: function show() {
             this.map.addOverlay(this.canvasLayer);
+            this.bindEvent();
         }
     }, {
         key: "hide",
         value: function hide() {
+            this.unbindEvent();
             this.map.removeOverlay(this.canvasLayer);
         }
     }, {
@@ -6874,10 +6909,6 @@ if (typeof maptalks !== 'undefined') {
                 }
 
                 var scale = 1;
-                if (self.context === '2d' && self.options.draw !== 'heatmap') {
-                    //in heatmap.js, devicePixelRatio is being mulitplied independently
-                    scale = self.canvasLayer.devicePixelRatio;
-                }
 
                 //reuse to save coordinate instance creation
                 var coord = new maptalks.Coordinate(0, 0);
@@ -6941,7 +6972,7 @@ if (typeof maptalks !== 'undefined') {
                 }
                 var map = this.getMap();
                 var size = map.getSize();
-                var r = maptalks.Browser.retina ? 2 : 1,
+                var r = map.getDevicePixelRatio ? map.getDevicePixelRatio() : maptalks.Browser.retina ? 2 : 1,
                     w = r * size.width,
                     h = r * size.height;
                 this.canvas = maptalks.Canvas.createCanvas(w, h, map.CanvasClass);
@@ -6950,6 +6981,10 @@ if (typeof maptalks !== 'undefined') {
                     this.context = this.canvas.getContext('2d');
                     if (this.layer.options['globalCompositeOperation']) {
                         this.context.globalCompositeOperation = this.layer.options['globalCompositeOperation'];
+                    }
+                    if (this.layer.baseLayer.options.draw !== 'heatmap' && r !== 1) {
+                        //in heatmap.js, devicePixelRatio is being mulitplied independently
+                        this.context.scale(r, r);
                     }
                 } else {
                     var attributes = {
@@ -6974,7 +7009,8 @@ if (typeof maptalks !== 'undefined') {
             value: function _bindToMapv() {
                 //some bindings needed by mapv baselayer
                 var base = this.layer.baseLayer;
-                this.devicePixelRatio = maptalks.Browser.retina ? 2 : 1;
+                var map = this.getMap();
+                this.devicePixelRatio = map.getDevicePixelRatio ? map.getDevicePixelRatio() : maptalks.Browser.retina ? 2 : 1;
                 base.canvasLayer = this;
                 base._canvasUpdate = this._canvasUpdate.bind(this);
                 base.getContext = function () {
@@ -7418,6 +7454,7 @@ var Layer$8 = function (_BaseLayer) {
       var context = canvas.getContext(this.context);
       var animationOptions = this.options.animation;
       var _projection = this.options.hasOwnProperty('projection') ? this.options.projection : 'EPSG:4326';
+      var mapViewProjection = this.$Map.getView().getProjection().getCode();
       if (this.isEnabledTime()) {
         if (time === undefined) {
           clear(context);
@@ -7441,10 +7478,13 @@ var Layer$8 = function (_BaseLayer) {
       } else {
         context.clear(context.COLOR_BUFFER_BIT);
       }
-      var dataGetOptions = {
-        transferCoordinate: function transferCoordinate(coordinate) {
-          return map.getPixelFromCoordinate(ol.proj.transform(coordinate, _projection, 'EPSG:4326'));
-        }
+      var dataGetOptions = {};
+      dataGetOptions.transferCoordinate = _projection === mapViewProjection ? function (coordinate) {
+        // 当数据与map的投影一致时不再进行投影转换
+        return map.getPixelFromCoordinate(coordinate);
+      } : function (coordinate) {
+        // 数据与Map投影不一致时 将数据投影转换为 Map的投影
+        return map.getPixelFromCoordinate(ol.proj.transform(coordinate, _projection, mapViewProjection));
       };
 
       if (time !== undefined) {
@@ -7499,7 +7539,7 @@ var Layer$8 = function (_BaseLayer) {
           extent: extent,
           source: new ol.source.ImageCanvas({
             canvasFunction: this.canvasFunction.bind(this),
-            projection: this.options.hasOwnProperty('projection') ? this.options.projection : 'EPSG:4326',
+            projection: this.$Map.getView().getProjection().getCode(), // 图层投影与Map保持一致
             ratio: this.options.hasOwnProperty('ratio') ? this.options.ratio : 1
           })
         });
@@ -7686,6 +7726,26 @@ var Layer$8 = function (_BaseLayer) {
         element.style.cursor = this.previousCursor_;
         this.previousCursor_ = undefined;
       }
+    }
+
+    /**
+     * 显示图层
+     */
+
+  }, {
+    key: "show",
+    value: function show() {
+      this.$Map.addLayer(this.layer_);
+    }
+
+    /**
+     * 隐藏图层
+     */
+
+  }, {
+    key: "hide",
+    value: function hide() {
+      this.$Map.removeLayer(this.layer_);
     }
   }]);
   return Layer;
