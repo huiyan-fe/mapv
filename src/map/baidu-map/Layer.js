@@ -366,9 +366,11 @@ class Layer extends BaseLayer{
 
     show() {
         this.map.addOverlay(this.canvasLayer);
+        this.bindEvent();
     }
 
     hide() {
+        this.unbindEvent();
         this.map.removeOverlay(this.canvasLayer);
     }
 

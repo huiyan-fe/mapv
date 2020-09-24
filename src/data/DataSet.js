@@ -47,7 +47,7 @@ function DataSet(data, options) {
 
 }
 
-DataSet.prototype = Event.prototype;
+DataSet.prototype = Object.create(Event.prototype);
 
 /**
  * Add data.
