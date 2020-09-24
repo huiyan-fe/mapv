@@ -5,6 +5,7 @@
 import BaseLayer from "../BaseLayer";
 import CanvasLayer from "./CanvasLayer";
 import clear from "../../canvas/clear";
+import Intensity from "../../utils/data-range/Intensity";
 import DataSet from "../../data/DataSet";
 import TWEEN from "../../utils/Tween";
 
@@ -254,14 +255,50 @@ class Layer extends BaseLayer{
         // get data from data set
         var data;
 
-        if (self.options.draw === 'cluster') {
+        if (self.options.draw === 'cluster' 
+            && (!self.options.maxClusterZoom || self.options.maxClusterZoom >= this.getZoom())) {
             var bounds = this.map.getBounds();
             var ne = bounds.getNorthEast();
             var sw = bounds.getSouthWest();
-            var clusterData = this.supercluster.getClusters([sw.lng, sw.lat, ne.lng, ne.lat], this.getZoom());
+            var clusterData;
+            clusterData = this.supercluster.getClusters([sw.lng, sw.lat, ne.lng, ne.lat], this.getZoom());
+            var pointCountMax;
+            var pointCountMin;
+            for (var i = 0; i < clusterData.length; i++) {
+                var item = clusterData[i];
+                if (item.properties && item.properties.cluster) {
+                    if (pointCountMax === undefined) {
+                        pointCountMax = item.properties.point_count;
+                    }
+                    if (pointCountMin === undefined) {
+                        pointCountMin = item.properties.point_count;
+                    }
+                    pointCountMax = Math.max(pointCountMax, item.properties.point_count);
+                    pointCountMin = Math.min(pointCountMin, item.properties.point_count);
+                }
+            }
+
+            var intensity = new Intensity({
+                min: pointCountMin,
+                max: pointCountMax,
+                minSize: self.options.minSize || 8,
+                maxSize: self.options.maxSize || 30,
+                gradient: self.options.gradient
+            });
+
+            for (var i = 0; i < clusterData.length; i++) {
+                var item = clusterData[i];
+                if (item.properties && item.properties.cluster_id) {
+                    clusterData[i].size = intensity.getSize(item.properties.point_count);
+                    clusterData[i].fillStyle = intensity.getColor(item.properties.point_count);
+                } else {
+                    clusterData[i].size = self.options.size;
+                }
+            }
+
             this.clusterDataSet.set(clusterData);
             this.transferToMercator(this.clusterDataSet);
-            data = this.clusterDataSet.get(dataGetOptions);
+            data = self.clusterDataSet.get(dataGetOptions);
         } else {
             data = self.dataSet.get(dataGetOptions);
         }

@@ -59,33 +59,48 @@
 
         var dataSet = new mapv.DataSet(data);
 
-        var options = {
-            // shadowColor: 'rgba(255, 250, 50, 1)',
-            // shadowBlur: 10,
-            fillStyle: 'rgba(255, 50, 0, 1.0)', // 非聚合点的颜色
-            size: 5, // 非聚合点的半径
-            minSize: 8, // 聚合点最小半径
-            maxSize: 31, // 聚合点最大半径
-            globalAlpha: 0.8, // 透明度
-            clusterRadius: 150, // 聚合像素半径
-            methods: {
-                click: function(item) {
-                    console.log(item);  // 点击事件
-                }
-            },
-            maxZoom: 19, // 最大显示级别
-            label: { // 聚合文本样式
-                show: true, // 是否显示
-                fillStyle: 'white',
-                // shadowColor: 'yellow',
-                // font: '20px Arial',
+        
+
+        var img = new Image();
+        img.src = 'images/marker.png';
+        img.onload = function() {
+            var options = {
+                // shadowColor: 'rgba(255, 250, 50, 1)',
                 // shadowBlur: 10,
-            },
-            gradient: { 0: "blue", 0.5: 'yellow', 1.0: "rgb(255,0,0)"}, // 聚合图标渐变色
-            draw: 'cluster'
+                fillStyle: 'rgba(255, 50, 0, 1.0)', // 非聚合点的颜色
+                size: 50 / 3 / 2, // 非聚合点的半径
+                icon: img, // 非聚合点时的icon,可设置为空
+                iconWidth: 50 / 3,
+                iconHeight: 77 / 3,
+                iconOffset: {
+                    x: 0,
+                    y: 0
+                },
+                minSize: 8, // 聚合点最小半径
+                maxSize: 31, // 聚合点最大半径
+                globalAlpha: 0.8, // 透明度
+                clusterRadius: 150, // 聚合像素半径
+                methods: {
+                    click: function(item) {
+                        console.log(item);  // 点击事件
+                    }
+                },
+                maxClusterZoom: 18, // 最大聚合的级别
+                maxZoom: 19, // 最大显示级别
+                label: { // 聚合文本样式
+                    show: true, // 是否显示
+                    fillStyle: 'white',
+                    // shadowColor: 'yellow',
+                    // font: '20px Arial',
+                    // shadowBlur: 10,
+                },
+                gradient: { 0: "blue", 0.5: 'yellow', 1.0: "rgb(255,0,0)"}, // 聚合图标渐变色
+                draw: 'cluster'
+            }
+            var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+            window.mapvLayer = mapvLayer;
         }
 
-        var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
 
     </script>
 	

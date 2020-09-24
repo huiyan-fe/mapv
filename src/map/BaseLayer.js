@@ -199,7 +199,8 @@ class BaseLayer {
     isPointInPath(context, pixel) {
         var context = this.canvasLayer.canvas.getContext(this.context);
         var data;
-        if (this.options.draw === 'cluster') {
+        if (this.options.draw === 'cluster' 
+        && (!this.options.maxClusterZoom || this.options.maxClusterZoom >= this.getZoom())) {
             data = this.clusterDataSet.get();
         } else {
             data = this.dataSet.get();
