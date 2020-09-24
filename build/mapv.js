@@ -4089,37 +4089,18 @@ var drawCluster = {
         context.save();
         var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
 
-        var pointCountMax;
-        var pointCountMin;
-        for (var i = 0; i < data.length; i++) {
-            var item = data[i];
-            if (item.properties && item.properties.cluster) {
-                if (pointCountMax === undefined) {
-                    pointCountMax = item.properties.point_count;
-                }
-                if (pointCountMin === undefined) {
-                    pointCountMin = item.properties.point_count;
-                }
-                pointCountMax = Math.max(pointCountMax, item.properties.point_count);
-                pointCountMin = Math.min(pointCountMin, item.properties.point_count);
-            }
-        }
-
-        var intensity = new Intensity({
-            min: pointCountMin,
-            max: pointCountMax,
-            minSize: options.minSize || 8,
-            maxSize: options.maxSize || 30,
-            gradient: options.gradient
-        });
+        var iconOffset = options.iconOffset || {
+            x: 0,
+            y: 0
+        };
 
         for (var i = 0; i < data.length; i++) {
             var item = data[i];
             var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
             context.beginPath();
             if (item.properties && item.properties.cluster) {
-                context.arc(coordinates[0], coordinates[1], intensity.getSize(item.properties.point_count), 0, Math.PI * 2);
-                context.fillStyle = intensity.getColor(item.properties.point_count);
+                context.arc(coordinates[0], coordinates[1], item.size, 0, Math.PI * 2);
+                context.fillStyle = item.fillStyle;
                 context.fill();
 
                 if (options.label && options.label.show !== false) {
@@ -4143,9 +4124,26 @@ var drawCluster = {
                     context.fillText(text, coordinates[0] + .5 - textWidth / 2, coordinates[1] + .5 + 3);
                 }
             } else {
-                context.arc(coordinates[0], coordinates[1], options.size || 5, 0, Math.PI * 2);
-                context.fillStyle = options.fillStyle || 'red';
-                context.fill();
+                var x = coordinates[0];
+                var y = coordinates[1];
+                if (options.icon) {
+
+                    var iconWidth = options.iconWidth;
+                    var iconHeight = options.iconHeight;
+
+                    x = x - iconWidth / 2 + iconOffset.x;
+                    y = y - iconHeight / 2 + iconOffset.y;
+
+                    if (iconWidth && iconHeight) {
+                        context.drawImage(options.icon, x, y, iconWidth, iconHeight);
+                    } else {
+                        context.drawImage(options.icon, x, y);
+                    }
+                } else {
+                    context.arc(x, y, options.size || 5, 0, Math.PI * 2);
+                    context.fillStyle = options.fillStyle || 'red';
+                    context.fill();
+                }
             }
         }
         context.restore();
@@ -5112,7 +5110,7 @@ var BaseLayer = function () {
         value: function isPointInPath(context, pixel) {
             var context = this.canvasLayer.canvas.getContext(this.context);
             var data;
-            if (this.options.draw === 'cluster') {
+            if (this.options.draw === 'cluster' && (!this.options.maxClusterZoom || this.options.maxClusterZoom >= this.getZoom())) {
                 data = this.clusterDataSet.get();
             } else {
                 data = this.dataSet.get();
@@ -5846,14 +5844,49 @@ var Layer = function (_BaseLayer) {
             // get data from data set
             var data;
 
-            if (self.options.draw === 'cluster') {
+            if (self.options.draw === 'cluster' && (!self.options.maxClusterZoom || self.options.maxClusterZoom >= this.getZoom())) {
                 var bounds = this.map.getBounds();
                 var ne = bounds.getNorthEast();
                 var sw = bounds.getSouthWest();
-                var clusterData = this.supercluster.getClusters([sw.lng, sw.lat, ne.lng, ne.lat], this.getZoom());
+                var clusterData;
+                clusterData = this.supercluster.getClusters([sw.lng, sw.lat, ne.lng, ne.lat], this.getZoom());
+                var pointCountMax;
+                var pointCountMin;
+                for (var i = 0; i < clusterData.length; i++) {
+                    var item = clusterData[i];
+                    if (item.properties && item.properties.cluster) {
+                        if (pointCountMax === undefined) {
+                            pointCountMax = item.properties.point_count;
+                        }
+                        if (pointCountMin === undefined) {
+                            pointCountMin = item.properties.point_count;
+                        }
+                        pointCountMax = Math.max(pointCountMax, item.properties.point_count);
+                        pointCountMin = Math.min(pointCountMin, item.properties.point_count);
+                    }
+                }
+
+                var intensity = new Intensity({
+                    min: pointCountMin,
+                    max: pointCountMax,
+                    minSize: self.options.minSize || 8,
+                    maxSize: self.options.maxSize || 30,
+                    gradient: self.options.gradient
+                });
+
+                for (var i = 0; i < clusterData.length; i++) {
+                    var item = clusterData[i];
+                    if (item.properties && item.properties.cluster_id) {
+                        clusterData[i].size = intensity.getSize(item.properties.point_count);
+                        clusterData[i].fillStyle = intensity.getColor(item.properties.point_count);
+                    } else {
+                        clusterData[i].size = self.options.size;
+                    }
+                }
+
                 this.clusterDataSet.set(clusterData);
                 this.transferToMercator(this.clusterDataSet);
-                data = this.clusterDataSet.get(dataGetOptions);
+                data = self.clusterDataSet.get(dataGetOptions);
             } else {
                 data = self.dataSet.get(dataGetOptions);
             }
