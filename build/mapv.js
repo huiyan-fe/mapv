@@ -5142,6 +5142,25 @@ var BaseLayer = function () {
                 }
             }
         }
+        // 递归获取聚合点下的所有原始点数据
+
+    }, {
+        key: "getClusterPoints",
+        value: function getClusterPoints(cluster) {
+            var _this = this;
+
+            if (cluster.type !== 'Feature') {
+                return [];
+            }
+            var children = this.supercluster.getChildren(cluster.id);
+            return children.map(function (item) {
+                if (item.type === 'Feature') {
+                    return _this.getClusterPoints(item);
+                } else {
+                    return item;
+                }
+            }).flat();
+        }
     }, {
         key: "clickEvent",
         value: function clickEvent(pixel, e) {
@@ -5151,6 +5170,10 @@ var BaseLayer = function () {
             var dataItem = this.isPointInPath(this.getContext(), pixel);
 
             if (dataItem) {
+                if (this.options.draw === 'cluster') {
+                    var children = this.getClusterPoints(dataItem);
+                    dataItem.children = children;
+                }
                 this.options.methods.click(dataItem, e);
             } else {
                 this.options.methods.click(null, e);
@@ -5164,6 +5187,10 @@ var BaseLayer = function () {
             }
             var dataItem = this.isPointInPath(this.getContext(), pixel);
             if (dataItem) {
+                if (this.options.draw === 'cluster') {
+                    var children = this.getClusterPoints(dataItem);
+                    dataItem.children = children;
+                }
                 this.options.methods.mousemove(dataItem, e);
             } else {
                 this.options.methods.mousemove(null, e);
@@ -5177,6 +5204,10 @@ var BaseLayer = function () {
             }
             var dataItem = this.isPointInPath(this.getContext(), pixel);
             if (dataItem) {
+                if (this.options.draw === 'cluster') {
+                    var children = this.getClusterPoints(dataItem);
+                    dataItem.children = children;
+                }
                 this.options.methods.tap(dataItem, e);
             } else {
                 this.options.methods.tap(null, e);

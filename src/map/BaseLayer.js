@@ -232,6 +232,20 @@ class BaseLayer {
             }
         }
     }
+    // 递归获取聚合点下的所有原始点数据
+    getClusterPoints(cluster) {
+        if(cluster.type !== 'Feature') {
+            return [];
+        }
+        let children = this.supercluster.getChildren(cluster.id);
+        return children.map(item => {
+            if(item.type === 'Feature') {
+                return this.getClusterPoints(item);
+            }else {
+                return item;
+            }
+        }).flat();
+    }
 
     clickEvent(pixel, e) {
         if (!this.options.methods) {
@@ -240,6 +254,10 @@ class BaseLayer {
         var dataItem = this.isPointInPath(this.getContext(), pixel);
 
         if (dataItem) {
+            if(this.options.draw === 'cluster') {
+                let children = this.getClusterPoints(dataItem);
+                dataItem.children = children;
+            }
             this.options.methods.click(dataItem, e);
         } else {
             this.options.methods.click(null, e);
@@ -253,6 +271,10 @@ class BaseLayer {
         }
         var dataItem = this.isPointInPath(this.getContext(), pixel);
         if (dataItem) {
+            if(this.options.draw === 'cluster') {
+                let children = this.getClusterPoints(dataItem);
+                dataItem.children = children;
+            }
             this.options.methods.mousemove(dataItem, e);
         } else {
             this.options.methods.mousemove(null, e);
@@ -264,6 +286,10 @@ class BaseLayer {
         }
         var dataItem = this.isPointInPath(this.getContext(), pixel);
         if (dataItem) {
+            if(this.options.draw === 'cluster') {
+                let children = this.getClusterPoints(dataItem);
+                dataItem.children = children;
+            }
             this.options.methods.tap(dataItem, e);
         } else {
             this.options.methods.tap(null, e);

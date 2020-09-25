@@ -95,7 +95,13 @@
                     // shadowBlur: 10,
                 },
                 gradient: { 0: "blue", 0.5: 'yellow', 1.0: "rgb(255,0,0)"}, // 聚合图标渐变色
-                draw: 'cluster'
+                draw: 'cluster',
+                methods: {
+                    click(point) {
+                        // 通过children可以拿到被聚合的所有点
+                        console.log(point.children);
+                    }
+                }
             }
             var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
             window.mapvLayer = mapvLayer;
