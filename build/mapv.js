@@ -4084,16 +4084,12 @@ var drawClip = {
  * @author kyle / http://nikai.us/
  */
 
+var imageMap = {};
+var stacks = {};
 var drawCluster = {
     draw: function draw(context, dataSet, options) {
         context.save();
         var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
-
-        var iconOffset = options.iconOffset || {
-            x: 0,
-            y: 0
-        };
-
         for (var i = 0; i < data.length; i++) {
             var item = data[i];
             var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
@@ -4104,7 +4100,6 @@ var drawCluster = {
                 context.fill();
 
                 if (options.label && options.label.show !== false) {
-
                     context.fillStyle = options.label.fillStyle || 'white';
 
                     if (options.label.font) {
@@ -4121,23 +4116,54 @@ var drawCluster = {
 
                     var text = item.properties.point_count;
                     var textWidth = context.measureText(text).width;
-                    context.fillText(text, coordinates[0] + .5 - textWidth / 2, coordinates[1] + .5 + 3);
+                    context.fillText(text, coordinates[0] + 0.5 - textWidth / 2, coordinates[1] + 0.5 + 3);
                 }
             } else {
                 var x = coordinates[0];
                 var y = coordinates[1];
-                if (options.icon) {
-
-                    var iconWidth = options.iconWidth;
-                    var iconHeight = options.iconHeight;
-
+                var iconOptions = Object.assign({}, options.iconOptions, item.iconOptions);
+                if (iconOptions.url) {
+                    var iconWidth = iconOptions.width;
+                    var iconHeight = iconOptions.height;
+                    var iconOffset = iconOptions.offset || {
+                        x: 0,
+                        y: 0
+                    };
                     x = x - iconWidth / 2 + iconOffset.x;
                     y = y - iconHeight / 2 + iconOffset.y;
-
-                    if (iconWidth && iconHeight) {
-                        context.drawImage(options.icon, x, y, iconWidth, iconHeight);
+                    var url = window.encodeURIComponent(iconOptions.url);
+                    var img = imageMap[url];
+                    if (img) {
+                        if (iconWidth && iconHeight) {
+                            context.drawImage(img, x, y, iconWidth, iconHeight);
+                        } else {
+                            context.drawImage(img, x, y);
+                        }
                     } else {
-                        context.drawImage(options.icon, x, y);
+                        if (!stacks[url]) {
+                            stacks[url] = [];
+                            getImage(url, function (img, src) {
+                                stacks[src] && stacks[src].forEach(function (fun) {
+                                    return fun(img, src);
+                                });
+                                stacks[src] = null;
+                                imageMap[src] = img;
+                            }, function (src) {
+                                stacks[src] = null;
+                                context.arc(x, y, options.size || 5, 0, Math.PI * 2);
+                                context.fillStyle = options.fillStyle || 'red';
+                                context.fill();
+                            });
+                        }
+                        stacks[url].push(function (x, y, iconWidth, iconHeight) {
+                            return function (img) {
+                                if (iconWidth && iconHeight) {
+                                    context.drawImage(img, x, y, iconWidth, iconHeight);
+                                } else {
+                                    context.drawImage(img, x, y);
+                                }
+                            };
+                        }(x, y, iconWidth, iconHeight));
                     }
                 } else {
                     context.arc(x, y, options.size || 5, 0, Math.PI * 2);
@@ -4149,6 +4175,16 @@ var drawCluster = {
         context.restore();
     }
 };
+function getImage(url, callback, fallback) {
+    var img = new Image();
+    img.onload = function () {
+        callback && callback(img, url);
+    };
+    img.onerror = function () {
+        fallback && fallback(url);
+    };
+    img.src = window.decodeURIComponent(url);
+}
 
 /**
  * @author Mofei Zhu<mapv@zhuwenlong.com>

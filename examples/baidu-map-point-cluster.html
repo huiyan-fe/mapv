@@ -53,60 +53,72 @@
                 geometry: {
                     type: 'Point',
                     coordinates: [cityCenter.lng - 5 + Math.random() * 10, cityCenter.lat - 5 + Math.random() * 10]
-                }
+                },
+                // 具体点的icon设置
+                iconOptions: {
+                    url: ['images/flag.png', 'images/marker.png', 'images/star.png'][randomCount % 3] , // 非聚合时点的icon,可设置为空
+                        width: 50 / 3,
+                        height: randomCount % 3 === 2 ? 50 / 3 : 77 / 3,
+                        offset: {
+                            x: 0,
+                            y: 0
+                        }
+                    }
             });
         }
 
         var dataSet = new mapv.DataSet(data);
 
-        
-
-        var img = new Image();
-        img.src = 'images/marker.png';
-        img.onload = function() {
-            var options = {
-                // shadowColor: 'rgba(255, 250, 50, 1)',
+        var options = {
+            // shadowColor: 'rgba(255, 250, 50, 1)',
+            // shadowBlur: 10,
+            // 非聚合点的颜色和大小，未设置icon或icon获取失败时使用
+            fillStyle: 'rgba(255, 50, 0, 1.0)', 
+            size: 50 / 3 / 2, // 非聚合点的半径
+            // 非聚合时点的icon设置，会被具体点的设置覆盖，可设置为空
+            // iconOptions: {
+            //     url: 'images/marker.png', 
+            //     width: 50 / 3,
+            //     height: 77 / 3,
+            //     offset: {
+            //         x: 0,
+            //         y: 0
+            //     }
+            // },
+            minSize: 8, // 聚合点最小半径
+            maxSize: 31, // 聚合点最大半径
+            globalAlpha: 0.8, // 透明度
+            clusterRadius: 150, // 聚合像素半径
+            methods: {
+                click: function(item) {
+                    console.log(item);  // 点击事件
+                }
+            },
+            maxClusterZoom: 18, // 最大聚合的级别
+            maxZoom: 19, // 最大显示级别
+            label: { // 聚合文本样式
+                show: true, // 是否显示
+                fillStyle: 'white',
+                // shadowColor: 'yellow',
+                // font: '20px Arial',
                 // shadowBlur: 10,
-                fillStyle: 'rgba(255, 50, 0, 1.0)', // 非聚合点的颜色
-                size: 50 / 3 / 2, // 非聚合点的半径
-                icon: img, // 非聚合点时的icon,可设置为空
-                iconWidth: 50 / 3,
-                iconHeight: 77 / 3,
-                iconOffset: {
-                    x: 0,
-                    y: 0
-                },
-                minSize: 8, // 聚合点最小半径
-                maxSize: 31, // 聚合点最大半径
-                globalAlpha: 0.8, // 透明度
-                clusterRadius: 150, // 聚合像素半径
-                methods: {
-                    click: function(item) {
-                        console.log(item);  // 点击事件
-                    }
-                },
-                maxClusterZoom: 18, // 最大聚合的级别
-                maxZoom: 19, // 最大显示级别
-                label: { // 聚合文本样式
-                    show: true, // 是否显示
-                    fillStyle: 'white',
-                    // shadowColor: 'yellow',
-                    // font: '20px Arial',
-                    // shadowBlur: 10,
-                },
-                gradient: { 0: "blue", 0.5: 'yellow', 1.0: "rgb(255,0,0)"}, // 聚合图标渐变色
-                draw: 'cluster',
-                methods: {
-                    click(point) {
+            },
+            gradient: { 0: "blue", 0.5: 'yellow', 1.0: "rgb(255,0,0)"}, // 聚合图标渐变色
+            draw: 'cluster',
+            methods: {
+                click(point) {
+                    if (point) {
+                        if (point.iconOptions) {
+                            console.log(point.iconOptions.url);
+                        }
                         // 通过children可以拿到被聚合的所有点
                         console.log(point.children);
                     }
                 }
             }
-            var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
-            window.mapvLayer = mapvLayer;
         }
-
+        var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+        window.mapvLayer = mapvLayer;
 
     </script>
 	
