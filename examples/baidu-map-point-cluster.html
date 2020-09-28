@@ -58,13 +58,9 @@
                 iconOptions: {
                     url: ['images/flag.png', 'images/marker.png', 'images/star.png'][randomCount % 3] , // 非聚合时点的icon,可设置为空
                         width: 50 / 3,
-                        height: randomCount % 3 === 2 ? 50 / 3 : 77 / 3,
-                        offset: {
-                            x: 0,
-                            y: 0
-                        }
+                        height: randomCount % 3 === 2 ? 50 / 3 : 77 / 3
                     }
-            });
+                });
         }
 
         var dataSet = new mapv.DataSet(data);

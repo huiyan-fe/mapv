@@ -9,10 +9,10 @@ let stacks = {};
 export default {
     draw: function (context, dataSet, options) {
         context.save();
-        var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
-        for (var i = 0; i < data.length; i++) {
-            var item = data[i];
-            var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
+        const data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
+        for (let i = 0; i < data.length; i++) {
+            let item = data[i];
+            let coordinates = item.geometry._coordinates || item.geometry.coordinates;
             context.beginPath();
             if (item.properties && item.properties.cluster) {
                 context.arc(coordinates[0], coordinates[1], item.size, 0, Math.PI * 2);
@@ -34,72 +34,79 @@ export default {
                         context.shadowBlur = options.label.shadowBlur;
                     }
 
-                    var text = item.properties.point_count;
-                    var textWidth = context.measureText(text).width;
+                    let text = item.properties.point_count;
+                    let textWidth = context.measureText(text).width;
                     context.fillText(text, coordinates[0] + 0.5 - textWidth / 2, coordinates[1] + 0.5 + 3);
                 }
             } else {
-                var x = coordinates[0];
-                var y = coordinates[1];
-                var iconOptions = Object.assign({}, options.iconOptions, item.iconOptions);
-                if (iconOptions.url) {
-                    var iconWidth = iconOptions.width;
-                    var iconHeight = iconOptions.height;
-                    var iconOffset = iconOptions.offset || {
-                        x: 0,
-                        y: 0
-                    };
-                    x = x - iconWidth / 2 + iconOffset.x;
-                    y = y - iconHeight / 2 + iconOffset.y;
-                    var url = window.encodeURIComponent(iconOptions.url);
-                    var img = imageMap[url];
-                    if (img) {
-                        if (iconWidth && iconHeight) {
+                this.drawIcon(item, options, context);
+            }
+        }
+        context.restore();
+    },
+    drawIcon(item, options, context) {
+        let [x, y] = item.geometry._coordinates || item.geometry.coordinates;
+        let iconOptions = Object.assign({}, options.iconOptions, item.iconOptions);
+        const drawPoint = () => {
+            context.arc(x, y, options.size || 5, 0, Math.PI * 2);
+            context.fillStyle = options.fillStyle || 'red';
+            context.fill();
+        };
+        if (!iconOptions.url) {
+            drawPoint();
+            return;
+        }
+        let iconWidth = iconOptions.width;
+        let iconHeight = iconOptions.height;
+        let iconOffset = iconOptions.offset || {x: 0, y: 0};
+        x = x - ~~iconWidth / 2 + iconOffset.x;
+        y = y - ~~iconHeight / 2 + iconOffset.y;
+        let url = window.encodeURIComponent(iconOptions.url);
+        let img = imageMap[url];
+        if (img) {
+            if (img === 'error') {
+                drawPoint();
+            } else if (iconWidth && iconHeight) {
+                context.drawImage(img, x, y, iconWidth, iconHeight);
+            } else {
+                context.drawImage(img, x, y);
+            }
+        } else {
+            if (!stacks[url]) {
+                stacks[url] = [];
+                getImage(
+                    url,
+                    function (img, src) {
+                        stacks[src] && stacks[src].forEach(fun => fun(img));
+                        stacks[src] = null;
+                        imageMap[src] = img;
+                    },
+                    function (src) {
+                        stacks[src] = null;
+                        stacks[src] && stacks[src].forEach(fun => fun('error', src));
+                        imageMap[src] = 'error';
+                        drawPoint();
+                    }
+                );
+            }
+            stacks[url].push(
+                ((x, y, iconWidth, iconHeight) =>
+                    function (img) {
+                        if (img === 'error') {
+                            drawPoint();
+                        } else if (iconWidth && iconHeight) {
                             context.drawImage(img, x, y, iconWidth, iconHeight);
                         } else {
                             context.drawImage(img, x, y);
                         }
-                    } else {
-                        if (!stacks[url]) {
-                            stacks[url] = [];
-                            getImage(
-                                url,
-                                function (img, src) {
-                                    stacks[src] && stacks[src].forEach(fun => fun(img, src));
-                                    stacks[src] = null;
-                                    imageMap[src] = img;
-                                },
-                                function (src) {
-                                    stacks[src] = null;
-                                    context.arc(x, y, options.size || 5, 0, Math.PI * 2);
-                                    context.fillStyle = options.fillStyle || 'red';
-                                    context.fill();
-                                }
-                            );
-                        }
-                        stacks[url].push(
-                            ((x, y, iconWidth, iconHeight) =>
-                                function (img) {
-                                    if (iconWidth && iconHeight) {
-                                        context.drawImage(img, x, y, iconWidth, iconHeight);
-                                    } else {
-                                        context.drawImage(img, x, y);
-                                    }
-                                })(x, y, iconWidth, iconHeight)
-                        );
-                    }
-                } else {
-                    context.arc(x, y, options.size || 5, 0, Math.PI * 2);
-                    context.fillStyle = options.fillStyle || 'red';
-                    context.fill();
-                }
-            }
+                    })(x, y, iconWidth, iconHeight)
+            );
         }
-        context.restore();
     }
 };
+
 function getImage(url, callback, fallback) {
-    var img = new Image();
+    let img = new Image();
     img.onload = function () {
         callback && callback(img, url);
     };
