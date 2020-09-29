@@ -62,7 +62,10 @@
                         coordinates: [cityCenter.lng - 2 + Math.random() * 4, cityCenter.lat - 2 + Math.random() * 4]
                     },
                     deg: 360 * Math.random(),
-                    icon: img
+                    // 支持image对象和url两种方式
+                    icon: [img, 'images/marker.png', 'images/star.png'][randomCount % 3],
+                    width: 20,
+                    height: randomCount % 3 === 1 ? 30 : 20
                 });
             }
             var dataSet = new mapv.DataSet(data);

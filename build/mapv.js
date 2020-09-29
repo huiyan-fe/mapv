@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.57";
+var version = "2.0.58";
 
 /**
  * @author kyle / http://nikai.us/
@@ -248,6 +248,48 @@ var possibleConstructorReturn = function (self, call) {
 
   return call && (typeof call === "object" || typeof call === "function") ? call : self;
 };
+
+
+
+
+
+var slicedToArray = function () {
+  function sliceIterator(arr, i) {
+    var _arr = [];
+    var _n = true;
+    var _d = false;
+    var _e = undefined;
+
+    try {
+      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+        _arr.push(_s.value);
+
+        if (i && _arr.length === i) break;
+      }
+    } catch (err) {
+      _d = true;
+      _e = err;
+    } finally {
+      try {
+        if (!_n && _i["return"]) _i["return"]();
+      } finally {
+        if (_d) throw _e;
+      }
+    }
+
+    return _arr;
+  }
+
+  return function (arr, i) {
+    if (Array.isArray(arr)) {
+      return arr;
+    } else if (Symbol.iterator in Object(arr)) {
+      return sliceIterator(arr, i);
+    } else {
+      throw new TypeError("Invalid attempt to destructure non-iterable instance");
+    }
+  };
+}();
 
 /**
  * @author kyle / http://nikai.us/
@@ -4092,7 +4134,7 @@ var drawCluster = {
         var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
         for (var i = 0; i < data.length; i++) {
             var item = data[i];
-            var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
+            var coordinates = item.geometry._coordinates || item.geometry.coordinates;
             context.beginPath();
             if (item.properties && item.properties.cluster) {
                 context.arc(coordinates[0], coordinates[1], item.size, 0, Math.PI * 2);
@@ -4119,62 +4161,75 @@ var drawCluster = {
                     context.fillText(text, coordinates[0] + 0.5 - textWidth / 2, coordinates[1] + 0.5 + 3);
                 }
             } else {
-                var x = coordinates[0];
-                var y = coordinates[1];
-                var iconOptions = Object.assign({}, options.iconOptions, item.iconOptions);
-                if (iconOptions.url) {
-                    var iconWidth = iconOptions.width;
-                    var iconHeight = iconOptions.height;
-                    var iconOffset = iconOptions.offset || {
-                        x: 0,
-                        y: 0
-                    };
-                    x = x - iconWidth / 2 + iconOffset.x;
-                    y = y - iconHeight / 2 + iconOffset.y;
-                    var url = window.encodeURIComponent(iconOptions.url);
-                    var img = imageMap[url];
-                    if (img) {
-                        if (iconWidth && iconHeight) {
-                            context.drawImage(img, x, y, iconWidth, iconHeight);
-                        } else {
-                            context.drawImage(img, x, y);
-                        }
-                    } else {
-                        if (!stacks[url]) {
-                            stacks[url] = [];
-                            getImage(url, function (img, src) {
-                                stacks[src] && stacks[src].forEach(function (fun) {
-                                    return fun(img, src);
-                                });
-                                stacks[src] = null;
-                                imageMap[src] = img;
-                            }, function (src) {
-                                stacks[src] = null;
-                                context.arc(x, y, options.size || 5, 0, Math.PI * 2);
-                                context.fillStyle = options.fillStyle || 'red';
-                                context.fill();
-                            });
-                        }
-                        stacks[url].push(function (x, y, iconWidth, iconHeight) {
-                            return function (img) {
-                                if (iconWidth && iconHeight) {
-                                    context.drawImage(img, x, y, iconWidth, iconHeight);
-                                } else {
-                                    context.drawImage(img, x, y);
-                                }
-                            };
-                        }(x, y, iconWidth, iconHeight));
-                    }
-                } else {
-                    context.arc(x, y, options.size || 5, 0, Math.PI * 2);
-                    context.fillStyle = options.fillStyle || 'red';
-                    context.fill();
-                }
+                this.drawIcon(item, options, context);
             }
         }
         context.restore();
+    },
+    drawIcon: function drawIcon(item, options, context) {
+        var _ref = item.geometry._coordinates || item.geometry.coordinates,
+            _ref2 = slicedToArray(_ref, 2),
+            x = _ref2[0],
+            y = _ref2[1];
+
+        var iconOptions = Object.assign({}, options.iconOptions, item.iconOptions);
+        var drawPoint = function drawPoint() {
+            context.arc(x, y, options.size || 5, 0, Math.PI * 2);
+            context.fillStyle = options.fillStyle || 'red';
+            context.fill();
+        };
+        if (!iconOptions.url) {
+            drawPoint();
+            return;
+        }
+        var iconWidth = iconOptions.width;
+        var iconHeight = iconOptions.height;
+        var iconOffset = iconOptions.offset || { x: 0, y: 0 };
+        x = x - ~~iconWidth / 2 + iconOffset.x;
+        y = y - ~~iconHeight / 2 + iconOffset.y;
+        var url = window.encodeURIComponent(iconOptions.url);
+        var img = imageMap[url];
+        if (img) {
+            if (img === 'error') {
+                drawPoint();
+            } else if (iconWidth && iconHeight) {
+                context.drawImage(img, x, y, iconWidth, iconHeight);
+            } else {
+                context.drawImage(img, x, y);
+            }
+        } else {
+            if (!stacks[url]) {
+                stacks[url] = [];
+                getImage(url, function (img, src) {
+                    stacks[src] && stacks[src].forEach(function (fun) {
+                        return fun(img);
+                    });
+                    stacks[src] = null;
+                    imageMap[src] = img;
+                }, function (src) {
+                    stacks[src] && stacks[src].forEach(function (fun) {
+                        return fun('error', src);
+                    });
+                    stacks[src] = null;
+                    imageMap[src] = 'error';
+                    drawPoint();
+                });
+            }
+            stacks[url].push(function (x, y, iconWidth, iconHeight) {
+                return function (img) {
+                    if (img === 'error') {
+                        drawPoint();
+                    } else if (iconWidth && iconHeight) {
+                        context.drawImage(img, x, y, iconWidth, iconHeight);
+                    } else {
+                        context.drawImage(img, x, y);
+                    }
+                };
+            }(x, y, iconWidth, iconHeight));
+        }
     }
 };
+
 function getImage(url, callback, fallback) {
     var img = new Image();
     img.onload = function () {
@@ -4302,61 +4357,104 @@ function isRectOverlay(rect1, rect2) {
 }
 
 /**
- * @author Mofei Zhu<mapv@zhuwenlong.com>
- * This file is to draw text
+ * @author wanghyper
+ * This file is to draw icon
  */
 
+var imageMap$1 = {};
+var stacks$1 = {};
 var drawIcon = {
     draw: function draw(context, dataSet, options) {
         var data = dataSet instanceof DataSet ? dataSet.get() : dataSet;
 
-        context.fillStyle = 'white';
-        context.textAlign = 'center';
-        context.textBaseline = 'middle';
+        var _loop = function _loop() {
+            var item = data[i];
+            if (item.geometry) {
+                icon = item.icon || options.icon;
 
-        var offset = options.offset || {
-            x: 0,
-            y: 0
-        };
-
-        // set from options
-        // for (var key in options) {
-        //     context[key] = options[key];
-        // }
-        // console.log(data)
-        for (var i = 0, len = data.length; i < len; i++) {
-
-            if (data[i].geometry) {
-                var deg = data[i].deg || options.deg;
-                var icon = data[i].icon || options.icon;
-                var coordinates = data[i].geometry._coordinates || data[i].geometry.coordinates;
-                var x = coordinates[0];
-                var y = coordinates[1];
-                if (deg) {
-                    context.save();
-                    context.translate(x, y);
-                    context.rotate(deg * Math.PI / 180);
-                    context.translate(-x, -y);
-                }
-                var width = options._width || options.width || icon.width;
-                var height = options._height || options.height || icon.height;
-                x = x - width / 2 + offset.x;
-                y = y - height / 2 + offset.y;
-                if (options.sx && options.sy && options.swidth && options.sheight && options.width && options.height) {
-                    context.drawImage(icon, options.sx, options.sy, options.swidth, options.sheight, x, y, width, height);
-                } else if (options.width && options.height) {
-                    context.drawImage(icon, x, y, width, height);
+                if (typeof icon === 'string') {
+                    var url = window.encodeURIComponent(icon);
+                    var img = imageMap$1[url];
+                    if (img) {
+                        drawItem(img, options, context, item);
+                    } else {
+                        if (!stacks$1[url]) {
+                            stacks$1[url] = [];
+                            getImage$1(url, function (img, src) {
+                                stacks$1[src] && stacks$1[src].forEach(function (fun) {
+                                    return fun(img);
+                                });
+                                stacks$1[src] = null;
+                                imageMap$1[src] = img;
+                            }, function (src) {
+                                stacks$1[src] && stacks$1[src].forEach(function (fun) {
+                                    return fun('error');
+                                });
+                                stacks$1[src] = null;
+                                imageMap$1[src] = 'error';
+                            });
+                        }
+                        stacks$1[url].push(function (img) {
+                            drawItem(img, options, context, item);
+                        });
+                    }
                 } else {
-                    context.drawImage(icon, x, y);
-                }
-
-                if (deg) {
-                    context.restore();
+                    drawItem(icon, options, context, item);
                 }
             }
+        };
+
+        for (var i = 0, len = data.length; i < len; i++) {
+            var icon;
+
+            _loop();
         }
     }
 };
+function drawItem(img, options, context, item) {
+    context.save();
+    var coordinates = item.geometry._coordinates || item.geometry.coordinates;
+    var x = coordinates[0];
+    var y = coordinates[1];
+    var offset = options.offset || { x: 0, y: 0 };
+    var width = item.width || options._width || options.width;
+    var height = item.height || options._height || options.height;
+    x = x - ~~width / 2 + offset.x;
+    y = y - ~~height / 2 + offset.y;
+    if (typeof img === 'string') {
+        context.beginPath();
+        context.arc(x, y, options.size || 5, 0, Math.PI * 2);
+        context.fillStyle = options.fillStyle || 'red';
+        context.fill();
+        return;
+    }
+    var deg = item.deg || options.deg;
+    if (deg) {
+        context.translate(x, y);
+        context.rotate(deg * Math.PI / 180);
+        context.translate(-x, -y);
+    }
+
+    if (options.sx && options.sy && options.swidth && options.sheight && options.width && options.height) {
+        context.drawImage(img, options.sx, options.sy, options.swidth, options.sheight, x, y, width, height);
+    } else if (width && height) {
+        context.drawImage(img, x, y, width, height);
+    } else {
+        context.drawImage(img, x, y);
+    }
+    context.restore();
+}
+
+function getImage$1(url, callback, fallback) {
+    var img = new Image();
+    img.onload = function () {
+        callback && callback(img, url);
+    };
+    img.onerror = function () {
+        fallback && fallback(url);
+    };
+    img.src = window.decodeURIComponent(url);
+}
 
 /**
  * from https://github.com/mapbox/supercluster

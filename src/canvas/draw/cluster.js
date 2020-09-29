@@ -82,8 +82,8 @@ export default {
                         imageMap[src] = img;
                     },
                     function (src) {
-                        stacks[src] = null;
                         stacks[src] && stacks[src].forEach(fun => fun('error', src));
+                        stacks[src] = null;
                         imageMap[src] = 'error';
                         drawPoint();
                     }
