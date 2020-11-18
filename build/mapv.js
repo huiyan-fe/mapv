@@ -4456,10 +4456,6 @@ function getImage$1(url, callback, fallback) {
     img.src = window.decodeURIComponent(url);
 }
 
-/**
- * from https://github.com/mapbox/supercluster
- */
-
 function sortKD(ids, coords, nodeSize, left, right, depth) {
     if (right - left <= nodeSize) {
         return;
@@ -4675,10 +4671,14 @@ KDBush.prototype.within = function within$1(x, y, r) {
 var defaultOptions = {
     minZoom: 0, // min zoom to generate clusters on
     maxZoom: 16, // max zoom level to cluster the points on
+    minPoints: 2, // minimum points to form a cluster
     radius: 40, // cluster radius in pixels
     extent: 512, // tile extent (radius is calculated relative to it)
     nodeSize: 64, // size of the KD-tree leaf node, affects performance
     log: false, // whether to log timing info
+
+    // whether to generate numeric ids for input features (in vector tiles)
+    generateId: false,
 
     // a reduce function for calculating custom cluster properties
     reduce: null, // (accumulated, props) => { accumulated.sum += props.sum; }
@@ -4765,8 +4765,8 @@ Supercluster.prototype.getClusters = function getClusters(bbox, zoom) {
 };
 
 Supercluster.prototype.getChildren = function getChildren(clusterId) {
-    var originId = clusterId >> 5;
-    var originZoom = clusterId % 32;
+    var originId = this._getOriginId(clusterId);
+    var originZoom = this._getOriginZoom(clusterId);
     var errorMsg = 'No cluster with the specified id.';
 
     var index = this.trees[originZoom];
@@ -4835,16 +4835,16 @@ Supercluster.prototype.getTile = function getTile(z, x, y) {
 };
 
 Supercluster.prototype.getClusterExpansionZoom = function getClusterExpansionZoom(clusterId) {
-    var clusterZoom = clusterId % 32 - 1;
-    while (clusterZoom <= this.options.maxZoom) {
+    var expansionZoom = this._getOriginZoom(clusterId) - 1;
+    while (expansionZoom <= this.options.maxZoom) {
         var children = this.getChildren(clusterId);
-        clusterZoom++;
+        expansionZoom++;
         if (children.length !== 1) {
             break;
         }
         clusterId = children[0].properties.cluster_id;
     }
-    return clusterZoom;
+    return expansionZoom;
 };
 
 Supercluster.prototype._appendLeaves = function _appendLeaves(result, clusterId, limit, offset, skipped) {
@@ -4884,21 +4884,35 @@ Supercluster.prototype._addTileFeatures = function _addTileFeatures(ids, points,
         var i = list[i$1];
 
         var c = points[i];
+        var isCluster = c.numPoints;
         var f = {
             type: 1,
             geometry: [[Math.round(this.options.extent * (c.x * z2 - x)), Math.round(this.options.extent * (c.y * z2 - y))]],
-            tags: c.numPoints ? getClusterProperties(c) : this.points[c.index].properties
+            tags: isCluster ? getClusterProperties(c) : this.points[c.index].properties
         };
-        var id = c.numPoints ? c.id : this.points[c.index].id;
+
+        // assign id
+        var id = void 0;
+        if (isCluster) {
+            id = c.id;
+        } else if (this.options.generateId) {
+            // optionally generate id
+            id = c.index;
+        } else if (this.points[c.index].id) {
+            // keep id if already assigned
+            id = this.points[c.index].id;
+        }
+
         if (id !== undefined) {
             f.id = id;
         }
+
         tile.features.push(f);
     }
 };
 
 Supercluster.prototype._limitZoom = function _limitZoom(z) {
-    return Math.max(this.options.minZoom, Math.min(z, this.options.maxZoom + 1));
+    return Math.max(this.options.minZoom, Math.min(+z, this.options.maxZoom + 1));
 };
 
 Supercluster.prototype._cluster = function _cluster(points, zoom) {
@@ -4907,6 +4921,7 @@ Supercluster.prototype._cluster = function _cluster(points, zoom) {
     var radius = ref.radius;
     var extent = ref.extent;
     var reduce = ref.reduce;
+    var minPoints = ref.minPoints;
     var r = radius / (extent * Math.pow(2, zoom));
 
     // loop through each point
@@ -4922,49 +4937,86 @@ Supercluster.prototype._cluster = function _cluster(points, zoom) {
         var tree = this.trees[zoom + 1];
         var neighborIds = tree.within(p.x, p.y, r);
 
-        var numPoints = p.numPoints || 1;
-        var wx = p.x * numPoints;
-        var wy = p.y * numPoints;
+        var numPointsOrigin = p.numPoints || 1;
+        var numPoints = numPointsOrigin;
 
-        var clusterProperties = reduce && numPoints > 1 ? this._map(p, true) : null;
-
-        // encode both zoom and point index on which the cluster originated
-        var id = (i << 5) + (zoom + 1);
-
+        // count the number of points in a potential cluster
         for (var i$1 = 0, list = neighborIds; i$1 < list.length; i$1 += 1) {
             var neighborId = list[i$1];
 
             var b = tree.points[neighborId];
             // filter out neighbors that are already processed
-            if (b.zoom <= zoom) {
-                continue;
-            }
-            b.zoom = zoom; // save the zoom (so it doesn't get processed twice)
-
-            var numPoints2 = b.numPoints || 1;
-            wx += b.x * numPoints2; // accumulate coordinates for calculating weighted center
-            wy += b.y * numPoints2;
-
-            numPoints += numPoints2;
-            b.parentId = id;
-
-            if (reduce) {
-                if (!clusterProperties) {
-                    clusterProperties = this._map(p, true);
-                }
-                reduce(clusterProperties, this._map(b));
+            if (b.zoom > zoom) {
+                numPoints += b.numPoints || 1;
             }
         }
 
-        if (numPoints === 1) {
-            clusters.push(p);
-        } else {
+        if (numPoints >= minPoints) {
+            // enough points to form a cluster
+            var wx = p.x * numPointsOrigin;
+            var wy = p.y * numPointsOrigin;
+
+            var clusterProperties = reduce && numPointsOrigin > 1 ? this._map(p, true) : null;
+
+            // encode both zoom and point index on which the cluster originated -- offset by total length of features
+            var id = (i << 5) + (zoom + 1) + this.points.length;
+
+            for (var i$2 = 0, list$1 = neighborIds; i$2 < list$1.length; i$2 += 1) {
+                var neighborId$1 = list$1[i$2];
+
+                var b$1 = tree.points[neighborId$1];
+
+                if (b$1.zoom <= zoom) {
+                    continue;
+                }
+                b$1.zoom = zoom; // save the zoom (so it doesn't get processed twice)
+
+                var numPoints2 = b$1.numPoints || 1;
+                wx += b$1.x * numPoints2; // accumulate coordinates for calculating weighted center
+                wy += b$1.y * numPoints2;
+
+                b$1.parentId = id;
+
+                if (reduce) {
+                    if (!clusterProperties) {
+                        clusterProperties = this._map(p, true);
+                    }
+                    reduce(clusterProperties, this._map(b$1));
+                }
+            }
+
             p.parentId = id;
             clusters.push(createCluster(wx / numPoints, wy / numPoints, id, numPoints, clusterProperties));
+        } else {
+            // left points as unclustered
+            clusters.push(p);
+
+            if (numPoints > 1) {
+                for (var i$3 = 0, list$2 = neighborIds; i$3 < list$2.length; i$3 += 1) {
+                    var neighborId$2 = list$2[i$3];
+
+                    var b$2 = tree.points[neighborId$2];
+                    if (b$2.zoom <= zoom) {
+                        continue;
+                    }
+                    b$2.zoom = zoom;
+                    clusters.push(b$2);
+                }
+            }
         }
     }
 
     return clusters;
+};
+
+// get index of the point from which the cluster originated
+Supercluster.prototype._getOriginId = function _getOriginId(clusterId) {
+    return clusterId - this.points.length >> 5;
+};
+
+// get zoom of the point from which the cluster originated
+Supercluster.prototype._getOriginZoom = function _getOriginZoom(clusterId) {
+    return (clusterId - this.points.length) % 32;
 };
 
 Supercluster.prototype._map = function _map(point, clone) {
@@ -5082,7 +5134,12 @@ var BaseLayer = function () {
         this.map = map;
 
         if (options.draw === 'cluster' && !this.supercluster) {
-            this.supercluster = new Supercluster({ maxZoom: options.maxZoom || 19, radius: options.clusterRadius || 100 });
+            this.supercluster = new Supercluster({
+                maxZoom: options.maxZoom || 19,
+                radius: options.clusterRadius || 100,
+                minPoints: options.minPoints || 2,
+                extent: options.extent || 512
+            });
             this.supercluster.load(dataSet.get());
             this.clusterDataSet = new DataSet();
         }

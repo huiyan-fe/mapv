@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<title></title>
+	<title>Mapv-点聚合示例</title>
 
     <style type="text/css">
         html, body {
@@ -64,7 +64,6 @@
         }
 
         var dataSet = new mapv.DataSet(data);
-
         var options = {
             // shadowColor: 'rgba(255, 250, 50, 1)',
             // shadowBlur: 10,
@@ -85,13 +84,10 @@
             maxSize: 31, // 聚合点最大半径
             globalAlpha: 0.8, // 透明度
             clusterRadius: 150, // 聚合像素半径
-            methods: {
-                click: function(item) {
-                    console.log(item);  // 点击事件
-                }
-            },
             maxClusterZoom: 18, // 最大聚合的级别
             maxZoom: 19, // 最大显示级别
+            minPoints: 5, // 最少聚合点数，点数多于此值才会被聚合
+            extent: 400, // 聚合的细腻程度，越高聚合后点越密集
             label: { // 聚合文本样式
                 show: true, // 是否显示
                 fillStyle: 'white',
@@ -114,9 +110,6 @@
             }
         }
         var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
-        window.mapvLayer = mapvLayer;
-
     </script>
-	
 </body>
 </html>

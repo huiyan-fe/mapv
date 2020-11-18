@@ -42,7 +42,12 @@ class BaseLayer {
         this.map = map;
 
         if (options.draw === 'cluster' && !this.supercluster) {
-            this.supercluster = new Supercluster({maxZoom: options.maxZoom || 19, radius: options.clusterRadius || 100});
+            this.supercluster = new Supercluster({
+                maxZoom: options.maxZoom || 19,
+                radius: options.clusterRadius || 100,
+                minPoints: options.minPoints || 2,
+                extent: options.extent || 512
+            });
             this.supercluster.load(dataSet.get());
             this.clusterDataSet = new DataSet();
         }
