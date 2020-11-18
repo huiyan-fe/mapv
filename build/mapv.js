@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.58";
+var version = "2.0.59";
 
 /**
  * @author kyle / http://nikai.us/
