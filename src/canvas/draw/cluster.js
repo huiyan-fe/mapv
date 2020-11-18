@@ -48,6 +48,7 @@ export default {
         let [x, y] = item.geometry._coordinates || item.geometry.coordinates;
         let iconOptions = Object.assign({}, options.iconOptions, item.iconOptions);
         const drawPoint = () => {
+            context.beginPath();
             context.arc(x, y, options.size || 5, 0, Math.PI * 2);
             context.fillStyle = options.fillStyle || 'red';
             context.fill();

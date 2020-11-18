@@ -4174,6 +4174,7 @@ var drawCluster = {
 
         var iconOptions = Object.assign({}, options.iconOptions, item.iconOptions);
         var drawPoint = function drawPoint() {
+            context.beginPath();
             context.arc(x, y, options.size || 5, 0, Math.PI * 2);
             context.fillStyle = options.fillStyle || 'red';
             context.fill();
