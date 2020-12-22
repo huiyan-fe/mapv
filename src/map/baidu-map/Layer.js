@@ -43,13 +43,14 @@ class Layer extends BaseLayer{
             }
         });
 
-        
-
         dataSet.on('change', function() {
             self.transferToMercator();
+            // 数据更新后重新生成聚合数据
+            if (options.draw === 'cluster' && self.supercluster) {
+                self.supercluster.load(dataSet.get());
+            }
             canvasLayer.draw();
         });
-
     }
 
     clickEvent(e) {
