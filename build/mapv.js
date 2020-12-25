@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.60";
+var version = "2.0.61";
 
 /**
  * @author kyle / http://nikai.us/
@@ -5142,6 +5142,17 @@ var BaseLayer = function () {
                 extent: options.extent || 512
             });
             this.supercluster.load(dataSet.get());
+            // 拿到每个级别下的最大值最小值
+            this.supercluster.trees.forEach(function (item) {
+                var max = 0;
+                var min = Infinity;
+                item.points.forEach(function (point) {
+                    max = Math.max(point.numPoints || 0, max);
+                    min = Math.min(point.numPoints || Infinity, min);
+                });
+                item.max = max;
+                item.min = min;
+            });
             this.clusterDataSet = new DataSet();
         }
     }
@@ -5857,25 +5868,25 @@ var Layer = function (_BaseLayer) {
     }
 
     createClass(Layer, [{
-        key: "clickEvent",
+        key: 'clickEvent',
         value: function clickEvent(e) {
             var pixel = e.pixel;
-            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "clickEvent", this).call(this, pixel, e);
+            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), 'clickEvent', this).call(this, pixel, e);
         }
     }, {
-        key: "mousemoveEvent",
+        key: 'mousemoveEvent',
         value: function mousemoveEvent(e) {
             var pixel = e.pixel;
-            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "mousemoveEvent", this).call(this, pixel, e);
+            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), 'mousemoveEvent', this).call(this, pixel, e);
         }
     }, {
-        key: "tapEvent",
+        key: 'tapEvent',
         value: function tapEvent(e) {
             var pixel = e.pixel;
-            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), "tapEvent", this).call(this, pixel, e);
+            get(Layer.prototype.__proto__ || Object.getPrototypeOf(Layer.prototype), 'tapEvent', this).call(this, pixel, e);
         }
     }, {
-        key: "bindEvent",
+        key: 'bindEvent',
         value: function bindEvent(e) {
             this.unbindEvent();
             var map = this.map;
@@ -5884,14 +5895,14 @@ var Layer = function (_BaseLayer) {
 
             if (this.options.methods) {
                 if (this.options.methods.click) {
-                    map.setDefaultCursor("default");
+                    map.setDefaultCursor('default');
                     map.addEventListener('click', this.clickEvent);
                 }
                 if (this.options.methods.mousemove) {
                     map.addEventListener('mousemove', this.mousemoveEvent);
                 }
 
-                if ("ontouchend" in window.document && this.options.methods.tap) {
+                if ('ontouchend' in window.document && this.options.methods.tap) {
                     map.addEventListener('touchstart', function (e) {
                         timer = new Date();
                     });
@@ -5904,7 +5915,7 @@ var Layer = function (_BaseLayer) {
             }
         }
     }, {
-        key: "unbindEvent",
+        key: 'unbindEvent',
         value: function unbindEvent(e) {
             var map = this.map;
 
@@ -5921,7 +5932,7 @@ var Layer = function (_BaseLayer) {
         // 经纬度左边转换为墨卡托坐标
 
     }, {
-        key: "transferToMercator",
+        key: 'transferToMercator',
         value: function transferToMercator(dataSet) {
             if (!dataSet) {
                 dataSet = this.dataSet;
@@ -5962,23 +5973,19 @@ var Layer = function (_BaseLayer) {
             }
         }
     }, {
-        key: "getContext",
+        key: 'getContext',
         value: function getContext() {
             return this.canvasLayer.canvas.getContext(this.context);
         }
     }, {
-        key: "_canvasUpdate",
+        key: '_canvasUpdate',
         value: function _canvasUpdate(time) {
             if (!this.canvasLayer) {
                 return;
             }
-
             var self = this;
-
-            var animationOptions = self.options.animation;
-
+            var animationOptions = this.options.animation;
             var map = this.canvasLayer._map;
-
             var projection;
             var mcCenter;
             if (map.getMapType().getProjection) {
@@ -6009,12 +6016,11 @@ var Layer = function (_BaseLayer) {
             } else {
                 zoomUnit = Math.pow(2, 18 - map.getZoom());
             }
-
-            var nwMc = new BMap$3.Pixel(mcCenter.x - map.getSize().width / 2 * zoomUnit, mcCenter.y + map.getSize().height / 2 * zoomUnit); //左上角墨卡托坐标
+            //左上角墨卡托坐标
+            var nwMc = new BMap$3.Pixel(mcCenter.x - map.getSize().width / 2 * zoomUnit, mcCenter.y + map.getSize().height / 2 * zoomUnit);
 
             var context = this.getContext();
-
-            if (self.isEnabledTime()) {
+            if (this.isEnabledTime()) {
                 if (time === undefined) {
                     clear(context);
                     return;
@@ -6031,14 +6037,14 @@ var Layer = function (_BaseLayer) {
             }
 
             if (this.context == '2d') {
-                for (var key in self.options) {
-                    context[key] = self.options[key];
+                for (var key in this.options) {
+                    context[key] = this.options[key];
                 }
             } else {
                 context.clear(context.COLOR_BUFFER_BIT);
             }
 
-            if (self.options.minZoom && map.getZoom() < self.options.minZoom || self.options.maxZoom && map.getZoom() > self.options.maxZoom) {
+            if (this.options.minZoom && map.getZoom() < this.options.minZoom || this.options.maxZoom && map.getZoom() > this.options.maxZoom) {
                 return;
             }
 
@@ -6048,7 +6054,7 @@ var Layer = function (_BaseLayer) {
             }
 
             var dataGetOptions = {
-                fromColumn: self.options.coordType == 'bd09mc' ? 'coordinates' : 'coordinates_mercator',
+                fromColumn: this.options.coordType == 'bd09mc' ? 'coordinates' : 'coordinates_mercator',
                 transferCoordinate: function transferCoordinate(coordinate) {
                     var x = (coordinate[0] - nwMc.x) / zoomUnit * scale;
                     var y = (nwMc.y - coordinate[1]) / zoomUnit * scale;
@@ -6069,42 +6075,34 @@ var Layer = function (_BaseLayer) {
 
             // get data from data set
             var data;
-
-            if (self.options.draw === 'cluster' && (!self.options.maxClusterZoom || self.options.maxClusterZoom >= this.getZoom())) {
+            var zoom = this.getZoom();
+            if (this.options.draw === 'cluster' && (!this.options.maxClusterZoom || this.options.maxClusterZoom >= zoom)) {
                 var bounds = this.map.getBounds();
                 var ne = bounds.getNorthEast();
                 var sw = bounds.getSouthWest();
-                var clusterData;
-                clusterData = this.supercluster.getClusters([sw.lng, sw.lat, ne.lng, ne.lat], this.getZoom());
-                var pointCountMax;
-                var pointCountMin;
-                for (var i = 0; i < clusterData.length; i++) {
-                    var item = clusterData[i];
-                    if (item.properties && item.properties.cluster) {
-                        if (pointCountMax === undefined) {
-                            pointCountMax = item.properties.point_count;
-                        }
-                        if (pointCountMin === undefined) {
-                            pointCountMin = item.properties.point_count;
-                        }
-                        pointCountMax = Math.max(pointCountMax, item.properties.point_count);
-                        pointCountMin = Math.min(pointCountMin, item.properties.point_count);
-                    }
+                var clusterData = this.supercluster.getClusters([sw.lng, sw.lat, ne.lng, ne.lat], zoom);
+                this.pointCountMax = this.supercluster.trees[zoom].max;
+                this.pointCountMin = this.supercluster.trees[zoom].min;
+                var intensity = {};
+                var color = null;
+                var size = null;
+                if (this.pointCountMax === this.pointCountMin) {
+                    color = this.options.fillStyle;
+                    size = this.options.minSize || 8;
+                } else {
+                    intensity = new Intensity({
+                        min: this.pointCountMin,
+                        max: this.pointCountMax,
+                        minSize: this.options.minSize || 8,
+                        maxSize: this.options.maxSize || 30,
+                        gradient: this.options.gradient
+                    });
                 }
-
-                var intensity = new Intensity({
-                    min: pointCountMin,
-                    max: pointCountMax,
-                    minSize: self.options.minSize || 8,
-                    maxSize: self.options.maxSize || 30,
-                    gradient: self.options.gradient
-                });
-
                 for (var i = 0; i < clusterData.length; i++) {
                     var item = clusterData[i];
                     if (item.properties && item.properties.cluster_id) {
-                        clusterData[i].size = intensity.getSize(item.properties.point_count);
-                        clusterData[i].fillStyle = intensity.getColor(item.properties.point_count);
+                        clusterData[i].size = size || intensity.getSize(item.properties.point_count);
+                        clusterData[i].fillStyle = color || intensity.getColor(item.properties.point_count);
                     } else {
                         clusterData[i].size = self.options.size;
                     }
@@ -6145,9 +6143,8 @@ var Layer = function (_BaseLayer) {
             self.options.updateCallback && self.options.updateCallback(time);
         }
     }, {
-        key: "init",
+        key: 'init',
         value: function init(options) {
-
             var self = this;
             self.options = options;
             this.initDataRange(options);
@@ -6169,35 +6166,35 @@ var Layer = function (_BaseLayer) {
             this.bindEvent();
         }
     }, {
-        key: "getZoom",
+        key: 'getZoom',
         value: function getZoom() {
             return this.map.getZoom();
         }
     }, {
-        key: "addAnimatorEvent",
+        key: 'addAnimatorEvent',
         value: function addAnimatorEvent() {
             this.map.addEventListener('movestart', this.animatorMovestartEvent.bind(this));
             this.map.addEventListener('moveend', this.animatorMoveendEvent.bind(this));
         }
     }, {
-        key: "show",
+        key: 'show',
         value: function show() {
             this.map.addOverlay(this.canvasLayer);
             this.bindEvent();
         }
     }, {
-        key: "hide",
+        key: 'hide',
         value: function hide() {
             this.unbindEvent();
             this.map.removeOverlay(this.canvasLayer);
         }
     }, {
-        key: "draw",
+        key: 'draw',
         value: function draw() {
             this.canvasLayer && this.canvasLayer.draw();
         }
     }, {
-        key: "clearData",
+        key: 'clearData',
         value: function clearData() {
             this.dataSet && this.dataSet.clear();
             this.update({
@@ -6205,7 +6202,7 @@ var Layer = function (_BaseLayer) {
             });
         }
     }, {
-        key: "destroy",
+        key: 'destroy',
         value: function destroy() {
             this.unbindEvent();
             this.clearData();

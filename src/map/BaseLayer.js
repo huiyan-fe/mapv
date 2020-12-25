@@ -49,6 +49,17 @@ class BaseLayer {
                 extent: options.extent || 512
             });
             this.supercluster.load(dataSet.get());
+             // 拿到每个级别下的最大值最小值
+            this.supercluster.trees.forEach(item => {
+                let max = 0;
+                let min = Infinity;
+                item.points.forEach(point => {
+                    max = Math.max(point.numPoints || 0, max);
+                    min = Math.min(point.numPoints || Infinity, min);
+                });
+                item.max = max;
+                item.min = min;
+            });
             this.clusterDataSet = new DataSet();
         }
     }
