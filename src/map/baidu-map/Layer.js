@@ -6,8 +6,6 @@ import BaseLayer from '../BaseLayer';
 import CanvasLayer from './CanvasLayer';
 import clear from '../../canvas/clear';
 import Intensity from '../../utils/data-range/Intensity';
-import DataSet from '../../data/DataSet';
-import TWEEN from '../../utils/Tween';
 
 var global = typeof window === 'undefined' ? {} : window;
 var BMap = global.BMap || global.BMapGL;
@@ -17,7 +15,6 @@ class Layer extends BaseLayer {
         super(map, dataSet, options);
 
         var self = this;
-        var data = null;
         options = options || {};
 
         this.clickEvent = this.clickEvent.bind(this);
@@ -36,7 +33,7 @@ class Layer extends BaseLayer {
             mixBlendMode: options.mixBlendMode,
             enableMassClear: options.enableMassClear,
             zIndex: options.zIndex,
-            update: function () {
+            update() {
                 self._canvasUpdate();
             }
         }));
@@ -44,8 +41,8 @@ class Layer extends BaseLayer {
         dataSet.on('change', function () {
             self.transferToMercator();
             // 数据更新后重新生成聚合数据
-            if (options.draw === 'cluster' && self.supercluster) {
-                self.supercluster.load(dataSet.get());
+            if (options.draw === 'cluster') {
+                self.refreshCluster();
             }
             canvasLayer.draw();
         });

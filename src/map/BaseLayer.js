@@ -2,23 +2,23 @@
  * @author kyle / http://nikai.us/
  */
 
-import DataSet from "../data/DataSet";
-import TWEEN from "../utils/Tween";
-import Intensity from "../utils/data-range/Intensity";
-import Category from "../utils/data-range/Category";
-import Choropleth from "../utils/data-range/Choropleth";
-import drawHeatmap from "../canvas/draw/heatmap";
-import drawArrow from "../canvas/draw/arrow";
-import drawClip from "../canvas/draw/clip";
-import drawSimple from "../canvas/draw/simple";
-import webglDrawSimple from "../webgl/draw/simple";
-import drawGrid from "../canvas/draw/grid";
-import drawCluster from "../canvas/draw/cluster";
-import drawHoneycomb from "../canvas/draw/honeycomb";
-import drawText from "../canvas/draw/text";
-import drawIcon from "../canvas/draw/icon";
-import pathSimple from "../canvas/path/simple";
-import clear from "../canvas/clear";
+import DataSet from '../data/DataSet';
+import TWEEN from '../utils/Tween';
+import Intensity from '../utils/data-range/Intensity';
+import Category from '../utils/data-range/Category';
+import Choropleth from '../utils/data-range/Choropleth';
+import drawHeatmap from '../canvas/draw/heatmap';
+import drawArrow from '../canvas/draw/arrow';
+import drawClip from '../canvas/draw/clip';
+import drawSimple from '../canvas/draw/simple';
+import webglDrawSimple from '../webgl/draw/simple';
+import drawGrid from '../canvas/draw/grid';
+import drawCluster from '../canvas/draw/cluster';
+import drawHoneycomb from '../canvas/draw/honeycomb';
+import drawText from '../canvas/draw/text';
+import drawIcon from '../canvas/draw/icon';
+import pathSimple from '../canvas/path/simple';
+import clear from '../canvas/clear';
 import Supercluster from '../utils/supercluster';
 
 if (typeof window !== 'undefined') {
@@ -30,8 +30,6 @@ function animate(time) {
     TWEEN.update(time);
 }
 
-
-
 class BaseLayer {
     constructor(map, dataSet, options) {
         if (!(dataSet instanceof DataSet)) {
@@ -40,30 +38,33 @@ class BaseLayer {
 
         this.dataSet = dataSet;
         this.map = map;
-
-        if (options.draw === 'cluster' && !this.supercluster) {
-            this.supercluster = new Supercluster({
-                maxZoom: options.maxZoom || 19,
-                radius: options.clusterRadius || 100,
-                minPoints: options.minPoints || 2,
-                extent: options.extent || 512
-            });
-            this.supercluster.load(dataSet.get());
-             // 拿到每个级别下的最大值最小值
-            this.supercluster.trees.forEach(item => {
-                let max = 0;
-                let min = Infinity;
-                item.points.forEach(point => {
-                    max = Math.max(point.numPoints || 0, max);
-                    min = Math.min(point.numPoints || Infinity, min);
-                });
-                item.max = max;
-                item.min = min;
-            });
-            this.clusterDataSet = new DataSet();
+        if (options.draw === 'cluster') {
+            this.refreshCluster(options);
         }
     }
+    refreshCluster(options) {
+        options = options || this.options;
+        this.supercluster = new Supercluster({
+            maxZoom: options.maxZoom || 19,
+            radius: options.clusterRadius || 100,
+            minPoints: options.minPoints || 2,
+            extent: options.extent || 512
+        });
 
+        this.supercluster.load(this.dataSet.get());
+        // 拿到每个级别下的最大值最小值
+        this.supercluster.trees.forEach(item => {
+            let max = 0;
+            let min = Infinity;
+            item.points.forEach(point => {
+                max = Math.max(point.numPoints || 0, max);
+                min = Math.min(point.numPoints || Infinity, min);
+            });
+            item.max = max;
+            item.min = min;
+        });
+        this.clusterDataSet = new DataSet();
+    }
     getDefaultContextConfig() {
         return {
             globalAlpha: 1,
@@ -83,7 +84,7 @@ class BaseLayer {
             font: '10px sans-serif',
             textAlign: 'start',
             textBaseline: 'alphabetic'
-        }
+        };
     }
 
     initDataRange(options) {
@@ -121,7 +122,6 @@ class BaseLayer {
         var self = this;
         var draw = self.options.draw;
         if (draw == 'bubble' || draw == 'intensity' || draw == 'category' || draw == 'choropleth' || draw == 'simple') {
-
             for (var i = 0; i < data.length; i++) {
                 var item = data[i];
 
@@ -145,18 +145,13 @@ class BaseLayer {
                     data[i][styleType] = self.choropleth.get(item.count);
                 }
             }
-
         }
     }
 
     isEnabledTime() {
-
         var animationOptions = this.options.animation;
 
-        var flag = (
-            animationOptions &&
-            !(animationOptions.enabled === false)
-        );
+        var flag = animationOptions && !(animationOptions.enabled === false);
 
         return flag;
     }
@@ -164,7 +159,9 @@ class BaseLayer {
     argCheck(options) {
         if (options.draw == 'heatmap') {
             if (options.strokeStyle) {
-                console.warn('[heatmap] options.strokeStyle is discard, pleause use options.strength [eg: options.strength = 0.1]');
+                console.warn(
+                    '[heatmap] options.strokeStyle is discard, pleause use options.strength [eg: options.strength = 0.1]'
+                );
             }
         }
     }
@@ -200,7 +197,7 @@ class BaseLayer {
                 drawClip.draw(context, dataSet, self.options);
                 break;
             default:
-                if (self.options.context == "webgl") {
+                if (self.options.context == 'webgl') {
                     webglDrawSimple.draw(self.canvasLayer.canvas.getContext('webgl'), dataSet, self.options);
                 } else {
                     drawSimple.draw(context, dataSet, self.options);
@@ -215,8 +212,10 @@ class BaseLayer {
     isPointInPath(context, pixel) {
         var context = this.canvasLayer.canvas.getContext(this.context);
         var data;
-        if (this.options.draw === 'cluster' 
-        && (!this.options.maxClusterZoom || this.options.maxClusterZoom >= this.getZoom())) {
+        if (
+            this.options.draw === 'cluster' &&
+            (!this.options.maxClusterZoom || this.options.maxClusterZoom >= this.getZoom())
+        ) {
             data = this.clusterDataSet.get();
         } else {
             data = this.dataSet.get();
@@ -227,11 +226,11 @@ class BaseLayer {
             var x = pixel.x * this.canvasLayer.devicePixelRatio;
             var y = pixel.y * this.canvasLayer.devicePixelRatio;
 
-            options.multiPolygonDraw = function() {
+            options.multiPolygonDraw = function () {
                 if (context.isPointInPath(x, y)) {
                     return data[i];
                 }
-            }
+            };
 
             pathSimple.draw(context, data[i], options);
 
@@ -241,7 +240,6 @@ class BaseLayer {
                     return data[i];
                 }
             } else {
-
                 if (context.isPointInPath(x, y)) {
                     return data[i];
                 }
@@ -250,17 +248,19 @@ class BaseLayer {
     }
     // 递归获取聚合点下的所有原始点数据
     getClusterPoints(cluster) {
-        if(cluster.type !== 'Feature') {
+        if (cluster.type !== 'Feature') {
             return [];
         }
         let children = this.supercluster.getChildren(cluster.id);
-        return children.map(item => {
-            if(item.type === 'Feature') {
-                return this.getClusterPoints(item);
-            }else {
-                return item;
-            }
-        }).flat();
+        return children
+            .map(item => {
+                if (item.type === 'Feature') {
+                    return this.getClusterPoints(item);
+                } else {
+                    return item;
+                }
+            })
+            .flat();
     }
 
     clickEvent(pixel, e) {
@@ -270,7 +270,7 @@ class BaseLayer {
         var dataItem = this.isPointInPath(this.getContext(), pixel);
 
         if (dataItem) {
-            if(this.options.draw === 'cluster') {
+            if (this.options.draw === 'cluster') {
                 let children = this.getClusterPoints(dataItem);
                 dataItem.children = children;
             }
@@ -278,7 +278,6 @@ class BaseLayer {
         } else {
             this.options.methods.click(null, e);
         }
-
     }
 
     mousemoveEvent(pixel, e) {
@@ -287,7 +286,7 @@ class BaseLayer {
         }
         var dataItem = this.isPointInPath(this.getContext(), pixel);
         if (dataItem) {
-            if(this.options.draw === 'cluster') {
+            if (this.options.draw === 'cluster') {
                 let children = this.getClusterPoints(dataItem);
                 dataItem.children = children;
             }
@@ -302,7 +301,7 @@ class BaseLayer {
         }
         var dataItem = this.isPointInPath(this.getContext(), pixel);
         if (dataItem) {
-            if(this.options.draw === 'cluster') {
+            if (this.options.draw === 'cluster') {
                 let children = this.getClusterPoints(dataItem);
                 dataItem.children = children;
             }
@@ -358,15 +357,14 @@ class BaseLayer {
         var animationOptions = self.options.animation;
 
         if (self.options.draw == 'time' || self.isEnabledTime()) {
-
             if (!animationOptions.stepsRange) {
                 animationOptions.stepsRange = {
                     start: this.dataSet.getMin('time') || 0,
                     end: this.dataSet.getMax('time') || 0
-                }
+                };
             }
 
-            this.steps = { step: animationOptions.stepsRange.start };
+            this.steps = {step: animationOptions.stepsRange.start};
             self.animator = new TWEEN.Tween(this.steps)
                 .onUpdate(function () {
                     self._canvasUpdate(this.step);
@@ -377,9 +375,8 @@ class BaseLayer {
 
             var duration = animationOptions.duration * 1000 || 5000;
 
-            self.animator.to({ step: animationOptions.stepsRange.end }, duration);
+            self.animator.to({step: animationOptions.stepsRange.end}, duration);
             self.animator.start();
-
         } else {
             self.animator && self.animator.stop();
         }

@@ -4,7 +4,7 @@
 	(factory((global.mapv = global.mapv || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "2.0.61";
+var version = "2.0.62";
 
 /**
  * @author kyle / http://nikai.us/
@@ -5133,15 +5133,23 @@ var BaseLayer = function () {
 
         this.dataSet = dataSet;
         this.map = map;
+        if (options.draw === 'cluster') {
+            this.refreshCluster(options);
+        }
+    }
 
-        if (options.draw === 'cluster' && !this.supercluster) {
+    createClass(BaseLayer, [{
+        key: 'refreshCluster',
+        value: function refreshCluster(options) {
+            options = options || this.options;
             this.supercluster = new Supercluster({
                 maxZoom: options.maxZoom || 19,
                 radius: options.clusterRadius || 100,
                 minPoints: options.minPoints || 2,
                 extent: options.extent || 512
             });
-            this.supercluster.load(dataSet.get());
+
+            this.supercluster.load(this.dataSet.get());
             // 拿到每个级别下的最大值最小值
             this.supercluster.trees.forEach(function (item) {
                 var max = 0;
@@ -5155,10 +5163,8 @@ var BaseLayer = function () {
             });
             this.clusterDataSet = new DataSet();
         }
-    }
-
-    createClass(BaseLayer, [{
-        key: "getDefaultContextConfig",
+    }, {
+        key: 'getDefaultContextConfig',
         value: function getDefaultContextConfig() {
             return {
                 globalAlpha: 1,
@@ -5181,7 +5187,7 @@ var BaseLayer = function () {
             };
         }
     }, {
-        key: "initDataRange",
+        key: 'initDataRange',
         value: function initDataRange(options) {
             var self = this;
             self.intensity = new Intensity({
@@ -5202,7 +5208,7 @@ var BaseLayer = function () {
             }
         }
     }, {
-        key: "getLegend",
+        key: 'getLegend',
         value: function getLegend(options) {
             var draw = this.options.draw;
             var legend = null;
@@ -5214,12 +5220,11 @@ var BaseLayer = function () {
             }
         }
     }, {
-        key: "processData",
+        key: 'processData',
         value: function processData(data) {
             var self = this;
             var draw = self.options.draw;
             if (draw == 'bubble' || draw == 'intensity' || draw == 'category' || draw == 'choropleth' || draw == 'simple') {
-
                 for (var i = 0; i < data.length; i++) {
                     var item = data[i];
 
@@ -5246,9 +5251,8 @@ var BaseLayer = function () {
             }
         }
     }, {
-        key: "isEnabledTime",
+        key: 'isEnabledTime',
         value: function isEnabledTime() {
-
             var animationOptions = this.options.animation;
 
             var flag = animationOptions && !(animationOptions.enabled === false);
@@ -5256,7 +5260,7 @@ var BaseLayer = function () {
             return flag;
         }
     }, {
-        key: "argCheck",
+        key: 'argCheck',
         value: function argCheck(options) {
             if (options.draw == 'heatmap') {
                 if (options.strokeStyle) {
@@ -5265,7 +5269,7 @@ var BaseLayer = function () {
             }
         }
     }, {
-        key: "drawContext",
+        key: 'drawContext',
         value: function drawContext(context, dataSet, options, nwPixel) {
             var self = this;
             switch (self.options.draw) {
@@ -5297,7 +5301,7 @@ var BaseLayer = function () {
                     drawClip.draw(context, dataSet, self.options);
                     break;
                 default:
-                    if (self.options.context == "webgl") {
+                    if (self.options.context == 'webgl') {
                         webglDrawSimple.draw(self.canvasLayer.canvas.getContext('webgl'), dataSet, self.options);
                     } else {
                         drawSimple.draw(context, dataSet, self.options);
@@ -5309,7 +5313,7 @@ var BaseLayer = function () {
             }
         }
     }, {
-        key: "isPointInPath",
+        key: 'isPointInPath',
         value: function isPointInPath(context, pixel) {
             var context = this.canvasLayer.canvas.getContext(this.context);
             var data;
@@ -5338,7 +5342,6 @@ var BaseLayer = function () {
                         return data[i];
                     }
                 } else {
-
                     if (context.isPointInPath(x, y)) {
                         return data[i];
                     }
@@ -5348,7 +5351,7 @@ var BaseLayer = function () {
         // 递归获取聚合点下的所有原始点数据
 
     }, {
-        key: "getClusterPoints",
+        key: 'getClusterPoints',
         value: function getClusterPoints(cluster) {
             var _this = this;
 
@@ -5365,7 +5368,7 @@ var BaseLayer = function () {
             }).flat();
         }
     }, {
-        key: "clickEvent",
+        key: 'clickEvent',
         value: function clickEvent(pixel, e) {
             if (!this.options.methods) {
                 return;
@@ -5383,7 +5386,7 @@ var BaseLayer = function () {
             }
         }
     }, {
-        key: "mousemoveEvent",
+        key: 'mousemoveEvent',
         value: function mousemoveEvent(pixel, e) {
             if (!this.options.methods) {
                 return;
@@ -5400,7 +5403,7 @@ var BaseLayer = function () {
             }
         }
     }, {
-        key: "tapEvent",
+        key: 'tapEvent',
         value: function tapEvent(pixel, e) {
             if (!this.options.methods) {
                 return;
@@ -5422,7 +5425,7 @@ var BaseLayer = function () {
          */
 
     }, {
-        key: "update",
+        key: 'update',
         value: function update(obj, isDraw) {
             var self = this;
             var _options = obj.options;
@@ -5436,7 +5439,7 @@ var BaseLayer = function () {
             }
         }
     }, {
-        key: "setOptions",
+        key: 'setOptions',
         value: function setOptions(options) {
             var self = this;
             self.dataSet.reset();
@@ -5446,7 +5449,7 @@ var BaseLayer = function () {
             self.draw();
         }
     }, {
-        key: "set",
+        key: 'set',
         value: function set$$1(obj) {
             var self = this;
             var ctx = this.getContext();
@@ -5458,19 +5461,18 @@ var BaseLayer = function () {
             self.draw();
         }
     }, {
-        key: "destroy",
+        key: 'destroy',
         value: function destroy() {
             this.unbindEvent();
             this.hide();
         }
     }, {
-        key: "initAnimator",
+        key: 'initAnimator',
         value: function initAnimator() {
             var self = this;
             var animationOptions = self.options.animation;
 
             if (self.options.draw == 'time' || self.isEnabledTime()) {
-
                 if (!animationOptions.stepsRange) {
                     animationOptions.stepsRange = {
                         start: this.dataSet.getMin('time') || 0,
@@ -5494,10 +5496,10 @@ var BaseLayer = function () {
             }
         }
     }, {
-        key: "addAnimatorEvent",
+        key: 'addAnimatorEvent',
         value: function addAnimatorEvent() {}
     }, {
-        key: "animatorMovestartEvent",
+        key: 'animatorMovestartEvent',
         value: function animatorMovestartEvent() {
             var animationOptions = this.options.animation;
             if (this.isEnabledTime() && this.animator) {
@@ -5506,7 +5508,7 @@ var BaseLayer = function () {
             }
         }
     }, {
-        key: "animatorMoveendEvent",
+        key: 'animatorMoveendEvent',
         value: function animatorMoveendEvent() {
             if (this.isEnabledTime() && this.animator) {
                 this.animator.start();
@@ -5832,7 +5834,6 @@ var Layer = function (_BaseLayer) {
         var _this = possibleConstructorReturn(this, (Layer.__proto__ || Object.getPrototypeOf(Layer)).call(this, map, dataSet, options));
 
         var self = _this;
-        var data = null;
         options = options || {};
 
         _this.clickEvent = _this.clickEvent.bind(_this);
@@ -5859,8 +5860,8 @@ var Layer = function (_BaseLayer) {
         dataSet.on('change', function () {
             self.transferToMercator();
             // 数据更新后重新生成聚合数据
-            if (options.draw === 'cluster' && self.supercluster) {
-                self.supercluster.load(dataSet.get());
+            if (options.draw === 'cluster') {
+                self.refreshCluster();
             }
             canvasLayer.draw();
         });
