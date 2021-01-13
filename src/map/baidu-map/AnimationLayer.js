@@ -184,6 +184,7 @@ class AnimationLayer extends BaseLayer{
         }
 
         var options = this.options;
+        var hasCalcAnimateTimes = false;
         for (var i = 0; i < data.length; i++) {
             if (data[i].geometry.type === 'Point') {
                 ctx.beginPath();
@@ -219,10 +220,23 @@ class AnimationLayer extends BaseLayer{
                 ctx.arc(data[i].geometry._coordinates[index][0], data[i].geometry._coordinates[index][1], size, 0, Math.PI * 2, true);
                 ctx.closePath();
 
-                data[i]._index++;
+                data[i]._index = data[i]._index + (data[i]._step || 1);
 
                 if (data[i]._index >= data[i].geometry._coordinates.length) {
+                    if (options.isRound) {
+                        data[i]._step = -1;
+                        data[i]._index = data[i].geometry._coordinates.length - 1;
+                    } else {
+                        data[i]._index = 0;
+                        !hasCalcAnimateTimes && this.options.times--;
+                        hasCalcAnimateTimes = true;
+                    }
+                } 
+                if (data[i]._index < 0 && options.isRound) {
+                    data[i]._step = 1;
                     data[i]._index = 0;
+                    !hasCalcAnimateTimes && this.options.times--;
+                    hasCalcAnimateTimes = true;
                 }
 
                 var strokeStyle = data[i].strokeStyle || options.strokeStyle;
@@ -242,7 +256,14 @@ class AnimationLayer extends BaseLayer{
     animate() {
         this.drawAnimation();
         var animateTime = this.options.animateTime || 100;
+        var timesTimer = null;
         this.timeout = setTimeout(this.animate.bind(this), animateTime);
+        if (this.options.times !== undefined && this.options.times <= 0) {
+            this.stop();
+            timesTimer && clearTimeout(timesTimer);
+            timesTimer = setTimeout(this.hide.bind(this), animateTime)
+            return;
+        }
     }
 
     start() {
