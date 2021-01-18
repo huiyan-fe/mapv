@@ -9,7 +9,6 @@ class AnimationLayer extends BaseLayer{
     constructor (map, dataSet, options) {
 
         super(map, dataSet, options);
-
         this.map = map;
         this.options = options || {};
         this.dataSet = dataSet;
@@ -19,6 +18,9 @@ class AnimationLayer extends BaseLayer{
             zIndex: this.options.zIndex,
             update: this._canvasUpdate.bind(this)
         });
+
+        // 动画循环次数
+        this.animateLoopFrequency = 0;
 
         this.init(this.options);
 
@@ -42,6 +44,7 @@ class AnimationLayer extends BaseLayer{
 
         var self = this;
         self.options = options;
+     
         this.initDataRange(options);
         this.context = self.options.context || '2d';
 
@@ -145,21 +148,17 @@ class AnimationLayer extends BaseLayer{
                 return [x, y];
             }
         }
-
         this.data = this.dataSet.get(dataGetOptions);
-
         this.processData(this.data);
-
         this.drawAnimation();
     }
-
+    
     drawAnimation() {
         var ctx = this.ctx;
         var data = this.data;
         if (!data) {
             return;
         }
-
         ctx.save();
         ctx.globalCompositeOperation = 'destination-out';
         ctx.fillStyle = 'rgba(0, 0, 0, .1)';
@@ -182,8 +181,8 @@ class AnimationLayer extends BaseLayer{
         if (this.options.globalCompositeOperation) {
             ctx.globalCompositeOperation = this.options.globalCompositeOperation;
         }
-
         var options = this.options;
+        var hasCalcAnimateLoopFrequency = false;
         for (var i = 0; i < data.length; i++) {
             if (data[i].geometry.type === 'Point') {
                 ctx.beginPath();
@@ -216,15 +215,10 @@ class AnimationLayer extends BaseLayer{
                     data[i]._index = 0;
                 }
                 var index = data[i]._index;
+                
                 ctx.arc(data[i].geometry._coordinates[index][0], data[i].geometry._coordinates[index][1], size, 0, Math.PI * 2, true);
                 ctx.closePath();
-
-                data[i]._index++;
-
-                if (data[i]._index >= data[i].geometry._coordinates.length) {
-                    data[i]._index = 0;
-                }
-
+                data[i]._index = data[i]._index + (data[i]._step || 1);
                 var strokeStyle = data[i].strokeStyle || options.strokeStyle;
                 var fillStyle = data[i].fillStyle || options.fillStyle || 'yellow';
                 ctx.fillStyle = fillStyle;
@@ -234,15 +228,51 @@ class AnimationLayer extends BaseLayer{
                     ctx.strokeStyle = strokeStyle;
                     ctx.stroke();
                 }
+                if (data[i]._index >= data[i].geometry._coordinates.length) {
+                    if (options.isRound) {
+                        data[i]._step = -1;
+                        data[i]._index = data[i].geometry._coordinates.length - 1;
+                    } else {
+                        data[i]._index = 0;
+                        // 达到了临界值，并且在此次循环中动画次数没有计算，则加1 
+                        !hasCalcAnimateLoopFrequency && this.animateLoopFrequency++;
+                        // 开关关掉，一次循环中只能加一次动画执行次数
+                        hasCalcAnimateLoopFrequency = true;
+                    }
+                } 
+                if (data[i]._index < 0 && options.isRound) {
+                    data[i]._step = 1;
+                    data[i]._index = 0;
+                    !hasCalcAnimateLoopFrequency && this.animateLoopFrequency++;
+                    hasCalcAnimateLoopFrequency = true;
+                }
             }
         }
         ctx.restore();
     }
 
     animate() {
+        var prevAnimateLoopFrequency = this.animateLoopFrequency;
         this.drawAnimation();
         var animateTime = this.options.animateTime || 100;
-        this.timeout = setTimeout(this.animate.bind(this), animateTime);
+        var stayTime = this.options.stayTime;
+        // 动画有停留的时间，并且 循环次数也改变了，则使用停留时间
+        if (stayTime && this.animateLoopFrequency != prevAnimateLoopFrequency) {
+            this.hide();
+            this.timeout = setTimeout(() => {
+                this.canvasLayer.show();
+                this.animate();
+            }, stayTime);
+        } else {
+            this.timeout = setTimeout(this.animate.bind(this), animateTime);
+        }
+        var timesTimer = null;
+        if (this.options.times !== undefined && this.animateLoopFrequency >= this.options.times) {
+            this.stop();
+            timesTimer && clearTimeout(timesTimer);
+            timesTimer = setTimeout(this.hide.bind(this), animateTime)
+            return;
+        }
     }
 
     start() {
