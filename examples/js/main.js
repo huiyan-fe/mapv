@@ -14,6 +14,28 @@
     var isSrc = false, isHide = false, hasChange = false;
     var editor = null;
 
+    // 防御 DOM XSS：仅允许加载白名单内、同源的 demo HTML 文件
+    function sanitizeDemoUrl(raw) {
+        var defaultUrl = 'baidu-map-point-simple.html';
+        if (!raw) return defaultUrl;
+        var url;
+        try { url = decodeURIComponent(raw); } catch (e) { return defaultUrl; }
+        // 屏蔽 javascript:/data:/vbscript:/file: 等协议及反斜杠
+        if (/[:\\]/.test(url)) return defaultUrl;
+        // 屏蔽绝对路径与协议相对路径
+        if (url.charAt(0) === '/') return defaultUrl;
+        // 屏蔽路径穿越
+        if (url.indexOf('..') !== -1) return defaultUrl;
+        // 必须是 .html 文件
+        if (!/\.html$/i.test(url)) return defaultUrl;
+        // 白名单匹配
+        var demos = (window.config && config.demos) || [];
+        for (var i = 0; i < demos.length; i++) {
+            if (demos[i].url === url) return url;
+        }
+        return defaultUrl;
+    }
+
     function changeSize() {
         $('.container').css('min-height',$(window).height()+'px');
         $('.code').css('height',$(window).height() + 'px');
@@ -131,13 +153,13 @@
         $(this).find("p").animate({opacity:0},200).css("display","none");
     })
 
-    var url = location.hash.substr(1) || 'baidu-map-point-simple.html';
+    var url = sanitizeDemoUrl(location.hash.substr(1));
     $('#iframes').attr('src', url);
     getSource();
 
 
     window.onhashchange = function() {
-        var url = location.hash.substr(1);
+        var url = sanitizeDemoUrl(location.hash.substr(1));
         $('#iframes').attr('src', url);
         getSource();
 
